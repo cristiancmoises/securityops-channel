@@ -1,0 +1,93 @@
+;;; SPDX-License-Identifier: GPL-3.0-or-later
+;;; Copyright © 2026 Cristian Cezar Moisés <ethicalhacker@riseup.net>
+;;;
+;;; This file is part of the securityops channel.
+;;;
+;;; Tor and Tor Browser — latest upstream releases, source-built (Guix-pure),
+;;; with real downloaded source hashes.
+
+(define-module (securityops packages tor)
+  #:use-module (guix packages)
+  #:use-module (guix download)
+  #:use-module (guix build-system copy)
+  #:use-module ((guix licenses) #:prefix license:)
+  #:use-module ((gnu packages tor) #:prefix tor:)
+  #:use-module ((gnu packages tor-browsers) #:prefix tb:))
+
+;;; ---------------------------------------------------------------------------
+;;; tor — bumped ahead of Guix: 0.4.9.8 -> 0.4.9.9 (latest stable upstream).
+;;; Plain GNU build system; inherit everything and swap source only.
+;;; Hash: `guix download https://dist.torproject.org/tor-0.4.9.9.tar.gz'.
+;;; ---------------------------------------------------------------------------
+(define-public tor
+  (package
+    (inherit tor:tor)
+    (version "0.4.9.9")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (string-append "https://dist.torproject.org/tor-"
+                           version ".tar.gz"))
+       (sha256
+        (base32 "0cz84x94yhg6m1b5x6nnk9p95ah0ldb03xzw0rw7qq4gsrzvlxdx"))))))
+
+;;; ---------------------------------------------------------------------------
+;;; torbrowser — bumped ahead of Guix: 15.0.14 -> 15.0.16 (latest STABLE; the
+;;; 16.0aN builds are alphas).  Source-built from the official Tor Browser
+;;; Firefox source (140.12.0esr-15.0-1-build2), inheriting Guix's
+;;; `mozilla-build-system' machinery.
+;;;
+;;; CAVEAT (documented in README): Guix's `make-torbrowser' and
+;;; `torbrowser-assets' are module-PRIVATE, so they cannot be re-wired without
+;;; vendoring ~400 lines plus private helpers.  We therefore inherit the
+;;; upstream package and override only `version' + `source'.  The bundled
+;;; assets, firefox-l10n / translation commits and MOZ_BUILD_DATE stay at the
+;;; 15.0.14 baseline — these are fonts, torrc-defaults and localisation that do
+;;; not change across a patch release, so the resulting build is 15.0.16 with a
+;;; 15.0.14-era asset/l10n baseline.  Bump those upstream in Guix for a fully
+;;; pristine build.
+;;; Hash: `guix download .../src-firefox-tor-browser-140.12.0esr-15.0-1-build2.tar.xz'.
+;;; ---------------------------------------------------------------------------
+(define-public torbrowser
+  (package
+    (inherit tb:torbrowser)
+    (version "15.0.16")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (string-append
+             "https://archive.torproject.org/tor-package-archive/torbrowser/"
+             version "/src-firefox-tor-browser-140.12.0esr-15.0-1-build2.tar.xz"))
+       (sha256
+        (base32 "1cnv5sjr4zaybqv3yv0pkdicfb47mdzpk2hbjkrqhlxz3vbnhi8l"))))))
+
+;;; ---------------------------------------------------------------------------
+;;; torbrowser-assets — the official prebuilt bundle (15.0.16) from which fonts
+;;; and torrc-defaults are taken.  Provided standalone (Guix keeps its copy
+;;; private); verified by hash.  Use it to extract the latest assets, or as the
+;;; basis for a fully-pristine torbrowser bump.
+;;; Hash: `guix download .../tor-browser-linux-x86_64-15.0.16.tar.xz'.
+;;; ---------------------------------------------------------------------------
+(define-public torbrowser-assets
+  (package
+    (name "torbrowser-assets")
+    (version "15.0.16")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (string-append
+             "https://archive.torproject.org/tor-package-archive/torbrowser/"
+             version "/tor-browser-linux-x86_64-" version ".tar.xz"))
+       (sha256
+        (base32 "01z5mknx2w7p4qknpv2jkfvbl1psklaqzww56bnllm2a418hqm0i"))))
+    (build-system copy-build-system)
+    (arguments
+     (list #:install-plan
+           ''(("Browser" "." #:include-regexp
+               ("^\\./TorBrowser/Data/Tor/torrc-defaults"
+                "^\\./fonts/")))))
+    (home-page "https://www.torproject.org")
+    (synopsis "Tor Browser assets (fonts and torrc-defaults)")
+    (description "Fonts and configuration files extracted from the official Tor
+Browser bundle, matching the @code{torbrowser} version in this channel.")
+    (license license:silofl1.1)))
