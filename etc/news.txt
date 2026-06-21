@@ -1,0 +1,10 @@
+;; -*- mode: scheme; -*-
+;;; SPDX-License-Identifier: GPL-3.0-or-later
+;;
+;; Channel news, shown by `guix pull --news' / `guix pull -N'.
+;; Each entry's (commit ...) must be a real commit hash in this repo for the
+;; entry to display; add a new entry per release.  See CHANGELOG.md for the
+;; human-readable history.
+;;
+(channel-news
+ (version 0))
