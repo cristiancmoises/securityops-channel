@@ -1,0 +1,7 @@
+# Guile / Guix build artifacts
+*.go
+/.guile
+# Editor / OS cruft
+*~
+\#*\#
+.DS_Store

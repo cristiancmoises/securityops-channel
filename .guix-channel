@@ -1,0 +1,30 @@
+;; -*- mode: scheme; -*-
+;;; SPDX-License-Identifier: GPL-3.0-or-later
+;;
+;; securityops — a personal GNU Guix channel that pins the latest upstream
+;; versions of the securityops workstation's most-used applications
+;; (alacritty, kitty, tor, torbrowser, fish, emacs, mpv, vlc, openshot,
+;; keepassxc, ueberzugpp, lf, librewolf, ungoogled-chromium, google-chrome,
+;; mullvad-vpn-desktop, steam).
+;;
+;; Depends on nonguix for google-chrome, steam, and Mullvad's
+;; `chromium-binary-build-system'.  (You already have nonguix in channels.scm,
+;; pinned at bf39542 — well after the introduction commit below, so no
+;; conflict.)
+;;
+(channel
+ (version 0)
+ (news-file "etc/news.txt")
+ ;; Local channel for now.  When you publish to a Git remote, change this URL
+ ;; and add a `(introduction ...)' in channels.scm to enable commit-signature
+ ;; verification (see README.md → "Publishing").
+ (url "file:///home/berkeley/securityops-channel")
+ (dependencies
+  (channel
+   (name nonguix)
+   (url "https://github.com/nonguix/nonguix")
+   (introduction
+    (channel-introduction
+     (version 0)
+     (commit "897c1a470da759236cc11798f4e0a5f7d4d59fbc")
+     (signer "2A39 3FFF 68F4 EF7A 3D29  12AF 6F51 20A0 22FB B2D5"))))))
