@@ -15,13 +15,14 @@ security toolset. The forge is SSH-key-only, so app sources/artifacts are
   builds & runs.
 - **btp 0.7** — built from source (`cargo build --release`, `btpctl` + `btpd`);
   dynamic binaries patchelf'd onto Guix `glibc`/`gcc:lib`; builds & runs.
+- **mirim 1.0.0** — built from source (`mirim` + `mirim-sign`); compiles under
+  Guix's Rust 1.93 despite the repo's 1.96 pin; same patchelf vendor as btp.
 
 ### Added — security toolset (`security.scm`, re-exports)
 - nmap, masscan, arp-scan, netdiscover, fping, mtr, whois, proxychains-ng,
   aircrack-ng, reaver, kismet, hydra, radare2, rizin, binwalk, age.
 
 ### Pending / known
-- **mirim 1.0.0** — pins Rust 1.96 (Guix has 1.93); build under test.
 - **vaptvupt 2.2.3** — C core + Python GUI AppImage; deferred (cleanest as the
   official `.AppImage` artifact).
 - **turborec** — deploy key not authorized to read the repo; skipped.
