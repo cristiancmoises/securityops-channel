@@ -4,6 +4,30 @@ All notable changes to the **securityops** Guix channel are documented here.
 Format per [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); released by
 tag rather than SemVer of the code.
 
+## [0.2.0] — 2026-06-21
+
+First-party applications from `git.securityops.co/cristiancmoises` and a curated
+security toolset. The forge is SSH-key-only, so app sources/artifacts are
+**vendored** into `packages/sources/` and referenced via `local-file`.
+
+### Added — first-party apps
+- **evelin-bin 4.1.1** — official static-musl release tarball (copy-build-system);
+  builds & runs.
+- **btp 0.7** — built from source (`cargo build --release`, `btpctl` + `btpd`);
+  dynamic binaries patchelf'd onto Guix `glibc`/`gcc:lib`; builds & runs.
+
+### Added — security toolset (`security.scm`, re-exports)
+- nmap, masscan, arp-scan, netdiscover, fping, mtr, whois, proxychains-ng,
+  aircrack-ng, reaver, kismet, hydra, radare2, rizin, binwalk, age.
+
+### Pending / known
+- **mirim 1.0.0** — pins Rust 1.96 (Guix has 1.93); build under test.
+- **vaptvupt 2.2.3** — C core + Python GUI AppImage; deferred (cleanest as the
+  official `.AppImage` artifact).
+- **turborec** — deploy key not authorized to read the repo; skipped.
+- ~28 security tools not yet in Guix listed as TODO in README (sqlmap, ffuf,
+  gobuster, mitmproxy, sleuthkit, volatility3, …).
+
 ## [0.1.0] — 2026-06-21
 
 Initial release. Curated latest-version packaging of the securityops
