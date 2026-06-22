@@ -94,3 +94,43 @@ project, built from the v0.7 source release.  Built-from-source dynamic binaries
 relinked against Guix's glibc.")
     (home-page "https://git.securityops.co/cristiancmoises/btp")
     (license license:asl2.0)))
+
+;;; mirim — Built from source (v1.0.0) with `cargo build --release --features
+;;; cli,sign'.  Builds cleanly under Guix's Rust 1.93 even though the repo pins
+;;; 1.96 (the pinned rust-toolchain.toml is bypassed; no 1.96-only features are
+;;; used).  Post-quantum secret vault + detached ML-DSA-87 (FIPS 204) signatures.
+;;; Same vendor/patchelf approach as btp.
+(define-public mirim
+  (package
+    (name "mirim")
+    (version "1.0.0")
+    (source (local-file "sources/mirim-1.0.0-bin-x86_64-linux.tar.gz"))
+    (build-system copy-build-system)
+    (inputs (list glibc `(,gcc "lib")))
+    (native-inputs (list patchelf))
+    (arguments
+     (list
+      #:install-plan
+      #~'(("bin/" "bin/"))
+      #:phases
+      #~(modify-phases %standard-phases
+          (add-after 'install 'patchelf-binaries
+            (lambda* (#:key inputs #:allow-other-keys)
+              (let* ((glibc (assoc-ref inputs "glibc"))
+                     (gcclib (assoc-ref inputs "gcc"))
+                     (ld (string-append glibc "/lib/ld-linux-x86-64.so.2"))
+                     (rpath (string-append glibc "/lib:" gcclib "/lib")))
+                (for-each
+                 (lambda (b)
+                   (let ((f (string-append #$output "/bin/" b)))
+                     (invoke "patchelf" "--set-interpreter" ld f)
+                     (invoke "patchelf" "--set-rpath" rpath f)))
+                 '("mirim" "mirim-sign"))))))))
+    (supported-systems '("x86_64-linux"))
+    (synopsis "mirim — post-quantum secret vault and ML-DSA-87 signing tool")
+    (description
+     "@code{mirim} (post-quantum encrypted vault: ML-KEM-768 + ChaCha20-Poly1305,
+Argon2) and @code{mirim-sign} (detached ML-DSA-87 / FIPS 204 signatures), built
+from the v1.0.0 source release.")
+    (home-page "https://git.securityops.co/cristiancmoises/mirim")
+    (license license:agpl3)))
