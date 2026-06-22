@@ -50,6 +50,43 @@ are *ahead* of Guix/nonguix carry a **real, downloaded source hash**.
 
 ---
 
+## First-party apps (`git.securityops.co/cristiancmoises`)
+
+The forge is **SSH-key-only** (anonymous HTTP disabled), so the Guix daemon
+can't fetch these with a normal origin. Sources/artifacts are **vendored** into
+`securityops/packages/sources/` and referenced with `local-file`
+(content-addressed, no hash field) — the channel stays self-contained and builds
+with no network or SSH.
+
+| Package | Version | How | Status |
+|---|---|---|---|
+| **evelin-bin** | 4.1.1 | official static-musl release tarball | ✅ builds & runs |
+| **btp** | 0.7 | built from source (`cargo`), binaries patchelf'd to glibc/gcc | ✅ builds & runs (`btpctl`, `btpd`) |
+| **mirim** | 1.0.0 | source build | ⏳ pins Rust 1.96 (Guix has 1.93) — under test |
+| **vaptvupt** | 2.2.3 | C core + Python GUI → AppImage | ⏳ deferred (complex; cleanest as the official `.AppImage`) |
+| **turborec** | — | — | ⛔ deploy key not authorized to read the repo |
+
+To re-vendor an updated app: rebuild/redownload its artifact into
+`packages/sources/`, bump `version`, and `guix build -L . <pkg>`.
+
+## Security toolset
+
+`security.scm` re-exports the curated tools that Guix already ships current, so
+they install from this channel and track Guix:
+
+> nmap · masscan · arp-scan · netdiscover · fping · mtr · whois ·
+> proxychains-ng · aircrack-ng · reaver · kismet · hydra (THC) · radare2 ·
+> rizin · binwalk · age
+
+**Not yet in Guix** (TODO — package on request; quick: Go/Rust single-binaries;
+heavy: zaproxy/volatility3): `sqlmap` · `nikto` · `gobuster` · `ffuf` ·
+`rustscan` · `dirb` · `wfuzz` · `whatweb` · `sslscan` · `wapiti` · `zaproxy` ·
+`john-the-ripper` · `hashid` · `bettercap` · `ettercap` · `mitmproxy` · `dsniff` ·
+`foremost` · `sleuthkit` · `volatility3` · `american-fuzzy-lop` · `honggfuzz` ·
+`exploitdb` · `theharvester` · `recon-ng` · `dnsenum` · `fierce` · `zmap`.
+
+---
+
 ## Install
 
 This channel **depends on nonguix** (for google-chrome, steam and Mullvad's
@@ -94,7 +131,10 @@ securityops-channel/
 │   ├── utils.scm             # keepassxc, ueberzugpp, lf (re-export)
 │   ├── browsers.scm          # google-chrome (bump), librewolf, ungoogled-chromium (re-export)
 │   ├── vpn.scm               # mullvad-vpn-desktop (vendored bump)
-│   └── games.scm             # steam (re-export)
+│   ├── games.scm             # steam (re-export)
+│   ├── apps.scm              # first-party: evelin-bin, btp (vendored)
+│   ├── security.scm          # curated security toolset (re-exports)
+│   └── sources/              # vendored release/built artifacts (local-file)
 ├── README.md  CHANGELOG.md  AUDIT.md  LICENSE
 └── .dir-locals.el  .gitignore
 ```
