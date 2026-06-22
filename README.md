@@ -62,7 +62,7 @@ with no network or SSH.
 |---|---|---|---|
 | **evelin-bin** | 4.1.1 | official static-musl release tarball | ✅ builds & runs |
 | **btp** | 0.7 | built from source (`cargo`), binaries patchelf'd to glibc/gcc | ✅ builds & runs (`btpctl`, `btpd`) |
-| **mirim** | 1.0.0 | source build | ⏳ pins Rust 1.96 (Guix has 1.93) — under test |
+| **mirim** | 1.0.0 | built from source (builds under Rust 1.93 despite 1.96 pin) | ✅ builds & runs (`mirim`, `mirim-sign`) |
 | **vaptvupt** | 2.2.3 | C core + Python GUI → AppImage | ⏳ deferred (complex; cleanest as the official `.AppImage`) |
 | **turborec** | — | — | ⛔ deploy key not authorized to read the repo |
 
