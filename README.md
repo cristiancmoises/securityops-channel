@@ -365,7 +365,9 @@ or GitHub HTTPS mirror (above). Every commit is **GPG-signed** with ed25519
 `0CFA 43B9 AA96 42EA AF2B  E983 C4C6 61C9 ECFB 46E8`; `.guix-authorizations` lists
 that key as the sole authorized signer, and the channel `(introduction …)` in
 *Install* pins the first signed commit — so `guix pull` verifies the whole history
-and refuses a tampered or unsigned commit. To rotate the key, add the new
+and refuses a tampered or unsigned commit. The authorized public key is published
+on the channel's `keyring` branch (the standard `guix git authenticate` layout),
+which `guix pull` fetches automatically. To rotate the key, add the new
 fingerprint to `.guix-authorizations` in a commit signed by the old key.
 
 ---
