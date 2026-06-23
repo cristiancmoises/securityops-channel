@@ -7,6 +7,19 @@
 ;;
 (channel-news
  (version 0)
+ (entry (commit "893061568a961e5c65242a998687c21252a4e061")
+        (title (en "securityops 0.3.2 — torando-gui service auto-seeds its config"))
+        (body
+         (en "The torando-gui Shepherd service is now turnkey on Guix System.
+It extends activation-service-type to write /etc/torando-gui/config.json on
+first activation (a writable file, NOT a store symlink, and only if absent so
+later GUI changes persist) with {\"manage_torrc\": false, \"dns_port\": 5353}.
+That is exactly what the daemon needs on Guix, where tor-service-type owns the
+read-only /etc/tor/torrc and listens on DNSPort 5353 (TransPort 9040 / SocksPort
+9050 / ControlPort 9051 are already torando's defaults) — so it works with no
+manual GUI toggling.  New `seed-config' field on torando-gui-configuration (a
+JSON string, or #f to seed nothing).  Verified with `guix system build -n'.  Run
+`guix system reconfigure' then `herd start torando-gui'.  See CHANGELOG.md.")))
  (entry (commit "f66a9cab4b7e748f2a19a6cd4ea9c292b5fcd857")
         (title (en "securityops 0.3.1 — torando-gui Shepherd service (Guix System)"))
         (body
