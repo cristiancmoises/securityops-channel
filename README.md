@@ -12,7 +12,7 @@ are *ahead* of Guix/nonguix carry a **real, downloaded source hash**.
 
 - **Host:** `predator-helios-intel` (the live `/etc/config.scm` machine)
 - **Pinned Guix:** commit `d1e9e23` (June 2026); **depends on** `nonguix`
-- **Built/verified:** 2026-06-21; **re-validated 2026-06-22** (Mullvad → 2026.3)
+- **Built/verified:** 2026-06-21; **re-validated 2026-06-22** (Mullvad → 2026.3, LibreWolf → 152.0.1-2)
 - **Maintainer:** Cristian Cezar Moisés `<ethicalhacker@riseup.net>`
 
 ---
@@ -30,6 +30,7 @@ are *ahead* of Guix/nonguix carry a **real, downloaded source hash**.
 | **openshot** | 3.5.1 | 3.4.0 (guix) | git tag `v3.5.1` |
 | **google-chrome-stable** | 149.0.7827.155 | 148.0.7778.215 (nonguix) | dl.google.com `.deb` |
 | **mullvad-vpn-desktop** | 2026.3 | 2025.8 (small-guix) | cdn.mullvad.net `.deb` (vendored) |
+| **librewolf** | 152.0.1-2 | 151.0.4-1 (guix) | source build (vendored `make-librewolf-source`) |
 
 ### ✅ Re-exported — already latest in Guix/nonguix (track upstream automatically)
 
@@ -41,8 +42,10 @@ are *ahead* of Guix/nonguix carry a **real, downloaded source hash**.
 
 | Package | This channel (= guix) | Upstream | Why not bumped |
 |---|---|---|---|
-| **librewolf** | 151.0.4-1 | 152.0.1-2 | guix's source builder is private; needs vendoring + ~500MB Firefox source (recipe below) |
-| **ungoogled-chromium** | 147.0.7727.137-1 | 149.0.7827.155-1 | multi-GB source + many-hour / large-RAM compile; lags Chrome by design |
+| **ungoogled-chromium** | 147.0.7727.137-1 | 149.0.7827.155-1 | **deferred by choice** — in-module source assembly + many-hour/~30GB-RAM compile, not verifiable here; `google-chrome-stable` 149 covers a current Chromium engine (see caveat) |
+
+> **librewolf** was in this table; it is now **bumped to 152.0.1-2** (see the
+> table above and the LibreWolf caveat).
 
 > A full version audit of **every other** package in `/etc/config.scm` and
 > `~/.config/guix/home.scm` (yours vs. latest upstream) is in **[AUDIT.md](AUDIT.md)**
@@ -127,7 +130,7 @@ a prefix and reference the prefixed symbol:
 ;; in (use-modules …)
 ((securityops packages terminals) #:prefix so:)   ; so:kitty   0.47.4 (gnu 0.46.2)
 ((securityops packages tor)       #:prefix so:)   ; so:tor     0.4.9.9, so:torbrowser 15.0.16
-((securityops packages browsers)  #:prefix so:)   ; so:google-chrome-stable 149 (nongnu 148)
+((securityops packages browsers)  #:prefix so:)   ; so:google-chrome-stable 149, so:librewolf 152.0.1-2
 ((securityops packages vpn)       #:prefix so:)   ; so:mullvad-vpn-desktop  2026.3
 
 ;; …then in the package list use so:kitty, so:tor, so:torbrowser, …
@@ -162,7 +165,8 @@ securityops-channel/
 │   ├── emacs.scm             # emacs, emacs-pgtk (re-export)
 │   ├── video.scm             # openshot (bump), mpv, vlc (re-export)
 │   ├── utils.scm             # keepassxc, ueberzugpp, lf (re-export)
-│   ├── browsers.scm          # google-chrome (bump), librewolf, ungoogled-chromium (re-export)
+│   ├── browsers.scm          # google-chrome (bump), librewolf (re-export of ↓), ungoogled-chromium (re-export)
+│   ├── librewolf.scm         # librewolf 152.0.1-2 (vendored make-librewolf-source)
 │   ├── vpn.scm               # mullvad-vpn-desktop (vendored bump)
 │   ├── games.scm             # steam (re-export)
 │   ├── apps.scm              # first-party: evelin-bin, btp (vendored)
@@ -189,17 +193,25 @@ only `version` + `source` (the 15.0.16 Firefox source,
 don't change across a patch release. The standalone `torbrowser-assets` (15.0.16)
 is provided for a fully-pristine rebuild.
 
-**LibreWolf 152 (not done — recipe).** Guix builds librewolf via the *private*
-`make-librewolf-source` (Firefox source + librewolf overlay + l10n). To ship
-152.0.1-2: vendor `firefox-source-origin`, `librewolf-source-origin`, the l10n
-origin and `make-librewolf-source` from `gnu/packages/librewolf.scm` into a
-channel module; `guix download` the Firefox 152.0.1 source (~500MB) and
-`git`-hash the codeberg `librewolf/source` tag `152.0.1-2`; then
-`(make-librewolf-source #:version "152.0.1-2" #:firefox-hash … #:librewolf-hash …)`.
-Ask and I'll do it.
+**LibreWolf 152 (done).** Bumped to 152.0.1-2 in the new module
+`securityops/packages/librewolf.scm`, which vendors guix's *private*
+`make-librewolf-source` (Firefox source + librewolf overlay + l10n) and then
+inherits guix's `librewolf`, overriding only `version` + `source`. The l10n commit
+is the `revision` from `firefox-152.0.1/browser/locales/l10n-changesets.json`
+(`9929bc50`). The computed-origin source was assembled and verified
+(`guix build -S librewolf` → `librewolf-152.0.1-2.source.tar.zst`); the full
+Firefox compile is deferred to reconfigure (like torbrowser). Wired into
+`/etc/config.scm` and `home.scm` as `so:librewolf`.
 
-**ungoogled-chromium 149 (not done).** A source bump is a multi-GB download and a
-many-hour/large-RAM compile — out of scope for "verified hashes + evaluate".
+**ungoogled-chromium 149 (deferred by choice).** A source bump is
+guix-maintainer-level: the source is assembled in-module from a chromium "-lite"
+tarball plus version-pinned ungoogled (github `149.0.7827.155-1`) and debian
+(salsa `debian/149.0.7827.155-1`) patch repos, a hand-picked patch subset, and
+preserved/blacklisted file lists — then a multi-hour / ~30GB-RAM compile that
+can't be verified on this host. Groundwork (2026-06-22): the upstream tags exist
+and all 18 of guix's selected debian patches are still present at the 149 debian
+tag, so a future bump should need only the three source hashes refreshed.
+`google-chrome-stable` 149 already provides a current Chromium engine.
 
 **Mullvad (vendored, x86_64-only).** Bumped to 2026.3 — Mullvad's *published*
 stable desktop release as of 2026-06-22 (the `deb/latest` redirect resolves to
