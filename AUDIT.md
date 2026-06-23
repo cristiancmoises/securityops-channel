@@ -3,7 +3,8 @@
 
 A deep version audit of **every package declared** in `/etc/config.scm` (system)
 and `~/.config/guix/home.scm` (home), against the latest upstream, on host
-`predator-helios-intel`. Generated 2026-06-21; Guix pin `d1e9e23` (Jun 2026).
+`predator-helios-intel`. Compiled 2026-06-21; channel-handled section refreshed
+2026-06-22; Guix pin `d1e9e23` (Jun 2026).
 
 **Method:** package symbols were extracted from each `(packages …)` form, each
 resolved with `guix show` ("your version") and checked with `guix refresh`
@@ -17,9 +18,9 @@ single most behind is **docker 20.10.27 → 29.6.0** (nine majors; runners-up:
 containerd 1.6.22 → 2.3.2, openssl 3.5.7 → 4.0.1, nix 2.25.5 → 2.34.7,
 **gopls 0.22.0 → 0.46.0**).
 
-> **Scope = report only.** Per your instruction these are *audited, not changed*
-> — your configs are untouched. Bump anything here in `config.scm`/`home.scm`
-> (or add it to this channel) as you see fit.
+> **Scope = report only.** This audits versions; it does NOT touch
+> `config.scm`/`home.scm` — your configs are untouched. Bump anything here (or
+> fold it into this channel) as you see fit.
 
 ## Handled by securityops-channel
 

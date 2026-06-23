@@ -4,6 +4,22 @@ All notable changes to the **securityops** Guix channel are documented here.
 Format per [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); released by
 tag rather than SemVer of the code.
 
+## [Unreleased]
+
+### Published & authenticated
+- The channel is now public: official home **git.securityops.co** (SSH-key-only)
+  with HTTPS mirrors on **Codeberg** and **GitHub**.
+- **Every commit is GPG-signed** (ed25519 `0CFA 43B9 AA96 42EA AF2B  E983 C4C6
+  61C9 ECFB 46E8`). Added **`.guix-authorizations`** (the maintainer key as the
+  sole signer) and a channel **`(introduction …)`** so `guix pull` authenticates
+  the full history; `.guix-channel` `url` now points at the forge.
+
+### Docs
+- Gave **0.2.2** (LibreWolf 152.0.1-2) its own heading — it was folded under
+  0.3.0. Added public clone / signature-verification / troubleshooting sections,
+  and corrected the security-toolset note (`nmap` 7.98→7.99, `fping` 5.3→5.5 lag
+  upstream; not all re-exports are current).
+
 ## [0.3.3] — 2026-06-23
 
 ### Changed — first-party app
@@ -103,6 +119,8 @@ routes one local user's egress through Tor (transparent proxy + killswitch).
   installs into the profile; `torando-guid --version` → 1.0.1 and the daemon
   serves the token-gated loopback UI in `--mock` mode. The upstream test-suite
   passes (80 tests).
+
+## [0.2.2] — 2026-06-22
 
 LibreWolf bumped to the latest upstream (the last curated app still behind), and
 a decision recorded on ungoogled-chromium.
@@ -239,5 +257,3 @@ workstation's most-used applications, built and verified against Guix commit
 - Channel evaluates: `guix build -L . [-L <nonguix>] -n` over all packages — no errors.
 - Source hashes fetch + match: `guix build -L . -S` for all seven bumped packages.
 - Full compiles deferred to `guix pull` / reconfigure (depth: verified hashes + evaluate).
-
-[0.1.0]: #010--2026-06-21

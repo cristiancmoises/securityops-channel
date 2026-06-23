@@ -14,6 +14,8 @@ are *ahead* of Guix/nonguix carry a **real, downloaded source hash**.
 - **Pinned Guix:** commit `d1e9e23` (June 2026); **depends on** `nonguix`
 - **Built/verified:** 2026-06-21; **re-validated 2026-06-22** (Mullvad → 2026.3, LibreWolf → 152.0.1-2); **2026-06-23** (torando-gui 1.0.1 added, then → 1.1.0: native GUI + connectivity fixes — built & installed)
 - **Maintainer:** Cristian Cezar Moisés `<ethicalhacker@riseup.net>`
+- **Home:** `git.securityops.co/cristiancmoises/securityops-channel` (official, SSH-key-only) · public mirrors: [Codeberg](https://codeberg.org/cristiancmoises/securityops-channel) · [GitHub](https://github.com/cristiancmoises/securityops-channel)
+- **Signing:** every commit is GPG-signed (ed25519 `0CFA 43B9 … ECFB 46E8`) and the channel is authenticated — see [Publishing & authentication](#publishing--authentication)
 
 ---
 
@@ -87,9 +89,8 @@ ships a native service type in `(securityops services torando)`. Add it to your
   ;; …
   (services
    (cons* (service torando-gui-service-type)        ; daemon on 127.0.0.1:8088
-          ;; a real network service (provides 'networking) and Tor:
-          (service tor-service-type)
-          %desktop-services)))                       ; or %base-services + networking
+          (service tor-service-type)                ; Tor itself
+          %desktop-services)))                       ; provides the 'networking target torando-gui requires
 ```
 
 `guix system reconfigure`, then `herd start torando-gui` (or reboot). The daemon
@@ -102,17 +103,20 @@ open it. Configuration fields: `host`, `port`, `package`, `config-file`,
 > `tor-service-type`, so torando-gui's own torrc management cannot write it. The
 > service therefore **auto-seeds `/etc/torando-gui/config.json`** on first
 > activation (only if absent, so GUI changes persist) with
-> `"manage_torrc": false` and `"dns_port": 5353` — matching a typical
-> `tor-service-type` (TransPort 9040 / SocksPort 9050 / ControlPort 9051 are
-> already torando's defaults). Override via the `seed-config` field (a JSON
+> `"manage_torrc": false` and `"dns_port": 5353` — matching a `tor-service-type`
+> configured with `(dns-port 5353)` (as on this host; torando's own default is
+> 53, and TransPort 9040 / SocksPort 9050 / ControlPort 9051 are already
+> torando's defaults). Override via the `seed-config` field (a JSON
 > string, or `#f` to seed nothing). Netfilter rules, DNS pinning, killswitch and
 > status all work; Tor service control from the GUI uses `systemctl` and is a
 > no-op on Guix — manage Tor with `herd`.
 
 ## Security toolset
 
-`security.scm` re-exports the curated tools that Guix already ships current, so
-they install from this channel and track Guix:
+`security.scm` re-exports a curated security toolset from Guix, so it installs
+from this channel and tracks Guix — most are already the latest upstream, though a
+few (`nmap` 7.98→7.99, `fping` 5.3→5.5) lag and would need a bump here (see
+[AUDIT.md](AUDIT.md)):
 
 > nmap · masscan · arp-scan · netdiscover · fping · mtr · whois ·
 > proxychains-ng · aircrack-ng · reaver · kismet · hydra (THC) · radare2 ·
@@ -130,13 +134,27 @@ heavy: zaproxy/volatility3): `sqlmap` · `nikto` · `gobuster` · `ffuf` ·
 ## Install
 
 This channel **depends on nonguix** (for google-chrome, steam and Mullvad's
-build system) — you already have it in `channels.scm`. Add securityops:
+build system) — keep your `nonguix` entry in `channels.scm`. Add securityops with
+its `(introduction …)` so `guix pull` verifies every commit's signature:
 
 ```scheme
 (channel
  (name 'securityops)
- (url "file:///home/berkeley/securityops-channel")
- (branch "main"))
+ (url "https://git.securityops.co/cristiancmoises/securityops-channel")
+ (branch "main")
+ (introduction
+  (make-channel-introduction
+   "SECURITYOPS_INTRO_COMMIT"
+   (openpgp-fingerprint
+    "0CFA 43B9 AA96 42EA AF2B  E983 C4C6 61C9 ECFB 46E8"))))
+```
+
+The official URL is the SSH-key-only forge. **Without forge SSH access**, swap the
+`url` for a public HTTPS mirror — the introduction is identical:
+
+```scheme
+ (url "https://codeberg.org/cristiancmoises/securityops-channel")   ; or
+ (url "https://github.com/cristiancmoises/securityops-channel")
 ```
 
 Then:
@@ -150,9 +168,44 @@ guix install kitty tor torbrowser openshot google-chrome-stable mullvad-vpn-desk
 Because every package here has a version **≥** what guix/nonguix ships,
 `guix install <pkg>` transparently prefers this channel for the bumped ones.
 
-> Your `channels.scm` is currently *pinned*. Adding `securityops` without a
-> `(commit …)` line tracks its `main` branch; pin it the same way for fully
-> reproducible pulls.
+> Adding `securityops` without a `(commit …)` line tracks its `main` branch; add
+> one to pin a fully reproducible pull. The `(introduction …)` is set once and is
+> independent of any later pin.
+
+### Clone or pull from a public mirror
+
+`git.securityops.co` is SSH-key-only; anyone can clone from a mirror instead:
+
+```sh
+git clone https://codeberg.org/cristiancmoises/securityops-channel   # primary mirror
+git clone https://github.com/cristiancmoises/securityops-channel     # backup mirror
+```
+
+### Verify the introduction and signatures
+
+The `(introduction …)` pins the first signed commit and the maintainer key, so
+`guix pull` authenticates every commit — a tampered or unsigned commit aborts the
+pull. To check the key out of band:
+
+```sh
+gpg --recv-keys 0CFA43B9AA9642EAAF2BE983C4C661C9ECFB46E8
+gpg --fingerprint 0CFA43B9AA9642EAAF2BE983C4C661C9ECFB46E8
+#   → 0CFA 43B9 AA96 42EA AF2B  E983 C4C6 61C9 ECFB 46E8
+git -C securityops-channel log --show-signature -1
+```
+
+### Troubleshooting
+
+- **`guix pull` says the channel is unauthenticated / introduction mismatch.**
+  Your `channels.scm` entry is missing the `(introduction …)` above (copy it
+  verbatim) or pins a commit older than the introduction commit.
+- **`failed to authenticate commit … signature verification failed`.** Import
+  `0CFA43B9AA9642EAAF2BE983C4C661C9ECFB46E8` into your keyring; authentication
+  applies from the introduction commit forward.
+- **`Permission denied (publickey)` cloning `git.securityops.co`.** That forge is
+  SSH-key-only — use the Codeberg or GitHub HTTPS mirror.
+- **nonguix introduction conflict.** Keep your `nonguix` pin at or after its
+  introduction commit `897c1a47…` so both channels authenticate.
 
 ### Consuming the channel from `/etc/config.scm` and `home.scm`
 
@@ -193,10 +246,11 @@ reconfigure ~/.config/guix/home.scm` — or skip the pull and pass
 
 ```
 securityops-channel/
-├── .guix-channel              # manifest: version, news-file, url, nonguix dep
+├── .guix-channel              # manifest: version, news-file, public url, nonguix dep
+├── .guix-authorizations       # OpenPGP keys allowed to sign commits (channel auth)
 ├── etc/news.txt              # `guix pull --news` entries (per release)
 ├── securityops/packages/
-│   ├── terminals.scm         # kitty (bump), alacritty (re-export)
+│   ├── terminals.scm         # kitty (bump) + its two new Go deps, alacritty (re-export)
 │   ├── tor.scm               # tor, torbrowser, torbrowser-assets (bumps)
 │   ├── shells.scm            # fish (re-export)
 │   ├── emacs.scm             # emacs, emacs-pgtk (re-export)
@@ -276,7 +330,8 @@ Done 2026-06-21 against the live daemon (egress works through Tor):
   channel does).
 - **Sources fetch + hash-match:** `guix build -L . -S` succeeds for every bumped
   package (`tor`, `torbrowser`, `torbrowser-assets`, `kitty`, `openshot`,
-  `google-chrome-stable`, `mullvad-vpn-desktop`) — `kitty`/`openshot` actually
+  `google-chrome-stable`, `mullvad-vpn-desktop`; `librewolf`'s computed-origin
+  source was assembled & verified 2026-06-22) — `kitty`/`openshot` actually
   re-ran their `git-fetch` derivations and matched.
 
 Full multi-hour compiles (emacs, kitty, vlc, the Firefox-based torbrowser) are
@@ -302,11 +357,16 @@ When a re-exported package falls behind upstream, turn its
 
 ---
 
-## Publishing (optional)
+## Publishing & authentication
 
-Local, unauthenticated today. To publish: push to a Git remote, change `url` in
-`.guix-channel` + `channels.scm`, add a `.guix-authorizations`, sign your commits,
-and add a channel `(introduction …)` to enable signature verification on pull.
+The channel is published and **authenticated**. The official push origin is the
+SSH-key-only forge `git.securityops.co`; public consumers pull from the Codeberg
+or GitHub HTTPS mirror (above). Every commit is **GPG-signed** with ed25519
+`0CFA 43B9 AA96 42EA AF2B  E983 C4C6 61C9 ECFB 46E8`; `.guix-authorizations` lists
+that key as the sole authorized signer, and the channel `(introduction …)` in
+*Install* pins the first signed commit — so `guix pull` verifies the whole history
+and refuses a tampered or unsigned commit. To rotate the key, add the new
+fingerprint to `.guix-authorizations` in a commit signed by the old key.
 
 ---
 
