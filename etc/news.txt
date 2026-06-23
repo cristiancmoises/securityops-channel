@@ -7,6 +7,23 @@
 ;;
 (channel-news
  (version 0)
+ (entry (commit "91b906def1b84cef2948c79aaa88267be059701c")
+        (title (en "securityops 0.3.3 — torando-gui 1.1.0 (native GUI + connectivity fixes)"))
+        (body
+         (en "torando-gui upgraded 1.0.1 -> 1.1.0 (re-vendored source snapshot).
+Upstream 1.1.0 fixes the bugs that broke connectivity in real use: the
+killswitch no longer drops the torified user's loopback (the ruleset grew 5 -> 7
+rules, exempting 127.0.0.0/8 so the GUI can reach its own daemon and local
+services keep working); resolv.conf is written world-readable (0644) instead of
+0600, which had silently broken DNS for the non-root user even after disconnect;
+and DNS is never left stranded (rollback on a failed connect, startup
+auto-recovery of an orphaned pin, and a `torando-guid --restore-dns' escape
+hatch).  It also adds a NATIVE desktop app: `torando-gui' opens a real GTK4 +
+WebKitGTK window (like Mullvad's shell), falling back to the browser when that
+stack is absent.  The daemon needs no GUI libraries, so they are not package
+inputs -- add `gtk webkitgtk python-pygobject' to your profile for the native
+window.  Run `guix pull' then `guix package -u torando-gui' (or reconfigure).
+See CHANGELOG.md.")))
  (entry (commit "893061568a961e5c65242a998687c21252a4e061")
         (title (en "securityops 0.3.2 — torando-gui service auto-seeds its config"))
         (body
