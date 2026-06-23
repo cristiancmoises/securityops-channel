@@ -36,6 +36,7 @@
             torando-gui-configuration-port
             torando-gui-configuration-config-file
             torando-gui-configuration-extra-options
+            torando-gui-configuration-seed-config
             torando-gui-service-type))
 
 (define-record-type* <torando-gui-configuration>
@@ -52,7 +53,16 @@
   ;; config that disables torrc management — see the README example.
   (config-file    torando-gui-configuration-config-file    (default #f))
   ;; Extra command-line arguments appended verbatim (list of strings).
-  (extra-options  torando-gui-configuration-extra-options  (default '())))
+  (extra-options  torando-gui-configuration-extra-options  (default '()))
+  ;; Initial daemon config.json, written to /etc/torando-gui/config.json on
+  ;; activation IF that file does not yet exist (so later GUI changes persist).
+  ;; A JSON string, or #f to seed nothing.  The default is what makes the daemon
+  ;; correct on Guix System: torrc is owned by tor-service-type (read-only store
+  ;; symlink) so management is OFF, and DNSPort matches a typical tor-service
+  ;; (5353).  TransPort 9040 / SocksPort 9050 / ControlPort 9051 are already the
+  ;; daemon defaults.  Override or set #f if your tor-service uses other ports.
+  (seed-config    torando-gui-configuration-seed-config
+                  (default "{\n  \"manage_torrc\": false,\n  \"dns_port\": 5353\n}\n")))
 
 (define (torando-gui-shepherd-service config)
   (let* ((package     (torando-gui-configuration-package config))
@@ -79,12 +89,29 @@
       (stop #~(make-kill-destructor))
       (respawn? #t)))))
 
+(define (torando-gui-activation config)
+  ;; Seed /etc/torando-gui/config.json once (writable, NOT a store symlink) so
+  ;; the daemon reads it and the GUI can still save changes back to it.
+  (let ((seed (torando-gui-configuration-seed-config config)))
+    (if seed
+        #~(let ((dir "/etc/torando-gui")
+                (file "/etc/torando-gui/config.json"))
+            (unless (file-exists? file)
+              (unless (file-exists? dir) (mkdir dir))
+              (call-with-output-file file
+                (lambda (port) (display #$seed port)))
+              (chmod file #o644)))
+        #~#t)))
+
 (define torando-gui-service-type
   (service-type
    (name 'torando-gui)
    (extensions
     (list (service-extension shepherd-root-service-type
                              torando-gui-shepherd-service)
+          ;; Seed the daemon config.json on first activation.
+          (service-extension activation-service-type
+                             torando-gui-activation)
           ;; Put torando-gui / torando-guid on the global PATH.
           (service-extension profile-service-type
                              (lambda (config)

@@ -96,15 +96,18 @@ ships a native service type in `(securityops services torando)`. Add it to your
 runs as root under Shepherd, logs to `/var/log/torando-gui.log`, and serves the
 token-injected UI on `http://127.0.0.1:8088/`; run the `torando-gui` launcher to
 open it. Configuration fields: `host`, `port`, `package`, `config-file`,
-`extra-options`.
+`seed-config`, `extra-options`.
 
-> **Guix caveat.** `/etc/tor/torrc` is a read-only store symlink managed by
-> `tor-service-type`, so torando-gui's torrc management cannot write it. In the
-> GUI Settings, turn **off** "manage torrc" (it persists to the writable
-> `/etc/torando-gui/config.json`) and let `tor-service-type` own Tor's config;
-> the netfilter rules, DNS pinning, killswitch and status all work normally.
-> Tor service control from the GUI uses `systemctl` and is a no-op on Guix —
-> manage Tor with `herd`.
+> **Turnkey on Guix.** `/etc/tor/torrc` is a read-only store symlink owned by
+> `tor-service-type`, so torando-gui's own torrc management cannot write it. The
+> service therefore **auto-seeds `/etc/torando-gui/config.json`** on first
+> activation (only if absent, so GUI changes persist) with
+> `"manage_torrc": false` and `"dns_port": 5353` — matching a typical
+> `tor-service-type` (TransPort 9040 / SocksPort 9050 / ControlPort 9051 are
+> already torando's defaults). Override via the `seed-config` field (a JSON
+> string, or `#f` to seed nothing). Netfilter rules, DNS pinning, killswitch and
+> status all work; Tor service control from the GUI uses `systemctl` and is a
+> no-op on Guix — manage Tor with `herd`.
 
 ## Security toolset
 
