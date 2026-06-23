@@ -28,7 +28,8 @@ any "outdated" row for them below as **already addressed here**:
 
 - **Bumped ahead of Guix/nonguix:** `kitty` 0.47.4, `tor` 0.4.9.9,
   `torbrowser` 15.0.16, `openshot` 3.5.1, `google-chrome-stable` 149.0.7827.155,
-  `mullvad-vpn-desktop` 2026.2.
+  `mullvad-vpn-desktop` **2026.3** (bumped 2026-06-22; the rest re-verified as
+  still-latest the same day).
 - **Already latest (re-exported):** `alacritty`, `fish`, `emacs`, `emacs-pgtk`,
   `mpv`, `vlc`, `keepassxc`, `ueberzugpp`, `lf`, `steam`.
 - **Upstream newer but impractical to bump here (see README):** `librewolf`

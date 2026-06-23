@@ -12,7 +12,7 @@ are *ahead* of Guix/nonguix carry a **real, downloaded source hash**.
 
 - **Host:** `predator-helios-intel` (the live `/etc/config.scm` machine)
 - **Pinned Guix:** commit `d1e9e23` (June 2026); **depends on** `nonguix`
-- **Built/verified:** 2026-06-21 — see [Verification](#verification)
+- **Built/verified:** 2026-06-21; **re-validated 2026-06-22** (Mullvad → 2026.3)
 - **Maintainer:** Cristian Cezar Moisés `<ethicalhacker@riseup.net>`
 
 ---
@@ -29,7 +29,7 @@ are *ahead* of Guix/nonguix carry a **real, downloaded source hash**.
 | **torbrowser-assets** | 15.0.16 | _(private in guix)_ | official bundle |
 | **openshot** | 3.5.1 | 3.4.0 (guix) | git tag `v3.5.1` |
 | **google-chrome-stable** | 149.0.7827.155 | 148.0.7778.215 (nonguix) | dl.google.com `.deb` |
-| **mullvad-vpn-desktop** | 2026.2 | 2025.8 (small-guix) | cdn.mullvad.net `.deb` (vendored) |
+| **mullvad-vpn-desktop** | 2026.3 | 2025.8 (small-guix) | cdn.mullvad.net `.deb` (vendored) |
 
 ### ✅ Re-exported — already latest in Guix/nonguix (track upstream automatically)
 
@@ -114,6 +114,39 @@ Because every package here has a version **≥** what guix/nonguix ships,
 > `(commit …)` line tracks its `main` branch; pin it the same way for fully
 > reproducible pulls.
 
+### Consuming the channel from `/etc/config.scm` and `home.scm`
+
+A bare `kitty` / `tor` / `torbrowser` / `google-chrome-stable` written against
+`(gnu packages …)` / `(nongnu packages …)` resolves to *guix's own* (older)
+package, **not** this channel's — module bindings are resolved by the module you
+import, while `guix install <name>` is what picks the highest version by name. So
+to actually run the bumped versions declaratively, import the channel module with
+a prefix and reference the prefixed symbol:
+
+```scheme
+;; in (use-modules …)
+((securityops packages terminals) #:prefix so:)   ; so:kitty   0.47.4 (gnu 0.46.2)
+((securityops packages tor)       #:prefix so:)   ; so:tor     0.4.9.9, so:torbrowser 15.0.16
+((securityops packages browsers)  #:prefix so:)   ; so:google-chrome-stable 149 (nongnu 148)
+((securityops packages vpn)       #:prefix so:)   ; so:mullvad-vpn-desktop  2026.3
+
+;; …then in the package list use so:kitty, so:tor, so:torbrowser, …
+;; and for the daemon, override the service field:
+(service mullvad-daemon-service-type
+         (mullvad-daemon-configuration
+          (mullvad-vpn-desktop so:mullvad-vpn-desktop)))
+```
+
+The live `/etc/config.scm` and `~/.config/guix/home.scm` are wired this way for
+exactly the packages that are ahead of guix/nonguix; the re-exports
+(`alacritty`, `fish`, `emacs`, `mpv`, `vlc`, `keepassxc`, `ueberzugpp`, `lf`,
+`steam`) are byte-identical to guix's, so they are left as bare symbols.
+
+To apply after a channel edit: `guix pull` (picks up the new `securityops`
+commit), then `guix system reconfigure /etc/config.scm` and `guix home
+reconfigure ~/.config/guix/home.scm` — or skip the pull and pass
+`-L ~/securityops-channel` to reconfigure to use the working tree directly.
+
 ---
 
 ## Layout
@@ -168,12 +201,15 @@ Ask and I'll do it.
 **ungoogled-chromium 149 (not done).** A source bump is a multi-GB download and a
 many-hour/large-RAM compile — out of scope for "verified hashes + evaluate".
 
-**Mullvad (vendored, x86_64-only).** Bumped to 2026.2 — Mullvad's *published*
-stable desktop release (the 2026.3–2026.7 git tags aren't promoted to the stable
-channel). The source URL moved off GitHub (which no longer carries desktop
-`.deb`s) to `cdn.mullvad.net`. Vendored rather than inherited because the build
-phases bake `version` into the `.deb` unpack step. Add the aarch64 variant + hash
-if you need it.
+**Mullvad (vendored, x86_64-only).** Bumped to 2026.3 — Mullvad's *published*
+stable desktop release as of 2026-06-22 (the `deb/latest` redirect resolves to
+`.../releases/2026.3/`; 2026.4+ aren't promoted yet — re-check the redirect
+before bumping further). The source URL moved off GitHub (which no longer carries
+desktop `.deb`s) to `cdn.mullvad.net`. Vendored rather than inherited because the
+build phases bake `version` into the `.deb` unpack step. The
+`mullvad-daemon-service-type` in `/etc/config.scm` is pointed at this package so
+the **daemon itself** runs 2026.3 (not just a profile entry). Add the aarch64
+variant + hash if you need it.
 
 ---
 

@@ -4,6 +4,37 @@ All notable changes to the **securityops** Guix channel are documented here.
 Format per [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); released by
 tag rather than SemVer of the code.
 
+## [0.2.1] — 2026-06-22
+
+Re-validation pass plus the one upstream change since 0.2.0, and wiring the
+curated set into the live `/etc/config.scm` and `~/.config/guix/home.scm`.
+
+### Changed — version bump (verified hash)
+- **mullvad-vpn-desktop 2026.2 → 2026.3** — Mullvad's published *stable* desktop
+  release as of 2026-06-22: the `mullvad.net/download/app/deb/latest` redirect
+  resolves to `.../releases/2026.3/MullvadVPN-2026.3_amd64.deb`, and GitHub tag
+  `2026.3` is a non-beta release (2026.4+ are not yet promoted). Source still
+  `cdn.mullvad.net`; sha256 `1jhsjf707mv3i29i1r62cb6dml5n4n2s48h9as40d1w0mrryxiiq`
+  fetched + matched via `guix build -S mullvad-vpn-desktop`.
+
+### Verified — re-checked against upstream (2026-06-22), all still latest
+- `kitty` 0.47.4, `tor` 0.4.9.9, `torbrowser` 15.0.16 / `torbrowser-assets`
+  15.0.16, `openshot` 3.5.1, `google-chrome-stable` 149.0.7827.155 — confirmed
+  still the newest upstream releases, no bump needed. The channel remains ahead
+  of the pinned guix/nonguix (d1e9e23: kitty 0.46.2, tor 0.4.9.8, torbrowser
+  15.0.14, google-chrome 148.0.7778.215).
+
+### Wired into the live configs (consumers of the channel)
+- `/etc/config.scm` (= `guix-config/predator-helios-intel/config-xlibre.scm`)
+  and `~/.config/guix/home.scm` now take the curated apps that are *ahead* of
+  guix/nonguix from this channel, imported behind a `so:` prefix so the bare
+  upstream bindings stay available: `so:kitty` + `so:tor` (both configs),
+  `so:torbrowser` + `so:google-chrome-stable` (home), and
+  `mullvad-daemon-service-type` is pointed at `so:mullvad-vpn-desktop` (2026.3)
+  so the running daemon — not just the profile entry — is the latest.
+- Validated: `guix system build -n` and `guix home build -n` both evaluate with
+  the channel on the load path (only new build: `mullvad-vpn-desktop-2026.3`).
+
 ## [0.2.0] — 2026-06-21
 
 First-party applications from `git.securityops.co/cristiancmoises` and a curated
