@@ -73,6 +73,39 @@ with no network or SSH.
 To re-vendor an updated app: rebuild/redownload its artifact into
 `packages/sources/`, bump `version`, and `guix build -L . <pkg>`.
 
+### Running torando-gui as a Shepherd service (Guix System)
+
+Guix System runs daemons under the **GNU Shepherd**, not systemd — so the
+systemd unit inside the `torando-gui` package is inert on Guix. The channel
+ships a native service type in `(securityops services torando)`. Add it to your
+`operating-system`:
+
+```scheme
+(use-modules (securityops services torando))
+
+(operating-system
+  ;; …
+  (services
+   (cons* (service torando-gui-service-type)        ; daemon on 127.0.0.1:8088
+          ;; a real network service (provides 'networking) and Tor:
+          (service tor-service-type)
+          %desktop-services)))                       ; or %base-services + networking
+```
+
+`guix system reconfigure`, then `herd start torando-gui` (or reboot). The daemon
+runs as root under Shepherd, logs to `/var/log/torando-gui.log`, and serves the
+token-injected UI on `http://127.0.0.1:8088/`; run the `torando-gui` launcher to
+open it. Configuration fields: `host`, `port`, `package`, `config-file`,
+`extra-options`.
+
+> **Guix caveat.** `/etc/tor/torrc` is a read-only store symlink managed by
+> `tor-service-type`, so torando-gui's torrc management cannot write it. In the
+> GUI Settings, turn **off** "manage torrc" (it persists to the writable
+> `/etc/torando-gui/config.json`) and let `tor-service-type` own Tor's config;
+> the netfilter rules, DNS pinning, killswitch and status all work normally.
+> Tor service control from the GUI uses `systemctl` and is a no-op on Guix —
+> manage Tor with `herd`.
+
 ## Security toolset
 
 `security.scm` re-exports the curated tools that Guix already ships current, so
@@ -173,6 +206,8 @@ securityops-channel/
 │   ├── apps.scm              # first-party: evelin-bin, btp, mirim, torando-gui (vendored)
 │   ├── security.scm          # curated security toolset (re-exports)
 │   └── sources/              # vendored release/built artifacts (local-file)
+├── securityops/services/
+│   └── torando.scm           # torando-gui-service-type (GNU Shepherd service)
 ├── README.md  CHANGELOG.md  AUDIT.md  LICENSE
 └── .dir-locals.el  .gitignore
 ```
