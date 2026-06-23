@@ -67,10 +67,11 @@
                 "libvk_swiftshader.so"
                 "libvulkan.so.1"
                 "mullvad-gui"
-                "resources/libtalpid_openvpn_plugin.so"
+                ;; 2026.3 is WireGuard-only: the bundled OpenVPN plugin
+                ;; (resources/libtalpid_openvpn_plugin.so) and the openvpn
+                ;; binary (resources/openvpn) were dropped from the .deb.
                 "resources/mullvad-problem-report"
-                "resources/mullvad-setup"
-                "resources/openvpn")))
+                "resources/mullvad-setup")))
       #:install-plan
       #~'(("opt/" "/share")
           ("usr/bin/" "/bin")
@@ -82,8 +83,11 @@
           (replace 'binary-unpack
             (lambda* (#:key inputs #:allow-other-keys)
               (invoke "ar" "x" #$source)
-              (invoke "rm" "-v" "control.tar.gz"
-                      "debian-binary"
+              ;; The 2026.3 .deb ships control.tar.XZ (older releases used .gz)
+              ;; and adds a `_gpgbuilder' signature member; `rm -f' tolerates
+              ;; whichever control compression + extras a given release uses.
+              (invoke "rm" "-vf" "control.tar.gz" "control.tar.xz" "control.tar.zst"
+                      "_gpgbuilder" "debian-binary"
                       (string-append #$name "-" #$version "-" #$(%current-system) ".deb"))
               (invoke "tar" "xvf" "data.tar.xz")
               (invoke "rm" "-vrf" "data.tar.xz" "./usr/bin/mullvad-problem-report")))
