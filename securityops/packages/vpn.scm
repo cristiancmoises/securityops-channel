@@ -11,12 +11,15 @@
 ;;; inherited because the upstream build phases bake the package `version' into
 ;;; the .deb unpack step — an `(inherit …)' + version override would break the
 ;;; real build.  Changes vs. upstream:
-;;;   * version 2025.8 -> 2026.2 (Mullvad's published stable desktop release;
-;;;     the 2026.3–2026.7 git tags are not promoted to the stable channel).
+;;;   * version 2025.8 -> 2026.3 (Mullvad's published stable desktop release as
+;;;     of 2026-06-22: the mullvad.net/download/app/deb/latest redirect resolves
+;;;     to .../releases/2026.3/, and GitHub tag `2026.3' is a non-beta release.
+;;;     2026.4+ are not yet promoted to the stable channel — verify via the
+;;;     deb/latest redirect before bumping further).
 ;;;   * source URL moved off GitHub (no longer carries desktop .debs) to
 ;;;     Mullvad's official CDN, cdn.mullvad.net.
 ;;;   * x86_64-only (this host); add the aarch64 variant + hash if needed.
-;;; Hash: `guix download .../releases/2026.2/MullvadVPN-2026.2_amd64.deb'.
+;;; Hash: `guix download .../releases/2026.3/MullvadVPN-2026.3_amd64.deb'.
 ;;; Depends on the nonguix channel for `chromium-binary-build-system'.
 
 (define-module (securityops packages vpn)
@@ -29,7 +32,7 @@
   #:use-module (nonguix build-system chromium-binary)
   #:use-module ((guix licenses) #:prefix license:))
 
-(define %mullvad-vpn-desktop-version "2026.2")
+(define %mullvad-vpn-desktop-version "2026.3")
 
 (define-public mullvad-vpn-desktop
   (package
@@ -42,7 +45,7 @@
                            version "/MullvadVPN-" version "_amd64.deb"))
        (file-name (string-append name "-" version "-" (%current-system) ".deb"))
        (sha256
-        (base32 "1yilhzp5s7dplpnn69pyr9s2hd7s37h3f8nbzivv2m5h39gpy0kv"))))
+        (base32 "1jhsjf707mv3i29i1r62cb6dml5n4n2s48h9as40d1w0mrryxiiq"))))
     (build-system chromium-binary-build-system)
     (arguments
      (list
