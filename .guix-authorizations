@@ -1,0 +1,12 @@
+;; -*- mode: scheme; -*-
+;;; SPDX-License-Identifier: GPL-3.0-or-later
+;;
+;; OpenPGP keys authorized to sign commits to this channel.  Guix uses this
+;; file to authenticate the channel on `guix pull' once a `(introduction ...)'
+;; is pinned in channels.scm (see README.md → "Install").  A commit is trusted
+;; only if signed by a key listed here in its parent commit.
+;;
+(authorizations
+ (version 0)
+ (("0CFA 43B9 AA96 42EA AF2B  E983 C4C6 61C9 ECFB 46E8"
+   (name "Cristian Cezar Moisés"))))
