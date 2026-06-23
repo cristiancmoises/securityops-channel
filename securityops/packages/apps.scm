@@ -142,18 +142,21 @@ from the v1.0.0 source release.")
 ;;; egress through Tor (transparent proxy + killswitch), automating the upstream
 ;;; torando iptables rules plus torrc/resolv.conf management.  Pure-Python
 ;;; (stdlib only), so it is built FROM SOURCE with copy-build-system — no
-;;; compile, no patchelf.  Source is the vendored 1.0.1 release snapshot (the
+;;; compile, no patchelf.  Source is the vendored 1.1.0 release snapshot (the
 ;;; forge is SSH-only, so the daemon can't fetch it).  The two FHS shims call a
 ;;; bare `python3' and assume /usr/lib; the wrap-shims phase rewrites them to the
 ;;; store python3 and prepends the store bins of the tools the root daemon execs
 ;;; (iptables, chattr via e2fsprogs, tor), and points the systemd unit at the
 ;;; store binary — so the Guix package is self-contained (matches packaging/guix.scm
-;;; in the upstream repo).
+;;; in the upstream repo).  The user-facing `torando-gui' opens a native GTK4 +
+;;; WebKitGTK window if that stack is on the user's profile, else falls back to
+;;; the browser; the daemon itself needs neither, so they are NOT package inputs
+;;; (add `gtk webkitgtk python-pygobject' to your profile for the native window).
 (define-public torando-gui
   (package
     (name "torando-gui")
-    (version "1.0.1")
-    (source (local-file "sources/torando-gui-1.0.1-src.tar.gz"))
+    (version "1.1.0")
+    (source (local-file "sources/torando-gui-1.1.0-src.tar.gz"))
     (build-system copy-build-system)
     (inputs (list python tor iptables e2fsprogs))
     (arguments
