@@ -4,6 +4,33 @@ All notable changes to the **securityops** Guix channel are documented here.
 Format per [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); released by
 tag rather than SemVer of the code.
 
+## [0.3.1] — 2026-06-23
+
+Make torando-gui usable on **Guix System**, which runs daemons under the GNU
+Shepherd (not systemd).
+
+### Added — service
+- **`(securityops services torando)`** — a native Shepherd service type,
+  `torando-gui-service-type`, with a `torando-gui-configuration` record
+  (`package`, `host`, `port`, `config-file`, `extra-options`). It runs
+  `torando-guid` as root via `make-forkexec-constructor` (foreground; clean
+  `SIGTERM` stop), requires `networking`, logs to `/var/log/torando-gui.log`,
+  and extends `profile-service-type` so the launcher/daemon land on `PATH`. The
+  package's systemd unit is inert on Guix; this replaces it.
+
+### Verified
+- `(securityops services torando)` loads; the service-type and config record
+  instantiate; `guix system build -L . -n` over a minimal `operating-system`
+  that includes `(service torando-gui-service-type)` evaluates the full system
+  derivation graph successfully (the service lowers and its Shepherd
+  `networking` requirement resolves).
+
+### Docs
+- README gains a "Running torando-gui as a Shepherd service" section with the
+  `config.scm` snippet and the Guix caveat (`/etc/tor/torrc` is a read-only
+  store symlink, so disable in-GUI torrc management and let `tor-service-type`
+  own Tor).
+
 ## [0.3.0] — 2026-06-23
 
 A new first-party app: **torando-gui**, the loopback web GUI + root daemon that
