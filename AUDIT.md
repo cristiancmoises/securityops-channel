@@ -28,12 +28,13 @@ any "outdated" row for them below as **already addressed here**:
 
 - **Bumped ahead of Guix/nonguix:** `kitty` 0.47.4, `tor` 0.4.9.9,
   `torbrowser` 15.0.16, `openshot` 3.5.1, `google-chrome-stable` 149.0.7827.155,
-  `mullvad-vpn-desktop` **2026.3** (bumped 2026-06-22; the rest re-verified as
-  still-latest the same day).
+  `mullvad-vpn-desktop` **2026.3**, `librewolf` **152.0.1-2** (both bumped
+  2026-06-22; the rest re-verified as still-latest the same day).
 - **Already latest (re-exported):** `alacritty`, `fish`, `emacs`, `emacs-pgtk`,
   `mpv`, `vlc`, `keepassxc`, `ueberzugpp`, `lf`, `steam`.
-- **Upstream newer but impractical to bump here (see README):** `librewolf`
-  (151.0.4-1 → 152.0.1-2), `ungoogled-chromium` (147 → 149).
+- **Deferred (see README):** `ungoogled-chromium` (147 → 149.0.7827.155-1) —
+  in-module source assembly + unverifiable multi-hour compile;
+  `google-chrome-stable` 149 covers a current Chromium engine.
 
 ## Active `home.scm` reconciliation
 

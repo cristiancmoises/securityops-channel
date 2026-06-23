@@ -4,6 +4,42 @@ All notable changes to the **securityops** Guix channel are documented here.
 Format per [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); released by
 tag rather than SemVer of the code.
 
+## [0.2.2] — 2026-06-22
+
+LibreWolf bumped to the latest upstream (the last curated app still behind), and
+a decision recorded on ungoogled-chromium.
+
+### Added — version bump (verified source)
+- **librewolf 151.0.4-1 → 152.0.1-2** — new module
+  `securityops/packages/librewolf.scm` vendors guix's *private*
+  `make-librewolf-source` machinery (firefox-source / librewolf-source /
+  computed-origin / firefox-l10n) and then **inherits** guix's `librewolf`,
+  overriding only `version` + `source` (same pattern as `torbrowser`).
+  Hashes fetched + the **computed-origin source assembled successfully**
+  (`guix build -S librewolf` → `librewolf-152.0.1-2.source.tar.zst`):
+  - firefox 152.0.1 source `0ppi08ajg00mb0qdlfffnw15mvkfx8xi79ys62ijbpzh0jykgw5z`
+  - librewolf/source `152.0.1-2` `0wbisx3yvg7g4d09azgksz3yaf7n12xqa0v4dy9hnplwxcxixgda`
+  - firefox-l10n `@9929bc50` `1ka78jhbhgvxby29q7ni5lim5c4977qdixd50cylnvb4807cli6l`
+    (the `revision` from `firefox-152.0.1/browser/locales/l10n-changesets.json`).
+  The full Firefox compile is deferred to reconfigure (like torbrowser).
+- Wired `so:librewolf` into `~/.config/guix/home.scm` (2 sites) and
+  `config-xlibre.scm` (browser list); the `BROWSER=librewolf` env var is a
+  binary name on `PATH`, unchanged.
+
+### Decision — ungoogled-chromium 147 → 149 DEFERRED
+- A source bump is guix-maintainer-level: the source is assembled in-module from
+  a chromium "-lite" tarball + version-pinned ungoogled/debian patch repos + a
+  hand-picked patch subset, then a multi-hour / ~30GB-RAM compile that can't be
+  verified here. Groundwork recorded in `browsers.scm`: upstream tags exist and
+  all 18 of guix's selected debian patches are still present at
+  `debian/149.0.7827.155-1`. `google-chrome-stable` 149 already covers a current
+  Chromium engine. Re-exported at guix's 147 until guix proper advances.
+
+### Verified
+- `guix build -L . -n librewolf` evaluates; `guix build -L . -S librewolf`
+  assembles the source. `guix system build -n` / `guix home build -n` evaluate
+  with `so:librewolf` 152.0.1-2 resolved.
+
 ## [0.2.1] — 2026-06-22
 
 Re-validation pass plus the one upstream change since 0.2.0, and wiring the
