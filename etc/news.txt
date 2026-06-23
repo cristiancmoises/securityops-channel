@@ -7,6 +7,19 @@
 ;;
 (channel-news
  (version 0)
+ (entry (commit "e564bbebddfaf000177f7e2fd2a8ee307bfcda28")
+        (title (en "securityops 0.2.1 — Mullvad 2026.3 + wired into configs"))
+        (body
+         (en "mullvad-vpn-desktop bumped 2026.2 -> 2026.3 (Mullvad's published
+stable desktop release as of 2026-06-22; verified .deb hash from cdn.mullvad.net).
+kitty 0.47.4, tor 0.4.9.9, torbrowser/-assets 15.0.16, openshot 3.5.1 and
+google-chrome 149.0.7827.155 re-verified as still the latest upstream — no bump
+needed; the channel stays ahead of the pinned guix/nonguix.  The live
+/etc/config.scm and ~/.config/guix/home.scm now pull the curated apps that are
+ahead of guix/nonguix from this channel (so:kitty, so:tor, so:torbrowser,
+so:google-chrome-stable) and point mullvad-daemon-service-type at the channel's
+2026.3 package.  Run `guix pull` then `guix system reconfigure` / `guix home
+reconfigure` to apply.  See CHANGELOG.md and README.md.")))
  (entry (commit "93bd5fd22328379018af81770e2b8979d463b4ed")
         (title (en "securityops 0.1.0 — curated latest-version app set"))
         (body
