@@ -7,6 +7,20 @@
 ;;
 (channel-news
  (version 0)
+ (entry (commit "7285cba7248d3b1109921ccb202db9e4ee649381")
+        (title (en "securityops 0.2.2 — LibreWolf 152.0.1-2"))
+        (body
+         (en "librewolf bumped 151.0.4-1 -> 152.0.1-2 (latest upstream) — the
+last curated app still behind Guix.  A new module
+(securityops packages librewolf) vendors Guix's private make-librewolf-source
+machinery and inherits guix's librewolf, overriding only version + source; the
+three release hashes were fetched and the source tarball was assembled and
+verified.  Wired into /etc/config.scm and ~/.config/guix/home.scm as
+so:librewolf.  The full Firefox compile runs on reconfigure (like torbrowser).
+ungoogled-chromium 147 -> 149 is DEFERRED by choice (guix-maintainer-level
+in-module source assembly + an unverifiable multi-hour compile);
+google-chrome-stable 149 already covers a current Chromium engine.  Run
+`guix pull` then reconfigure to apply.  See CHANGELOG.md.")))
  (entry (commit "e564bbebddfaf000177f7e2fd2a8ee307bfcda28")
         (title (en "securityops 0.2.1 — Mullvad 2026.3 + wired into configs"))
         (body
