@@ -7,7 +7,7 @@
 ;;
 (channel-news
  (version 0)
- (entry (commit "91b906def1b84cef2948c79aaa88267be059701c")
+ (entry (commit "169b92528978a170cce317ab5e88d013259abc58")
         (title (en "securityops 0.3.3 — torando-gui 1.1.0 (native GUI + connectivity fixes)"))
         (body
          (en "torando-gui upgraded 1.0.1 -> 1.1.0 (re-vendored source snapshot).
@@ -24,7 +24,7 @@ stack is absent.  The daemon needs no GUI libraries, so they are not package
 inputs -- add `gtk webkitgtk python-pygobject' to your profile for the native
 window.  Run `guix pull' then `guix package -u torando-gui' (or reconfigure).
 See CHANGELOG.md.")))
- (entry (commit "893061568a961e5c65242a998687c21252a4e061")
+ (entry (commit "aa81240d1d7f90be713e4126a8154be3c3979015")
         (title (en "securityops 0.3.2 — torando-gui service auto-seeds its config"))
         (body
          (en "The torando-gui Shepherd service is now turnkey on Guix System.
@@ -37,7 +37,7 @@ read-only /etc/tor/torrc and listens on DNSPort 5353 (TransPort 9040 / SocksPort
 manual GUI toggling.  New `seed-config' field on torando-gui-configuration (a
 JSON string, or #f to seed nothing).  Verified with `guix system build -n'.  Run
 `guix system reconfigure' then `herd start torando-gui'.  See CHANGELOG.md.")))
- (entry (commit "f66a9cab4b7e748f2a19a6cd4ea9c292b5fcd857")
+ (entry (commit "6d7fa2abedef644ed3707f360fbfde29cc0ce87b")
         (title (en "securityops 0.3.1 — torando-gui Shepherd service (Guix System)"))
         (body
          (en "Guix System runs daemons under the GNU Shepherd, not systemd, so
@@ -59,7 +59,7 @@ then `guix system reconfigure' and `herd start torando-gui'.  NOTE: on Guix
 OFF torando-gui's in-GUI torrc management and let tor-service-type own Tor;
 netfilter/DNS-pin/killswitch/status all work.  Verified with `guix system build
 -n' over a minimal operating-system.  See CHANGELOG.md.")))
- (entry (commit "b3abfaa839ef009482249530d2559dbe669a9f0f")
+ (entry (commit "657a41372f0d3eba5142365fd676fd00ff8db2a9")
         (title (en "securityops 0.3.0 — torando-gui 1.0.1 (first-party app)"))
         (body
          (en "New first-party app: torando-gui — a loopback web GUI plus root
@@ -76,7 +76,7 @@ systemd unit points at the store binary.  Built, installed and run-verified
 upstream tests pass).  Install with `guix install torando-gui' after a pull, or
 `guix install -L ~/securityops-channel torando-gui' without one.  See
 CHANGELOG.md.")))
- (entry (commit "7285cba7248d3b1109921ccb202db9e4ee649381")
+ (entry (commit "0466dfb4a0ec7f9f6934d371e61cb3b1e79e6d1b")
         (title (en "securityops 0.2.2 — LibreWolf 152.0.1-2"))
         (body
          (en "librewolf bumped 151.0.4-1 -> 152.0.1-2 (latest upstream) — the
@@ -90,7 +90,7 @@ ungoogled-chromium 147 -> 149 is DEFERRED by choice (guix-maintainer-level
 in-module source assembly + an unverifiable multi-hour compile);
 google-chrome-stable 149 already covers a current Chromium engine.  Run
 `guix pull` then reconfigure to apply.  See CHANGELOG.md.")))
- (entry (commit "e564bbebddfaf000177f7e2fd2a8ee307bfcda28")
+ (entry (commit "55e40b637adfbd3f7c107f432af009a499e7fcc2")
         (title (en "securityops 0.2.1 — Mullvad 2026.3 + wired into configs"))
         (body
          (en "mullvad-vpn-desktop bumped 2026.2 -> 2026.3 (Mullvad's published
@@ -103,7 +103,7 @@ ahead of guix/nonguix from this channel (so:kitty, so:tor, so:torbrowser,
 so:google-chrome-stable) and point mullvad-daemon-service-type at the channel's
 2026.3 package.  Run `guix pull` then `guix system reconfigure` / `guix home
 reconfigure` to apply.  See CHANGELOG.md and README.md.")))
- (entry (commit "93bd5fd22328379018af81770e2b8979d463b4ed")
+ (entry (commit "8a0ec013980145ec0e15ef7a44c4c200f501b8a5")
         (title (en "securityops 0.1.0 — curated latest-version app set"))
         (body
          (en "First release.  Provides the latest versions of this
