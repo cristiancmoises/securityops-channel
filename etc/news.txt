@@ -7,6 +7,28 @@
 ;;
 (channel-news
  (version 0)
+ (entry (commit "f66a9cab4b7e748f2a19a6cd4ea9c292b5fcd857")
+        (title (en "securityops 0.3.1 — torando-gui Shepherd service (Guix System)"))
+        (body
+         (en "Guix System runs daemons under the GNU Shepherd, not systemd, so
+the systemd unit in the torando-gui package does nothing there.  This release
+adds a native service type, (securityops services torando) ->
+torando-gui-service-type, with a torando-gui-configuration record
+(package/host/port/config-file/extra-options).  It runs torando-guid as root via
+make-forkexec-constructor (foreground, clean SIGTERM stop), requires the
+'networking shepherd target, logs to /var/log/torando-gui.log, and puts the
+binaries on PATH.  Add it to your operating-system:
+
+  (use-modules (securityops services torando))
+  (services (cons* (service torando-gui-service-type)
+                   (service tor-service-type)
+                   %desktop-services))
+
+then `guix system reconfigure' and `herd start torando-gui'.  NOTE: on Guix
+/etc/tor/torrc is a read-only store symlink owned by tor-service-type, so turn
+OFF torando-gui's in-GUI torrc management and let tor-service-type own Tor;
+netfilter/DNS-pin/killswitch/status all work.  Verified with `guix system build
+-n' over a minimal operating-system.  See CHANGELOG.md.")))
  (entry (commit "b3abfaa839ef009482249530d2559dbe669a9f0f")
         (title (en "securityops 0.3.0 — torando-gui 1.0.1 (first-party app)"))
         (body
