@@ -14,7 +14,7 @@ are *ahead* of Guix/nonguix carry a **real, downloaded source hash**.
 - **Pinned Guix:** commit `d1e9e23` (June 2026); **depends on** `nonguix`
 - **Built/verified:** 2026-06-21; **re-validated 2026-06-22** (Mullvad → 2026.3, LibreWolf → 152.0.1-2); **2026-06-23** (torando-gui 1.0.1 added, then → 1.1.0: native GUI + connectivity fixes — built & installed)
 - **Maintainer:** Cristian Cezar Moisés `<ethicalhacker@riseup.net>`
-- **Home:** `git.securityops.co/cristiancmoises/securityops-channel` (official, SSH-key-only) · public mirrors: [Codeberg](https://codeberg.org/cristiancmoises/securityops-channel) · [GitHub](https://github.com/cristiancmoises/securityops-channel)
+- **Home:** `git.securityops.co/cristiancmoises/securityops-channel` (official, SSH-key-only) · public mirrors: [Codeberg](https://codeberg.org/berkeley/securityops-channel) · [GitHub](https://github.com/cristiancmoises/securityops-channel)
 - **Signing:** every commit is GPG-signed (ed25519 `0CFA 43B9 … ECFB 46E8`) and the channel is authenticated — see [Publishing & authentication](#publishing--authentication)
 
 ---
@@ -153,7 +153,7 @@ The official URL is the SSH-key-only forge. **Without forge SSH access**, swap t
 `url` for a public HTTPS mirror — the introduction is identical:
 
 ```scheme
- (url "https://codeberg.org/cristiancmoises/securityops-channel")   ; or
+ (url "https://codeberg.org/berkeley/securityops-channel")   ; or
  (url "https://github.com/cristiancmoises/securityops-channel")
 ```
 
@@ -177,7 +177,7 @@ Because every package here has a version **≥** what guix/nonguix ships,
 `git.securityops.co` is SSH-key-only; anyone can clone from a mirror instead:
 
 ```sh
-git clone https://codeberg.org/cristiancmoises/securityops-channel   # primary mirror
+git clone https://codeberg.org/berkeley/securityops-channel   # primary mirror
 git clone https://github.com/cristiancmoises/securityops-channel     # backup mirror
 ```
 
