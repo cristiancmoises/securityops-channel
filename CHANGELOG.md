@@ -4,6 +4,27 @@ All notable changes to the **securityops** Guix channel are documented here.
 Format per [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); released by
 tag rather than SemVer of the code.
 
+## [0.3.3] — 2026-06-23
+
+### Changed — first-party app
+- **torando-gui 1.0.1 → 1.1.0.** Re-vendored the 1.1.0 source snapshot
+  (`sources/torando-gui-1.1.0-src.tar.gz`); the package definition is otherwise
+  unchanged (still source-built, self-contained shims/unit). Upstream 1.1.0:
+  - **Fixes the connectivity-breaking bugs**: the killswitch no longer drops the
+    torified user's loopback (5→7 rules, `127.0.0.0/8` exempt); `resolv.conf` is
+    written world-readable (0644, not 0600) so DNS doesn't break for the
+    non-root user; DNS is never stranded (rollback on failed connect, startup
+    auto-recovery, `torando-guid --restore-dns`).
+  - **Native desktop app**: `torando-gui` opens a real GTK4 + WebKitGTK window,
+    falling back to the browser if that stack isn't present. The daemon needs
+    neither, so they are NOT package inputs — add `gtk webkitgtk
+    python-pygobject` to your profile for the native window.
+
+### Verified
+- `guix build -L . torando-gui` builds 1.1.0; `guix package -L . -i torando-gui`
+  upgrades the profile; `torando-guid --version` → 1.1.0, `--restore-dns` flag
+  present, daemon serves in `--mock` mode. Upstream non-server suite passes.
+
 ## [0.3.2] — 2026-06-23
 
 Make the torando-gui Shepherd service turnkey on Guix System.
