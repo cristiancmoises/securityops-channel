@@ -4,6 +4,27 @@ All notable changes to the **securityops** Guix channel are documented here.
 Format per [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); released by
 tag rather than SemVer of the code.
 
+## [0.3.2] — 2026-06-23
+
+Make the torando-gui Shepherd service turnkey on Guix System.
+
+### Changed — `(securityops services torando)`
+- Added a **`seed-config`** field and an `activation-service-type` extension:
+  on first activation the service writes `/etc/torando-gui/config.json` (a
+  writable file, not a store symlink — only if absent, so later GUI changes
+  persist) with `{"manage_torrc": false, "dns_port": 5353}`. This is exactly
+  what the daemon needs on Guix, where `tor-service-type` owns the read-only
+  `/etc/tor/torrc` and listens on DNSPort 5353 — so it works out of the box
+  with no manual GUI toggling. `seed-config` is a JSON string (default above)
+  or `#f` to seed nothing.
+
+### Verified
+- `guix system build -n` over `operating-system`s that include
+  `(service torando-gui-service-type)` evaluates with the activation extension
+  lowered (validated against the live `config-xlibre.scm` and `config-sway.scm`,
+  both of which already match: TransPort 9040 / SocksPort 9050 / ControlPort
+  9051 / DNSPort 5353).
+
 ## [0.3.1] — 2026-06-23
 
 Make torando-gui usable on **Guix System**, which runs daemons under the GNU
