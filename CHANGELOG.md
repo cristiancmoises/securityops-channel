@@ -4,7 +4,36 @@ All notable changes to the **securityops** Guix channel are documented here.
 Format per [Keep a Changelog](https://keepachangelog.com/en/1.1.0/); released by
 tag rather than SemVer of the code.
 
-## [0.2.2] — 2026-06-22
+## [0.3.0] — 2026-06-23
+
+A new first-party app: **torando-gui**, the loopback web GUI + root daemon that
+routes one local user's egress through Tor (transparent proxy + killswitch).
+
+### Added — first-party app
+- **torando-gui 1.0.1** — pure-Python (stdlib only), so it is built **from
+  source** with `copy-build-system` (no compile, no patchelf). The 1.0.1 source
+  snapshot is vendored at
+  `securityops/packages/sources/torando-gui-1.0.1-src.tar.gz` and referenced via
+  `local-file` (the forge is SSH-only). A `wrap-shims` phase makes the package
+  **self-contained**: both shims are rewritten to call the store `python3` and
+  prepend the store bins of the tools the root daemon execs (`iptables`,
+  `chattr` via `e2fsprogs`, `tor`), and the installed systemd unit is pointed at
+  the store binary instead of `/usr/bin`. Ships the daemon, launcher, systemd
+  unit, polkit policy, desktop entry and docs. Added imports for
+  `(gnu packages python)`, `(gnu packages tor)` and `(gnu packages linux)` to
+  `apps.scm`.
+
+### Upstream (the torando-gui repo, vendored here at 1.0.1)
+- 1.0.0 → 1.0.1 robustness/correctness pass: failed connect rolls back the
+  `resolv.conf` pin; durable atomic writes (`fsync`); corrupt GeoIP DB no longer
+  crashes; `torrc` keeps a single managed block; plain-COOKIE Tor control auth;
+  `HEAD`/SSE and query-token hardening; `e2fsprogs` declared as a dependency.
+
+### Verified
+- `guix build -L . torando-gui` builds; `guix package -L . -i torando-gui`
+  installs into the profile; `torando-guid --version` → 1.0.1 and the daemon
+  serves the token-gated loopback UI in `--mock` mode. The upstream test-suite
+  passes (80 tests).
 
 LibreWolf bumped to the latest upstream (the last curated app still behind), and
 a decision recorded on ungoogled-chromium.
