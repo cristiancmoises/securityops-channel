@@ -7,6 +7,23 @@
 ;;
 (channel-news
  (version 0)
+ (entry (commit "b3abfaa839ef009482249530d2559dbe669a9f0f")
+        (title (en "securityops 0.3.0 — torando-gui 1.0.1 (first-party app)"))
+        (body
+         (en "New first-party app: torando-gui — a loopback web GUI plus root
+daemon that routes ONE local user's egress through Tor as a transparent proxy
+with a killswitch (it automates the upstream torando iptables rules plus
+torrc/resolv.conf management and shows live bootstrap, DNS-leak and exit
+status).  It is pure Python (stdlib only), so it is built FROM SOURCE with
+copy-build-system from the vendored 1.0.1 snapshot — no compile, no patchelf.
+A wrap-shims phase makes the package self-contained: both launchers are
+rewritten to call the store python3 and prepend the store bins of the tools the
+root daemon execs (iptables, chattr via e2fsprogs, tor), and the installed
+systemd unit points at the store binary.  Built, installed and run-verified
+(torando-guid --version -> 1.0.1; token-gated loopback UI in --mock mode; 80
+upstream tests pass).  Install with `guix install torando-gui' after a pull, or
+`guix install -L ~/securityops-channel torando-gui' without one.  See
+CHANGELOG.md.")))
  (entry (commit "7285cba7248d3b1109921ccb202db9e4ee649381")
         (title (en "securityops 0.2.2 — LibreWolf 152.0.1-2"))
         (body
