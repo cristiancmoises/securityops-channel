@@ -15,13 +15,19 @@
 (define-module (securityops packages apps)
   #:use-module (guix packages)
   #:use-module (guix gexp)
+  #:use-module (guix utils)                      ;cc-for-target (vaptvupt)
   #:use-module (guix build-system copy)
+  #:use-module (guix build-system gnu)           ;vaptvupt CLI (Makefile)
   #:use-module (gnu packages base)               ;glibc
   #:use-module (gnu packages gcc)                ;gcc:lib (libgcc_s)
   #:use-module (gnu packages elf)                ;patchelf
-  #:use-module (gnu packages python)             ;python (torando-gui)
+  #:use-module (gnu packages python)             ;python (torando-gui, vaptvupt-gui)
   #:use-module (gnu packages tor)                ;tor (torando-gui)
   #:use-module (gnu packages linux)              ;iptables, e2fsprogs/chattr (torando-gui)
+  #:use-module (gnu packages qt)                 ;python-pyside-6, qtbase, qtwayland (vaptvupt-gui)
+  #:use-module (gnu packages bash)               ;bash-minimal (vaptvupt-gui launcher)
+  #:use-module (gnu packages tls)                ;openssl (vaptvupt libzuptsdk)
+  #:use-module (gnu packages password-utils)     ;argon2 (vaptvupt libzuptsdk)
   #:use-module ((guix licenses) #:prefix license:))
 
 ;;; evelin — post-quantum transport (ML-KEM-1024 / ML-DSA-87 / ChaCha20-Poly1305).
@@ -220,3 +226,153 @@ source (pure Python); the shims and systemd unit are rewired to the store, so
 the package is self-contained.")
     (home-page "https://codeberg.org/cristiancmoises/torando-gui")
     (license license:agpl3)))
+
+;;; vaptvupt — pure-C11 post-quantum backup compressor (CLI, v4.0.0) and its
+;;; PySide6/Qt6 desktop frontend (GUI, v1.3.0).  Both build from the ONE vendored
+;;; release tarball.  The CLI is built FROM SOURCE with gnu-build-system (plain
+;;; Makefile, no ./configure).  Two prebuilt vendored shared objects ship in the
+;;; tarball — libzuptsdk (password KDF, --pq-sdk) and libpqvaptvupt (--pq-box
+;;; sealed box); libzuptsdk has DT_NEEDED on libcrypto.so.3 + libargon2.so.1 but
+;;; no RUNPATH, so we feed -rpath-link/-rpath via LDFLAGS at link time and patchelf
+;;; a store RUNPATH onto the two .so files after install so they survive
+;;; validate-runpath.  KAT self-tests need the vendored libs on LD_LIBRARY_PATH;
+;;; disabled here (the binary links and runs fine).
+(define-public vaptvupt
+  (package
+    (name "vaptvupt")
+    (version "4.0.0")
+    (source (local-file "sources/vaptvupt-4.0.0.tar.gz"))
+    (build-system gnu-build-system)
+    (arguments
+     (list
+      #:tests? #f
+      #:make-flags
+      #~(list (string-append "PREFIX=" #$output)
+              (string-append "CC=" #$(cc-for-target)))
+      #:phases
+      #~(modify-phases %standard-phases
+          (delete 'configure)           ; plain Makefile, no ./configure
+          ;; libzuptsdk.so needs libcrypto/libargon2 at link AND run time, but
+          ;; carries no RUNPATH; the Makefile keeps an env LDFLAGS (`?=` then
+          ;; `+=`), so feed it -rpath-link (link) + -rpath (runtime) here.
+          (add-before 'build 'set-ldflags
+            (lambda* (#:key inputs #:allow-other-keys)
+              (let ((ssl (string-append (assoc-ref inputs "openssl") "/lib"))
+                    (arg (string-append (assoc-ref inputs "argon2") "/lib")))
+                (setenv "LDFLAGS"
+                        (string-append "-L" ssl " -L" arg
+                                       " -Wl,-rpath-link," ssl
+                                       " -Wl,-rpath-link," arg
+                                       " -Wl,-rpath," ssl
+                                       " -Wl,-rpath," arg)))))
+          (add-after 'install 'set-vendored-lib-runpath
+            (lambda* (#:key inputs outputs #:allow-other-keys)
+              (let* ((out  (assoc-ref outputs "out"))
+                     (libc (assoc-ref inputs "libc"))
+                     (rpath (string-join
+                             (list (string-append libc "/lib")
+                                   (string-append (assoc-ref inputs "openssl") "/lib")
+                                   (string-append (assoc-ref inputs "argon2") "/lib"))
+                             ":"))
+                     (vdir (string-append out "/lib/vaptvupt")))
+                (for-each
+                 (lambda (lib)
+                   (invoke "patchelf" "--set-rpath" rpath
+                           (string-append vdir "/" lib)))
+                 '("libzuptsdk.so.2.0.0"
+                   "libpqvaptvupt.so.0.6.0"))))))))
+    (native-inputs (list patchelf))
+    (inputs (list openssl argon2))
+    (supported-systems '("x86_64-linux"))
+    (synopsis "Post-quantum backup compression utility (CLI)")
+    (description
+     "VaptVupt (formerly Zupt) is a pure-C11 backup compressor with post-quantum
+hybrid encryption.  Recipient modes: ML-KEM-768 + X25519 sealed box with an
+HKDF-SHA256 domain-separated combiner (@code{--pq-box}, via the bundled
+libpqvaptvupt), the libzuptsdk envelope (@code{--pq-sdk}) and a legacy combiner
+(@code{--pq}); password mode uses Argon2id by default (PBKDF2-SHA256 optional).
+Payload protection is AES-256-CTR + HMAC-SHA256 Encrypt-then-MAC with measured
+constant-time tag comparison and runtime AES-NI/SHA-NI dispatch; the embedded
+VaptVupt 2.60.4 LZ+ANS codec ships CBMC-verified BCJ filters.")
+    (home-page "https://git.securityops.co/cristiancmoises/vaptvupt")
+    (license (list license:agpl3+ license:gpl3+))))
+
+;;; vaptvupt-gui — PySide6 (Qt6) frontend, installed from the same tarball with
+;;; copy-build-system.  The launcher pins the matching CLI store path via
+;;; VAPTVUPT_BIN (the GUI honours it before any PATH lookup), so GUI and CLI can
+;;; never drift apart; PySide6 is made importable via GUIX_PYTHONPATH and the Qt
+;;; platform plugins (xcb + wayland) via QT_PLUGIN_PATH.
+(define-public vaptvupt-gui
+  (package
+    (name "vaptvupt-gui")
+    (version "1.3.0")
+    (source (package-source vaptvupt))   ; same release tarball
+    (build-system copy-build-system)
+    (arguments
+     (list
+      #:install-plan
+      #~'(("gui/src/zupt_gui.py" "lib/vaptvupt-gui/")
+          ("gui/assets/zupt-icon.png"
+           "share/icons/hicolor/256x256/apps/vaptvupt-gui.png")
+          ("gui/README.md" "share/doc/vaptvupt-gui/")
+          ("gui/LICENSE-GUI" "share/doc/vaptvupt-gui/"))
+      #:phases
+      #~(modify-phases %standard-phases
+          (add-after 'install 'make-launcher
+            (lambda* (#:key inputs outputs #:allow-other-keys)
+              (let* ((out     (assoc-ref outputs "out"))
+                     (bin     (string-append out "/bin"))
+                     (gui     (string-append
+                               out "/lib/vaptvupt-gui/zupt_gui.py"))
+                     (sh      (search-input-file inputs "/bin/sh"))
+                     (python3 (search-input-file inputs "/bin/python3"))
+                     (cli     (search-input-file inputs "/bin/vaptvupt"))
+                     (pyside  (assoc-ref inputs "python-pyside-6"))
+                     (site    (car (find-files pyside "^site-packages$"
+                                               #:directories? #t)))
+                     (qtbase  (assoc-ref inputs "qtbase"))
+                     (qtwl    (assoc-ref inputs "qtwayland")))
+                (mkdir-p bin)
+                (call-with-output-file (string-append bin "/vaptvupt-gui")
+                  (lambda (port)
+                    (format port "#!~a
+export VAPTVUPT_BIN=\"~a\"
+export GUIX_PYTHONPATH=\"~a${GUIX_PYTHONPATH:+:}$GUIX_PYTHONPATH\"
+export QT_PLUGIN_PATH=\"~a/lib/qt6/plugins:~a/lib/qt6/plugins${QT_PLUGIN_PATH:+:}$QT_PLUGIN_PATH\"
+exec \"~a\" \"~a\" \"$@\"\n"
+                            sh cli site qtbase qtwl python3 gui)))
+                (chmod (string-append bin "/vaptvupt-gui") #o755)
+                ;; Legacy name, mirroring the .deb/.rpm packages.
+                (symlink "vaptvupt-gui" (string-append bin "/zupt-gui")))))
+          (add-after 'make-launcher 'install-desktop-file
+            (lambda* (#:key outputs #:allow-other-keys)
+              (let* ((out  (assoc-ref outputs "out"))
+                     (apps (string-append out "/share/applications")))
+                (mkdir-p apps)
+                (call-with-output-file
+                    (string-append apps "/vaptvupt-gui.desktop")
+                  (lambda (port)
+                    (format port "[Desktop Entry]
+Type=Application
+Name=VaptVupt
+GenericName=Post-Quantum Backup
+Comment=Compress, encrypt and restore .zupt archives
+Exec=~a/bin/vaptvupt-gui %F
+Icon=vaptvupt-gui
+Terminal=false
+Categories=Utility;Archiving;Security;
+MimeType=application/x-zupt;
+Keywords=backup;encryption;post-quantum;compression;zupt;\n"
+                            out)))))))))
+    (inputs
+     (list bash-minimal python python-pyside-6 qtbase qtwayland vaptvupt))
+    (supported-systems '("x86_64-linux"))
+    (synopsis "Desktop frontend for VaptVupt (PySide6/Qt6 GUI)")
+    (description
+     "PySide6 (Qt 6) graphical frontend for VaptVupt: create, inspect and extract
+@code{.zupt} archives with password (Argon2id) or post-quantum recipient
+encryption, including the v4.0.0 @code{--pq-box} sealed-box mode.  The launcher
+pins the matching @code{vaptvupt} CLI from the store via @env{VAPTVUPT_BIN}, so
+GUI and CLI versions can never drift apart.")
+    (home-page "https://git.securityops.co/cristiancmoises/vaptvupt")
+    (license license:agpl3+)))
