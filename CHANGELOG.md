@@ -6,6 +6,16 @@ tag rather than SemVer of the code.
 
 ## [Unreleased]
 
+### Added — first-party apps
+- **vaptvupt 4.0.0 (CLI)** and **vaptvupt-gui 1.3.0 (PySide6/Qt6)** — the
+  post-quantum backup compressor, no longer deferred. Both build from ONE
+  vendored release tarball (`sources/vaptvupt-4.0.0.tar.gz`): the CLI from source
+  (C11 Makefile, `gnu-build-system`), with the prebuilt vendored libraries
+  (`libzuptsdk`, `libpqvaptvupt`) relinked against the store's glibc/openssl/argon2
+  via `LDFLAGS` + `patchelf`; the GUI installed with `copy-build-system`, its
+  launcher pinning the matching CLI store path through `VAPTVUPT_BIN` so the two
+  can never drift. Both verified to build (`vaptvupt`/`zupt`, `vaptvupt-gui`/`zupt-gui`).
+
 ### Published & authenticated
 - The channel is now public: official home **git.securityops.co** (SSH-key-only)
   with HTTPS mirrors on **Codeberg** and **GitHub**.
@@ -207,7 +217,8 @@ security toolset. The forge is SSH-key-only, so app sources/artifacts are
 
 ### Pending / known
 - **vaptvupt 2.2.3** — C core + Python GUI AppImage; deferred (cleanest as the
-  official `.AppImage` artifact).
+  official `.AppImage` artifact). _(Since added from source as **vaptvupt 4.0.0**
+  + **vaptvupt-gui 1.3.0** — see [Unreleased].)_
 - **turborec** — deploy key not authorized to read the repo; skipped.
 - ~28 security tools not yet in Guix listed as TODO in README (sqlmap, ffuf,
   gobuster, mitmproxy, sleuthkit, volatility3, …).
