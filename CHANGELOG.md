@@ -6,6 +6,17 @@ tag rather than SemVer of the code.
 
 ## [Unreleased]
 
+### Changed — re-export
+- **steam: bootstrap bumped 1.0.0.85 → 1.0.0.86.** nonguix pins Valve's
+  `steam-launcher` bootstrap at 1.0.0.85; this channel now tracks the latest one
+  Valve publishes (1.0.0.86 — client timestamp 2026-06-09, scout runtime
+  1.0.20260430). `games.scm` no longer re-exports nonguix's `steam` verbatim: it
+  rebuilds nonguix's steam container (`steam-container-for mesa`) around a
+  version-bumped wrap-package, inheriting the FHS sandbox, library set and mesa
+  driver unchanged. Real downloaded hash; built & verified. (The bootstrap is a
+  thin shim the real client self-updates around, so this is mostly hygiene —
+  but it is now genuinely the newest bootstrap.)
+
 ### Added — first-party apps
 - **vaptvupt 4.0.0 (CLI)** and **vaptvupt-gui 1.3.0 (PySide6/Qt6)** — the
   post-quantum backup compressor, no longer deferred. Both build from ONE

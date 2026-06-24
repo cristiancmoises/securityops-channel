@@ -12,7 +12,7 @@ are *ahead* of Guix/nonguix carry a **real, downloaded source hash**.
 
 - **Host:** `predator-helios-intel` (the live `/etc/config.scm` machine)
 - **Pinned Guix:** commit `d1e9e23` (June 2026); **depends on** `nonguix`
-- **Built/verified:** 2026-06-21; **re-validated 2026-06-22** (Mullvad → 2026.3, LibreWolf → 152.0.1-2); **2026-06-23** (torando-gui 1.0.1 added, then → 1.1.0: native GUI + connectivity fixes — built & installed); **2026-06-24** (vaptvupt 4.0.0 CLI + vaptvupt-gui 1.3.0 added — built from source)
+- **Built/verified:** 2026-06-21; **re-validated 2026-06-22** (Mullvad → 2026.3, LibreWolf → 152.0.1-2); **2026-06-23** (torando-gui 1.0.1 added, then → 1.1.0: native GUI + connectivity fixes — built & installed); **2026-06-24** (vaptvupt 4.0.0 CLI + vaptvupt-gui 1.3.0 added — built from source; steam bootstrap bumped 1.0.0.85 → 1.0.0.86)
 - **Maintainer:** Cristian Cezar Moisés `<ethicalhacker@riseup.net>`
 - **Home:** `git.securityops.co/cristiancmoises/securityops-channel` (official, SSH-key-only) · public mirrors: [Codeberg](https://codeberg.org/berkeley/securityops-channel) · [GitHub](https://github.com/cristiancmoises/securityops-channel)
 - **Signing:** every commit is GPG-signed (ed25519 `0CFA 43B9 … ECFB 46E8`) and the channel is authenticated — see [Publishing & authentication](#publishing--authentication)
@@ -33,12 +33,13 @@ are *ahead* of Guix/nonguix carry a **real, downloaded source hash**.
 | **google-chrome-stable** | 149.0.7827.155 | 148.0.7778.215 (nonguix) | dl.google.com `.deb` |
 | **mullvad-vpn-desktop** | 2026.3 | 2025.8 (small-guix) | cdn.mullvad.net `.deb` (vendored) |
 | **librewolf** | 152.0.1-2 | 151.0.4-1 (guix) | source build (vendored `make-librewolf-source`) |
+| **steam** | 1.0.0.86 | 1.0.0.85 (nonguix) | Valve precise archive (nonguix container rebuilt around bumped bootstrap) |
 
 ### ✅ Re-exported — already latest in Guix/nonguix (track upstream automatically)
 
 `alacritty` 0.17.0 · `fish` 4.7.1 · `emacs` 30.2 · `emacs-pgtk` 30.2 ·
 `mpv` 0.41.0 · `vlc` 3.0.23 · `keepassxc` 2.7.12 · `ueberzugpp` 2.9.10 ·
-`lf` 41 · `steam` (self-updating bootstrap)
+`lf` 41
 
 ### ⚠️ Re-exported — newer upstream exists but a bump is impractical here
 
@@ -260,7 +261,7 @@ securityops-channel/
 │   ├── browsers.scm          # google-chrome (bump), librewolf (re-export of ↓), ungoogled-chromium (re-export)
 │   ├── librewolf.scm         # librewolf 152.0.1-2 (vendored make-librewolf-source)
 │   ├── vpn.scm               # mullvad-vpn-desktop (vendored bump)
-│   ├── games.scm             # steam (re-export)
+│   ├── games.scm             # steam 1.0.0.86 (nonguix container, bumped bootstrap)
 │   ├── apps.scm              # first-party: evelin-bin, btp, mirim, torando-gui, vaptvupt(+gui) (vendored)
 │   ├── security.scm          # curated security toolset (re-exports)
 │   └── sources/              # vendored release/built artifacts (local-file)
