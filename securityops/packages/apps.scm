@@ -5,12 +5,12 @@
 ;;;
 ;;; First-party applications from git.securityops.co/cristiancmoises.
 ;;;
-;;; The forge is SSH-key-only (anonymous HTTP is disabled), so the Guix daemon
-;;; cannot fetch these with a normal git-fetch/url-fetch origin.  Sources/release
-;;; artifacts are therefore VENDORED into this channel under packages/sources/
-;;; and referenced with `local-file' (content-addressed by Guix at add time, so
-;;; no hash field is needed).  This keeps the channel self-contained and buildable
-;;; by the daemon with no network or SSH access.
+;;; Each app lives in its own repo on the forge.  To keep this channel
+;;; self-contained, their sources/release artifacts are VENDORED under
+;;; packages/sources/ and referenced with `local-file' (content-addressed by
+;;; Guix at add time, so no hash field is needed) rather than fetched with a
+;;; git-fetch/url-fetch origin.  This keeps the channel buildable by the daemon
+;;; with no network access.
 
 (define-module (securityops packages apps)
   #:use-module (guix packages)

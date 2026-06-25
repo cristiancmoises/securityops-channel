@@ -14,7 +14,7 @@ are *ahead* of Guix/nonguix carry a **real, downloaded source hash**.
 - **Pinned Guix:** commit `d1e9e23` (June 2026); **depends on** `nonguix`
 - **Built/verified:** 2026-06-21; **re-validated 2026-06-22** (Mullvad → 2026.3, LibreWolf → 152.0.1-2); **2026-06-23** (torando-gui 1.0.1 added, then → 1.1.0: native GUI + connectivity fixes — built & installed); **2026-06-24** (vaptvupt 4.0.0 CLI + vaptvupt-gui 1.3.0 added — built from source; steam bootstrap bumped 1.0.0.85 → 1.0.0.86)
 - **Maintainer:** Cristian Cezar Moisés `<ethicalhacker@riseup.net>`
-- **Home:** `git.securityops.co/cristiancmoises/securityops-channel` (official, SSH-key-only) · public mirrors: [Codeberg](https://codeberg.org/berkeley/securityops-channel) · [GitHub](https://github.com/cristiancmoises/securityops-channel)
+- **Home:** [`https://git.securityops.co/cristiancmoises/securityops-channel`](https://git.securityops.co/cristiancmoises/securityops-channel) (official) · mirrors: [Codeberg](https://codeberg.org/berkeley/securityops-channel) · [GitHub](https://github.com/cristiancmoises/securityops-channel)
 - **Signing:** every commit is GPG-signed (ed25519 `0CFA 43B9 … ECFB 46E8`) and the channel is authenticated — see [Publishing & authentication](#publishing--authentication)
 
 ---
@@ -58,11 +58,10 @@ are *ahead* of Guix/nonguix carry a **real, downloaded source hash**.
 
 ## First-party apps (`git.securityops.co/cristiancmoises`)
 
-The forge is **SSH-key-only** (anonymous HTTP disabled), so the Guix daemon
-can't fetch these with a normal origin. Sources/artifacts are **vendored** into
-`securityops/packages/sources/` and referenced with `local-file`
-(content-addressed, no hash field) — the channel stays self-contained and builds
-with no network or SSH.
+Each app lives in its own repo on the forge. To keep this channel
+**self-contained** (it builds with no network access), their sources/artifacts are
+**vendored** into `securityops/packages/sources/` and referenced with `local-file`
+(content-addressed, no hash field) rather than fetched at build time.
 
 | Package | Version | How | Status |
 |---|---|---|---|
@@ -151,8 +150,8 @@ its `(introduction …)` so `guix pull` verifies every commit's signature:
     "0CFA 43B9 AA96 42EA AF2B  E983 C4C6 61C9 ECFB 46E8"))))
 ```
 
-The official URL is the SSH-key-only forge. **Without forge SSH access**, swap the
-`url` for a public HTTPS mirror — the introduction is identical:
+The official URL clones over **HTTPS** with no account. Prefer a mirror? Swap the
+`url` — the introduction is identical:
 
 ```scheme
  (url "https://codeberg.org/berkeley/securityops-channel")   ; or
@@ -176,11 +175,12 @@ Because every package here has a version **≥** what guix/nonguix ships,
 
 ### Clone or pull from a public mirror
 
-`git.securityops.co` is SSH-key-only; anyone can clone from a mirror instead:
+Clone over HTTPS from the official forge — or either mirror — with no account:
 
 ```sh
-git clone https://codeberg.org/berkeley/securityops-channel   # primary mirror
-git clone https://github.com/cristiancmoises/securityops-channel     # backup mirror
+git clone https://git.securityops.co/cristiancmoises/securityops-channel   # official
+git clone https://codeberg.org/berkeley/securityops-channel               # mirror
+git clone https://github.com/cristiancmoises/securityops-channel          # mirror
 ```
 
 ### Verify the introduction and signatures
@@ -204,8 +204,6 @@ git -C securityops-channel log --show-signature -1
 - **`failed to authenticate commit … signature verification failed`.** Import
   `0CFA43B9AA9642EAAF2BE983C4C661C9ECFB46E8` into your keyring; authentication
   applies from the introduction commit forward.
-- **`Permission denied (publickey)` cloning `git.securityops.co`.** That forge is
-  SSH-key-only — use the Codeberg or GitHub HTTPS mirror.
 - **nonguix introduction conflict.** Keep your `nonguix` pin at or after its
   introduction commit `897c1a47…` so both channels authenticate.
 
@@ -361,9 +359,9 @@ When a re-exported package falls behind upstream, turn its
 
 ## Publishing & authentication
 
-The channel is published and **authenticated**. The official push origin is the
-SSH-key-only forge `git.securityops.co`; public consumers pull from the Codeberg
-or GitHub HTTPS mirror (above). Every commit is **GPG-signed** with ed25519
+The channel is published and **authenticated**. Everyone clones and pulls over
+**HTTPS** from `git.securityops.co` (or the Codeberg/GitHub mirrors above); push
+is restricted to the maintainer. Every commit is **GPG-signed** with ed25519
 `0CFA 43B9 AA96 42EA AF2B  E983 C4C6 61C9 ECFB 46E8`; `.guix-authorizations` lists
 that key as the sole authorized signer, and the channel `(introduction …)` in
 *Install* pins the first signed commit — so `guix pull` verifies the whole history
