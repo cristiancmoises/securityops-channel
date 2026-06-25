@@ -6,6 +6,27 @@ tag rather than SemVer of the code.
 
 ## [Unreleased]
 
+### Added — ungoogled-chromium (prebuilt, latest)
+- **`ungoogled-chromium-bin` 149.0.7827.155-1.** New module
+  `(securityops packages chromium)` packaging the official upstream **prebuilt**
+  ungoogled-chromium portable Linux x86_64 binary, wrapped with nonguix's
+  `chromium-binary-build-system` (patchelf onto the Guix glibc loader + library
+  set; `#:validate-runpath? #f` because `chrome` links `libnss3.so` et al. which
+  NSS installs under `lib/nss/`, resolved at runtime via the wrapper's
+  `LD_LIBRARY_PATH`; no bundled `chrome-sandbox`, so Chromium uses the
+  unprivileged user-namespace sandbox). Source fetched from GitHub (Tor-reachable)
+  and **sha256-verified** against the upstream `ungoogled-chromium-binaries`
+  metadata (`d66edf0a…587c1`). **Build-and-run verified:** `chromium --version` →
+  `Chromium 149.0.7827.155`. Wired onto `PATH` in `home.scm` (replaces the
+  source-built 147).
+- **Why prebuilt:** a *from-source* bump is impossible on this Tor-only host —
+  the Chromium "-lite" base tarball lives only on Google's `commondatastorage`
+  GCS bucket, which **403-blocks every Tor exit** (verified across 6+ rotated
+  circuits, incl. the `.hashes` file and guix's known-good 147 tarball; no Wayback
+  copy). guix builds existing versions only via `bordeaux` substitutes, which do
+  not exist for a new release. The source-built `ungoogled-chromium` (147) stays
+  re-exported for the substitutable path.
+
 ### Changed — re-export
 - **steam: bootstrap bumped 1.0.0.85 → 1.0.0.86.** nonguix pins Valve's
   `steam-launcher` bootstrap at 1.0.0.85 (Valve's `stable` apt suite); this
