@@ -35,9 +35,11 @@ any "outdated" row for them below as **already addressed here**:
   bumped bootstrap, 2026-06-24).
 - **Already latest (re-exported):** `alacritty`, `fish`, `emacs`, `emacs-pgtk`,
   `mpv`, `vlc`, `keepassxc`, `ueberzugpp`, `lf`.
-- **Deferred (see README):** `ungoogled-chromium` (147 → 149.0.7827.155-1) —
-  in-module source assembly + unverifiable multi-hour compile;
-  `google-chrome-stable` 149 covers a current Chromium engine.
+- **ungoogled-chromium:** source-build `ungoogled-chromium` stays at 147 (a
+  from-source bump is impossible over Tor — Google's GCS 403-blocks the "-lite"
+  base tarball for any version without a guix substitute). Latest ungoogled is
+  shipped instead as `ungoogled-chromium-bin` 149.0.7827.155-1 — official upstream
+  prebuilt, GitHub-hosted, sha256-verified, build-and-run verified.
 
 ## Active `home.scm` reconciliation
 
@@ -59,7 +61,8 @@ active config):
 | fd | 10.4.2 | 10.4.2 | ✅ latest |
 | ripgrep | 15.1.0 | 15.1.0 | ✅ latest |
 | aspell-dict-en | 2020.12.07-0 | — | ❔ no updater |
-| ungoogled-chromium | 147.0.7727.137-1 | 149.0.7827.155-1 | ➡️ handled by channel |
+| ungoogled-chromium (source) | 147.0.7727.137-1 | 149.0.7827.196-1 | ⛔ source unbuildable over Tor (GCS 403) |
+| ungoogled-chromium-bin | 149.0.7827.155-1 | 149.0.7827.155-1 | ✅ prebuilt, sha256+run verified |
 
 ---
 
