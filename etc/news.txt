@@ -7,6 +7,22 @@
 ;;
 (channel-news
  (version 0)
+ (entry (commit "e4a2de36155861d573465fa73552e433e14b554b")
+        (title (en "securityops — latest ungoogled-chromium (prebuilt 149.0.7827.155)"))
+        (body
+         (en "The latest ungoogled-chromium is now available as
+ungoogled-chromium-bin 149.0.7827.155-1: the official upstream PREBUILT portable
+Linux x86_64 binary, hosted on GitHub (Tor-reachable), sha256-verified against
+the ungoogled-chromium-binaries metadata, and wrapped with nonguix's
+chromium-binary-build-system.  A from-SOURCE bump is impossible on a Tor-only
+host -- guix assembles ungoogled-chromium from a Chromium \"-lite\" base tarball
+that lives only on Google's commondatastorage GCS bucket, which 403-blocks every
+Tor exit (guix builds existing versions via bordeaux substitutes, but a brand-new
+release has none).  Build-and-run verified: `chromium --version' => Chromium
+149.0.7827.155.  The source-built ungoogled-chromium (147) stays re-exported.
+Run `guix pull' then `guix home reconfigure' and use `chromium' (on NVIDIA it is
+software-rendered: launch with `--use-gl=angle --use-angle=swiftshader').  See
+CHANGELOG.md and README.md.")))
  (entry (commit "d4ffe4a270043697c055e3d8cdf5652abddd5a77")
         (title (en "securityops 0.3.3 — torando-gui 1.1.0 (native GUI + connectivity fixes)"))
         (body

@@ -210,6 +210,10 @@ a decision recorded on ungoogled-chromium.
   binary name on `PATH`, unchanged.
 
 ### Decision — ungoogled-chromium 147 → 149 DEFERRED
+> **Superseded** in `[Unreleased]`: the latest ungoogled-chromium now ships as the
+> prebuilt `ungoogled-chromium-bin` 149.0.7827.155-1 (a from-source bump turned out
+> to be not just heavy but *impossible* over Tor — Google's GCS 403-blocks the base
+> tarball). The note below is the point-in-time 0.2.2 record.
 - A source bump is guix-maintainer-level: the source is assembled in-module from
   a chromium "-lite" tarball + version-pinned ungoogled/debian patch repos + a
   hand-picked patch subset, then a multi-hour / ~30GB-RAM compile that can't be
