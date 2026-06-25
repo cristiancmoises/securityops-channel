@@ -30,6 +30,17 @@ tag rather than SemVer of the code.
   via `LDFLAGS` + `patchelf`; the GUI installed with `copy-build-system`, its
   launcher pinning the matching CLI store path through `VAPTVUPT_BIN` so the two
   can never drift. Both verified to build (`vaptvupt`/`zupt`, `vaptvupt-gui`/`zupt-gui`).
+- **turborec 2.2.0** — Turbo Recorder, the hardware-accelerated screen + audio
+  recorder, no longer deferred (the forge key now grants read access). Built
+  FROM SOURCE with `copy-build-system` from the vendored repo tarball
+  (`sources/turborec-2.2.0-src.tar.gz`): `turborec.py` (pure-stdlib Python CLI +
+  a Tkinter `gui` subcommand) and the `turborecorder` bash X11 launcher install
+  under `lib/`, and self-contained `#!/bin/sh` shims in `bin/` pin the store
+  `python3`/`bash` and prepend the store bins of the tools they exec — `ffmpeg`,
+  `pactl` (pulseaudio), `xrandr`, `xdpyinfo`, `lspci`. The Tkinter GUI gets the
+  python `tk` output (which carries `_tkinter.so`) on `PYTHONPATH`. Verified:
+  `turborec --version` → 2.2.0; `--help` lists detect/devices/encoders/targets/
+  gui/record; `import tkinter` works (Tk 8.6); `turborecorder` syntax-checks.
 
 ### Published & authenticated
 - The channel is now public: official home **git.securityops.co** (cloned/pulled
