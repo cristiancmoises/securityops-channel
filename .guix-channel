@@ -15,8 +15,8 @@
 (channel
  (version 0)
  (news-file "etc/news.txt")
- ;; Official home: git.securityops.co (SSH-key-only).  Public mirrors anyone can
- ;; `guix pull' over HTTPS are Codeberg and GitHub (see README.md → "Install").
+ ;; Official home: git.securityops.co, cloned/pulled over HTTPS with no account.
+ ;; Public mirrors are Codeberg and GitHub (see README.md → "Install").
  ;; Commits are GPG-signed; add the `(introduction ...)' from the README to
  ;; channels.scm to verify signatures on pull (keys in .guix-authorizations).
  (url "https://git.securityops.co/cristiancmoises/securityops-channel")
