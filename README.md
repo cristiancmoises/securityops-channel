@@ -45,8 +45,15 @@ are *ahead* of Guix/nonguix carry a **real, downloaded source hash**.
 
 | Package | This channel (= guix) | Upstream | Why not bumped |
 |---|---|---|---|
-| **ungoogled-chromium** | 147.0.7727.137-1 | 149.0.7827.155-1 | **deferred by choice** — in-module source assembly + many-hour/~30GB-RAM compile, not verifiable here; `google-chrome-stable` 149 covers a current Chromium engine (see caveat) |
+| **ungoogled-chromium** (source) | 147.0.7727.137-1 | 149.0.7827.196-1 | source-bump **impossible over Tor** — the Chromium "-lite" base tarball lives only on Google's GCS, which 403-blocks every Tor exit; guix gets existing versions via substitutes, but a new release has none (see caveat). Use `ungoogled-chromium-bin` ↓ |
 
+> **ungoogled-chromium-bin** — the latest ungoogled-chromium *is* available here as
+> a **prebuilt** binary: `149.0.7827.155-1`, the official upstream portable Linux
+> x86_64 build hosted on GitHub (Tor-reachable), sha256-verified and wrapped with
+> nonguix's `chromium-binary-build-system`. **Build-and-run verified** —
+> `chromium --version` → `Chromium 149.0.7827.155`. This is the recommended
+> chromium on `PATH`.
+>
 > **librewolf** was in this table; it is now **bumped to 152.0.1-2** (see the
 > table above and the LibreWolf caveat).
 
@@ -256,8 +263,9 @@ securityops-channel/
 │   ├── emacs.scm             # emacs, emacs-pgtk (re-export)
 │   ├── video.scm             # openshot (bump), mpv, vlc (re-export)
 │   ├── utils.scm             # keepassxc, ueberzugpp, lf (re-export)
-│   ├── browsers.scm          # google-chrome (bump), librewolf (re-export of ↓), ungoogled-chromium (re-export)
+│   ├── browsers.scm          # google-chrome (bump), librewolf + ungoogled-chromium-bin (re-export of ↓), ungoogled-chromium (re-export)
 │   ├── librewolf.scm         # librewolf 152.0.1-2 (vendored make-librewolf-source)
+│   ├── chromium.scm          # ungoogled-chromium-bin 149.0.7827.155 (prebuilt, chromium-binary-build-system)
 │   ├── vpn.scm               # mullvad-vpn-desktop (vendored bump)
 │   ├── games.scm             # steam 1.0.0.86 (nonguix container, bumped bootstrap)
 │   ├── apps.scm              # first-party: evelin-bin, btp, mirim, torando-gui, vaptvupt(+gui) (vendored)
@@ -304,15 +312,26 @@ into `/etc/config.scm` and `home.scm` as `so:librewolf`.
 > lets the full-LTO build complete (peaks spill to disk); then
 > `guix build --cores=4 librewolf` finishes cleanly and the browser runs.
 
-**ungoogled-chromium 149 (deferred by choice).** A source bump is
-guix-maintainer-level: the source is assembled in-module from a chromium "-lite"
-tarball plus version-pinned ungoogled (github `149.0.7827.155-1`) and debian
-(salsa `debian/149.0.7827.155-1`) patch repos, a hand-picked patch subset, and
-preserved/blacklisted file lists — then a multi-hour / ~30GB-RAM compile that
-can't be verified on this host. Groundwork (2026-06-22): the upstream tags exist
-and all 18 of guix's selected debian patches are still present at the 149 debian
-tag, so a future bump should need only the three source hashes refreshed.
-`google-chrome-stable` 149 already provides a current Chromium engine.
+**ungoogled-chromium — prebuilt 149 (`ungoogled-chromium-bin`), source-build
+blocked over Tor.** A *from-source* bump is not merely guix-maintainer-level
+work here, it is **impossible on this Tor-only host**: guix assembles the source
+from a Chromium "-lite" base tarball that lives only on Google's
+`commondatastorage` GCS bucket, and that bucket **403-blocks every Tor exit**
+(verified across 6+ rotated circuits — even the tiny `.hashes` integrity file and
+guix's own known-good 147 tarball; no Wayback copy exists). guix can build
+*existing* versions only because their source is served as a substitute
+(`.tar.zst`) from `bordeaux.guix.gnu.org`; a brand-new release has no substitute,
+so its base tarball must come straight from Google. (It would also be a multi-hour
+/ ~30GB-RAM compile on 15GB RAM regardless.) **Resolution:** the channel now ships
+`ungoogled-chromium-bin` — the official upstream **prebuilt** portable Linux
+x86_64 binary `149.0.7827.155-1` (the newest prebuilt; `.196` exists only as
+un-prebuilt source), hosted on GitHub (Tor-reachable), `sha256`-verified against
+the upstream `ungoogled-chromium-binaries` metadata, and wrapped with nonguix's
+`chromium-binary-build-system` (patchelf onto the Guix glibc loader + library set;
+no bundled `chrome-sandbox`, so Chromium uses the unprivileged user-namespace
+sandbox). Build-and-run verified: `chromium --version` → `Chromium 149.0.7827.155`.
+The source-built `ungoogled-chromium` (147) remains re-exported for anyone wanting
+the substitutable build; `google-chrome-stable` 149 also provides a current engine.
 
 **Mullvad (vendored, x86_64-only).** Bumped to 2026.3 — Mullvad's *published*
 stable desktop release as of 2026-06-22 (the `deb/latest` redirect resolves to
