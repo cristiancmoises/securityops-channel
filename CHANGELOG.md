@@ -28,8 +28,8 @@ tag rather than SemVer of the code.
   can never drift. Both verified to build (`vaptvupt`/`zupt`, `vaptvupt-gui`/`zupt-gui`).
 
 ### Published & authenticated
-- The channel is now public: official home **git.securityops.co** (SSH-key-only)
-  with HTTPS mirrors on **Codeberg** and **GitHub**.
+- The channel is now public: official home **git.securityops.co** (cloned/pulled
+  over HTTPS, no account) with mirrors on **Codeberg** and **GitHub**.
 - **Every commit is GPG-signed** (ed25519 `0CFA 43B9 AA96 42EA AF2B  E983 C4C6
   61C9 ECFB 46E8`). Added **`.guix-authorizations`** (the maintainer key as the
   sole signer) and a channel **`(introduction …)`** so `guix pull` authenticates
@@ -211,8 +211,9 @@ curated set into the live `/etc/config.scm` and `~/.config/guix/home.scm`.
 ## [0.2.0] — 2026-06-21
 
 First-party applications from `git.securityops.co/cristiancmoises` and a curated
-security toolset. The forge is SSH-key-only, so app sources/artifacts are
-**vendored** into `packages/sources/` and referenced via `local-file`.
+security toolset. To keep the channel self-contained (it builds with no network),
+app sources/artifacts are **vendored** into `packages/sources/` and referenced
+via `local-file`.
 
 ### Added — first-party apps
 - **evelin-bin 4.1.1** — official static-musl release tarball (copy-build-system);
