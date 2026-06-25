@@ -145,7 +145,7 @@ its `(introduction …)` so `guix pull` verifies every commit's signature:
  (branch "main")
  (introduction
   (make-channel-introduction
-   "4a42b28c6c3b27661392cf93f6755c4d5d0dedad"
+   "af46f5cce66179f3e53f87c86ca2538c8fc63f98"
    (openpgp-fingerprint
     "0CFA 43B9 AA96 42EA AF2B  E983 C4C6 61C9 ECFB 46E8"))))
 ```
