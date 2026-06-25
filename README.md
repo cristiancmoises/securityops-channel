@@ -12,7 +12,7 @@ are *ahead* of Guix/nonguix carry a **real, downloaded source hash**.
 
 - **Host:** `predator-helios-intel` (the live `/etc/config.scm` machine)
 - **Pinned Guix:** commit `d1e9e23` (June 2026); **depends on** `nonguix`
-- **Built/verified:** 2026-06-21; **re-validated 2026-06-22** (Mullvad → 2026.3, LibreWolf → 152.0.1-2); **2026-06-23** (torando-gui 1.0.1 added, then → 1.1.0: native GUI + connectivity fixes — built & installed); **2026-06-24** (vaptvupt 4.0.0 CLI + vaptvupt-gui 1.3.0 added — built from source; steam bootstrap bumped 1.0.0.85 → 1.0.0.86); **2026-06-25** (turborec 2.2.0 added — built from source; CLI + bash launcher run, Tkinter GUI works via the python `tk` output)
+- **Built/verified:** 2026-06-21; **re-validated 2026-06-22** (Mullvad → 2026.3, LibreWolf → 152.0.1-2); **2026-06-23** (torando-gui 1.0.1 added, then → 1.1.0: native GUI + connectivity fixes — built & installed); **2026-06-24** (vaptvupt 4.0.0 CLI + vaptvupt-gui 1.3.0 added — built from source; steam bootstrap bumped 1.0.0.85 → 1.0.0.86); **2026-06-25** (turborec 2.2.0 added — built from source; CLI + bash launcher run, Tkinter GUI works via the python `tk` output; **LibreWolf 152.0.1-2 + torbrowser 15.0.16 fully compiled & run-verified** — full Firefox source builds, unblocked by a 24 GiB swapfile)
 - **Maintainer:** Cristian Cezar Moisés `<ethicalhacker@riseup.net>`
 - **Home:** [`https://git.securityops.co/cristiancmoises/securityops-channel`](https://git.securityops.co/cristiancmoises/securityops-channel) (official) · mirrors: [Codeberg](https://codeberg.org/berkeley/securityops-channel) · [GitHub](https://github.com/cristiancmoises/securityops-channel)
 - **Signing:** every commit is GPG-signed (ed25519 `0CFA 43B9 … ECFB 46E8`) and the channel is authenticated — see [Publishing & authentication](#publishing--authentication)
@@ -292,9 +292,17 @@ is provided for a fully-pristine rebuild.
 inherits guix's `librewolf`, overriding only `version` + `source`. The l10n commit
 is the `revision` from `firefox-152.0.1/browser/locales/l10n-changesets.json`
 (`9929bc50`). The computed-origin source was assembled and verified
-(`guix build -S librewolf` → `librewolf-152.0.1-2.source.tar.zst`); the full
-Firefox compile is deferred to reconfigure (like torbrowser). Wired into
-`/etc/config.scm` and `home.scm` as `so:librewolf`.
+(`guix build -S librewolf` → `librewolf-152.0.1-2.source.tar.zst`). The full
+Firefox compile is now **built & run-verified** (full LTO) on this host. Wired
+into `/etc/config.scm` and `home.scm` as `so:librewolf`.
+
+> **Building Firefox-class packages (librewolf / torbrowser / icecat) on a
+> RAM-constrained host.** Their final rust crate `gkrust` is whole-program LTO —
+> a *single* rustc that needs ~14 GiB — so on a 15 GiB box it OOM-kills at every
+> `-j` (24 down to 1), with or without `--disable-lto`. The fix is **swap**: a
+> 24 GiB disk swapfile (now declared in `config-xlibre.scm` via `swap-devices`)
+> lets the full-LTO build complete (peaks spill to disk); then
+> `guix build --cores=4 librewolf` finishes cleanly and the browser runs.
 
 **ungoogled-chromium 149 (deferred by choice).** A source bump is
 guix-maintainer-level: the source is assembled in-module from a chromium "-lite"
