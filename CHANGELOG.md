@@ -42,6 +42,16 @@ tag rather than SemVer of the code.
   `turborec --version` → 2.2.0; `--help` lists detect/devices/encoders/targets/
   gui/record; `import tkinter` works (Tk 8.6); `turborecorder` syntax-checks.
 
+### Verified — Firefox-class packages compile on the live host now
+- **librewolf 152.0.1-2 and torbrowser 15.0.16 fully compiled & run-verified**
+  (full LTO). Previously these were source-assembled only — the full builds were
+  blocked by RAM, not packaging. `gkrust` (the whole-program rust-LTO crate) is a
+  single ~14 GiB rustc that OOM-kills a 15 GiB box at every `-j` (24 down to 1),
+  with or without `--disable-lto`. The fix is **swap**: a 24 GiB `/var/swapfile`
+  is now declared durably in `config-xlibre.scm` (`swap-devices`, layered over
+  the existing 8 GiB zram). With it, `guix build --cores=4 librewolf` finishes
+  cleanly and the browser launches. See README → LibreWolf caveat.
+
 ### Published & authenticated
 - The channel is now public: official home **git.securityops.co** (cloned/pulled
   over HTTPS, no account) with mirrors on **Codeberg** and **GitHub**.
