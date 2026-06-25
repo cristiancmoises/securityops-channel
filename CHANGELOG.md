@@ -8,9 +8,13 @@ tag rather than SemVer of the code.
 
 ### Changed — re-export
 - **steam: bootstrap bumped 1.0.0.85 → 1.0.0.86.** nonguix pins Valve's
-  `steam-launcher` bootstrap at 1.0.0.85; this channel now tracks the latest one
-  Valve publishes (1.0.0.86 — client timestamp 2026-06-09, scout runtime
-  1.0.20260430). `games.scm` no longer re-exports nonguix's `steam` verbatim: it
+  `steam-launcher` bootstrap at 1.0.0.85 (Valve's `stable` apt suite); this
+  channel now tracks the newest one Valve publishes (1.0.0.86 — client timestamp
+  2026-06-09, scout runtime 1.0.20260430). Note 1.0.0.86 is from Valve's `beta`
+  suite (the tarball's `debian/changelog` reads `steam (1:1.0.0.86) beta`; apt
+  `dists/stable` is still 1.0.0.85) — a deliberate ahead-of-stable choice for the
+  self-updating shim, consistent with picking newest-available elsewhere.
+  `games.scm` no longer re-exports nonguix's `steam` verbatim: it
   rebuilds nonguix's steam container (`steam-container-for mesa`) around a
   version-bumped wrap-package, inheriting the FHS sandbox, library set and mesa
   driver unchanged. Real downloaded hash; built & verified. (The bootstrap is a
@@ -120,7 +124,7 @@ routes one local user's egress through Tor (transparent proxy + killswitch).
   source** with `copy-build-system` (no compile, no patchelf). The 1.0.1 source
   snapshot is vendored at
   `securityops/packages/sources/torando-gui-1.0.1-src.tar.gz` and referenced via
-  `local-file` (the forge is SSH-only). A `wrap-shims` phase makes the package
+  `local-file` (vendored so the channel builds with no network). A `wrap-shims` phase makes the package
   **self-contained**: both shims are rewritten to call the store `python3` and
   prepend the store bins of the tools the root daemon execs (`iptables`,
   `chattr` via `e2fsprogs`, `tor`), and the installed systemd unit is pointed at

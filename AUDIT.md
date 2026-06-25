@@ -30,9 +30,11 @@ any "outdated" row for them below as **already addressed here**:
 - **Bumped ahead of Guix/nonguix:** `kitty` 0.47.4, `tor` 0.4.9.9,
   `torbrowser` 15.0.16, `openshot` 3.5.1, `google-chrome-stable` 149.0.7827.155,
   `mullvad-vpn-desktop` **2026.3**, `librewolf` **152.0.1-2** (both bumped
-  2026-06-22; the rest re-verified as still-latest the same day).
+  2026-06-22; the rest re-verified as still-latest the same day),
+  `steam` **1.0.0.86** (nonguix bootstrap 1.0.0.85; container rebuilt around the
+  bumped bootstrap, 2026-06-24).
 - **Already latest (re-exported):** `alacritty`, `fish`, `emacs`, `emacs-pgtk`,
-  `mpv`, `vlc`, `keepassxc`, `ueberzugpp`, `lf`, `steam`.
+  `mpv`, `vlc`, `keepassxc`, `ueberzugpp`, `lf`.
 - **Deferred (see README):** `ungoogled-chromium` (147 → 149.0.7827.155-1) —
   in-module source assembly + unverifiable multi-hour compile;
   `google-chrome-stable` 149 covers a current Chromium engine.
@@ -461,7 +463,7 @@ A total of **391** explicitly-declared packages were audited across the two conf
 | rust | Home+System | 1.93.0 | updater failed |
 | smartmontools | Home+System | 7.5 | updater reported '86.64.LINUX.OK' (CVS tag, not a real version) |
 | sqlite | Home+System | 3.53.1 | updater failed |
-| steam-nvidia | Home+System | 1.0.0.85 | local transform of nonguix steam; no updater |
+| steam-nvidia | Home+System | 1.0.0.86 | local transform of nonguix steam (replace-mesa); inherits steam's version; no updater |
 | sysstat | System | 12.7.5 | no updater |
 | tdlib | Home+System | 1.8.64 | declared 1.8.0-snapshot newer than upstream-known 1.8.0 |
 | tor-client | Home | 0.4.9.8 | updater failed |

@@ -33,7 +33,7 @@ are *ahead* of Guix/nonguix carry a **real, downloaded source hash**.
 | **google-chrome-stable** | 149.0.7827.155 | 148.0.7778.215 (nonguix) | dl.google.com `.deb` |
 | **mullvad-vpn-desktop** | 2026.3 | 2025.8 (small-guix) | cdn.mullvad.net `.deb` (vendored) |
 | **librewolf** | 152.0.1-2 | 151.0.4-1 (guix) | source build (vendored `make-librewolf-source`) |
-| **steam** | 1.0.0.86 | 1.0.0.85 (nonguix) | Valve precise archive (nonguix container rebuilt around bumped bootstrap) |
+| **steam** | 1.0.0.86 _(Valve beta)_ | 1.0.0.85 (nonguix, stable) | Valve precise archive (nonguix container rebuilt around bumped bootstrap) |
 
 ### ✅ Re-exported — already latest in Guix/nonguix (track upstream automatically)
 
@@ -173,9 +173,9 @@ Because every package here has a version **≥** what guix/nonguix ships,
 > one to pin a fully reproducible pull. The `(introduction …)` is set once and is
 > independent of any later pin.
 
-### Clone or pull from a public mirror
+### Clone or pull over HTTPS
 
-Clone over HTTPS from the official forge — or either mirror — with no account:
+Clone over HTTPS from the official forge — or any mirror — with no account:
 
 ```sh
 git clone https://git.securityops.co/cristiancmoises/securityops-channel   # official
@@ -232,8 +232,8 @@ a prefix and reference the prefixed symbol:
 
 The live `/etc/config.scm` and `~/.config/guix/home.scm` are wired this way for
 exactly the packages that are ahead of guix/nonguix; the re-exports
-(`alacritty`, `fish`, `emacs`, `mpv`, `vlc`, `keepassxc`, `ueberzugpp`, `lf`,
-`steam`) are byte-identical to guix's, so they are left as bare symbols.
+(`alacritty`, `fish`, `emacs`, `mpv`, `vlc`, `keepassxc`, `ueberzugpp`, `lf`)
+are byte-identical to guix's, so they are left as bare symbols.
 
 To apply after a channel edit: `guix pull` (picks up the new `securityops`
 commit), then `guix system reconfigure /etc/config.scm` and `guix home
