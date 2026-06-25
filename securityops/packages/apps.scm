@@ -63,7 +63,7 @@ dependencies.")
     (license license:agpl3+)))
 
 ;;; btp — Built from source (v0.7) on this host with `cargo build --release'
-;;; (the forge is SSH-only, so the daemon can't fetch it; binaries are vendored).
+;;; (binaries vendored to keep the channel self-contained / buildable offline).
 ;;; The two core binaries (btpctl CLI, btpd daemon) are dynamic Rust binaries;
 ;;; their build-time RUNPATH points at an ephemeral `guix shell' profile, so we
 ;;; patchelf the interpreter + RPATH onto the declared glibc / gcc:lib inputs.
@@ -148,8 +148,8 @@ from the v1.0.0 source release.")
 ;;; egress through Tor (transparent proxy + killswitch), automating the upstream
 ;;; torando iptables rules plus torrc/resolv.conf management.  Pure-Python
 ;;; (stdlib only), so it is built FROM SOURCE with copy-build-system — no
-;;; compile, no patchelf.  Source is the vendored 1.1.0 release snapshot (the
-;;; forge is SSH-only, so the daemon can't fetch it).  The two FHS shims call a
+;;; compile, no patchelf.  Source is the vendored 1.1.0 release snapshot
+;;; (vendored to keep the channel self-contained / buildable offline).  The two FHS shims call a
 ;;; bare `python3' and assume /usr/lib; the wrap-shims phase rewrites them to the
 ;;; store python3 and prepends the store bins of the tools the root daemon execs
 ;;; (iptables, chattr via e2fsprogs, tor), and points the systemd unit at the
