@@ -9,6 +9,8 @@
 (define-module (securityops packages tor)
   #:use-module (guix packages)
   #:use-module (guix download)
+  #:use-module (guix gexp)
+  #:use-module (guix utils)
   #:use-module (guix build-system copy)
   #:use-module ((guix licenses) #:prefix license:)
   #:use-module ((gnu packages tor) #:prefix tor:)
@@ -48,6 +50,12 @@
 ;;; pristine build.
 ;;; Hash: `guix download .../src-firefox-tor-browser-140.12.0esr-15.0-1-build2.tar.xz'.
 ;;; ---------------------------------------------------------------------------
+;;; Performance: add ThinLTO on top of Guix's stock hardened/optimised build
+;;; (--enable-optimize --enable-release --enable-strip, sandbox + PIE kept).
+;;; ThinLTO (not full/cross) is deliberate: it gives most of the LTO speedup
+;;; while staying within ~16 GiB RAM at link time — full/cross LTO risks OOM on
+;;; this host.  The flag is written into the mozconfig as `ac_add_options
+;;; --enable-lto=thin' after the stock flags, so it wins over the base config.
 (define-public torbrowser
   (package
     (inherit tb:torbrowser)
@@ -59,7 +67,11 @@
              "https://archive.torproject.org/tor-package-archive/torbrowser/"
              version "/src-firefox-tor-browser-140.12.0esr-15.0-1-build2.tar.xz"))
        (sha256
-        (base32 "1cnv5sjr4zaybqv3yv0pkdicfb47mdzpk2hbjkrqhlxz3vbnhi8l"))))))
+        (base32 "1cnv5sjr4zaybqv3yv0pkdicfb47mdzpk2hbjkrqhlxz3vbnhi8l"))))
+    (arguments
+     (substitute-keyword-arguments (package-arguments tb:torbrowser)
+       ((#:configure-flags flags #~'())
+        #~(append #$flags (list "--enable-lto=thin")))))))
 
 ;;; ---------------------------------------------------------------------------
 ;;; torbrowser-assets — the official prebuilt bundle (15.0.16) from which fonts
