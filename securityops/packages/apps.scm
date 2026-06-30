@@ -383,7 +383,7 @@ GUI and CLI versions can never drift apart.")
     (home-page "https://git.securityops.co/cristiancmoises/vaptvupt")
     (license license:agpl3+)))
 
-;;; turborec — Turbo Recorder 2.2.0: a hardware-accelerated Linux screen + audio
+;;; turborec — Turbo Recorder 3.0.0: a hardware-accelerated Linux screen + audio
 ;;; recorder.  `turborec.py' is a pure-stdlib Python CLI with a Tkinter GUI (the
 ;;; `gui' subcommand); `turborecorder' is an X11 bash launcher that builds a
 ;;; quality-first FFmpeg pipeline (NVENC > VAAPI > x264).  Built FROM SOURCE with
@@ -396,8 +396,8 @@ GUI and CLI versions can never drift apart.")
 (define-public turborec
   (package
     (name "turborec")
-    (version "2.2.0")
-    (source (local-file "sources/turborec-2.2.0-src.tar.gz"))
+    (version "3.0.0")
+    (source (local-file "sources/turborec-3.0.0-src.tar.gz"))
     (build-system copy-build-system)
     (inputs
      `(("python" ,python)

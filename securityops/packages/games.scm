@@ -15,15 +15,14 @@
 ;;; steam — nonguix ships a thin bootstrap (Valve's `steam-launcher' from the
 ;;; precise archive) that the real client self-updates around.  nonguix pins
 ;;; that bootstrap at 1.0.0.85 (Valve's `stable' apt suite); this channel tracks
-;;; the newest one Valve publishes, 1.0.0.86 (client timestamp 2026-06-09, scout
-;;; runtime 1.0.20260430), by rebuilding nonguix's steam container around a
-;;; version-bumped wrap-package.  Everything else (the FHS sandbox, the library
-;;; set, the mesa driver) is inherited unchanged from nonguix.
+;;; the newest one Valve publishes, 1.0.0.87, by rebuilding nonguix's steam
+;;; container around a version-bumped wrap-package.  Everything else (the FHS
+;;; sandbox, the library set, the mesa driver) is inherited unchanged from nonguix.
 ;;;
-;;; NOTE: 1.0.0.86 is from Valve's `beta' suite (the tarball's debian/changelog
-;;; reads "steam (1:1.0.0.86) beta"); stable is still 1.0.0.85.  This is a
-;;; deliberate ahead-of-stable choice for the self-updating shim — bump the
-;;; wrap-package below back to 1.0.0.85 if you want stable-only.
+;;; NOTE: 1.0.0.87 is from Valve's `beta' suite (the precise archive's newest
+;;; steam-launcher); stable is still 1.0.0.85.  This is a deliberate
+;;; ahead-of-stable choice for the self-updating shim — bump the wrap-package
+;;; below back to 1.0.0.85 if you want stable-only.
 ;;;
 ;;; NOTE: home.scm installs `steam' and transforms it to the NVIDIA variant via
 ;;; `replace-mesa' (-> steam-nvidia / nvda-580); that transformation is
@@ -36,18 +35,18 @@
   (let ((client (ngc-wrap-package %steam-container)))
     (package
       (inherit client)
-      (version "1.0.0.86")
+      (version "1.0.0.87")
       (source
        (origin
          (inherit (package-source client))
-         (uri "http://repo.steampowered.com/steam/archive/precise/steam_1.0.0.86.tar.gz")
-         (file-name "steam-client-1.0.0.86.tar.gz")
+         (uri "http://repo.steampowered.com/steam/archive/precise/steam_1.0.0.87.tar.gz")
+         (file-name "steam-client-1.0.0.87.tar.gz")
          (sha256
-          (base32 "0q3mb2fp775b2hqkmixvvnikf2px4c1kwr01qw30qnf3brdf9j9b")))))))
+          (base32 "07xs4wpdiwc671d9qzc92j8ynhc0jw4zzqpkm84q0zrpz797b4v4")))))))
 
 (define-public steam
   (nonguix-container->package
    (nonguix-container
     (inherit %steam-container)
-    (version "1.0.0.86")
+    (version "1.0.0.87")
     (wrap-package steam-client/latest))))

@@ -27,11 +27,11 @@ containerd 1.6.22 → 2.3.2, openssl 3.5.7 → 4.0.1, nix 2.25.5 → 2.34.7,
 These declared apps are provided by this channel at the latest version, so treat
 any "outdated" row for them below as **already addressed here**:
 
-- **Bumped ahead of Guix/nonguix:** `kitty` 0.47.4, `tor` 0.4.9.9,
-  `torbrowser` 15.0.16, `openshot` 3.5.1, `google-chrome-stable` 149.0.7827.155,
+- **Bumped ahead of Guix/nonguix:** `kitty` 0.47.4, `tor` 0.4.9.11,
+  `torbrowser` 15.0.17, `openshot` 3.5.1, `google-chrome-stable` 150.0.7871.46,
   `mullvad-vpn-desktop` **2026.3**, `librewolf` **152.0.1-2** (both bumped
   2026-06-22; the rest re-verified as still-latest the same day),
-  `steam` **1.0.0.86** (nonguix bootstrap 1.0.0.85; container rebuilt around the
+  `steam` **1.0.0.87** (nonguix bootstrap 1.0.0.85; container rebuilt around the
   bumped bootstrap, 2026-06-24), `glances` **4.5.5** (guix 4.3.0; from-source
   bump with the new `pyinstrument` 5.1.2 core dep, 2026-06-30), `lynis` **3.1.7**
   (guix 3.1.1; shell auditing tool, from-source bump, 2026-06-30).
@@ -40,7 +40,7 @@ any "outdated" row for them below as **already addressed here**:
 - **ungoogled-chromium:** source-build `ungoogled-chromium` stays at 147 (a
   from-source bump is impossible over Tor — Google's GCS 403-blocks the "-lite"
   base tarball for any version without a guix substitute). Latest ungoogled is
-  shipped instead as `ungoogled-chromium-bin` 149.0.7827.155-1 — official upstream
+  shipped instead as `ungoogled-chromium-bin` 149.0.7827.200-1 — official upstream
   prebuilt, GitHub-hosted, sha256-verified, build-and-run verified.
 
 ## Active `home.scm` reconciliation
@@ -63,8 +63,8 @@ active config):
 | fd | 10.4.2 | 10.4.2 | ✅ latest |
 | ripgrep | 15.1.0 | 15.1.0 | ✅ latest |
 | aspell-dict-en | 2020.12.07-0 | — | ❔ no updater |
-| ungoogled-chromium (source) | 147.0.7727.137-1 | 149.0.7827.196-1 | ⛔ source unbuildable over Tor (GCS 403) |
-| ungoogled-chromium-bin | 149.0.7827.155-1 | 149.0.7827.155-1 | ✅ prebuilt, sha256+run verified |
+| ungoogled-chromium (source) | 147.0.7727.137-1 | 149.0.7827.200-1 | ⛔ source unbuildable over Tor (GCS 403) |
+| ungoogled-chromium-bin | 149.0.7827.200-1 | 149.0.7827.200-1 | ✅ prebuilt, sha256+run verified |
 
 ---
 
@@ -468,7 +468,7 @@ A total of **391** explicitly-declared packages were audited across the two conf
 | rust | Home+System | 1.93.0 | updater failed |
 | smartmontools | Home+System | 7.5 | updater reported '86.64.LINUX.OK' (CVS tag, not a real version) |
 | sqlite | Home+System | 3.53.1 | updater failed |
-| steam-nvidia | Home+System | 1.0.0.86 | local transform of nonguix steam (replace-mesa); inherits steam's version; no updater |
+| steam-nvidia | Home+System | 1.0.0.87 | local transform of nonguix steam (replace-mesa); inherits steam's version; no updater |
 | sysstat | System | 12.7.5 | no updater |
 | tdlib | Home+System | 1.8.64 | declared 1.8.0-snapshot newer than upstream-known 1.8.0 |
 | tor-client | Home | 0.4.9.8 | updater failed |
