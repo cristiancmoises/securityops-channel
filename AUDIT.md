@@ -32,7 +32,8 @@ any "outdated" row for them below as **already addressed here**:
   `mullvad-vpn-desktop` **2026.3**, `librewolf` **152.0.1-2** (both bumped
   2026-06-22; the rest re-verified as still-latest the same day),
   `steam` **1.0.0.86** (nonguix bootstrap 1.0.0.85; container rebuilt around the
-  bumped bootstrap, 2026-06-24).
+  bumped bootstrap, 2026-06-24), `glances` **4.5.5** (guix 4.3.0; from-source
+  bump with the new `pyinstrument` 5.1.2 core dep, 2026-06-30).
 - **Already latest (re-exported):** `alacritty`, `fish`, `emacs`, `emacs-pgtk`,
   `mpv`, `vlc`, `keepassxc`, `ueberzugpp`, `lf`.
 - **ungoogled-chromium:** source-build `ungoogled-chromium` stays at 147 (a
@@ -122,7 +123,7 @@ A total of **391** explicitly-declared packages were audited across the two conf
 | ghc | Home+System | 9.10.2 | 9.14.1 |
 | ghc-xmonad-contrib | System | 0.18.1 | 0.18.2 |
 | gimp | Home | 3.2.0 | 3.2.4 |
-| glances | System | 4.3.0 | 4.5.5 |
+| glances | System | 4.3.0 → **4.5.5 (securityops)** | 4.5.5 |
 | glib | Home | 2.86.0 | 2.89.0 |
 | glibc | Home | 2.41 | 2.43 |
 | gnome-tweaks | Home | 46.1 | 49.0 |
