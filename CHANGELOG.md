@@ -16,11 +16,18 @@ tag rather than SemVer of the code.
   byte-identical 15.0.16 `src-firefox` tarball (same FFESR build, same hash), so
   the compiled binary is unchanged. `torbrowser-assets` left at 15.0.16.
 - **turborec 2.2.0 → 3.0.0** — re-vendored from the forge `v3.0.0` tag; built &
-  runs. (v3.0.0 adds optional Wayland capture via `wf-recorder`/`wlr-randr`,
-  not yet wired into the launcher PATH; the X11 path is unchanged.)
-- **librewolf 152.0.4-1 deferred:** prepared but NOT applied — librewolf-source
-  152.0.4-1's `neterror.patch` fails to apply against the firefox 152.0.4 source
-  (`guix build -S` errors), so it stays at 152.0.1-2 pending investigation.
+  runs. v3.0.0 adds Wayland (wlroots) capture, so `wf-recorder` + `wlr-randr` +
+  `sway` (`swaymsg`) + `wmctrl` are now in the inputs and the launcher shim PATH
+  (the X11 path is unchanged).
+- **librewolf 152.0.1-2 → 152.0.4-1** — applied. The real blocker was NOT
+  `neterror.patch` (a misdiagnosis): it was guix's bundled
+  `librewolf-neuter-locale-download.patch`, whose hunk context drifted when
+  upstream 152.0.4 switched that script's downloader `wget` → `curl` (and dropped
+  a block above it). Fixed by dropping the stale bundled patch and neutering the
+  network l10n download inline via `substitute*` (resilient to that churn; the
+  l10n still comes from the pinned `firefox-l10n` checkout, so nothing is lost and
+  no patch is weakened). `guix build -S librewolf` assembles; full Firefox compile
+  deferred to reconfigure as usual.
 
 ### Fixed
 - **openshot 3.5.1 build.** The inherited check phase invoked `src/tests/

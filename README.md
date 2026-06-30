@@ -32,7 +32,7 @@ are *ahead* of Guix/nonguix carry a **real, downloaded source hash**.
 | **openshot** | 3.5.1 | 3.4.0 (guix) | git tag `v3.5.1` |
 | **google-chrome-stable** | 150.0.7871.46 | 148.0.7778.215 (nonguix) | dl.google.com `.deb` |
 | **mullvad-vpn-desktop** | 2026.3 | 2025.8 (small-guix) | cdn.mullvad.net `.deb` (vendored) |
-| **librewolf** | 152.0.1-2 | 151.0.4-1 (guix) | source build (vendored `make-librewolf-source`) |
+| **librewolf** | 152.0.4-1 | 151.0.4-1 (guix) | source build (vendored `make-librewolf-source`) |
 | **steam** | 1.0.0.87 _(Valve beta)_ | 1.0.0.85 (nonguix, stable) | Valve precise archive (nonguix container rebuilt around bumped bootstrap) |
 | **glances** | 4.5.5 | 4.3.0 (guix) | git tag `v4.5.5` (pyproject; +`pyinstrument` 5.1.2) |
 | **lynis** | 3.1.7 | 3.1.1 (guix) | git tag `3.1.7` (shell; plugins stripped) |
@@ -56,7 +56,7 @@ are *ahead* of Guix/nonguix carry a **real, downloaded source hash**.
 > `chromium --version` → `Chromium 149.0.7827.200`. This is the recommended
 > chromium on `PATH`.
 >
-> **librewolf** was in this table; it is now **bumped to 152.0.1-2** (see the
+> **librewolf** was in this table; it is now **bumped to 152.0.4-1** (see the
 > table above and the LibreWolf caveat).
 
 > A full version audit of **every other** package in `/etc/config.scm` and
@@ -80,7 +80,7 @@ Each app lives in its own repo on the forge. To keep this channel
 | **torando-gui** | 1.1.0 | built from source (pure Python daemon; native GTK4/WebKit GUI optional, browser fallback) | ✅ builds, installs & runs (`torando-gui`, `torando-guid`) |
 | **vaptvupt** | 4.0.0 | built from source (C11 Makefile; vendored libzuptsdk/libpqvaptvupt patchelf'd to glibc/openssl/argon2) | ✅ builds & runs (`vaptvupt`, `zupt`) |
 | **vaptvupt-gui** | 1.3.0 | PySide6/Qt6 frontend from the same tarball; launcher pins the CLI via `VAPTVUPT_BIN` | ✅ builds (`vaptvupt-gui`, `zupt-gui`) |
-| **turborec** | 3.0.0 | built from source (pure-Python CLI + Tkinter GUI + bash X11 launcher; self-contained `#!/bin/sh` shims pin python3/bash + ffmpeg/pactl/xrandr/xdpyinfo/lspci) | ✅ builds & runs (`turborec`, `turborecorder`) |
+| **turborec** | 3.0.0 | built from source (pure-Python CLI + Tkinter GUI + bash X11 launcher; self-contained `#!/bin/sh` shims pin python3/bash + ffmpeg/pactl/xrandr/xdpyinfo/lspci, + Wayland wf-recorder/wlr-randr/swaymsg + wmctrl) | ✅ builds & runs (`turborec`, `turborecorder`) |
 
 To re-vendor an updated app: rebuild/redownload its artifact into
 `packages/sources/`, bump `version`, and `guix build -L . <pkg>`.
@@ -229,7 +229,7 @@ a prefix and reference the prefixed symbol:
 ;; in (use-modules …)
 ((securityops packages terminals) #:prefix so:)   ; so:kitty   0.47.4 (gnu 0.46.2)
 ((securityops packages tor)       #:prefix so:)   ; so:tor     0.4.9.9, so:torbrowser 15.0.17
-((securityops packages browsers)  #:prefix so:)   ; so:google-chrome-stable 150, so:librewolf 152.0.1-2
+((securityops packages browsers)  #:prefix so:)   ; so:google-chrome-stable 150, so:librewolf 152.0.4-1
 ((securityops packages vpn)       #:prefix so:)   ; so:mullvad-vpn-desktop  2026.3
 ((securityops packages video)     #:prefix so:)   ; so:openshot 3.5.1 (gnu 3.4.0)
 ((securityops packages games)     #:prefix so:)   ; so:steam   1.0.0.87 (nonguix 1.0.0.85)
