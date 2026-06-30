@@ -6,6 +6,16 @@ tag rather than SemVer of the code.
 
 ## [Unreleased]
 
+### Added — security toolset
+- **lynis 3.1.7** (guix 3.1.1) — added to `(securityops packages security)`,
+  bumped ahead of Guix. Security auditing tool (pure shell): inherits Guix's
+  package, overrides version + source (GitHub tag `3.1.7`, real `guix hash -rx`
+  source hash), keeps Guix's snippet that strips the proprietary bundled plugins.
+  Guix's arguments are inherited unchanged: the check phase runs Guix's separate
+  `lynis-sdk` suite (pinned to the 3.1.1 release), which passes against 3.1.7, so
+  the tests are kept. Verified: `guix build` succeeds (tests pass); `lynis show
+  version` → 3.1.7.
+
 ### Added — monitoring
 - **glances 4.5.5** (guix 4.3.0) — new module `(securityops packages monitoring)`.
   Cross-platform curses/web system monitor, built from the official `v4.5.5` git
