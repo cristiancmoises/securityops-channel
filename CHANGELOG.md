@@ -6,6 +6,20 @@ tag rather than SemVer of the code.
 
 ## [Unreleased]
 
+### Added — monitoring
+- **glances 4.5.5** (guix 4.3.0) — new module `(securityops packages monitoring)`.
+  Cross-platform curses/web system monitor, built from the official `v4.5.5` git
+  tag (`pyproject-build-system`, real `guix hash -rx` source hash), inheriting
+  Guix's package and overriding version + source. Two 4.5.x deltas handled: the
+  new core dep **`pyinstrument>=5.1.2`** is satisfied by a private bump of
+  `python-pyinstrument` 5.1.1 → **5.1.2** (Guix's is one patch behind; tests +
+  test-only inputs dropped for that transitive bump), and the 4.3.0 custom test
+  entry (`unittest-core.py`) is gone in 4.5.x (tests moved to `tests/`), so tests
+  are skipped. `orjson` is kept (optional fast-JSON glances still uses) and the
+  weekly PyPI update-check stays disabled, as in Guix. Verified: `guix build`
+  succeeds (pyproject sanity-check confirms all deps satisfied); `glances
+  --version` → 4.5.5 (PsUtil 7.2.2); `glances --stdout cpu,mem` returns live data.
+
 ### Added — ungoogled-chromium (prebuilt, latest)
 - **`ungoogled-chromium-bin` 149.0.7827.155-1.** New module
   `(securityops packages chromium)` packaging the official upstream **prebuilt**
