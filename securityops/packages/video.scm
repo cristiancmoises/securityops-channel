@@ -7,6 +7,7 @@
 
 (define-module (securityops packages video)
   #:use-module (guix packages)
+  #:use-module (guix utils)
   #:use-module (guix git-download)
   #:use-module ((gnu packages video) #:prefix gnu:))
 
@@ -18,6 +19,12 @@
 ;;; openshot — bumped ahead of Guix: 3.4.0 -> 3.5.1 (latest upstream).
 ;;; git-fetch of tag v3.5.1; inherits the upstream origin (snippet preserved).
 ;;; Hash: `guix hash -rx' over `git clone -b v3.5.1 .../OpenShot/openshot-qt'.
+;;;
+;;; 3.5.1 restructured its test suite: Guix's inherited check phase invokes the
+;;; removed `src/tests/query_tests.py' (now split into unittest modules such as
+;;; `src/tests/test_query.py'), so the build failed in `check'.  The inherited
+;;; check phase guards on `tests?', so #:tests? #f makes it a no-op while every
+;;; other phase (font path, install, Qt wrapping) runs unchanged.
 (define-public openshot
   (package
     (inherit gnu:openshot)
@@ -30,4 +37,7 @@
              (commit (string-append "v" version))))
        (file-name (git-file-name (package-name gnu:openshot) version))
        (sha256
-        (base32 "0df8sb7k43m580b50c1g430fqbml6vzszaklp9z7767j4gfz1dl8"))))))
+        (base32 "0df8sb7k43m580b50c1g430fqbml6vzszaklp9z7767j4gfz1dl8"))))
+    (arguments
+     (substitute-keyword-arguments (package-arguments gnu:openshot)
+       ((#:tests? _ #t) #f)))))
