@@ -29,8 +29,8 @@ any "outdated" row for them below as **already addressed here**:
 
 - **Bumped ahead of Guix/nonguix:** `kitty` 0.47.4, `tor` 0.4.9.11,
   `torbrowser` 15.0.17, `openshot` 3.5.1, `google-chrome-stable` 150.0.7871.46,
-  `mullvad-vpn-desktop` **2026.3**, `librewolf` **152.0.1-2** (both bumped
-  2026-06-22; the rest re-verified as still-latest the same day),
+  `mullvad-vpn-desktop` **2026.3** (bumped 2026-06-22), `librewolf` **152.0.4-1**
+  (re-bumped 2026-06-30; the rest re-verified as still-latest),
   `steam` **1.0.0.87** (nonguix bootstrap 1.0.0.85; container rebuilt around the
   bumped bootstrap, 2026-06-24), `glances` **4.5.5** (guix 4.3.0; from-source
   bump with the new `pyinstrument` 5.1.2 core dep, 2026-06-30), `lynis` **3.1.7**
