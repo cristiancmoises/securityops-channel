@@ -1,0 +1,241 @@
+#!/usr/bin/env bash
+#
+# update-channel — check upstream updates for the securityops Guix channel and
+# auto-apply the ones Guix can update safely, in one command.
+#
+# Usage:
+#   ./update-channel [check]                 # report available updates (default)
+#   ./update-channel update [--build] [--commit] [--only PKG]...
+#   ./update-channel -h | --help
+#
+#   check                Show, for every channel package, current vs latest
+#                        upstream and whether an update is available.
+#   update               Auto-apply updates Guix can do itself (guix refresh -u:
+#                        version + real source hash) for the updater-backed
+#                        packages, then optionally build-verify and commit.
+#     --build            After applying, `guix build` each updated package.
+#     --commit           Git-commit the applied updates (GPG-signed, one commit).
+#     --only PKG         Restrict to PKG (repeatable).
+#
+# Design: `guix refresh -u` is the safe, authoritative auto-updater (it rewrites
+# the (version ...) + (sha256 ...) itself) and covers the github/gnu/pypi-backed
+# packages.  Source-built (torbrowser, librewolf) and binary/vendored packages
+# (chrome, mullvad, steam, ungoogled, the first-party apps) have NO Guix updater
+# and/or auto-bumping them triggers multi-hour compiles or app-specific
+# re-vendoring — so those are CHECK-ONLY: the tool surfaces the exact upstream
+# version + where to bump it, and you apply it deliberately.
+
+set -uo pipefail
+
+CHAN="$(cd "$(dirname "$0")" && pwd)"
+GUIX="${GUIX:-guix}"
+CURL=(curl -fsSL --max-time 20)
+
+# ---- pretty output -----------------------------------------------------------
+if [ -t 1 ] && [ -z "${NO_COLOR:-}" ]; then
+  B=$'\e[1m'; D=$'\e[2m'; R=$'\e[0m'; GRN=$'\e[32m'; YEL=$'\e[33m'; RED=$'\e[31m'; CYN=$'\e[36m'
+else B=; D=; R=; GRN=; YEL=; RED=; CYN=; fi
+say()  { printf '%s\n' "$*"; }
+sec()  { printf '\n%s== %s ==%s\n' "$B" "$*" "$R"; }
+die()  { printf '%serror:%s %s\n' "$RED" "$R" "$*" >&2; exit 1; }
+
+# ---- package registry --------------------------------------------------------
+# Packages Guix can auto-update (have a working `guix refresh` updater).
+REFRESH_PKGS=(kitty openshot tor glances)
+
+# Check-only packages -> shell function that echoes the latest upstream version.
+declare -A CHECKER=(
+  [torbrowser]=latest_torbrowser
+  [librewolf]=latest_librewolf
+  [mullvad-vpn-desktop]=latest_mullvad
+  [google-chrome-stable]=latest_chrome
+  [steam]=latest_steam
+  [ungoogled-chromium-bin]=latest_ungoogled
+)
+# First-party apps (forge / github) -> "host:repo" ; checked via tags.
+declare -A FORGE_APP=(
+  [evelin-bin]=securityops:evelin
+  [btp]=securityops:btp
+  [mirim]=securityops:mirim
+  [torando-gui]=securityops:torando-gui
+  [vaptvupt]=securityops:vaptvupt
+  [vaptvupt-gui]=securityops:vaptvupt
+  [turborec]=securityops:turborec
+  [moneyprinterturbo]=github:harry0703/MoneyPrinterTurbo
+)
+
+# ---- helpers -----------------------------------------------------------------
+cur_ver() { "$GUIX" show -L "$CHAN" "$1" 2>/dev/null | sed -n 's/^version: //p' | head -1; }
+
+# strip a leading 'v' and any git-describe suffix noise
+norm() { printf '%s' "${1#v}"; }
+
+# 0 (true) if $2 (latest) is strictly newer than $1 (current)
+is_newer() {
+  local a b; a="$(norm "$1")"; b="$(norm "$2")"
+  [ -n "$b" ] && [ "$b" != "?" ] || return 1
+  [ "$a" = "$b" ] && return 1
+  [ "$(printf '%s\n%s\n' "$a" "$b" | sort -V | tail -1)" = "$b" ]
+}
+
+# ---- upstream checkers (echo latest version, or '?') -------------------------
+latest_torbrowser() { "${CURL[@]}" "https://aus1.torproject.org/torbrowser/update_3/release/download-linux-x86_64.json" 2>/dev/null \
+  | python3 -c "import sys,json;print(json.load(sys.stdin)['version'])" 2>/dev/null || echo '?'; }
+
+latest_librewolf() { # source moved to Codeberg; fall back to GitLab tags
+  "${CURL[@]}" "https://codeberg.org/api/v1/repos/librewolf/source/releases?limit=1" 2>/dev/null \
+    | python3 -c "import sys,json;d=json.load(sys.stdin);print(d[0]['tag_name'] if d else '?')" 2>/dev/null \
+  || "${CURL[@]}" "https://gitlab.com/api/v4/projects/librewolf-community%2Fbrowser%2Fsource/repository/tags?per_page=1" 2>/dev/null \
+    | python3 -c "import sys,json;d=json.load(sys.stdin);print(d[0]['name'] if d else '?')" 2>/dev/null || echo '?'; }
+
+latest_mullvad() { # desktop releases are tagged YYYY.N (skip android/ios/* releases)
+  "${CURL[@]}" "https://api.github.com/repos/mullvad/mullvadvpn-app/releases?per_page=100" 2>/dev/null \
+    | python3 -c "import sys,json,re;t=[r['tag_name'] for r in json.load(sys.stdin) if re.fullmatch(r'\d{4}\.\d+',r['tag_name'])];print(sorted(t,key=lambda s:[int(p) for p in s.split('.')])[-1] if t else '?')" 2>/dev/null || echo '?'; }
+
+latest_chrome() { "${CURL[@]}" "https://versionhistory.googleapis.com/v1/chrome/platforms/linux/channels/stable/versions" 2>/dev/null \
+  | python3 -c "import sys,json;print(json.load(sys.stdin)['versions'][0]['version'])" 2>/dev/null || echo '?'; }
+
+latest_steam() { "${CURL[@]}" "https://repo.steampowered.com/steam/archive/precise/" 2>/dev/null \
+  | grep -oE 'steam_[0-9.]+\.tar\.gz' | sed 's/steam_//;s/\.tar\.gz//' | sort -V | tail -1 || echo '?'; }
+
+latest_ungoogled() { "${CURL[@]}" "https://api.github.com/repos/ungoogled-software/ungoogled-chromium/tags?per_page=1" 2>/dev/null \
+  | python3 -c "import sys,json;d=json.load(sys.stdin);print(d[0]['name'] if d else '?')" 2>/dev/null || echo '?'; }
+
+latest_forge() { # arg: host:repo  -> newest tag
+  local host="${1%%:*}" repo="${1#*:}" url
+  case "$host" in
+    securityops) url="https://git.securityops.co/cristiancmoises/$repo" ;;
+    github)      url="https://github.com/$repo" ;;
+    *) echo '?'; return ;;
+  esac
+  git ls-remote --tags --sort=-v:refname "$url" 2>/dev/null \
+    | sed -E 's#.*refs/tags/##; s#\^\{\}##' | grep -E '[0-9]' | head -1 || echo '?'
+}
+
+# ---- check -------------------------------------------------------------------
+UPDATES_AUTO=()   # "pkg cur new"   (guix refresh can apply)
+UPDATES_MANUAL=() # "pkg cur new where"
+
+do_check() {
+  sec "Guix-updatable (auto: guix refresh -u)"
+  local out
+  out="$("$GUIX" refresh -L "$CHAN" "${REFRESH_PKGS[@]}" 2>&1)"
+  local p cur new line
+  for p in "${REFRESH_PKGS[@]}"; do
+    cur="$(cur_ver "$p")"
+    new="$(printf '%s\n' "$out" | sed -nE "s#.*:[0-9]+:[0-9]+: ${p} would be upgraded from [^ ]+ to ([^ ]+).*#\1#p" | head -1)"
+    if [ -n "$new" ]; then
+      printf '  %s%-22s%s %s -> %s%s%s   %s(guix refresh -u)%s\n' "$B" "$p" "$R" "$cur" "$GRN" "$new" "$R" "$D" "$R"
+      UPDATES_AUTO+=("$p $cur $new")
+    else
+      printf '  %-22s %s%s (latest)%s\n' "$p" "$D" "$cur" "$R"
+    fi
+  done
+
+  sec "Check-only (source-build / binary — apply deliberately)"
+  for p in $(printf '%s\n' "${!CHECKER[@]}" | sort); do
+    print_manual "$p" "$(${CHECKER[$p]})" "${p}.scm"
+  done
+
+  sec "First-party apps (forge / github — re-vendor to update)"
+  for p in $(printf '%s\n' "${!FORGE_APP[@]}" | sort); do
+    print_manual "$p" "$(latest_forge "${FORGE_APP[$p]}")" "apps.scm (re-vendor source)"
+  done
+
+  summary
+}
+
+print_manual() {
+  local p="$1" new="$2" where="$3" cur; cur="$(cur_ver "$p")"
+  if [ "$new" = "?" ] || [ -z "$new" ]; then
+    printf '  %-22s %s%s%s   %s? upstream check failed%s\n' "$p" "$D" "${cur:-?}" "$R" "$YEL" "$R"
+  elif is_newer "$cur" "$new"; then
+    printf '  %s%-22s%s %s -> %s%s%s   %s%s%s\n' "$B" "$p" "$R" "$cur" "$YEL" "$new" "$R" "$D" "$where" "$R"
+    UPDATES_MANUAL+=("$p|$cur|$new|$where")
+  else
+    printf '  %-22s %s%s (latest)%s\n' "$p" "$D" "$cur" "$R"
+  fi
+}
+
+summary() {
+  sec "Summary"
+  say "  ${GRN}${#UPDATES_AUTO[@]}${R} auto-updatable  ·  ${YEL}${#UPDATES_MANUAL[@]}${R} need a manual/deliberate bump"
+  if [ "${#UPDATES_AUTO[@]}" -gt 0 ]; then
+    say "  → apply the automatic ones:  ${B}./update-channel update --build --commit${R}"
+  fi
+  if [ "${#UPDATES_MANUAL[@]}" -gt 0 ]; then
+    say "  → manual bumps (edit version + sha256, then ${D}guix build -L . PKG${R}):"
+    local e; for e in "${UPDATES_MANUAL[@]}"; do IFS='|' read -r p c n w <<<"$e"
+      printf '      %s%-20s%s %s -> %s   %s%s%s\n' "$B" "$p" "$R" "$c" "$n" "$D" "$w" "$R"; done
+  fi
+}
+
+# ---- update ------------------------------------------------------------------
+do_update() {
+  local build=0 commit=0; local -a only=()
+  while [ $# -gt 0 ]; do case "$1" in
+    --build) build=1;; --commit) commit=1;;
+    --only) shift; only+=("$1");; *) die "unknown update flag: $1";;
+  esac; shift; done
+
+  local -a targets=("${REFRESH_PKGS[@]}")
+  [ "${#only[@]}" -gt 0 ] && targets=("${only[@]}")
+
+  # Refresh PER PACKAGE so one package's transient updater/network error (e.g. a
+  # GitHub TLS blip) skips only that package instead of aborting the whole run.
+  sec "Applying guix refresh -u (per package): ${targets[*]}"
+  local -a updated=() rfailed=()
+  local pp rout rc
+  for pp in "${targets[@]}"; do
+    rout="$("$GUIX" refresh -L "$CHAN" -u "$pp" 2>&1)"; rc=$?
+    if [ "$rc" -ne 0 ]; then
+      printf '  %-22s %srefresh error — skipped (transient? re-run later)%s\n' "$pp" "$YEL" "$R"
+      rfailed+=("$pp"); continue
+    fi
+    if printf '%s\n' "$rout" | grep -qE ":[0-9]+:[0-9]+: ${pp}: updating from"; then
+      printf '  %s%-22s%s %supdated%s\n' "$B" "$pp" "$R" "$GRN" "$R"; updated+=("$pp")
+    else
+      printf '  %-22s %s(already latest)%s\n' "$pp" "$D" "$R"
+    fi
+  done
+
+  # Only ever consider/commit the channel's package definitions — never the
+  # working tree's other edits (this very script, README, ...).
+  local changed; changed="$(git -C "$CHAN" diff --name-only -- securityops/packages/ | grep '\.scm$' || true)"
+  if [ -z "$changed" ]; then
+    say "${D}No definitions changed (already up to date).${R}"
+    [ "${#rfailed[@]}" -gt 0 ] && say "${YEL}note: refresh errored for: ${rfailed[*]} — re-run later${R}"
+    return 0
+  fi
+  sec "Changed files"; git -C "$CHAN" --no-pager diff --stat
+  [ "${#rfailed[@]}" -gt 0 ] && say "${YEL}note: refresh errored (skipped) for: ${rfailed[*]}${R}"
+
+  if [ "$build" = 1 ] && [ "${#updated[@]}" -gt 0 ]; then
+    sec "Build-verifying updated packages: ${updated[*]}"
+    local p; for p in "${updated[@]}"; do
+      printf '  building %s ... ' "$p"
+      if "$GUIX" build -L "$CHAN" "$p" >/dev/null 2>&1; then printf '%sok%s\n' "$GRN" "$R"
+      else printf '%sFAILED%s\n' "$RED" "$R"; die "build failed for $p — definitions left in place for inspection"; fi
+    done
+  fi
+
+  if [ "$commit" = 1 ]; then
+    sec "Committing (GPG-signed)"
+    git -C "$CHAN" add -- $changed
+    git -C "$CHAN" commit -S -m "channel: auto-update via guix refresh
+
+Applied by ./update-channel: refreshed version + source hash for the
+updater-backed packages.
+
+$(git -C "$CHAN" --no-pager diff --cached --stat)" \
+      && say "${GRN}committed${R}  (push with your usual remotes)"
+  fi
+}
+
+# ---- main --------------------------------------------------------------------
+case "${1:-check}" in
+  -h|--help|help) sed -n '2,30p' "$0" | sed 's/^# \{0,1\}//' ;;
+  check)  shift || true; do_check ;;
+  update) shift; do_update "$@" ;;
+  *) die "unknown command: $1  (try: check | update | --help)" ;;
+esac
