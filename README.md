@@ -12,7 +12,7 @@ are *ahead* of Guix/nonguix carry a **real, downloaded source hash**.
 
 - **Host:** `predator-helios-intel` (the live `/etc/config.scm` machine)
 - **Pinned Guix:** commit `d1e9e23` (June 2026); **depends on** `nonguix`
-- **Built/verified:** 2026-06-21; **re-validated 2026-06-22** (Mullvad → 2026.3, LibreWolf → 152.0.1-2); **2026-06-23** (torando-gui 1.0.1 added, then → 1.1.0: native GUI + connectivity fixes — built & installed); **2026-06-24** (vaptvupt 4.0.0 CLI + vaptvupt-gui 1.3.0 added — built from source; steam bootstrap bumped 1.0.0.85 → 1.0.0.86); **2026-06-25** (turborec 2.2.0 added — built from source; CLI + bash launcher run, Tkinter GUI works via the python `tk` output; **LibreWolf 152.0.1-2 + torbrowser 15.0.16 fully compiled & run-verified** — full Firefox source builds, unblocked by a 24 GiB swapfile)
+- **Built/verified:** 2026-06-21; **re-validated 2026-06-22** (Mullvad → 2026.3, LibreWolf → 152.0.1-2); **2026-06-23** (torando-gui 1.0.1 added, then → 1.1.0: native GUI + connectivity fixes — built & installed); **2026-06-24** (vaptvupt 4.0.0 CLI + vaptvupt-gui 1.3.0 added — built from source; steam bootstrap bumped 1.0.0.85 → 1.0.0.86); **2026-06-25** (turborec 2.2.0 added — built from source; CLI + bash launcher run, Tkinter GUI works via the python `tk` output; **LibreWolf 152.0.1-2 + torbrowser 15.0.16 fully compiled & run-verified** — full Firefox source builds, unblocked by a 24 GiB swapfile); **2026-06-30** (glances 4.5.5 added — from-source bump, new `(securityops packages monitoring)` module + private pyinstrument 5.1.2 dep; built, `glances --version` → 4.5.5, `--stdout cpu,mem` returns live data)
 - **Maintainer:** Cristian Cezar Moisés `<ethicalhacker@riseup.net>`
 - **Home:** [`https://git.securityops.co/cristiancmoises/securityops-channel`](https://git.securityops.co/cristiancmoises/securityops-channel) (official) · mirrors: [Codeberg](https://codeberg.org/berkeley/securityops-channel) · [GitHub](https://github.com/cristiancmoises/securityops-channel)
 - **Signing:** every commit is GPG-signed (ed25519 `0CFA 43B9 … ECFB 46E8`) and the channel is authenticated — see [Publishing & authentication](#publishing--authentication)
@@ -230,6 +230,9 @@ a prefix and reference the prefixed symbol:
 ((securityops packages tor)       #:prefix so:)   ; so:tor     0.4.9.9, so:torbrowser 15.0.16
 ((securityops packages browsers)  #:prefix so:)   ; so:google-chrome-stable 149, so:librewolf 152.0.1-2
 ((securityops packages vpn)       #:prefix so:)   ; so:mullvad-vpn-desktop  2026.3
+((securityops packages video)     #:prefix so:)   ; so:openshot 3.5.1 (gnu 3.4.0)
+((securityops packages games)     #:prefix so:)   ; so:steam   1.0.0.86 (nonguix 1.0.0.85)
+((securityops packages monitoring) #:prefix so:)  ; so:glances 4.5.5 (gnu 4.3.0)
 
 ;; …then in the package list use so:kitty, so:tor, so:torbrowser, …
 ;; and for the daemon, override the service field:
