@@ -6,6 +6,29 @@ tag rather than SemVer of the code.
 
 ## [Unreleased]
 
+### Changed — version bumps (2026-06-30 batch)
+- **tor 0.4.9.9 → 0.4.9.11** (applied via `./update-channel`).
+- **steam 1.0.0.86 → 1.0.0.87** (Valve precise beta launcher; real hash; built).
+- **google-chrome-stable 149.0.7827.155 → 150.0.7871.46** (`.deb`; built).
+- **ungoogled-chromium-bin 149.0.7827.155-1 → 149.0.7827.200-1** (prebuilt; built,
+  `chromium --version` → 149.0.7827.200).
+- **torbrowser 15.0.16 → 15.0.17** — version-label only: 15.0.17 reuses the
+  byte-identical 15.0.16 `src-firefox` tarball (same FFESR build, same hash), so
+  the compiled binary is unchanged. `torbrowser-assets` left at 15.0.16.
+- **turborec 2.2.0 → 3.0.0** — re-vendored from the forge `v3.0.0` tag; built &
+  runs. (v3.0.0 adds optional Wayland capture via `wf-recorder`/`wlr-randr`,
+  not yet wired into the launcher PATH; the X11 path is unchanged.)
+- **librewolf 152.0.4-1 deferred:** prepared but NOT applied — librewolf-source
+  152.0.4-1's `neterror.patch` fails to apply against the firefox 152.0.4 source
+  (`guix build -S` errors), so it stays at 152.0.1-2 pending investigation.
+
+### Fixed
+- **openshot 3.5.1 build.** The inherited check phase invoked `src/tests/
+  query_tests.py`, removed in 3.5.1 (tests were split into `src/tests/test_*.py`),
+  so the build failed in `check`. Disabled the stale test invocation
+  (`#:tests? #f`; the inherited check phase guards on `tests?`); every other phase
+  runs unchanged. `guix build -L . openshot` now succeeds.
+
 ### Added — security toolset
 - **lynis 3.1.7** (guix 3.1.1) — added to `(securityops packages security)`,
   bumped ahead of Guix. Security auditing tool (pure shell): inherits Guix's

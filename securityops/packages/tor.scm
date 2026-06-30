@@ -34,10 +34,12 @@
         (base32 "1vd825m8v8njsg223hv6syjspgxnj77lgzbr037jm0cc24h1fv1f"))))))
 
 ;;; ---------------------------------------------------------------------------
-;;; torbrowser — bumped ahead of Guix: 15.0.14 -> 15.0.16 (latest STABLE; the
+;;; torbrowser — bumped ahead of Guix: 15.0.14 -> 15.0.17 (latest STABLE; the
 ;;; 16.0aN builds are alphas).  Source-built from the official Tor Browser
 ;;; Firefox source (140.12.0esr-15.0-1-build2), inheriting Guix's
-;;; `mozilla-build-system' machinery.
+;;; `mozilla-build-system' machinery.  NOTE: 15.0.17 reuses the byte-identical
+;;; 15.0.16 src-firefox tarball (same FFESR build, same hash) — only the version
+;;; label changes; the compiled binary is identical.
 ;;;
 ;;; CAVEAT (documented in README): Guix's `make-torbrowser' and
 ;;; `torbrowser-assets' are module-PRIVATE, so they cannot be re-wired without
@@ -59,7 +61,7 @@
 (define-public torbrowser
   (package
     (inherit tb:torbrowser)
-    (version "15.0.16")
+    (version "15.0.17")
     (source
      (origin
        (method url-fetch)

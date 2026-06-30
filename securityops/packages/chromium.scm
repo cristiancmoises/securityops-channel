@@ -52,7 +52,7 @@
 (define-public ungoogled-chromium-bin
   (package
     (name "ungoogled-chromium-bin")
-    (version "149.0.7827.155-1")
+    (version "149.0.7827.200-1")
     (source
      (origin
        (method url-fetch)
@@ -61,7 +61,7 @@
              "ungoogled-chromium-portablelinux/releases/download/"
              version "/ungoogled-chromium-" version "-x86_64_linux.tar.xz"))
        (sha256
-        (base32 "1hc7qmcbgfckny59hzmvdrkjmijy2a179rknwadrwyp6p05dyvnn"))))
+        (base32 "10ycp9lqf17qs5f2qlsx2z9hdlwhziw9m8b02qfg98hfxsw1022k"))))
     (build-system chromium-binary-build-system)
     (arguments
      (list
