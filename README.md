@@ -35,6 +35,7 @@ are *ahead* of Guix/nonguix carry a **real, downloaded source hash**.
 | **librewolf** | 152.0.1-2 | 151.0.4-1 (guix) | source build (vendored `make-librewolf-source`) |
 | **steam** | 1.0.0.86 _(Valve beta)_ | 1.0.0.85 (nonguix, stable) | Valve precise archive (nonguix container rebuilt around bumped bootstrap) |
 | **glances** | 4.5.5 | 4.3.0 (guix) | git tag `v4.5.5` (pyproject; +`pyinstrument` 5.1.2) |
+| **lynis** | 3.1.7 | 3.1.1 (guix) | git tag `3.1.7` (shell; plugins stripped) |
 
 ### ✅ Re-exported — already latest in Guix/nonguix (track upstream automatically)
 
@@ -125,11 +126,11 @@ open it. Configuration fields: `host`, `port`, `package`, `config-file`,
 `security.scm` re-exports a curated security toolset from Guix, so it installs
 from this channel and tracks Guix — most are already the latest upstream, though a
 few (`nmap` 7.98→7.99, `fping` 5.3→5.5) lag and would need a bump here (see
-[AUDIT.md](AUDIT.md)):
+[AUDIT.md](AUDIT.md)).  `lynis` is bumped here ahead of Guix (3.1.7 vs 3.1.1):
 
 > nmap · masscan · arp-scan · netdiscover · fping · mtr · whois ·
 > proxychains-ng · aircrack-ng · reaver · kismet · hydra (THC) · radare2 ·
-> rizin · binwalk · age
+> rizin · binwalk · age · **lynis 3.1.7** (bumped)
 
 **Not yet in Guix** (TODO — package on request; quick: Go/Rust single-binaries;
 heavy: zaproxy/volatility3): `sqlmap` · `nikto` · `gobuster` · `ffuf` ·
@@ -274,7 +275,7 @@ securityops-channel/
 │   ├── vpn.scm               # mullvad-vpn-desktop (vendored bump)
 │   ├── games.scm             # steam 1.0.0.86 (nonguix container, bumped bootstrap)
 │   ├── apps.scm              # first-party: evelin-bin, btp, mirim, torando-gui, vaptvupt(+gui) (vendored)
-│   ├── security.scm          # curated security toolset (re-exports)
+│   ├── security.scm          # curated security toolset (re-exports) + lynis 3.1.7 (bump)
 │   ├── monitoring.scm        # glances 4.5.5 (bump) + python-pyinstrument 5.1.2 (private dep bump)
 │   └── sources/              # vendored release/built artifacts (local-file)
 ├── securityops/services/
