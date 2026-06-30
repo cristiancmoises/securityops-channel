@@ -24,14 +24,14 @@
 (define-public tor
   (package
     (inherit tor:tor)
-    (version "0.4.9.9")
+    (version "0.4.9.11")
     (source
      (origin
        (method url-fetch)
        (uri (string-append "https://dist.torproject.org/tor-"
                            version ".tar.gz"))
        (sha256
-        (base32 "0cz84x94yhg6m1b5x6nnk9p95ah0ldb03xzw0rw7qq4gsrzvlxdx"))))))
+        (base32 "1vd825m8v8njsg223hv6syjspgxnj77lgzbr037jm0cc24h1fv1f"))))))
 
 ;;; ---------------------------------------------------------------------------
 ;;; torbrowser — bumped ahead of Guix: 15.0.14 -> 15.0.16 (latest STABLE; the
