@@ -12,7 +12,7 @@
   #:use-module (guix gexp)
   #:use-module (guix download)
   #:use-module (guix git-download)
-  #:use-module (guix build-system python)
+  #:use-module (guix build-system pyproject)        ;current pypi-uri (no deprecation warning)
   #:use-module ((gnu packages monitoring) #:prefix mon:)
   #:use-module ((gnu packages python-check) #:prefix pyc:))
 
