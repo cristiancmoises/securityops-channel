@@ -33,7 +33,8 @@ any "outdated" row for them below as **already addressed here**:
   2026-06-22; the rest re-verified as still-latest the same day),
   `steam` **1.0.0.86** (nonguix bootstrap 1.0.0.85; container rebuilt around the
   bumped bootstrap, 2026-06-24), `glances` **4.5.5** (guix 4.3.0; from-source
-  bump with the new `pyinstrument` 5.1.2 core dep, 2026-06-30).
+  bump with the new `pyinstrument` 5.1.2 core dep, 2026-06-30), `lynis` **3.1.7**
+  (guix 3.1.1; shell auditing tool, from-source bump, 2026-06-30).
 - **Already latest (re-exported):** `alacritty`, `fish`, `emacs`, `emacs-pgtk`,
   `mpv`, `vlc`, `keepassxc`, `ueberzugpp`, `lf`.
 - **ungoogled-chromium:** source-build `ungoogled-chromium` stays at 147 (a
