@@ -257,6 +257,7 @@ reconfigure ~/.config/guix/home.scm` — or skip the pull and pass
 
 ```
 securityops-channel/
+├── update-channel             # check + auto-apply upstream updates (one command)
 ├── .guix-channel              # manifest: version, news-file, public url, nonguix dep
 ├── .guix-authorizations       # OpenPGP keys allowed to sign commits (channel auth)
 ├── etc/news.txt              # `guix pull --news` entries (per release)
@@ -371,6 +372,24 @@ left to your `guix pull` / reconfigure, per the chosen "verified hashes +
 evaluate" depth.
 
 ---
+
+## Keeping packages current — `./update-channel`
+
+One command checks every channel package against upstream and auto-applies the
+updates Guix can do safely:
+
+```sh
+./update-channel                       # check: current vs latest for every package
+./update-channel update --build --commit   # apply guix-refresh updates, build-verify, sign-commit
+```
+
+- **Auto** (via `guix refresh -u` — rewrites `version` + real `sha256`): the
+  github/gnu/pypi-backed packages (`kitty`, `openshot`, `tor`, `glances`, …).
+- **Reported, apply deliberately:** source-builds (`torbrowser`, `librewolf` —
+  auto-bumping triggers multi-hour compiles) and binary/vendored packages
+  (`google-chrome-stable`, `steam`, `mullvad-vpn-desktop`, `ungoogled-chromium-bin`,
+  the first-party apps). The tool prints the exact upstream version and the file
+  to edit, then bump it by hand:
 
 ## Bumping a package later
 
