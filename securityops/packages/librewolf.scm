@@ -5,7 +5,7 @@
 ;;;
 ;;; This file is part of the securityops channel.
 ;;;
-;;; LibreWolf — bumped ahead of Guix: 151.0.4-1 -> 152.0.1-2 (latest upstream).
+;;; LibreWolf — bumped ahead of Guix: 152.0.1-2 -> 152.0.4-1 (latest upstream).
 ;;;
 ;;; Guix builds librewolf from the module-PRIVATE `make-librewolf-source'
 ;;; (Firefox release source + the codeberg librewolf/source overlay + a pinned
@@ -19,16 +19,19 @@
 ;;; only `version' + `source' — exactly the torbrowser-bump pattern, so upstream
 ;;; build fixes keep flowing through.
 ;;;
-;;; The librewolf-specific patches (`librewolf-neuter-locale-download.patch',
-;;; `librewolf-compare-paths.patch', …) are guix-bundled; `search-patches' resolves
-;;; them from guix's patch dir on the channel load path — no need to vendor them.
+;;; The librewolf-specific patches (`librewolf-compare-paths.patch',
+;;; `librewolf-use-system-wide-dir.patch', …) are guix-bundled; `search-patches'
+;;; resolves them from guix's patch dir on the channel load path — no need to
+;;; vendor them.  (The l10n-download neuter is NOT a search-patch here: guix's
+;;; `librewolf-neuter-locale-download.patch' no longer applies to 152.0.4-1's
+;;; `curl'-based script, so it is done inline via `substitute*' below.)
 ;;;
-;;; Hashes (all fetched + verified 2026-06-22):
-;;;   firefox 152.0.1 source  (ftp.mozilla.org)  -> firefox-hash
-;;;   librewolf/source 152.0.1-2 (codeberg, git) -> librewolf-hash
-;;;   firefox-l10n @ 9929bc50 (github, git)       -> l10n-hash
+;;; Hashes (all fetched + verified 2026-06-30):
+;;;   firefox 152.0.4 source  (ftp.mozilla.org)  -> firefox-hash
+;;;   librewolf/source 152.0.4-1 (codeberg, git) -> librewolf-hash
+;;;   firefox-l10n @ 3a21e0c6 (github, git)       -> l10n-hash
 ;;; The l10n commit is the `revision' from
-;;; firefox-152.0.1/browser/locales/l10n-changesets.json in the Firefox source.
+;;; firefox-152.0.4/browser/locales/l10n-changesets.json in the Firefox source.
 ;;;
 ;;; A full build is a multi-hour Firefox compile (deferred to reconfigure, like
 ;;; torbrowser).  The SOURCE assembly is verifiable here:
@@ -66,7 +69,12 @@
           (commit version)
           (recursive? #t)))
     (file-name (git-file-name "librewolf-source" version))
-    (patches (search-patches "librewolf-neuter-locale-download.patch"))
+    ;; The network l10n download in scripts/librewolf-patches.py is neutered in
+    ;; `make-librewolf-source' via `substitute*' instead of guix's bundled
+    ;; `librewolf-neuter-locale-download.patch'.  That patch targets the old
+    ;; `wget|unzip|mv' form of the script; upstream 152.0.4-1 switched to `curl'
+    ;; and dropped an unrelated gkrust block above it, so its hunk context no
+    ;; longer applies.  The substitute* below tracks the current script.
     (sha256 (base32 hash))))
 
 (define computed-origin-method (@@ (guix packages) computed-origin-method))
@@ -74,15 +82,15 @@
 (define firefox-l10n
   ;; Match this commit to the upstream tarball.  The hash is in
   ;; firefox-NNN.0/browser/locales/l10n-changesets.json (the "revision" field;
-  ;; the same value repeats for every language).  For 152.0.1 it is 9929bc50.
-  (let ((commit "9929bc50607f8c2aac9db5329a596997eee1cabb"))
+  ;; the same value repeats for every language).  For 152.0.4 it is 3a21e0c6.
+  (let ((commit "3a21e0c6121d869025be23c7aa9da8498354852f"))
     (origin
       (method git-fetch)
       (uri (git-reference
             (url "https://github.com/mozilla-l10n/firefox-l10n.git")
             (commit commit)))
       (file-name (git-file-name "firefox-l10n" commit))
-      (sha256 (base32 "1ka78jhbhgvxby29q7ni5lim5c4977qdixd50cylnvb4807cli6l")))))
+      (sha256 (base32 "0z5laax1nv3xzl6kqc94w5drddjbcg8z06w01r7w2fzxh2b008n7")))))
 
 (define* (make-librewolf-source #:key version firefox-hash librewolf-hash l10n)
   (let* ((ff-src (firefox-source-origin
@@ -139,9 +147,17 @@
                (substitute* '("Makefile")
                  (("if [ -f pk.asc ].*") ""))
 
-               ;; Stage locales.
+               ;; Stage locales: neuter the network firefox-l10n download (no
+               ;; network in the build sandbox) and redirect the locale-apply
+               ;; loop at the staged firefox-l10n checkout.
                (begin
                  (substitute* "scripts/librewolf-patches.py"
+                   ;; Drop the curl|unzip|mv block that fetches l10n from
+                   ;; GitHub; keep the `with TemporaryDirectory()' valid by
+                   ;; turning its body into `pass'.
+                   (("exec\\(f\"curl -so .*l10n\\.zip.*") "pass")
+                   (("exec\\(f\"unzip -qo .*l10n\\.zip.*") "")
+                   (("exec\\(f\"mv .*firefox-l10n-main lw/l10n\"\\).*") "")
                    (("l10n_dir = Path(\"..\", \"l10n\")")
                     (string-append
                      "l10n_dir = \"" #+l10n "\""))))
@@ -170,14 +186,14 @@
                      "media/libwebp"
                      "modules/zlib"))))))
 
-;;; LibreWolf 152.0.1-2 — inherits guix's package; only version + source change.
+;;; LibreWolf 152.0.4-1 — inherits guix's package; only version + source change.
 (define-public librewolf
   (package
     (inherit lw:librewolf)
-    (version "152.0.1-2")
+    (version "152.0.4-1")
     (source
      (make-librewolf-source
       #:version version
-      #:firefox-hash "0ppi08ajg00mb0qdlfffnw15mvkfx8xi79ys62ijbpzh0jykgw5z"
-      #:librewolf-hash "0wbisx3yvg7g4d09azgksz3yaf7n12xqa0v4dy9hnplwxcxixgda"
+      #:firefox-hash "1fqna8xych2pslv9w73dsiv6bm02i7a8az9h4wx3b9fd08i9i2gx"
+      #:librewolf-hash "01llbmc5nh1pfa4fyvpkzg27f18yrv8ny8c6yc9fqscqkjazgcmi"
       #:l10n firefox-l10n))))
