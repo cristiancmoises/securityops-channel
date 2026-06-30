@@ -4,7 +4,7 @@
 A deep version audit of **every package declared** in `/etc/config.scm` (system)
 and `~/.config/guix/home.scm` (home), against the latest upstream, on host
 `predator-helios-intel`. Compiled 2026-06-21; channel-handled section refreshed
-2026-06-22; Guix pin `d1e9e23` (Jun 2026).
+2026-06-30; Guix pin `d1e9e23` (Jun 2026).
 
 **Method:** package symbols were extracted from each `(packages …)` form, each
 resolved with `guix show` ("your version") and checked with `guix refresh`
@@ -123,7 +123,7 @@ A total of **391** explicitly-declared packages were audited across the two conf
 | ghc | Home+System | 9.10.2 | 9.14.1 |
 | ghc-xmonad-contrib | System | 0.18.1 | 0.18.2 |
 | gimp | Home | 3.2.0 | 3.2.4 |
-| glances | System | 4.3.0 → **4.5.5 (securityops)** | 4.5.5 |
+| glances | System | 4.3.0 | 4.5.5 |
 | glib | Home | 2.86.0 | 2.89.0 |
 | glibc | Home | 2.41 | 2.43 |
 | gnome-tweaks | Home | 46.1 | 49.0 |
