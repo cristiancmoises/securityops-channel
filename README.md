@@ -34,6 +34,7 @@ are *ahead* of Guix/nonguix carry a **real, downloaded source hash**.
 | **mullvad-vpn-desktop** | 2026.3 | 2025.8 (small-guix) | cdn.mullvad.net `.deb` (vendored) |
 | **librewolf** | 152.0.1-2 | 151.0.4-1 (guix) | source build (vendored `make-librewolf-source`) |
 | **steam** | 1.0.0.86 _(Valve beta)_ | 1.0.0.85 (nonguix, stable) | Valve precise archive (nonguix container rebuilt around bumped bootstrap) |
+| **glances** | 4.5.5 | 4.3.0 (guix) | git tag `v4.5.5` (pyproject; +`pyinstrument` 5.1.2) |
 
 ### ✅ Re-exported — already latest in Guix/nonguix (track upstream automatically)
 
@@ -270,6 +271,7 @@ securityops-channel/
 │   ├── games.scm             # steam 1.0.0.86 (nonguix container, bumped bootstrap)
 │   ├── apps.scm              # first-party: evelin-bin, btp, mirim, torando-gui, vaptvupt(+gui) (vendored)
 │   ├── security.scm          # curated security toolset (re-exports)
+│   ├── monitoring.scm        # glances 4.5.5 (bump) + python-pyinstrument 5.1.2 (private dep bump)
 │   └── sources/              # vendored release/built artifacts (local-file)
 ├── securityops/services/
 │   └── torando.scm           # torando-gui-service-type (GNU Shepherd service)
