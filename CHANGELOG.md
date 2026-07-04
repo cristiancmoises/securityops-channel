@@ -6,6 +6,25 @@ tag rather than SemVer of the code.
 
 ## [Unreleased]
 
+### Added — containers
+- **esquema 0.2.0** — new module `(securityops packages containers)`. A
+  first-party, rootless, Guile-native Linux container runtime, built from
+  source with `gnu-build-system`: `make` compiles the C core `libesquema.so`
+  (hardening flags: FORTIFY, stack-protector/clash, full RELRO, NX,
+  CF-protection) against **libseccomp**; the Guile modules install to
+  `share/guile/site/3.0` and are byte-compiled to `lib/guile/3.0/site-ccache`
+  (except `esquema-service.scm`, shipped as source since it imports `(guix …)`).
+  The FFI loader is repointed at the store `libesquema.so` and
+  `native-search-paths` export `GUILE_LOAD_PATH`/`GUILE_LOAD_COMPILED_PATH`, so
+  `(use-modules (esquema runtime))` works once installed. Defence-in-depth:
+  user/mount/pid/uts/ipc/net/cgroup namespaces, rootless uid/gid maps,
+  `pivot_root`, full capability drop + securebits + `no_new_privs`, a seccomp
+  allowlist with a stacked TIOCSTI/TIOCLINUX-kill filter, best-effort cgroup v2
+  limits. Source vendored to `sources/esquema-0.2.0-src.tar.gz`. In-tree tests
+  (functional/security/C-primitives/ASan) run green out of band; the build
+  sandbox skips them (`#:tests? #f`, they need a userns + static shell + /proc).
+  Verified: `guix build -L . esquema` succeeds; `esquema-init` → 42.
+
 ### Changed — version bumps (2026-06-30 batch)
 - **tor 0.4.9.9 → 0.4.9.11** (applied via `./update-channel`).
 - **steam 1.0.0.86 → 1.0.0.87** (Valve precise beta launcher; real hash; built).
