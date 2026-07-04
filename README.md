@@ -155,12 +155,16 @@ so a bare `(use-modules (esquema runtime))` works. To supervise a container as
 a Guix System service, use the bundled service type:
 
 ```scheme
-(use-modules (esquema esquema-service))
+(use-modules (esquema esquema-service)
+             (securityops packages containers))   ; for the esquema package binding
+;; esquema-configuration is a plain SRFI-9 record — POSITIONAL args, in order:
+;; name, rootfs, command, scheme-dir.
 (service esquema-service-type
          (esquema-configuration
-          (name "web") (rootfs "/srv/web")
-          (command '("/bin/httpd" "-p" "8080"))
-          (scheme-dir #$(file-append esquema "/share/guile/site/3.0"))))
+          "web"
+          "/srv/web"
+          '("/bin/httpd" "-p" "8080")
+          (file-append esquema "/share/guile/site/3.0")))
 ```
 
 ---
