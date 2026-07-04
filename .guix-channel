@@ -5,7 +5,7 @@
 ;; versions of the securityops workstation's most-used applications
 ;; (alacritty, kitty, tor, torbrowser, fish, emacs, mpv, vlc, openshot,
 ;; keepassxc, ueberzugpp, lf, librewolf, ungoogled-chromium, google-chrome,
-;; mullvad-vpn-desktop, steam, glances).
+;; mullvad-vpn-desktop, steam, glances, esquema).
 ;;
 ;; Depends on nonguix for google-chrome, steam, and Mullvad's
 ;; `chromium-binary-build-system'.  (You already have nonguix in channels.scm,
