@@ -12,7 +12,7 @@ are *ahead* of Guix/nonguix carry a **real, downloaded source hash**.
 
 - **Host:** `predator-helios-intel` (the live `/etc/config.scm` machine)
 - **Pinned Guix:** commit `d1e9e23` (June 2026); **depends on** `nonguix`
-- **Built/verified:** 2026-06-21; **re-validated 2026-06-22** (Mullvad → 2026.3, LibreWolf → 152.0.1-2); **2026-06-23** (torando-gui 1.0.1 added, then → 1.1.0: native GUI + connectivity fixes — built & installed); **2026-06-24** (vaptvupt 4.0.0 CLI + vaptvupt-gui 1.3.0 added — built from source; steam bootstrap bumped 1.0.0.85 → 1.0.0.86); **2026-06-25** (turborec 2.2.0 added — built from source; CLI + bash launcher run, Tkinter GUI works via the python `tk` output; **LibreWolf 152.0.1-2 + torbrowser 15.0.16 fully compiled & run-verified** — full Firefox source builds, unblocked by a 24 GiB swapfile); **2026-06-30** (glances 4.5.5 added — from-source bump, new `(securityops packages monitoring)` module + private pyinstrument 5.1.2 dep; built, `glances --version` → 4.5.5, `--stdout cpu,mem` returns live data; **lynis 3.1.7** added; **tor → 0.4.9.11**; batch bumps **steam 1.0.0.87 / google-chrome 150.0.7871.46 / ungoogled-chromium-bin 149.0.7827.200-1 / torbrowser 15.0.17 / turborec 3.0.0** — built & verified; **openshot 3.5.1 build fixed** (stale test path))
+- **Built/verified:** 2026-06-21; **re-validated 2026-06-22** (Mullvad → 2026.3, LibreWolf → 152.0.1-2); **2026-06-23** (torando-gui 1.0.1 added, then → 1.1.0: native GUI + connectivity fixes — built & installed); **2026-06-24** (vaptvupt 4.0.0 CLI + vaptvupt-gui 1.3.0 added — built from source; steam bootstrap bumped 1.0.0.85 → 1.0.0.86); **2026-06-25** (turborec 2.2.0 added — built from source; CLI + bash launcher run, Tkinter GUI works via the python `tk` output; **LibreWolf 152.0.1-2 + torbrowser 15.0.16 fully compiled & run-verified** — full Firefox source builds, unblocked by a 24 GiB swapfile); **2026-06-30** (glances 4.5.5 added — from-source bump, new `(securityops packages monitoring)` module + private pyinstrument 5.1.2 dep; built, `glances --version` → 4.5.5, `--stdout cpu,mem` returns live data; **lynis 3.1.7** added; **tor → 0.4.9.11**; batch bumps **steam 1.0.0.87 / google-chrome 150.0.7871.46 / ungoogled-chromium-bin 149.0.7827.200-1 / torbrowser 15.0.17 / turborec 3.0.0** — built & verified; **openshot 3.5.1 build fixed** (stale test path)); **2026-07-01** (esquema 0.2.0 added — new `(securityops packages containers)` module: rootless Guile-native container runtime, built from source, libseccomp-backed; `guix build -L . esquema` verified)
 - **Maintainer:** Cristian Cezar Moisés `<ethicalhacker@riseup.net>`
 - **Home:** [`https://git.securityops.co/cristiancmoises/securityops-channel`](https://git.securityops.co/cristiancmoises/securityops-channel) (official) · mirrors: [Codeberg](https://codeberg.org/berkeley/securityops-channel) · [GitHub](https://github.com/cristiancmoises/securityops-channel)
 - **Signing:** every commit is GPG-signed (ed25519 `0CFA 43B9 … ECFB 46E8`) and the channel is authenticated — see [Publishing & authentication](#publishing--authentication)
@@ -81,6 +81,7 @@ Each app lives in its own repo on the forge. To keep this channel
 | **vaptvupt** | 4.0.0 | built from source (C11 Makefile; vendored libzuptsdk/libpqvaptvupt patchelf'd to glibc/openssl/argon2) | ✅ builds & runs (`vaptvupt`, `zupt`) |
 | **vaptvupt-gui** | 1.3.0 | PySide6/Qt6 frontend from the same tarball; launcher pins the CLI via `VAPTVUPT_BIN` | ✅ builds (`vaptvupt-gui`, `zupt-gui`) |
 | **turborec** | 3.0.0 | built from source (pure-Python CLI + Tkinter GUI + bash X11 launcher; self-contained `#!/bin/sh` shims pin python3/bash + ffmpeg/pactl/xrandr/xdpyinfo/lspci, + Wayland wf-recorder/wlr-randr/swaymsg + wmctrl) | ✅ builds & runs (`turborec`, `turborecorder`) |
+| **esquema** | 0.2.0 | built from source (C core `libesquema.so` via `make` + libseccomp; Guile modules byte-compiled; ships the `(esquema esquema-service)` Shepherd service) | ✅ builds & FFI-loads (`esquema-init` → 42); functional/security/ASan suites green |
 
 To re-vendor an updated app: rebuild/redownload its artifact into
 `packages/sources/`, bump `version`, and `guix build -L . <pkg>`.
@@ -120,6 +121,49 @@ open it. Configuration fields: `host`, `port`, `package`, `config-file`,
 > string, or `#f` to seed nothing). Netfilter rules, DNS pinning, killswitch and
 > status all work; Tor service control from the GUI uses `systemctl` and is a
 > no-op on Guix — manage Tor with `herd`.
+
+### Esquema — rootless Guile-native container runtime
+
+`esquema` (new module `(securityops packages containers)`) is a first-party,
+security-first container runtime built natively in Scheme. A small C core
+(`libesquema.so`, seccomp-BPF via libseccomp) performs the whole isolation
+sequence in async-signal-safe code between `fork` and `execve`: user + mount +
+PID + UTS + IPC + net + cgroup namespaces, rootless uid/gid maps, `pivot_root`
+into the rootfs with the host tree detached, a full capability drop
+(bounding set + ambient + `capset` + securebits + `no_new_privs`), a seccomp
+allowlist with a stacked filter that kills TIOCSTI/TIOCLINUX terminal
+injection, and best-effort cgroup v2 limits — stronger isolation than a plain
+`guix shell` while staying daemon-free and rootless (~13 ms startup).
+
+```sh
+guix pull                 # or: -L ~/securityops-channel for the working tree
+guix install esquema
+```
+
+```scheme
+(use-modules (esquema runtime) (esquema container))
+(run-container
+ (make-container "web" "/path/to/rootfs" '("/bin/httpd" "-p" "8080")
+                 #:rootfs-ro? #t
+                 #:limits (make-limits (* 256 1024 1024) 128 50000 100000)))
+```
+
+`make-container` is secure-by-default (all namespaces, seccomp on, every
+capability dropped). Installing the package puts the `(esquema …)` Guile
+modules on `GUILE_LOAD_PATH` and repoints the FFI at the store `libesquema.so`,
+so a bare `(use-modules (esquema runtime))` works. To supervise a container as
+a Guix System service, use the bundled service type:
+
+```scheme
+(use-modules (esquema esquema-service))
+(service esquema-service-type
+         (esquema-configuration
+          (name "web") (rootfs "/srv/web")
+          (command '("/bin/httpd" "-p" "8080"))
+          (scheme-dir #$(file-append esquema "/share/guile/site/3.0"))))
+```
+
+---
 
 ## Security toolset
 
@@ -270,13 +314,14 @@ securityops-channel/
 │   ├── video.scm             # openshot (bump), mpv, vlc (re-export)
 │   ├── utils.scm             # keepassxc, ueberzugpp, lf (re-export)
 │   ├── browsers.scm          # google-chrome (bump), librewolf + ungoogled-chromium-bin (re-export of ↓), ungoogled-chromium (re-export)
-│   ├── librewolf.scm         # librewolf 152.0.1-2 (vendored make-librewolf-source)
+│   ├── librewolf.scm         # librewolf 152.0.4-1 (vendored make-librewolf-source)
 │   ├── chromium.scm          # ungoogled-chromium-bin 149.0.7827.200 (prebuilt, chromium-binary-build-system)
 │   ├── vpn.scm               # mullvad-vpn-desktop (vendored bump)
 │   ├── games.scm             # steam 1.0.0.87 (nonguix container, bumped bootstrap)
-│   ├── apps.scm              # first-party: evelin-bin, btp, mirim, torando-gui, vaptvupt(+gui) (vendored)
+│   ├── apps.scm              # first-party: evelin-bin, btp, mirim, torando-gui, vaptvupt(+gui), turborec, moneyprinterturbo (vendored)
 │   ├── security.scm          # curated security toolset (re-exports) + lynis 3.1.7 (bump)
 │   ├── monitoring.scm        # glances 4.5.5 (bump) + python-pyinstrument 5.1.2 (private dep bump)
+│   ├── containers.scm        # esquema 0.2.0 — rootless Guile-native container runtime (first-party, from source)
 │   └── sources/              # vendored release/built artifacts (local-file)
 ├── securityops/services/
 │   └── torando.scm           # torando-gui-service-type (GNU Shepherd service)
