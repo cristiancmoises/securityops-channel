@@ -12,7 +12,7 @@ are *ahead* of Guix/nonguix carry a **real, downloaded source hash**.
 
 - **Host:** `predator-helios-intel` (the live `/etc/config.scm` machine)
 - **Pinned Guix:** commit `d1e9e23` (June 2026); **depends on** `nonguix`
-- **Built/verified:** 2026-06-21; **re-validated 2026-06-22** (Mullvad → 2026.3, LibreWolf → 152.0.1-2); **2026-06-23** (torando-gui 1.0.1 added, then → 1.1.0: native GUI + connectivity fixes — built & installed); **2026-06-24** (vaptvupt 4.0.0 CLI + vaptvupt-gui 1.3.0 added — built from source; steam bootstrap bumped 1.0.0.85 → 1.0.0.86); **2026-06-25** (turborec 2.2.0 added — built from source; CLI + bash launcher run, Tkinter GUI works via the python `tk` output; **LibreWolf 152.0.1-2 + torbrowser 15.0.16 fully compiled & run-verified** — full Firefox source builds, unblocked by a 24 GiB swapfile); **2026-06-30** (glances 4.5.5 added — from-source bump, new `(securityops packages monitoring)` module + private pyinstrument 5.1.2 dep; built, `glances --version` → 4.5.5, `--stdout cpu,mem` returns live data; **lynis 3.1.7** added; **tor → 0.4.9.11**; batch bumps **steam 1.0.0.87 / google-chrome 150.0.7871.46 / ungoogled-chromium-bin 149.0.7827.200-1 / torbrowser 15.0.17 / turborec 3.0.0** — built & verified; **openshot 3.5.1 build fixed** (stale test path)); **2026-07-01** (esquema 0.2.0 added — new `(securityops packages containers)` module: rootless Guile-native container runtime, built from source, libseccomp-backed; `guix build -L . esquema` verified)
+- **Built/verified:** 2026-06-21; **re-validated 2026-06-22** (Mullvad → 2026.3, LibreWolf → 152.0.1-2); **2026-06-23** (torando-gui 1.0.1 added, then → 1.1.0: native GUI + connectivity fixes — built & installed); **2026-06-24** (vaptvupt 4.0.0 CLI + vaptvupt-gui 1.3.0 added — built from source; steam bootstrap bumped 1.0.0.85 → 1.0.0.86); **2026-06-25** (turborec 2.2.0 added — built from source; CLI + bash launcher run, Tkinter GUI works via the python `tk` output; **LibreWolf 152.0.1-2 + torbrowser 15.0.16 fully compiled & run-verified** — full Firefox source builds, unblocked by a 24 GiB swapfile); **2026-06-30** (glances 4.5.5 added — from-source bump, new `(securityops packages monitoring)` module + private pyinstrument 5.1.2 dep; built, `glances --version` → 4.5.5, `--stdout cpu,mem` returns live data; **lynis 3.1.7** added; **tor → 0.4.9.11**; batch bumps **steam 1.0.0.87 / google-chrome 150.0.7871.46 / ungoogled-chromium-bin 149.0.7827.200-1 / torbrowser 15.0.17 / turborec 3.0.0** — built & verified; **openshot 3.5.1 build fixed** (stale test path)); **2026-07-01** (esquema 0.2.0 added — new `(securityops packages containers)` module: rootless Guile-native container runtime, built from source, libseccomp-backed; `guix build -L . esquema` verified); **2026-07-09** (batch bumps **google-chrome 150.0.7871.114 / ungoogled-chromium-bin 150.0.7871.100-1 / librewolf 152.0.5-1 / turborec 3.1.0 / vaptvupt 4.1.0 / vaptvupt-gui 4.1.0 / moneyprinterturbo 1.3.1** — all built & run-verified; vaptvupt is source-only upstream now, its `make check` crypto/security suite runs in-build; librewolf source assembly verified with new l10n pin `6ee6f5c4`)
 - **Maintainer:** Cristian Cezar Moisés `<ethicalhacker@riseup.net>`
 - **Home:** [`https://git.securityops.co/cristiancmoises/securityops-channel`](https://git.securityops.co/cristiancmoises/securityops-channel) (official) · mirrors: [Codeberg](https://codeberg.org/berkeley/securityops-channel) · [GitHub](https://github.com/cristiancmoises/securityops-channel)
 - **Signing:** every commit is GPG-signed (ed25519 `0CFA 43B9 … ECFB 46E8`) and the channel is authenticated — see [Publishing & authentication](#publishing--authentication)
@@ -30,9 +30,9 @@ are *ahead* of Guix/nonguix carry a **real, downloaded source hash**.
 | **torbrowser** | 15.0.17 | 15.0.14 (guix) | source build (see caveat) |
 | **torbrowser-assets** | 15.0.16 | _(private in guix)_ | official bundle |
 | **openshot** | 3.5.1 | 3.4.0 (guix) | git tag `v3.5.1` |
-| **google-chrome-stable** | 150.0.7871.46 | 148.0.7778.215 (nonguix) | dl.google.com `.deb` |
+| **google-chrome-stable** | 150.0.7871.114 | 148.0.7778.215 (nonguix) | dl.google.com `.deb` |
 | **mullvad-vpn-desktop** | 2026.3 | 2025.8 (small-guix) | cdn.mullvad.net `.deb` (vendored) |
-| **librewolf** | 152.0.4-1 | 151.0.4-1 (guix) | source build (vendored `make-librewolf-source`) |
+| **librewolf** | 152.0.5-1 | 151.0.4-1 (guix) | source build (vendored `make-librewolf-source`) |
 | **steam** | 1.0.0.87 _(Valve beta)_ | 1.0.0.85 (nonguix, stable) | Valve precise archive (nonguix container rebuilt around bumped bootstrap) |
 | **glances** | 4.5.5 | 4.3.0 (guix) | git tag `v4.5.5` (pyproject; +`pyinstrument` 5.1.2) |
 | **lynis** | 3.1.7 | 3.1.1 (guix) | git tag `3.1.7` (shell; plugins stripped) |
@@ -47,16 +47,16 @@ are *ahead* of Guix/nonguix carry a **real, downloaded source hash**.
 
 | Package | This channel (= guix) | Upstream | Why not bumped |
 |---|---|---|---|
-| **ungoogled-chromium** (source) | 147.0.7727.137-1 | 149.0.7827.200-1 | source-bump **impossible over Tor** — the Chromium "-lite" base tarball lives only on Google's GCS, which 403-blocks every Tor exit; guix gets existing versions via substitutes, but a new release has none (see caveat). Use `ungoogled-chromium-bin` ↓ |
+| **ungoogled-chromium** (source) | 147.0.7727.137-1 | 150.0.7871.100-1 | source-bump **impossible over Tor** — the Chromium "-lite" base tarball lives only on Google's GCS, which 403-blocks every Tor exit; guix gets existing versions via substitutes, but a new release has none (see caveat). Use `ungoogled-chromium-bin` ↓ |
 
 > **ungoogled-chromium-bin** — the latest ungoogled-chromium *is* available here as
-> a **prebuilt** binary: `149.0.7827.200-1`, the official upstream portable Linux
+> a **prebuilt** binary: `150.0.7871.100-1`, the official upstream portable Linux
 > x86_64 build hosted on GitHub (Tor-reachable), sha256-verified and wrapped with
 > nonguix's `chromium-binary-build-system`. **Build-and-run verified** —
-> `chromium --version` → `Chromium 149.0.7827.200`. This is the recommended
+> `chromium --version` → `Chromium 150.0.7871.100`. This is the recommended
 > chromium on `PATH`.
 >
-> **librewolf** was in this table; it is now **bumped to 152.0.4-1** (see the
+> **librewolf** was in this table; it is now **bumped to 152.0.5-1** (see the
 > table above and the LibreWolf caveat).
 
 > A full version audit of **every other** package in `/etc/config.scm` and
@@ -78,9 +78,9 @@ Each app lives in its own repo on the forge. To keep this channel
 | **btp** | 0.7 | built from source (`cargo`), binaries patchelf'd to glibc/gcc | ✅ builds & runs (`btpctl`, `btpd`) |
 | **mirim** | 1.0.0 | built from source (builds under Rust 1.93 despite 1.96 pin) | ✅ builds & runs (`mirim`, `mirim-sign`) |
 | **torando-gui** | 1.1.0 | built from source (pure Python daemon; native GTK4/WebKit GUI optional, browser fallback) | ✅ builds, installs & runs (`torando-gui`, `torando-guid`) |
-| **vaptvupt** | 4.0.0 | built from source (C11 Makefile; vendored libzuptsdk/libpqvaptvupt patchelf'd to glibc/openssl/argon2) | ✅ builds & runs (`vaptvupt`, `zupt`) |
-| **vaptvupt-gui** | 1.3.0 | PySide6/Qt6 frontend from the same tarball; launcher pins the CLI via `VAPTVUPT_BIN` | ✅ builds (`vaptvupt-gui`, `zupt-gui`) |
-| **turborec** | 3.0.0 | built from source (pure-Python CLI + Tkinter GUI + bash X11 launcher; self-contained `#!/bin/sh` shims pin python3/bash + ffmpeg/pactl/xrandr/xdpyinfo/lspci, + Wayland wf-recorder/wlr-randr/swaymsg + wmctrl) | ✅ builds & runs (`turborec`, `turborecorder`) |
+| **vaptvupt** | 4.1.0 | built from source (C11 Makefile; source-only since 4.1.0 — vendored SDK `.so`s dropped upstream, links only `-lm -lpthread`; `make check` crypto/security suite runs in-build) | ✅ builds & runs (`vaptvupt`, `zupt`) |
+| **vaptvupt-gui** | 4.1.0 | PySide6/Qt6 frontend from the same tarball (GUI now versioned with the CLI); launcher pins the CLI via `VAPTVUPT_BIN` | ✅ builds (`vaptvupt-gui`, `zupt-gui`) |
+| **turborec** | 3.1.0 | built from source (pure-Python CLI + Tkinter GUI + bash X11 launcher; self-contained `#!/bin/sh` shims pin python3/bash + ffmpeg/pactl/xrandr/xdpyinfo/lspci, + Wayland wf-recorder/wlr-randr/swaymsg + wmctrl; 3.1.0 adds `--audio-channels` stereo/mono/left/right) | ✅ builds & runs (`turborec`, `turborecorder`) |
 | **esquema** | 0.2.0 | built from source (C core `libesquema.so` via `make` + libseccomp; Guile modules byte-compiled; ships the `(esquema esquema-service)` Shepherd service) | ✅ builds & FFI-loads (`esquema-init` → 42); functional/security/ASan suites green |
 
 To re-vendor an updated app: rebuild/redownload its artifact into
@@ -277,7 +277,7 @@ a prefix and reference the prefixed symbol:
 ;; in (use-modules …)
 ((securityops packages terminals) #:prefix so:)   ; so:kitty   0.47.4 (gnu 0.46.2)
 ((securityops packages tor)       #:prefix so:)   ; so:tor     0.4.9.9, so:torbrowser 15.0.17
-((securityops packages browsers)  #:prefix so:)   ; so:google-chrome-stable 150, so:librewolf 152.0.4-1
+((securityops packages browsers)  #:prefix so:)   ; so:google-chrome-stable 150, so:librewolf 152.0.5-1
 ((securityops packages vpn)       #:prefix so:)   ; so:mullvad-vpn-desktop  2026.3
 ((securityops packages video)     #:prefix so:)   ; so:openshot 3.5.1 (gnu 3.4.0)
 ((securityops packages games)     #:prefix so:)   ; so:steam   1.0.0.87 (nonguix 1.0.0.85)
@@ -318,8 +318,8 @@ securityops-channel/
 │   ├── video.scm             # openshot (bump), mpv, vlc (re-export)
 │   ├── utils.scm             # keepassxc, ueberzugpp, lf (re-export)
 │   ├── browsers.scm          # google-chrome (bump), librewolf + ungoogled-chromium-bin (re-export of ↓), ungoogled-chromium (re-export)
-│   ├── librewolf.scm         # librewolf 152.0.4-1 (vendored make-librewolf-source)
-│   ├── chromium.scm          # ungoogled-chromium-bin 149.0.7827.200 (prebuilt, chromium-binary-build-system)
+│   ├── librewolf.scm         # librewolf 152.0.5-1 (vendored make-librewolf-source)
+│   ├── chromium.scm          # ungoogled-chromium-bin 150.0.7871.100 (prebuilt, chromium-binary-build-system)
 │   ├── vpn.scm               # mullvad-vpn-desktop (vendored bump)
 │   ├── games.scm             # steam 1.0.0.87 (nonguix container, bumped bootstrap)
 │   ├── apps.scm              # first-party: evelin-bin, btp, mirim, torando-gui, vaptvupt(+gui), turborec, moneyprinterturbo (vendored)
@@ -368,7 +368,7 @@ into `/etc/config.scm` and `home.scm` as `so:librewolf`.
 > lets the full-LTO build complete (peaks spill to disk); then
 > `guix build --cores=4 librewolf` finishes cleanly and the browser runs.
 
-**ungoogled-chromium — prebuilt 149 (`ungoogled-chromium-bin`), source-build
+**ungoogled-chromium — prebuilt 150 (`ungoogled-chromium-bin`), source-build
 blocked over Tor.** A *from-source* bump is not merely guix-maintainer-level
 work here, it is **impossible on this Tor-only host**: guix assembles the source
 from a Chromium "-lite" base tarball that lives only on Google's
@@ -380,14 +380,14 @@ guix's own known-good 147 tarball; no Wayback copy exists). guix can build
 so its base tarball must come straight from Google. (It would also be a multi-hour
 / ~30GB-RAM compile on 15GB RAM regardless.) **Resolution:** the channel now ships
 `ungoogled-chromium-bin` — the official upstream **prebuilt** portable Linux
-x86_64 binary `149.0.7827.155-1` (the newest prebuilt; `.196` exists only as
-un-prebuilt source), hosted on GitHub (Tor-reachable), `sha256`-verified against
+x86_64 binary `150.0.7871.100-1` (the newest prebuilt), hosted on GitHub
+(Tor-reachable), `sha256`-verified against
 the upstream `ungoogled-chromium-binaries` metadata, and wrapped with nonguix's
 `chromium-binary-build-system` (patchelf onto the Guix glibc loader + library set;
 no bundled `chrome-sandbox`, so Chromium uses the unprivileged user-namespace
-sandbox). Build-and-run verified: `chromium --version` → `Chromium 149.0.7827.200`.
+sandbox). Build-and-run verified: `chromium --version` → `Chromium 150.0.7871.100`.
 The source-built `ungoogled-chromium` (147) remains re-exported for anyone wanting
-the substitutable build; `google-chrome-stable` 149 also provides a current engine.
+the substitutable build; `google-chrome-stable` 150 also provides a current engine.
 
 **Mullvad (vendored, x86_64-only).** Bumped to 2026.3 — Mullvad's *published*
 stable desktop release as of 2026-06-22 (the `deb/latest` redirect resolves to
