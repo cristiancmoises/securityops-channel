@@ -6,6 +6,38 @@ tag rather than SemVer of the code.
 
 ## [Unreleased]
 
+### Changed — version bumps (2026-07-09 batch)
+- **google-chrome-stable 150.0.7871.46 → 150.0.7871.114** (dl.google.com `.deb`,
+  real downloaded hash; built).
+- **ungoogled-chromium-bin 149.0.7827.200-1 → 150.0.7871.100-1** (newest official
+  prebuilt portablelinux release, published 2026-07-09; built,
+  `chromium --version` → `Chromium 150.0.7871.100`).
+- **librewolf 152.0.4-1 → 152.0.5-1** — firefox 152.0.5 source + codeberg tag
+  hashes updated; the l10n pin moved `3a21e0c6 → 6ee6f5c4` (per
+  `browser/locales/l10n-changesets.json`). Upstream diff touches only `version`
+  and one nl locale file; the inline l10n-neuter `substitute*` still applies.
+  Source assembly verified (`guix build -S librewolf`); full compile happens at
+  reconfigure as usual.
+- **turborec 3.0.0 → 3.1.0** (re-vendored; adds `--audio-channels`
+  stereo/mono/left/right via an ffmpeg pan filter + GUI Channels dropdown and a
+  23 fps preset; no new deps — built, `turborec --version` → 3.1.0).
+- **vaptvupt 4.0.0 → 4.1.0** (re-vendored). Upstream went **source-only**: the
+  vendored prebuilt SDK libraries (libzuptsdk / libpqvaptvupt) are gone,
+  `--pq-sdk`/`--pq-box` are stubs now, password KDF defaults to PBKDF2-SHA256
+  and the binary links only `-lm -lpthread`. Recipe drops the LDFLAGS/patchelf
+  RUNPATH machinery and the openssl/argon2 inputs, and now RUNS `make check`
+  (NIST/RFC crypto vectors + security-regression scripts) in-build — python
+  added as native-input for the suite's version check. Built,
+  `vaptvupt version` → 4.1.0.
+- **vaptvupt-gui 1.3.0 → 4.1.0** — upstream versions the GUI with the CLI now;
+  same tarball, all GUI paths unchanged (built).
+- **moneyprinterturbo 1.3.0 → 1.3.1** (re-vendored with the same pruning policy:
+  proprietary CJK fonts + docs/tests/docker files/songs stripped, Charm kept;
+  new upstream files `cli.py`, `app/services/twelvelabs.py`, es/id i18n.
+  `requirements.txt` unchanged, so the runtime venv is identical; the new
+  `twelvelabs` pip extra is optional and unused unless configured. Launcher
+  VERSION and docs updated; built).
+
 ### Added — containers
 - **esquema 0.2.0** — new module `(securityops packages containers)`. A
   first-party, rootless, Guile-native Linux container runtime, built from
