@@ -26,8 +26,6 @@
   #:use-module (gnu packages linux)              ;iptables, e2fsprogs/chattr (torando-gui)
   #:use-module (gnu packages qt)                 ;python-pyside-6, qtbase, qtwayland (vaptvupt-gui)
   #:use-module (gnu packages bash)               ;bash-minimal (vaptvupt-gui launcher)
-  #:use-module (gnu packages tls)                ;openssl (vaptvupt libzuptsdk)
-  #:use-module (gnu packages password-utils)     ;argon2 (vaptvupt libzuptsdk)
   #:use-module (gnu packages video)              ;ffmpeg (turborec, moneyprinterturbo)
   #:use-module (gnu packages pulseaudio)         ;pulseaudio/pactl (turborec)
   #:use-module (gnu packages xorg)               ;xrandr, xdpyinfo (turborec)
@@ -235,73 +233,46 @@ the package is self-contained.")
     (home-page "https://codeberg.org/cristiancmoises/torando-gui")
     (license license:agpl3)))
 
-;;; vaptvupt — pure-C11 post-quantum backup compressor (CLI, v4.0.0) and its
-;;; PySide6/Qt6 desktop frontend (GUI, v1.3.0).  Both build from the ONE vendored
-;;; release tarball.  The CLI is built FROM SOURCE with gnu-build-system (plain
-;;; Makefile, no ./configure).  Two prebuilt vendored shared objects ship in the
-;;; tarball — libzuptsdk (password KDF, --pq-sdk) and libpqvaptvupt (--pq-box
-;;; sealed box); libzuptsdk has DT_NEEDED on libcrypto.so.3 + libargon2.so.1 but
-;;; no RUNPATH, so we feed -rpath-link/-rpath via LDFLAGS at link time and patchelf
-;;; a store RUNPATH onto the two .so files after install so they survive
-;;; validate-runpath.  KAT self-tests need the vendored libs on LD_LIBRARY_PATH;
-;;; disabled here (the binary links and runs fine).
+;;; vaptvupt — pure-C11 post-quantum backup compressor (CLI, v4.1.0) and its
+;;; PySide6/Qt6 desktop frontend (GUI, versioned with the CLI since 4.1.0).
+;;; Both build from the ONE vendored release tarball.  The CLI is built FROM
+;;; SOURCE with gnu-build-system (plain Makefile, no ./configure).  4.1.0 is a
+;;; source-only release: the prebuilt vendored shared objects (libzuptsdk /
+;;; libpqvaptvupt) were dropped upstream, WITH_SDK defaults to 0 and the binary
+;;; links against only -lm -lpthread — so the old LDFLAGS/patchelf RUNPATH
+;;; machinery and the openssl/argon2 inputs are gone with them.  --pq-sdk and
+;;; --pq-box are now unsupported stubs; native --pq (ML-KEM-768 + X25519)
+;;; remains, and password mode defaults to PBKDF2-SHA256.  `make check' passes
+;;; on the source-only build, so tests are enabled.
 (define-public vaptvupt
   (package
     (name "vaptvupt")
-    (version "4.0.0")
-    (source (local-file "sources/vaptvupt-4.0.0.tar.gz"))
+    (version "4.1.0")
+    (source (local-file "sources/vaptvupt-4.1.0.tar.gz"))
     (build-system gnu-build-system)
     (arguments
      (list
-      #:tests? #f
       #:make-flags
       #~(list (string-append "PREFIX=" #$output)
               (string-append "CC=" #$(cc-for-target)))
       #:phases
       #~(modify-phases %standard-phases
-          (delete 'configure)           ; plain Makefile, no ./configure
-          ;; libzuptsdk.so needs libcrypto/libargon2 at link AND run time, but
-          ;; carries no RUNPATH; the Makefile keeps an env LDFLAGS (`?=` then
-          ;; `+=`), so feed it -rpath-link (link) + -rpath (runtime) here.
-          (add-before 'build 'set-ldflags
-            (lambda* (#:key inputs #:allow-other-keys)
-              (let ((ssl (string-append (assoc-ref inputs "openssl") "/lib"))
-                    (arg (string-append (assoc-ref inputs "argon2") "/lib")))
-                (setenv "LDFLAGS"
-                        (string-append "-L" ssl " -L" arg
-                                       " -Wl,-rpath-link," ssl
-                                       " -Wl,-rpath-link," arg
-                                       " -Wl,-rpath," ssl
-                                       " -Wl,-rpath," arg)))))
-          (add-after 'install 'set-vendored-lib-runpath
-            (lambda* (#:key inputs outputs #:allow-other-keys)
-              (let* ((out  (assoc-ref outputs "out"))
-                     (libc (assoc-ref inputs "libc"))
-                     (rpath (string-join
-                             (list (string-append libc "/lib")
-                                   (string-append (assoc-ref inputs "openssl") "/lib")
-                                   (string-append (assoc-ref inputs "argon2") "/lib"))
-                             ":"))
-                     (vdir (string-append out "/lib/vaptvupt")))
-                (for-each
-                 (lambda (lib)
-                   (invoke "patchelf" "--set-rpath" rpath
-                           (string-append vdir "/" lib)))
-                 '("libzuptsdk.so.2.0.0"
-                   "libpqvaptvupt.so.0.6.0"))))))))
-    (native-inputs (list patchelf))
-    (inputs (list openssl argon2))
+          (delete 'configure))))        ; plain Makefile, no ./configure
+    ;; `make check' (crypto vectors + security-regression scripts) runs in the
+    ;; container; tests/test_gui_branding.sh's functional check shells out to
+    ;; python3, so python must be a native-input or that one check fails.
+    (native-inputs (list python))
     (supported-systems '("x86_64-linux"))
     (synopsis "Post-quantum backup compression utility (CLI)")
     (description
      "VaptVupt (formerly Zupt) is a pure-C11 backup compressor with post-quantum
-hybrid encryption.  Recipient modes: ML-KEM-768 + X25519 sealed box with an
-HKDF-SHA256 domain-separated combiner (@code{--pq-box}, via the bundled
-libpqvaptvupt), the libzuptsdk envelope (@code{--pq-sdk}) and a legacy combiner
-(@code{--pq}); password mode uses Argon2id by default (PBKDF2-SHA256 optional).
-Payload protection is AES-256-CTR + HMAC-SHA256 Encrypt-then-MAC with measured
-constant-time tag comparison and runtime AES-NI/SHA-NI dispatch; the embedded
-VaptVupt 2.60.4 LZ+ANS codec ships CBMC-verified BCJ filters.")
+hybrid encryption.  Since 4.1.0 it is a source-only build with no vendored
+binary SDKs: recipient mode is the native ML-KEM-768 + X25519 hybrid
+(@code{--pq}); the SDK-backed @code{--pq-sdk} and @code{--pq-box} modes are
+unsupported stubs, and password mode uses PBKDF2-SHA256.  Payload protection is
+AES-256-CTR + HMAC-SHA256 Encrypt-then-MAC with measured constant-time tag
+comparison and runtime AES-NI/SHA-NI dispatch; the embedded VaptVupt 2.60.4
+LZ+ANS codec ships CBMC-verified BCJ filters.")
     (home-page "https://git.securityops.co/cristiancmoises/vaptvupt")
     (license (list license:agpl3+ license:gpl3+))))
 
@@ -313,7 +284,7 @@ VaptVupt 2.60.4 LZ+ANS codec ships CBMC-verified BCJ filters.")
 (define-public vaptvupt-gui
   (package
     (name "vaptvupt-gui")
-    (version "1.3.0")
+    (version "4.1.0")                    ; upstream versions the GUI with the CLI now
     (source (package-source vaptvupt))   ; same release tarball
     (build-system copy-build-system)
     (arguments
@@ -378,14 +349,14 @@ Keywords=backup;encryption;post-quantum;compression;zupt;\n"
     (synopsis "Desktop frontend for VaptVupt (PySide6/Qt6 GUI)")
     (description
      "PySide6 (Qt 6) graphical frontend for VaptVupt: create, inspect and extract
-@code{.zupt} archives with password (Argon2id) or post-quantum recipient
-encryption, including the v4.0.0 @code{--pq-box} sealed-box mode.  The launcher
-pins the matching @code{vaptvupt} CLI from the store via @env{VAPTVUPT_BIN}, so
-GUI and CLI versions can never drift apart.")
+@code{.zupt} archives with password (PBKDF2-SHA256) or post-quantum recipient
+encryption via the native ML-KEM-768 + X25519 hybrid (@code{--pq}).  The
+launcher pins the matching @code{vaptvupt} CLI from the store via
+@env{VAPTVUPT_BIN}, so GUI and CLI versions can never drift apart.")
     (home-page "https://git.securityops.co/cristiancmoises/vaptvupt")
     (license license:agpl3+)))
 
-;;; turborec — Turbo Recorder 3.0.0: a hardware-accelerated Linux screen + audio
+;;; turborec — Turbo Recorder 3.1.0: a hardware-accelerated Linux screen + audio
 ;;; recorder.  `turborec.py' is a pure-stdlib Python CLI with a Tkinter GUI (the
 ;;; `gui' subcommand); `turborecorder' is an X11 bash launcher that builds a
 ;;; quality-first FFmpeg pipeline (NVENC > VAAPI > x264).  Built FROM SOURCE with
@@ -398,8 +369,8 @@ GUI and CLI versions can never drift apart.")
 (define-public turborec
   (package
     (name "turborec")
-    (version "3.0.0")
-    (source (local-file "sources/turborec-3.0.0-src.tar.gz"))
+    (version "3.1.0")
+    (source (local-file "sources/turborec-3.1.0-src.tar.gz"))
     (build-system copy-build-system)
     (inputs
      `(("python" ,python)
@@ -495,7 +466,7 @@ pin the store @code{python3}/@code{bash} and the tools they call (@code{ffmpeg},
     (home-page "https://git.securityops.co/cristiancmoises/turborec")
     (license license:gpl3)))
 
-;;; moneyprinterturbo — one-click AI short-video generator (harry0703 v1.3.0).
+;;; moneyprinterturbo — one-click AI short-video generator (harry0703 v1.3.1).
 ;;; THIRD-PARTY Python app with a huge, partly-unpackaged dependency tree
 ;;; (streamlit, moviepy, edge-tts, litellm, faster-whisper, the cloud SDKs), so a
 ;;; full native python-build-system package is infeasible here.  Instead this ships
@@ -529,8 +500,8 @@ pin the store @code{python3}/@code{bash} and the tools they call (@code{ffmpeg},
 (define-public moneyprinterturbo
   (package
     (name "moneyprinterturbo")
-    (version "1.3.0")
-    (source (local-file "sources/moneyprinterturbo-1.3.0-src.tar.gz"))
+    (version "1.3.1")
+    (source (local-file "sources/moneyprinterturbo-1.3.1-src.tar.gz"))
     (build-system copy-build-system)
     (inputs
      `(("python" ,python)
@@ -606,7 +577,7 @@ set -e
 export PATH=\"~a${PATH:+:$PATH}\"
 STORE_SHARE=\"~a\"
 APP_HOME=\"${MPT_HOME:-${XDG_DATA_HOME:-$HOME/.local/share}/moneyprinterturbo}\"
-VERSION=\"1.3.0\"
+VERSION=\"1.3.1\"
 export TORSOCKS_ALLOW_INBOUND=1
 export TORSOCKS_CONF_FILE=\"~a\"
 export GRPC_DNS_RESOLVER=native
@@ -649,7 +620,7 @@ export PYTHONPATH=\"$APP_HOME${PYTHONPATH:+:$PYTHONPATH}\"
      "MoneyPrinterTurbo generates short-form videos from a topic: an LLM writes the
 script and keywords, stock B-roll is pulled from Pexels/Pixabay, edge-tts adds a
 voice-over, subtitles are burned in, and FFmpeg assembles the final clip.  This
-package ships the upstream v1.3.0 source (proprietary CJK fonts removed; WenQuanYi
+package ships the upstream v1.3.1 source (proprietary CJK fonts removed; WenQuanYi
 Zen Hei bundled as the default subtitle font) plus self-contained
 @command{moneyprinterturbo} (Streamlit WebUI) and @command{moneyprinterturbo-api}
 (FastAPI) launchers.  On first run each launcher copies the app into
