@@ -21,6 +21,7 @@
   #:use-module (gnu packages base)               ;glibc
   #:use-module (gnu packages gcc)                ;gcc:lib (libgcc_s)
   #:use-module (gnu packages elf)                ;patchelf
+  #:use-module (gnu packages tls)                ;openssl 3.5 (vaptvupt FIPS 203 check)
   #:use-module (gnu packages python)             ;python (torando-gui, vaptvupt-gui)
   #:use-module (gnu packages tor)                ;tor (torando-gui)
   #:use-module (gnu packages linux)              ;iptables, e2fsprogs/chattr (torando-gui)
@@ -233,7 +234,7 @@ the package is self-contained.")
     (home-page "https://codeberg.org/cristiancmoises/torando-gui")
     (license license:agpl3)))
 
-;;; vaptvupt — pure-C11 post-quantum backup compressor (CLI, v4.2.1) and its
+;;; vaptvupt — pure-C11 post-quantum backup compressor (CLI, v5.0.0) and its
 ;;; PySide6/Qt6 desktop frontend (GUI, versioned with the CLI since 4.1.0).
 ;;; Both build from the ONE vendored release tarball.  The CLI is built FROM
 ;;; SOURCE with gnu-build-system (plain Makefile, no ./configure).  4.1.0 is a
@@ -247,8 +248,8 @@ the package is self-contained.")
 (define-public vaptvupt
   (package
     (name "vaptvupt")
-    (version "4.2.1")
-    (source (local-file "sources/vaptvupt-4.2.1.tar.gz"))
+    (version "5.0.0")
+    (source (local-file "sources/vaptvupt-5.0.0.tar.gz"))
     (build-system gnu-build-system)
     (arguments
      (list
@@ -261,17 +262,25 @@ the package is self-contained.")
     ;; `make check' (crypto vectors + security-regression scripts) runs in the
     ;; container; tests/test_gui_branding.sh's functional check shells out to
     ;; python3, so python must be a native-input or that one check fails.
-    (native-inputs (list python))
+    ;; openssl (3.5+, has ML-KEM-768) lets tests/test_mlkem_fips203.sh run the
+    ;; FIPS 203 cross-decapsulation against OpenSSL instead of skipping —
+    ;; build-time only, nothing links it.
+    (native-inputs (list openssl python))
     (supported-systems '("x86_64-linux"))
     (synopsis "Post-quantum backup compression utility (CLI)")
     (description
      "VaptVupt (formerly Zupt) is a pure-C11 backup compressor with post-quantum
 hybrid encryption.  Since 4.1.0 it is a source-only build with no vendored
 binary SDKs: recipient modes are the native ML-KEM-768 + X25519 hybrid
-(@code{--pq}, recommended) and, since 4.2.0, pure ML-KEM-768 with no classical
-component (@code{--pq-only}, FIPS 203, for CNSA 2.0-style postures); the
-SDK-backed @code{--pq-sdk} and @code{--pq-box} modes are unsupported stubs, and
-password mode uses PBKDF2-SHA256.  4.2.0 also fixes a critical AES-CTR
+(@code{--pq}, recommended) and pure ML-KEM-768 with no classical component
+(@code{--pq-only}, for CNSA 2.0-style postures); the SDK-backed
+@code{--pq-sdk} and @code{--pq-box} modes are unsupported stubs, and password
+mode uses PBKDF2-SHA256.  5.0.0 makes the ML-KEM-768 implementation genuinely
+FIPS 203-conformant (earlier releases shipped round-3 CRYSTALS-Kyber under
+that label), cross-validated byte-for-byte against OpenSSL 3.5 during this
+package's build; BREAKING: @code{--pq}/@code{--pq-only} keys and archives from
+4.2.1 or earlier no longer decrypt — regenerate keys and re-encrypt (password
+mode and plain compression are unaffected).  4.2.0 fixed a critical AES-CTR
 keystream-reuse flaw in @code{--dedup} archives (re-encrypt any written by
 4.1.0 or earlier).  Payload protection is
 AES-256-CTR + HMAC-SHA256 Encrypt-then-MAC with measured constant-time tag
@@ -288,7 +297,7 @@ LZ+ANS codec ships CBMC-verified BCJ filters.")
 (define-public vaptvupt-gui
   (package
     (name "vaptvupt-gui")
-    (version "4.2.1")                    ; upstream versions the GUI with the CLI now
+    (version "5.0.0")                    ; upstream versions the GUI with the CLI now
     (source (package-source vaptvupt))   ; same release tarball
     (build-system copy-build-system)
     (arguments
