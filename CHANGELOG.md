@@ -6,6 +6,23 @@ tag rather than SemVer of the code.
 
 ## [Unreleased]
 
+### Changed — vaptvupt 4.2.0 (2026-07-10, security)
+- **vaptvupt 4.1.0 → 4.2.0** and **vaptvupt-gui 4.1.0 → 4.2.0** (re-vendored,
+  same tarball). Upstream highlights:
+  - **Security (critical): `--dedup` AES-256-CTR keystream reuse fixed** —
+    dedup blocks all used sequence 0, collapsing the CTR nonce to one value
+    across blocks (a many-time-pad). Blocks now carry a fresh random 128-bit
+    nonce bound into the block MAC. **Re-encrypt any `--dedup` archives written
+    by ≤ 4.1.0.** The new regression test (`tests/test_dedup_nonce.sh`) is part
+    of `make check`, which this package runs in-build — verified green.
+  - New pure post-quantum mode `--pq-only`: ML-KEM-768 (FIPS 203) as the sole
+    KEM, no classical X25519 component (additive 0x06 envelope; keys via
+    `keygen --pq-only`, not interchangeable with hybrid `--pq` keys). Hybrid
+    `--pq` remains the recommended default.
+  - `keygen --sdk`/`--box` on source-only builds now fail with a clear message.
+  - Recipe unchanged apart from version/source; built and run-verified
+    (`vaptvupt version` → 4.2.0, `--pq-only` present in help).
+
 ### Changed — version bumps (2026-07-09 batch)
 - **google-chrome-stable 150.0.7871.46 → 150.0.7871.114** (dl.google.com `.deb`,
   real downloaded hash; built).
