@@ -6,6 +6,28 @@ tag rather than SemVer of the code.
 
 ## [Unreleased]
 
+### Changed — vaptvupt 5.0.0 (2026-07-10, security, BREAKING)
+- **vaptvupt 4.2.1 → 5.0.0** and **vaptvupt-gui → 5.0.0** (re-vendored, same
+  tarball). Upstream highlights:
+  - **ML-KEM-768 is now genuinely FIPS 203-conformant** — earlier releases
+    shipped round-3 CRYSTALS-Kyber under the "FIPS 203" label (secure, but not
+    interoperable): transposed matrix-A sampling, round-3 KDF and the
+    implicit-rejection domain fixed.
+  - **BREAKING: `--pq`/`--pq-only` keys and archives from ≤ 4.2.1 no longer
+    decrypt** (the KEM math changed). Regenerate keys and re-encrypt. Password
+    mode and plain compression are unaffected; wire format stays v1.6.
+  - Security hardening: `compress -p` data-loss guard, silent-plaintext guard,
+    heap OOB read in the AVX2 decoder bounded, overflow-safe solid-mode bound,
+    secret-wipe on hybrid-decrypt key-read error.
+  - GUI reworked for source-only builds (build-aware Hybrid/Full-PQ selector,
+    PQ-key auto-detect on Extract/Verify, thread-safety fixes).
+  - Recipe: **openssl added as a native-input** so upstream's new
+    `tests/test_mlkem_fips203.sh` cross-validates against OpenSSL 3.5.7's
+    ML-KEM-768 *inside the build* instead of skipping — verified green
+    (keygen byte-identical; encaps/decaps shared secrets match both ways).
+    Full `--pq-only` keygen→encrypt→`info`→decrypt round-trip verified on the
+    built package.
+
 ### Changed — vaptvupt 4.2.1 (2026-07-10)
 - **vaptvupt 4.2.0 → 4.2.1** and **vaptvupt-gui → 4.2.1** (re-vendored, same
   tarball). Reader-side fix only, no wire-format change: `vaptvupt info`
