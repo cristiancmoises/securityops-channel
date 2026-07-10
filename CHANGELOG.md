@@ -6,6 +6,15 @@ tag rather than SemVer of the code.
 
 ## [Unreleased]
 
+### Changed — vaptvupt 4.2.1 (2026-07-10)
+- **vaptvupt 4.2.0 → 4.2.1** and **vaptvupt-gui → 4.2.1** (re-vendored, same
+  tarball). Reader-side fix only, no wire-format change: `vaptvupt info`
+  mislabelled full-PQ (`--pq-only`, envelope 0x06) archives as "PQ Hybrid
+  (ML-KEM-768 + X25519)" because it only checked the generic PQ header flag;
+  it now reads the real envelope type. Existing archives need no re-encryption.
+  Built (`make check` green) and the fix run-verified: `info` on a fresh
+  `--pq-only` archive reports "ML-KEM-768 only, no classical layer".
+
 ### Changed — vaptvupt 4.2.0 (2026-07-10, security)
 - **vaptvupt 4.1.0 → 4.2.0** and **vaptvupt-gui 4.1.0 → 4.2.0** (re-vendored,
   same tarball). Upstream highlights:
