@@ -233,7 +233,7 @@ the package is self-contained.")
     (home-page "https://codeberg.org/cristiancmoises/torando-gui")
     (license license:agpl3)))
 
-;;; vaptvupt — pure-C11 post-quantum backup compressor (CLI, v4.2.0) and its
+;;; vaptvupt — pure-C11 post-quantum backup compressor (CLI, v4.2.1) and its
 ;;; PySide6/Qt6 desktop frontend (GUI, versioned with the CLI since 4.1.0).
 ;;; Both build from the ONE vendored release tarball.  The CLI is built FROM
 ;;; SOURCE with gnu-build-system (plain Makefile, no ./configure).  4.1.0 is a
@@ -247,8 +247,8 @@ the package is self-contained.")
 (define-public vaptvupt
   (package
     (name "vaptvupt")
-    (version "4.2.0")
-    (source (local-file "sources/vaptvupt-4.2.0.tar.gz"))
+    (version "4.2.1")
+    (source (local-file "sources/vaptvupt-4.2.1.tar.gz"))
     (build-system gnu-build-system)
     (arguments
      (list
@@ -288,7 +288,7 @@ LZ+ANS codec ships CBMC-verified BCJ filters.")
 (define-public vaptvupt-gui
   (package
     (name "vaptvupt-gui")
-    (version "4.2.0")                    ; upstream versions the GUI with the CLI now
+    (version "4.2.1")                    ; upstream versions the GUI with the CLI now
     (source (package-source vaptvupt))   ; same release tarball
     (build-system copy-build-system)
     (arguments
