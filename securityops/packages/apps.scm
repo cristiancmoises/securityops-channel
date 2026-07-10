@@ -233,7 +233,7 @@ the package is self-contained.")
     (home-page "https://codeberg.org/cristiancmoises/torando-gui")
     (license license:agpl3)))
 
-;;; vaptvupt — pure-C11 post-quantum backup compressor (CLI, v4.1.0) and its
+;;; vaptvupt — pure-C11 post-quantum backup compressor (CLI, v4.2.0) and its
 ;;; PySide6/Qt6 desktop frontend (GUI, versioned with the CLI since 4.1.0).
 ;;; Both build from the ONE vendored release tarball.  The CLI is built FROM
 ;;; SOURCE with gnu-build-system (plain Makefile, no ./configure).  4.1.0 is a
@@ -247,8 +247,8 @@ the package is self-contained.")
 (define-public vaptvupt
   (package
     (name "vaptvupt")
-    (version "4.1.0")
-    (source (local-file "sources/vaptvupt-4.1.0.tar.gz"))
+    (version "4.2.0")
+    (source (local-file "sources/vaptvupt-4.2.0.tar.gz"))
     (build-system gnu-build-system)
     (arguments
      (list
@@ -267,9 +267,13 @@ the package is self-contained.")
     (description
      "VaptVupt (formerly Zupt) is a pure-C11 backup compressor with post-quantum
 hybrid encryption.  Since 4.1.0 it is a source-only build with no vendored
-binary SDKs: recipient mode is the native ML-KEM-768 + X25519 hybrid
-(@code{--pq}); the SDK-backed @code{--pq-sdk} and @code{--pq-box} modes are
-unsupported stubs, and password mode uses PBKDF2-SHA256.  Payload protection is
+binary SDKs: recipient modes are the native ML-KEM-768 + X25519 hybrid
+(@code{--pq}, recommended) and, since 4.2.0, pure ML-KEM-768 with no classical
+component (@code{--pq-only}, FIPS 203, for CNSA 2.0-style postures); the
+SDK-backed @code{--pq-sdk} and @code{--pq-box} modes are unsupported stubs, and
+password mode uses PBKDF2-SHA256.  4.2.0 also fixes a critical AES-CTR
+keystream-reuse flaw in @code{--dedup} archives (re-encrypt any written by
+4.1.0 or earlier).  Payload protection is
 AES-256-CTR + HMAC-SHA256 Encrypt-then-MAC with measured constant-time tag
 comparison and runtime AES-NI/SHA-NI dispatch; the embedded VaptVupt 2.60.4
 LZ+ANS codec ships CBMC-verified BCJ filters.")
@@ -284,7 +288,7 @@ LZ+ANS codec ships CBMC-verified BCJ filters.")
 (define-public vaptvupt-gui
   (package
     (name "vaptvupt-gui")
-    (version "4.1.0")                    ; upstream versions the GUI with the CLI now
+    (version "4.2.0")                    ; upstream versions the GUI with the CLI now
     (source (package-source vaptvupt))   ; same release tarball
     (build-system copy-build-system)
     (arguments
