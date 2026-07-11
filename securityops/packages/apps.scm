@@ -35,7 +35,42 @@
   #:use-module (gnu packages xdisorg)            ;wmctrl (turborec X11 window capture)
   #:use-module (gnu packages version-control)    ;git-minimal (moneyprinterturbo venv bootstrap)
   #:use-module (gnu packages fonts)              ;font-wqy-zenhei (moneyprinterturbo CJK subtitles)
+  ;; vaptvupt-gui: PySide6's Qt6 leaf libraries (NOT in its RUNPATH). #:select
+  ;; keeps these from clashing with the many modules imported above. mesa=gl;
+  ;; the X11/xcb libs, libxft, libevdev, libxau, libxdmcp come from (gnu packages
+  ;; xorg); libxkbcommon/pixman/mtdev from (gnu packages xdisorg); eudev from
+  ;; (gnu packages linux); python-shiboken-6/qtbase/qtwayland from (gnu packages
+  ;; qt) — all already imported above.
+  #:use-module ((gnu packages gl)         #:select (mesa))
+  #:use-module ((gnu packages fontutils)  #:select (fontconfig freetype graphite2))
+  #:use-module ((gnu packages freedesktop) #:select (wayland libinput-minimal))
+  #:use-module ((gnu packages glib)       #:select (glib dbus))
+  #:use-module ((gnu packages compression) #:select (zlib zstd brotli))
+  #:use-module ((gnu packages image)      #:select (libpng libjpeg-turbo))
+  #:use-module ((gnu packages xml)        #:select (expat libxml2))
+  #:use-module ((gnu packages gtk)        #:select (harfbuzz))
+  #:use-module ((gnu packages icu4c)      #:select (icu4c))
+  #:use-module ((gnu packages maths)      #:select (double-conversion))
+  #:use-module ((gnu packages pcre)       #:select (pcre2))
+  #:use-module ((gnu packages markup)     #:select (md4c))
+  #:use-module ((gnu packages crypto)     #:select (libb2))
   #:use-module ((guix licenses) #:prefix license:))
+
+;; Leaf runtime libraries PySide6's Qt6 (Core/Gui/Widgets) links but does NOT
+;; carry in its RUNPATH. The vaptvupt-gui launcher puts these on LD_LIBRARY_PATH;
+;; without them `import PySide6.QtWidgets` fails with e.g. "libGL.so.1 /
+;; libzstd.so.1: cannot open shared object file" and the GUI wrongly reports
+;; "requires PySide6 or PyQt6". NEVER add qtbase/qtwayland here — Qt's own libs
+;; resolve via PySide6's RUNPATH; a second copy causes private-API symbol clashes.
+(define %vaptvupt-gui-runtime-libs
+  (list mesa libxkbcommon fontconfig freetype graphite2 harfbuzz
+        icu4c double-conversion pcre2 md4c libb2 brotli
+        libpng libjpeg-turbo zlib expat libxml2 pixman glib dbus wayland
+        libx11 libxext libxrender libxcb libxrandr libxi libxcursor libxft
+        libxfixes libxdamage libxcomposite libxtst libxinerama libsm libice
+        libxau libxdmcp xcb-util xcb-util-image xcb-util-keysyms
+        xcb-util-renderutil xcb-util-wm xcb-util-cursor
+        libinput-minimal mtdev libevdev eudev))
 
 ;;; evelin — post-quantum transport (ML-KEM-1024 / ML-DSA-87 / ChaCha20-Poly1305).
 ;;; Packaged from the OFFICIAL upstream static-musl release tarball (v4.1.1),
@@ -322,17 +357,36 @@ LZ+ANS codec ships CBMC-verified BCJ filters.")
                      (pyside  (assoc-ref inputs "python-pyside-6"))
                      (site    (car (find-files pyside "^site-packages$"
                                                #:directories? #t)))
+                     ;; Shiboken6 is a SEPARATE package PySide6 imports at
+                     ;; runtime; its site-packages must be on GUIX_PYTHONPATH too
+                     ;; or "import PySide6" fails with "Unable to import Shiboken".
+                     (shiboken (assoc-ref inputs "python-shiboken-6"))
+                     (shsite  (car (find-files shiboken "^site-packages$"
+                                               #:directories? #t)))
                      (qtbase  (assoc-ref inputs "qtbase"))
-                     (qtwl    (assoc-ref inputs "qtwayland")))
+                     (qtwl    (assoc-ref inputs "qtwayland"))
+                     ;; Leaf-library search path (libGL, libxkbcommon, X11/xcb,
+                     ;; fontconfig, wayland, glib, dbus, ...). Qt's own libraries
+                     ;; are intentionally excluded — they resolve via PySide6's
+                     ;; RUNPATH; adding qtbase here causes private-API clashes.
+                     ;; zstd ships libzstd.so.1 in its separate "lib" output.
+                     (zstdlib (assoc-ref inputs "zstd"))
+                     (ldpath (string-join
+                              (append
+                               (list #$@(map (lambda (p) (file-append p "/lib"))
+                                             %vaptvupt-gui-runtime-libs))
+                               (list (string-append zstdlib "/lib")))
+                              ":")))
                 (mkdir-p bin)
                 (call-with-output-file (string-append bin "/vaptvupt-gui")
                   (lambda (port)
                     (format port "#!~a
 export VAPTVUPT_BIN=\"~a\"
-export GUIX_PYTHONPATH=\"~a${GUIX_PYTHONPATH:+:}$GUIX_PYTHONPATH\"
+export GUIX_PYTHONPATH=\"~a:~a${GUIX_PYTHONPATH:+:}$GUIX_PYTHONPATH\"
 export QT_PLUGIN_PATH=\"~a/lib/qt6/plugins:~a/lib/qt6/plugins${QT_PLUGIN_PATH:+:}$QT_PLUGIN_PATH\"
+export LD_LIBRARY_PATH=\"~a${LD_LIBRARY_PATH:+:}$LD_LIBRARY_PATH\"
 exec \"~a\" \"~a\" \"$@\"\n"
-                            sh cli site qtbase qtwl python3 gui)))
+                            sh cli site shsite qtbase qtwl ldpath python3 gui)))
                 (chmod (string-append bin "/vaptvupt-gui") #o755)
                 ;; Legacy name, mirroring the .deb/.rpm packages.
                 (symlink "vaptvupt-gui" (string-append bin "/zupt-gui")))))
@@ -357,7 +411,10 @@ MimeType=application/x-zupt;
 Keywords=backup;encryption;post-quantum;compression;zupt;\n"
                             out)))))))))
     (inputs
-     (list bash-minimal python python-pyside-6 qtbase qtwayland vaptvupt))
+     (append (list bash-minimal python python-pyside-6 python-shiboken-6
+                   qtbase qtwayland vaptvupt
+                   (list zstd "lib"))   ; libzstd.so.1 is in zstd's "lib" output
+             %vaptvupt-gui-runtime-libs))
     (supported-systems '("x86_64-linux"))
     (synopsis "Desktop frontend for VaptVupt (PySide6/Qt6 GUI)")
     (description
