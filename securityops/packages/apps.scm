@@ -283,8 +283,8 @@ the package is self-contained.")
 (define-public vaptvupt
   (package
     (name "vaptvupt")
-    (version "5.2.0")
-    (source (local-file "sources/vaptvupt-5.2.0.tar.gz"))
+    (version "5.2.1")
+    (source (local-file "sources/vaptvupt-5.2.1.tar.gz"))
     (build-system gnu-build-system)
     (arguments
      (list
@@ -332,7 +332,7 @@ LZ+ANS codec ships CBMC-verified BCJ filters.")
 (define-public vaptvupt-gui
   (package
     (name "vaptvupt-gui")
-    (version "5.2.0")                    ; upstream versions the GUI with the CLI now
+    (version "5.2.1")                    ; upstream versions the GUI with the CLI now
     (source (package-source vaptvupt))   ; same release tarball
     (build-system copy-build-system)
     (arguments
