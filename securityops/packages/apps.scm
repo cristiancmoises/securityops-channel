@@ -536,7 +536,7 @@ pin the store @code{python3}/@code{bash} and the tools they call (@code{ffmpeg},
     (home-page "https://git.securityops.co/cristiancmoises/turborec")
     (license license:gpl3)))
 
-;;; moneyprinterturbo — one-click AI short-video generator (harry0703 v1.3.1).
+;;; moneyprinterturbo — one-click AI short-video generator (harry0703 v1.3.2).
 ;;; THIRD-PARTY Python app with a huge, partly-unpackaged dependency tree
 ;;; (streamlit, moviepy, edge-tts, litellm, faster-whisper, the cloud SDKs), so a
 ;;; full native python-build-system package is infeasible here.  Instead this ships
@@ -570,8 +570,8 @@ pin the store @code{python3}/@code{bash} and the tools they call (@code{ffmpeg},
 (define-public moneyprinterturbo
   (package
     (name "moneyprinterturbo")
-    (version "1.3.1")
-    (source (local-file "sources/moneyprinterturbo-1.3.1-src.tar.gz"))
+    (version "1.3.2")
+    (source (local-file "sources/moneyprinterturbo-1.3.2-src.tar.gz"))
     (build-system copy-build-system)
     (inputs
      `(("python" ,python)
@@ -647,7 +647,7 @@ set -e
 export PATH=\"~a${PATH:+:$PATH}\"
 STORE_SHARE=\"~a\"
 APP_HOME=\"${MPT_HOME:-${XDG_DATA_HOME:-$HOME/.local/share}/moneyprinterturbo}\"
-VERSION=\"1.3.1\"
+VERSION=\"1.3.2\"
 export TORSOCKS_ALLOW_INBOUND=1
 export TORSOCKS_CONF_FILE=\"~a\"
 export GRPC_DNS_RESOLVER=native
@@ -690,7 +690,7 @@ export PYTHONPATH=\"$APP_HOME${PYTHONPATH:+:$PYTHONPATH}\"
      "MoneyPrinterTurbo generates short-form videos from a topic: an LLM writes the
 script and keywords, stock B-roll is pulled from Pexels/Pixabay, edge-tts adds a
 voice-over, subtitles are burned in, and FFmpeg assembles the final clip.  This
-package ships the upstream v1.3.1 source (proprietary CJK fonts removed; WenQuanYi
+package ships the upstream v1.3.2 source (proprietary CJK fonts removed; WenQuanYi
 Zen Hei bundled as the default subtitle font) plus self-contained
 @command{moneyprinterturbo} (Streamlit WebUI) and @command{moneyprinterturbo-api}
 (FastAPI) launchers.  On first run each launcher copies the app into
