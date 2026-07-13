@@ -172,13 +172,17 @@ a Guix System service, use the bundled service type:
 ## Security toolset
 
 `security.scm` re-exports a curated security toolset from Guix, so it installs
-from this channel and tracks Guix — most are already the latest upstream, though a
-few (`nmap` 7.98→7.99, `fping` 5.3→5.5) lag and would need a bump here (see
-[AUDIT.md](AUDIT.md)).  `lynis` is bumped here ahead of Guix (3.1.7 vs 3.1.1):
+from this channel and tracks Guix.  Three are **bumped ahead of Guix** here
+(inherit + version + real source hash), all built & run-verified: `nmap` 7.99
+(Guix 7.98), `fping` 5.5 (Guix 5.3) and `hydra` 9.7 (Guix 9.6).  A few others
+lag Guix but a *clean* bump is not just version+source, so they stay on Guix for
+now: `mtr` 0.96 moved `utils.h` without fixing `packet/` includes; `radare2`
+6.1.8 pulls a new `zydis` meson subproject not yet in Guix; `rizin` 0.9 reworked
+its meson options.  `lynis` is bumped here too (3.1.7 vs Guix 3.1.1):
 
-> nmap · masscan · arp-scan · netdiscover · fping · mtr · whois ·
-> proxychains-ng · aircrack-ng · reaver · kismet · hydra (THC) · radare2 ·
-> rizin · binwalk · age · **lynis 3.1.7** (bumped)
+> **nmap 7.99** · masscan · arp-scan · netdiscover · **fping 5.5** · mtr · whois ·
+> proxychains-ng · aircrack-ng · reaver · kismet · **hydra 9.7** (THC) · radare2 ·
+> rizin · binwalk · age · **lynis 3.1.7**   *(bold = bumped ahead of Guix)*
 
 **Not yet in Guix** (TODO — package on request; quick: Go/Rust single-binaries;
 heavy: zaproxy/volatility3): `sqlmap` · `nikto` · `gobuster` · `ffuf` ·

@@ -6,6 +6,27 @@ tag rather than SemVer of the code.
 
 ## [Unreleased]
 
+### Changed — re-exports bumped ahead of Guix (2026-07-13)
+A full version audit (every channel package vs real upstream, not just Guix's
+pins) found `torbrowser-assets` behind and several re-exports lagging Guix.
+- **torbrowser-assets 15.0.16 → 15.0.17** — matches `torbrowser`; real bundle
+  hash; fonts + torrc-defaults extract verified.
+- **nmap 7.98 → 7.99**, **fping 5.3 → 5.5**, **hydra 9.6 → 9.7** — converted
+  from Guix re-exports to inherit + version + source (real hashes). Built and
+  run-verified (`nmap --version` → 7.99; `fping -v` → 5.5; `hydra` banner →
+  v9.7). These now build from source at reconfigure instead of pulling Guix
+  substitutes.
+- Left tracking Guix (a clean version+source bump does not build): **mtr 0.96**
+  (upstream moved `utils.h` without fixing `packet/` includes), **radare2
+  6.1.8** (new `zydis` meson subproject not packaged in Guix), **rizin 0.9.1**
+  (0.9 reworked meson options — inherited `-Duse_swift_demangler` removed),
+  **fish 4.8.0** (Guix builds fish 4.x from a pinned ~120-crate `cargo-inputs`
+  set; needs the whole set regenerated for 4.8.0's Cargo.lock).
+- Confirmed already at latest upstream (audit): kitty, tor, torbrowser, openshot,
+  glances, lynis, esquema, and all other re-exports (alacritty, emacs, mpv, vlc,
+  keepassxc, ueberzugpp, lf, masscan, aircrack-ng, age, binwalk, whois, arp-scan,
+  kismet, reaver, netdiscover, proxychains-ng) + the first-party apps.
+
 ### Changed — version bumps (2026-07-12 evening)
 - **ungoogled-chromium-bin 150.0.7871.100-1 → 150.0.7871.114-1** — the `.114`
   prebuilt portablelinux release landed upstream (the source tag had run ahead
