@@ -6,6 +6,18 @@ tag rather than SemVer of the code.
 
 ## [Unreleased]
 
+### Changed — turborec 3.2.0 (2026-07-12)
+- **turborec 3.1.0 → 3.2.0** (re-vendored from tag `v3.2.0`, verified identical
+  to the published Codeberg copy). New `-R/--resolution`
+  (native/720p/1080p/1440p/4k) on CLI + GUI Output dropdown + `resolution`
+  config key: lanczos scaling with aspect preserved and padding to the exact
+  standard frame — upscaling to 4k targets YouTube's higher quality/bitrate
+  tier. Pure ffmpeg-filter work: no new inputs, recipe bump only. Built and
+  run-verified (`turborec --version` → 3.2.0, `-R` present in help).
+  Note: at vendor time the `v3.2.0` tag existed on Codeberg but not yet on
+  git.securityops.co — push `main` + tag there for `./update-channel check`
+  to read cleanly.
+
 ### Changed — vaptvupt 5.0.0 (2026-07-10, security, BREAKING)
 - **vaptvupt 4.2.1 → 5.0.0** and **vaptvupt-gui → 5.0.0** (re-vendored, same
   tarball). Upstream highlights:
