@@ -6,6 +6,16 @@ tag rather than SemVer of the code.
 
 ## [Unreleased]
 
+### Changed — turborec 3.5.0 (2026-07-13)
+- **turborec 3.4.0 → 3.5.0** (re-vendored from tag `v3.5.0`, `a42e979a`; on
+  Codeberg + git.securityops.co + local). Adds a **webcam picture-in-picture
+  overlay** (`record --camera DEVICE` + `--camera-size`/`--camera-position`,
+  OBS-style) and **built-in mic noise suppression** (`--denoise
+  off|light|medium|strong`, ffmpeg-native `afftdn` — no model file). Pure
+  ffmpeg-filter work: no new external tool, same shim/PATH set — recipe bump
+  only. Built and run-verified (`turborec --version` → 3.5.0; `record --help`
+  exposes `--camera*` and `--denoise`).
+
 ### Changed — turborec 3.4.0 (2026-07-13)
 - **turborec 3.3.0 → 3.4.0** (re-vendored from tag `v3.4.0`, `4acda876`; now
   published on both Codeberg and git.securityops.co). Upstream 3.4.0 is

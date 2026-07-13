@@ -426,7 +426,7 @@ launcher pins the matching @code{vaptvupt} CLI from the store via
     (home-page "https://git.securityops.co/cristiancmoises/vaptvupt")
     (license license:agpl3+)))
 
-;;; turborec — Turbo Recorder 3.4.0: a hardware-accelerated Linux screen + audio
+;;; turborec — Turbo Recorder 3.5.0: a hardware-accelerated Linux screen + audio
 ;;; recorder.  `turborec.py' is a pure-stdlib Python CLI with a Tkinter GUI (the
 ;;; `gui' subcommand); `turborecorder' is an X11 bash launcher that builds a
 ;;; quality-first FFmpeg pipeline (NVENC > VAAPI > x264).  Built FROM SOURCE with
@@ -439,8 +439,8 @@ launcher pins the matching @code{vaptvupt} CLI from the store via
 (define-public turborec
   (package
     (name "turborec")
-    (version "3.4.0")
-    (source (local-file "sources/turborec-3.4.0-src.tar.gz"))
+    (version "3.5.0")
+    (source (local-file "sources/turborec-3.5.0-src.tar.gz"))
     (build-system copy-build-system)
     (inputs
      `(("python" ,python)
