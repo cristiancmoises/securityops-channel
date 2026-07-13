@@ -76,16 +76,16 @@
         #~(append #$flags (list "--enable-lto=thin")))))))
 
 ;;; ---------------------------------------------------------------------------
-;;; torbrowser-assets — the official prebuilt bundle (15.0.16) from which fonts
+;;; torbrowser-assets — the official prebuilt bundle (15.0.17) from which fonts
 ;;; and torrc-defaults are taken.  Provided standalone (Guix keeps its copy
 ;;; private); verified by hash.  Use it to extract the latest assets, or as the
 ;;; basis for a fully-pristine torbrowser bump.
-;;; Hash: `guix download .../tor-browser-linux-x86_64-15.0.16.tar.xz'.
+;;; Hash: `guix download .../tor-browser-linux-x86_64-15.0.17.tar.xz'.
 ;;; ---------------------------------------------------------------------------
 (define-public torbrowser-assets
   (package
     (name "torbrowser-assets")
-    (version "15.0.16")
+    (version "15.0.17")
     (source
      (origin
        (method url-fetch)
@@ -93,7 +93,7 @@
              "https://archive.torproject.org/tor-package-archive/torbrowser/"
              version "/tor-browser-linux-x86_64-" version ".tar.xz"))
        (sha256
-        (base32 "01z5mknx2w7p4qknpv2jkfvbl1psklaqzww56bnllm2a418hqm0i"))))
+        (base32 "06wf0bn39jrbdz4w25c7n2p6vfsny8nsgyrv3q58m3ymw1vl74aq"))))
     (build-system copy-build-system)
     (arguments
      (list #:install-plan
