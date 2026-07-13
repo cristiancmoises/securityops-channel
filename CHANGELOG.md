@@ -6,6 +6,14 @@ tag rather than SemVer of the code.
 
 ## [Unreleased]
 
+### Changed — turborec 3.6.0 (2026-07-13)
+- **turborec 3.5.0 → 3.6.0** (re-vendored from tag `v3.6.0`, `1d033f3e`; on
+  Codeberg + git.securityops.co + local). The `turborecorder` bash launcher
+  gains **native Wayland capture via `wf-recorder`** plus a static-screen stop
+  fix. `wf-recorder` is already pinned in the launcher's shim PATH (0.6.0), so
+  no new input — recipe bump only. Built and run-verified (`turborec --version`
+  → 3.6.0; `turborecorder` shim references the store `wf-recorder`).
+
 ### Changed — turborec 3.5.0 (2026-07-13)
 - **turborec 3.4.0 → 3.5.0** (re-vendored from tag `v3.5.0`, `a42e979a`; on
   Codeberg + git.securityops.co + local). Adds a **webcam picture-in-picture
