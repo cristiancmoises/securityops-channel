@@ -6,6 +6,19 @@ tag rather than SemVer of the code.
 
 ## [Unreleased]
 
+### Changed — version bumps (2026-07-12 evening)
+- **ungoogled-chromium-bin 150.0.7871.100-1 → 150.0.7871.114-1** — the `.114`
+  prebuilt portablelinux release landed upstream (the source tag had run ahead
+  for three days; the fixed checker flagged it only once the binary existed).
+  Built and run-verified: `chromium --version` → `Chromium 150.0.7871.114`.
+- **moneyprinterturbo 1.3.1 → 1.3.2** — re-vendored with the same prune policy
+  (proprietary CJK fonts/docker/docs/tests/songs stripped; Charm kept; recipe
+  adds wqy-zenhei). All recipe paths and `substitute*` patterns intact.
+  `requirements.txt` changed upstream (streamlit 1.59.1, +streamlit-tour,
+  `google.generativeai` → `google-genai` 2.11.0, +audioop-lts on py≥3.13) —
+  these install in the launcher's first-run venv, so the recipe needs no input
+  changes. Built; launcher VERSION → 1.3.2 verified.
+
 ### Changed — turborec 3.2.0 (2026-07-12)
 - **turborec 3.1.0 → 3.2.0** (re-vendored from tag `v3.2.0`, verified identical
   to the published Codeberg copy). New `-R/--resolution`
