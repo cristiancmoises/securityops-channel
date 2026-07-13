@@ -21,14 +21,74 @@ are *ahead* of Guix/nonguix carry a **real, downloaded source hash**.
 
 ## The curated set
 
+### 📇 Full package index (49 packages)
+
+Every package this channel defines, its current version, and the most recent
+change. **Class**: 🅑 bumped ahead of Guix/nonguix (real downloaded hash) · 🄟
+prebuilt binary · 🄡 re-exported (tracks Guix, already latest) · 🄕 first-party
+(`git.securityops.co`) / vendored · 🄓 internal build dependency. The detailed
+per-category sections and caveats follow below.
+
+| Package | Version | Class | Latest change / note |
+|---|---|:--:|---|
+| `kitty` | 0.47.4 | 🅑 | ahead of Guix 0.46.2; pulls two vendored Go deps (↓) |
+| `tor` | 0.4.9.11 | 🅑 | ahead of Guix 0.4.9.8 |
+| `torbrowser` | 15.0.17 | 🅑 | source build + ThinLTO; ahead of Guix 15.0.14 |
+| `torbrowser-assets` | 15.0.17 | 🅑 | official bundle (fonts + torrc-defaults); matched to `torbrowser` |
+| `openshot` | 3.5.1 | 🅑 | ahead of Guix 3.4.0; stale-test-path build fixed |
+| `google-chrome-stable` | 150.0.7871.114 | 🅑 | ahead of nonguix; real `.deb` hash |
+| `mullvad-vpn-desktop` | 2026.3 | 🅑 | vendored `.deb`; the daemon service runs this build |
+| `librewolf` | 152.0.5-1 | 🅑 | source build; l10n pin `6ee6f5c4`; inline l10n-neuter |
+| `steam` | 1.0.0.87 | 🅑 | Valve beta bootstrap (nonguix container rebuilt) |
+| `glances` | 4.5.5 | 🅑 | pyproject; private `pyinstrument` 5.1.2 dep |
+| `lynis` | 3.1.7 | 🅑 | ahead of Guix 3.1.1; bundled proprietary plugins stripped |
+| `nmap` | 7.99 | 🅑 | ahead of Guix 7.98 |
+| `fping` | 5.5 | 🅑 | ahead of Guix 5.3 |
+| `hydra` | 9.7 | 🅑 | THC-Hydra; ahead of Guix 9.6 |
+| `ungoogled-chromium-bin` | 150.0.7871.114-1 | 🄟 | official prebuilt portablelinux; the recommended chromium |
+| `alacritty` | 0.17.0 | 🄡 | latest in Guix |
+| `fish` | 4.7.1 | 🄡 | latest in Guix; upstream 4.8.0 needs a full cargo-inputs regen |
+| `emacs` | 30.2 | 🄡 | latest in Guix |
+| `emacs-pgtk` | 30.2 | 🄡 | pure-GTK Emacs; latest in Guix |
+| `mpv` | 0.41.0 | 🄡 | latest in Guix |
+| `vlc` | 3.0.23 | 🄡 | latest stable (VLC 4.x not released) |
+| `keepassxc` | 2.7.12 | 🄡 | latest in Guix |
+| `ueberzugpp` | 2.9.10 | 🄡 | latest in Guix |
+| `lf` | 41 | 🄡 | latest in Guix |
+| `ungoogled-chromium` (source) | 147.0.7727.137-1 | 🄡 | newer exists but source build is Tor-blocked — use `-bin` ↑ |
+| `masscan` | 1.3.2 | 🄡 | latest in Guix |
+| `arp-scan` | 1.10.0 | 🄡 | latest in Guix |
+| `netdiscover` | 0.21 | 🄡 | latest in Guix |
+| `mtr` | 0.95 | 🄡 | upstream 0.96 has an `utils.h` include-path bug — kept on Guix |
+| `whois` | 5.6.6 | 🄡 | latest in Guix |
+| `proxychains-ng` | 4.17 | 🄡 | latest in Guix |
+| `aircrack-ng` | 1.7 | 🄡 | latest in Guix |
+| `reaver` | 1.6.6 | 🄡 | latest in Guix |
+| `kismet` | 2025.09.R1 | 🄡 | latest in Guix |
+| `radare2` | 6.1.4 | 🄡 | upstream 6.1.8 needs `zydis` (not in Guix) — kept on Guix |
+| `rizin` | 0.8.2 | 🄡 | upstream 0.9.1 reworked meson options — kept on Guix |
+| `binwalk` | 3.1.0 | 🄡 | latest in Guix |
+| `age` | 1.3.1 | 🄡 | latest in Guix |
+| `evelin-bin` | 4.1.1 | 🄕 | official static-musl release tarball |
+| `btp` | 0.7 | 🄕 | Rust; binaries patchelf'd to glibc/gcc (`btpctl`, `btpd`) |
+| `mirim` | 1.0.0 | 🄕 | Rust; `mirim`, `mirim-sign` |
+| `torando-gui` | 1.1.0 | 🄕 | Python daemon + GTK4/WebKit GUI; ships a Shepherd service |
+| `vaptvupt` | 5.2.1 | 🄕 | PQ backup compressor (ML-KEM-768/FIPS 203); source-only; see BREAKING note ↓ |
+| `vaptvupt-gui` | 5.2.1 | 🄕 | PySide6/Qt6 frontend; thread-safe `_Job`, auto-detect Verify |
+| `turborec` | 3.3.0 | 🄕 | screen/audio recorder; 3.3.0 adds live YouTube/RTMPS streaming |
+| `esquema` | 0.2.0 | 🄕 | rootless Guile-native container runtime (libseccomp) |
+| `moneyprinterturbo` | 1.3.2 | 🄕 | vendored 3rd-party AI short-video generator; fonts pruned |
+| `go-github-com-emmansun-base64` | 0.9.0 | 🄓 | kitty build dependency |
+| `go-github-com-sgtdi-fswatcher` | 1.3.0 | 🄓 | kitty build dependency |
+
 ### ⬆️ Bumped ahead of Guix / nonguix (real downloaded hashes)
 
 | Package | This channel | Upstream had | Source |
 |---|---|---|---|
 | **kitty** | 0.47.4 | 0.46.2 (guix) | git tag `v0.47.4` |
-| **tor** | 0.4.9.9 | 0.4.9.8 (guix) | dist.torproject.org tarball |
+| **tor** | 0.4.9.11 | 0.4.9.8 (guix) | dist.torproject.org tarball |
 | **torbrowser** | 15.0.17 | 15.0.14 (guix) | source build (see caveat) |
-| **torbrowser-assets** | 15.0.16 | _(private in guix)_ | official bundle |
+| **torbrowser-assets** | 15.0.17 | _(private in guix)_ | official bundle (fonts + torrc-defaults) |
 | **openshot** | 3.5.1 | 3.4.0 (guix) | git tag `v3.5.1` |
 | **google-chrome-stable** | 150.0.7871.114 | 148.0.7778.215 (nonguix) | dl.google.com `.deb` |
 | **mullvad-vpn-desktop** | 2026.3 | 2025.8 (small-guix) | cdn.mullvad.net `.deb` (vendored) |
@@ -82,6 +142,7 @@ Each app lives in its own repo on the forge. To keep this channel
 | **vaptvupt-gui** | 5.2.1 | PySide6/Qt6 frontend from the same tarball (versioned with the CLI); 5.0.0 reworks it for source-only builds (build-aware Hybrid/Full-PQ selector, PQ-key auto-detect) + XWayland fallback so it appears on Sway; 5.2.x: thread-safe `_Job` controller (fixes compress crash/hang/corruption), CR progress frames parsed, robust Verify/Extract with encryption auto-detect + guided credentials; launcher pins the CLI via `VAPTVUPT_BIN` | ✅ builds (`vaptvupt-gui`, `zupt-gui`); GUI `--selftest` OK |
 | **turborec** | 3.3.0 | built from source (pure-Python CLI + Tkinter GUI + bash X11 launcher; self-contained `#!/bin/sh` shims pin python3/bash + ffmpeg/pactl/xrandr/xdpyinfo/lspci, + Wayland wf-recorder/wlr-randr/swaymsg + wmctrl; 3.1.0 `--audio-channels`, 3.2.0 `-R/--resolution` scaling, 3.3.0 live streaming `record --stream KEY` (YouTube/RTMPS default) + adaptive quality) | ✅ builds & runs (`turborec`, `turborecorder`) |
 | **esquema** | 0.2.0 | built from source (C core `libesquema.so` via `make` + libseccomp; Guile modules byte-compiled; ships the `(esquema esquema-service)` Shepherd service) | ✅ builds & FFI-loads (`esquema-init` → 42); functional/security/ASan suites green |
+| **moneyprinterturbo** | 1.3.2 | vendored third-party (harry0703; not a forge repo). AI one-click short-video generator; the (font-pruned) upstream source + a self-contained launcher that builds a first-run venv over Tor; proprietary CJK fonts dropped and repointed to bundled WenQuanYi Zen Hei | ✅ builds; launcher boots (venv on first run) |
 
 To re-vendor an updated app: rebuild/redownload its artifact into
 `packages/sources/`, bump `version`, and `guix build -L . <pkg>`.
