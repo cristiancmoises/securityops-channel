@@ -18,6 +18,30 @@ tag rather than SemVer of the code.
   git.securityops.co — push `main` + tag there for `./update-channel check`
   to read cleanly.
 
+### Changed — vaptvupt 5.1.0 → 5.2.1 (2026-07-11/12)
+- **vaptvupt(+gui) 5.0.0 → 5.1.0 → 5.2.0 → 5.2.1** (re-vendored per tag; docs
+  catch-up entry — the recipe bumps shipped as they were tagged):
+  - **5.1.0**: codec upgraded to VaptVupt 2.65.0 — the wrapper no longer
+    force-enables `format_v2` (which had halved the extreme-mode text ratio)
+    and block size scales with level for the large-window extreme parser
+    (`--dedup` keeps a small block). GUI parses the CLI's carriage-return
+    progress frames, so compress no longer looks stuck.
+  - **5.2.0**: fixes the 5.1.0 GUI cross-thread crash (compress could close
+    the app, hang, or corrupt the archive — worst on full-PQ): worker
+    callbacks now run on the GUI thread via a `_Job` controller. Codec
+    2.65.3 (~2× faster extreme, byte-identical output). libvuptsdk (renamed
+    libzuptsdk) wired for `WITH_SDK` builds; the channel build stays
+    source-only.
+  - **5.2.1**: GUI Verify/Extract reads the archive header to auto-detect
+    password/hybrid/full-PQ, applies the matching decrypt flag and guides the
+    user on missing credentials; Verify runs in the background.
+  - Wire format v1.6 throughout, interoperable with 5.0.x archives. Each step
+    built + profile-verified (codec version reported; GUI `--selftest` OK;
+    full-PQ compress round-trips byte-exact).
+- Earlier same window: **vaptvupt-gui 5.0.0 fixes** — XWayland fallback (GUI
+  now actually appears on Sway) and a crash on every compress/extract job
+  completion.
+
 ### Changed — vaptvupt 5.0.0 (2026-07-10, security, BREAKING)
 - **vaptvupt 4.2.1 → 5.0.0** and **vaptvupt-gui → 5.0.0** (re-vendored, same
   tarball). Upstream highlights:
