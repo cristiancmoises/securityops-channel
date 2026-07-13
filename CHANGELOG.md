@@ -6,6 +6,18 @@ tag rather than SemVer of the code.
 
 ## [Unreleased]
 
+### Changed — turborec 3.3.0 (2026-07-13)
+- **turborec 3.2.0 → 3.3.0** (re-vendored from tag `v3.3.0`, verified identical
+  to the published Codeberg copy `d86320a8`). Adds **live streaming**:
+  `turborec record --stream KEY [--stream-url URL]` goes LIVE to YouTube (RTMPS
+  ingest by default) or any RTMP endpoint instead of recording to a file, OBS
+  style; plus adaptive quality and secret hardening for the stream key. Pure
+  ffmpeg (RTMP output) — no new inputs, recipe bump only. Built and run-verified
+  (`turborec --version` → 3.3.0; `record --help` shows `--stream`/`--stream-url`;
+  shim PATH still pins ffmpeg/pactl/xrandr/xdpyinfo/wf-recorder/wlr-randr/sway/
+  wmctrl/lspci). Note: at vendor time `v3.3.0` was on Codeberg but not yet on
+  git.securityops.co — push the tag there for `./update-channel check`.
+
 ### Changed — re-exports bumped ahead of Guix (2026-07-13)
 A full version audit (every channel package vs real upstream, not just Guix's
 pins) found `torbrowser-assets` behind and several re-exports lagging Guix.
