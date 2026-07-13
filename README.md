@@ -81,6 +81,19 @@ per-category sections and caveats follow below.
 | `go-github-com-emmansun-base64` | 0.9.0 | 🄓 | kitty build dependency |
 | `go-github-com-sgtdi-fswatcher` | 1.3.0 | 🄓 | kitty build dependency |
 
+### 🔌 Services (2)
+
+Two native **GNU Shepherd** service types for `guix system reconfigure` — the
+systemd units shipped in the upstream packages are inert on Guix System, so the
+channel supplies real Shepherd services:
+
+| Service type | Module | Configuration (fields) | Purpose |
+|---|---|---|---|
+| `torando-gui-service-type` | `(securityops services torando)` | `torando-gui-configuration`: `package`, `host` (def. `127.0.0.1`), `port` (def. `8088`), `config-file`, `extra-options`, `seed-config` | Runs the Torando Control daemon (`torando-guid`) as root under Shepherd — programs netfilter, pins `resolv.conf`, manages `torrc` — and serves the token-injected UI on `http://127.0.0.1:8088/`. Auto-seeds `/etc/torando-gui/config.json` on first activation (so GUI changes persist). Requires the `networking` target; pair with `tor-service-type`. |
+| `esquema-service-type` | `(esquema esquema-service)` — shipped by the `esquema` package | `esquema-configuration` (positional): `name`, `rootfs`, `command`, `scheme-dir` | Supervises a single rootless `esquema` container as a Shepherd service (declarative `<container>`, all namespaces + seccomp + full capability drop). |
+
+Full `(operating-system …)` examples are below: [**torando-gui service**](#running-torando-gui-as-a-shepherd-service-guix-system) and [**esquema service**](#esquema--rootless-guile-native-container-runtime).
+
 ### ⬆️ Bumped ahead of Guix / nonguix (real downloaded hashes)
 
 | Package | This channel | Upstream had | Source |
