@@ -6,6 +6,16 @@ tag rather than SemVer of the code.
 
 ## [Unreleased]
 
+### Changed — turborec 3.4.0 (2026-07-13)
+- **turborec 3.3.0 → 3.4.0** (re-vendored from tag `v3.4.0`, `4acda876`; now
+  published on both Codeberg and git.securityops.co). Upstream 3.4.0 is
+  "self-contained Windows app + **security audit fixes**"; only the Linux
+  `turborec.py` audit hardening (91 lines) is relevant here — the Windows/CI
+  bits are inert on Guix. No new external tool (same ffmpeg/pactl/xrandr/
+  xdpyinfo/wf-recorder/wlr-randr/sway/wmctrl/lspci shim set), recipe bump only.
+  Built and run-verified (`turborec --version` → 3.4.0; `record --help` still
+  exposes `--audio-channels`/`-R`/`--stream`).
+
 ### Changed — turborec 3.3.0 (2026-07-13)
 - **turborec 3.2.0 → 3.3.0** (re-vendored from tag `v3.3.0`, verified identical
   to the published Codeberg copy `d86320a8`). Adds **live streaming**:
