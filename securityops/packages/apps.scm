@@ -207,8 +207,8 @@ glibc/gcc.")
 (define-public torando-gui
   (package
     (name "torando-gui")
-    (version "1.3.2")
-    (source (local-file "sources/torando-gui-1.3.2-src.tar.gz"))
+    (version "1.3.3")
+    (source (local-file "sources/torando-gui-1.3.3-src.tar.gz"))
     (build-system copy-build-system)
     (inputs (list python tor iptables e2fsprogs))
     (arguments
@@ -576,7 +576,7 @@ pin the store @code{python3}/@code{bash} and the tools they call (@code{ffmpeg},
 (define-public moneyprinterturbo
   (package
     (name "moneyprinterturbo")
-    (version "1.3.2")
+    (version "1.3.3")
     (source (local-file "sources/moneyprinterturbo-1.3.2-src.tar.gz"))
     (build-system copy-build-system)
     (inputs
