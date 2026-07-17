@@ -203,8 +203,8 @@ from the v1.0.0 source release.")
 (define-public torando-gui
   (package
     (name "torando-gui")
-    (version "1.2.0")
-    (source (local-file "sources/torando-gui-1.2.0-src.tar.gz"))
+    (version "1.3.0")
+    (source (local-file "sources/torando-gui-1.3.0-src.tar.gz"))
     (build-system copy-build-system)
     (inputs (list python tor iptables e2fsprogs))
     (arguments
