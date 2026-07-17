@@ -50,7 +50,7 @@
 ;;; not change across a patch release, so the resulting build is 15.0.16 with a
 ;;; 15.0.14-era asset/l10n baseline.  Bump those upstream in Guix for a fully
 ;;; pristine build.
-;;; Hash: `guix download .../src-firefox-tor-browser-140.12.0esr-15.0-1-build2.tar.xz'.
+;;; Hash: `guix download .../src-firefox-tor-browser-140.12.0esr-15.0-1-build3.tar.xz'.
 ;;; ---------------------------------------------------------------------------
 ;;; Performance: add ThinLTO on top of Guix's stock hardened/optimised build
 ;;; (--enable-optimize --enable-release --enable-strip, sandbox + PIE kept).
@@ -61,31 +61,31 @@
 (define-public torbrowser
   (package
     (inherit tb:torbrowser)
-    (version "15.0.17")
+    (version "15.0.18")
     (source
      (origin
        (method url-fetch)
        (uri (string-append
              "https://archive.torproject.org/tor-package-archive/torbrowser/"
-             version "/src-firefox-tor-browser-140.12.0esr-15.0-1-build2.tar.xz"))
+             version "/src-firefox-tor-browser-140.12.0esr-15.0-1-build3.tar.xz"))
        (sha256
-        (base32 "1cnv5sjr4zaybqv3yv0pkdicfb47mdzpk2hbjkrqhlxz3vbnhi8l"))))
+        (base32 "1cz271fjzghq3440raczr14c69arihcjgzdhkrczq4qdflvg140l"))))
     (arguments
      (substitute-keyword-arguments (package-arguments tb:torbrowser)
        ((#:configure-flags flags #~'())
         #~(append #$flags (list "--enable-lto=thin")))))))
 
 ;;; ---------------------------------------------------------------------------
-;;; torbrowser-assets — the official prebuilt bundle (15.0.17) from which fonts
+;;; torbrowser-assets — the official prebuilt bundle (15.0.18) from which fonts
 ;;; and torrc-defaults are taken.  Provided standalone (Guix keeps its copy
 ;;; private); verified by hash.  Use it to extract the latest assets, or as the
 ;;; basis for a fully-pristine torbrowser bump.
-;;; Hash: `guix download .../tor-browser-linux-x86_64-15.0.17.tar.xz'.
+;;; Hash: `guix download .../tor-browser-linux-x86_64-15.0.18.tar.xz'.
 ;;; ---------------------------------------------------------------------------
 (define-public torbrowser-assets
   (package
     (name "torbrowser-assets")
-    (version "15.0.17")
+    (version "15.0.18")
     (source
      (origin
        (method url-fetch)
@@ -93,7 +93,7 @@
              "https://archive.torproject.org/tor-package-archive/torbrowser/"
              version "/tor-browser-linux-x86_64-" version ".tar.xz"))
        (sha256
-        (base32 "06wf0bn39jrbdz4w25c7n2p6vfsny8nsgyrv3q58m3ymw1vl74aq"))))
+        (base32 "1zfyz2a60fmsxr1x9qsr0mzhg738lc8qf59322wlwag2rzqcdvp1"))))
     (build-system copy-build-system)
     (arguments
      (list #:install-plan

@@ -154,15 +154,18 @@ relinked against Guix's glibc.")
 (define-public mirim
   (package
     (name "mirim")
-    (version "1.0.0")
-    (source (local-file "sources/mirim-1.0.0-bin-x86_64-linux.tar.gz"))
+    (version "1.1.0")
+    (source (local-file "sources/mirim-1.1.0-x86_64-linux.tar.gz"))
     (build-system copy-build-system)
     (inputs (list glibc `(,gcc "lib")))
     (native-inputs (list patchelf))
     (arguments
      (list
+      ;; 1.1.0 ships the binaries at the archive root (no bin/ dir) and adds a
+      ;; `mirim-gui' — left out here, it needs a graphical runtime we don't wire.
       #:install-plan
-      #~'(("bin/" "bin/"))
+      #~'(("mirim"      "bin/mirim")
+          ("mirim-sign" "bin/mirim-sign"))
       #:phases
       #~(modify-phases %standard-phases
           (add-after 'install 'patchelf-binaries
@@ -181,8 +184,9 @@ relinked against Guix's glibc.")
     (synopsis "mirim — post-quantum secret vault and ML-DSA-87 signing tool")
     (description
      "@code{mirim} (post-quantum encrypted vault: ML-KEM-768 + ChaCha20-Poly1305,
-Argon2) and @code{mirim-sign} (detached ML-DSA-87 / FIPS 204 signatures), built
-from the v1.0.0 source release.")
+Argon2) and @code{mirim-sign} (detached ML-DSA-87 / FIPS 204 signatures);
+prebuilt x86_64 binaries from the v1.1.0 release, patchelf'd to the store
+glibc/gcc.")
     (home-page "https://git.securityops.co/cristiancmoises/mirim")
     (license license:agpl3)))
 

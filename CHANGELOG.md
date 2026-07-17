@@ -6,6 +6,26 @@ tag rather than SemVer of the code.
 
 ## [Unreleased]
 
+### Changed — version bumps (2026-07-15 batch)
+- **google-chrome-stable 150.0.7871.114 → 150.0.7871.124** (real `.deb` hash;
+  built).
+- **librewolf 152.0.5-1 → 152.0.6-1** — firefox 152.0.6 source + codeberg
+  152.0.6-1 hashes updated; l10n pin moved `6ee6f5c4 → e42882cf` (per
+  `l10n-changesets.json`). Source assembly verified (`guix build -S`); full
+  compile happens at reconfigure.
+- **torbrowser 15.0.17 → 15.0.18** — source tarball `…-15.0-1-build2 →
+  build3`; hash updated; source verified (compile deferred).
+- **torbrowser-assets 15.0.17 → 15.0.18** — matches torbrowser; built.
+- **mirim 1.0.0 → 1.1.0** (re-vendored). Upstream **changed the release
+  layout**: the binaries moved from `bin/` to the archive root, and the tarball
+  name dropped the `-bin` suffix (`mirim-1.1.0-x86_64-linux.tar.gz`), so the
+  recipe's install-plan now maps `mirim`/`mirim-sign` from the root into `bin/`.
+  1.1.0 also adds a `mirim-gui` binary — left unpackaged (it needs a graphical
+  runtime not wired here). Verified against the release `SHA256SUMS`; built and
+  run-verified (`mirim`, `mirim-sign` execute). Note: the README previously
+  mislabelled mirim as "built from source" — it is a prebuilt-binary re-vendor
+  (`copy-build-system` + patchelf), like `btp`/`evelin-bin`; corrected.
+
 ### Changed — turborec 3.6.0 (2026-07-13)
 - **turborec 3.5.0 → 3.6.0** (re-vendored from tag `v3.6.0`, `1d033f3e`; on
   Codeberg + git.securityops.co + local). The `turborecorder` bash launcher
