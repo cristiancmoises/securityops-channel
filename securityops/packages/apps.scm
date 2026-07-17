@@ -203,8 +203,8 @@ from the v1.0.0 source release.")
 (define-public torando-gui
   (package
     (name "torando-gui")
-    (version "1.1.0")
-    (source (local-file "sources/torando-gui-1.1.0-src.tar.gz"))
+    (version "1.2.0")
+    (source (local-file "sources/torando-gui-1.2.0-src.tar.gz"))
     (build-system copy-build-system)
     (inputs (list python tor iptables e2fsprogs))
     (arguments
@@ -261,11 +261,13 @@ exec ~a -m ~a \"$@\"\n"
     (synopsis "Route a user's egress through Tor (transparent proxy + killswitch)")
     (description
      "Loopback web GUI that forces one local user's traffic through Tor's
-TransPort and DNSPort and drops everything else from that user.  It automates
-the upstream torando iptables rules together with torrc and resolv.conf
-management, and reports live bootstrap, DNS-leak and exit status.  Built from
-source (pure Python); the shims and systemd unit are rewired to the store, so
-the package is self-contained.")
+TransPort and DNSPort and drops everything else from that user (a fail-closed
+killswitch).  It automates the upstream torando iptables rules together with
+torrc and resolv.conf management, adds an ip6tables IPv6 killswitch so v6 cannot
+leak around Tor, and reports live bootstrap, DNS-leak and exit status.  Built
+from source (pure Python); the shims and systemd unit are rewired to the store,
+so the package is self-contained.  This is the Linux build of a project that
+also targets macOS, the BSDs and Windows.")
     (home-page "https://codeberg.org/cristiancmoises/torando-gui")
     (license license:agpl3)))
 
