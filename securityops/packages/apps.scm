@@ -80,8 +80,8 @@
 (define-public evelin-bin
   (package
     (name "evelin-bin")
-    (version "4.1.1")
-    (source (local-file "sources/evelin-v4.1.1-linux-x86_64-musl.tar.gz"))
+    (version "4.2.0")
+    (source (local-file "sources/evelin-v4.2.0-linux-x86_64-musl.tar.gz"))
     (build-system copy-build-system)
     (arguments
      (list
@@ -576,7 +576,7 @@ pin the store @code{python3}/@code{bash} and the tools they call (@code{ffmpeg},
 (define-public moneyprinterturbo
   (package
     (name "moneyprinterturbo")
-    (version "1.3.4")
+    (version "1.3.2")                    ;upstream's latest tag is v1.3.2
     (source (local-file "sources/moneyprinterturbo-1.3.2-src.tar.gz"))
     (build-system copy-build-system)
     (inputs

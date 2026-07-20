@@ -6,6 +6,24 @@ tag rather than SemVer of the code.
 
 ## [Unreleased]
 
+### Changed — version bumps (2026-07-17 batch)
+- **evelin-bin 4.1.1 → 4.2.0** — re-vendored the official static-musl release
+  tarball (verified against the release `SHA256SUMS`). 4.2.0 ships 7 static
+  binaries (adds `ev`, `evelin-keyscan`, `evelin-multisig-verify`); layout
+  unchanged so the `copy-build-system` install-plan is untouched. Built,
+  run-verified (`evelin-client 4.2.0`), and installed into the profile.
+- **google-chrome-stable 150.0.7871.124 → 150.0.7871.128** (real `.deb` hash;
+  built).
+- **ungoogled-chromium-bin 150.0.7871.114-1 → 150.0.7871.128-1** (newest
+  official prebuilt portablelinux; built, `chromium --version` → 150.0.7871.128).
+- **moneyprinterturbo: fixed the version field 1.3.4 → 1.3.2.** There is no
+  upstream v1.3.4 (github's newest tag is v1.3.2, which the channel already
+  ships); the `version` had been mistakenly bumped without a matching source,
+  so the field is corrected to the real shipped/latest version.
+- **Docs re-synced to torando-gui 1.3.4** (your 1.3.1–1.3.4 commits — Windows
+  all-in-one + packaging fixes; the Linux channel build is unchanged). The full
+  49-package README index was re-checked against the live recipes.
+
 ### Changed — version bumps (2026-07-15 batch)
 - **google-chrome-stable 150.0.7871.114 → 150.0.7871.124** (real `.deb` hash;
   built).
