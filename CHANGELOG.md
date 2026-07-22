@@ -6,6 +6,28 @@ tag rather than SemVer of the code.
 
 ## [Unreleased]
 
+### Changed — full-update batch (2026-07-17)
+- **google-chrome-stable 150.0.7871.128 → 150.0.7871.181** (real `.deb` hash;
+  built).
+- **librewolf 152.0.6-1 → 153.0-3** — **MAJOR** firefox 152 → 153 bump. Firefox
+  153.0 source + codeberg 153.0-3 (recursive submodule `settings`) + l10n pin
+  `e42882cf → 235fd5b0`. Source assembly verified (`guix build -S`); one stale
+  `substitute*` anchor (`pk.asc` → `SIGNING_KEY`) is now a harmless no-op. The
+  full compile runs against Guix's 152-era build args/toolchain — watch the
+  first reconfigure for a build-time incompatibility.
+- **torbrowser 15.0.18 → 15.0.19** — firefox ESR `140.12.0 → 140.13.0`, source
+  `…-build3 → …-build2`; hash updated; source verified.
+- **torbrowser-assets 15.0.18 → 15.0.19** — matches torbrowser; built.
+- **tor: confirmed 0.4.9.11 is the newest tor that exists** (gitlab tags + dist
+  both top out there — no 0.4.10 / alpha). No change needed; installed as-is.
+- **kitty 0.48.0 deferred** — 0.48 adds ~10 new Go dependencies (rardecode,
+  ipaddress-go, imaging, dbus, go-parallel, go-shm, …) not yet packaged; the
+  build fails at `go list -m`. Kept at 0.47.4 until those inputs are added
+  (analogous to the fish 4.8.0 cargo-inputs situation).
+- Installed the latest of everything into the home profile via
+  `guix home reconfigure` (torbrowser 15.0.19 is a multi-hour, swap-backed
+  Firefox compile).
+
 ### Changed — version bumps (2026-07-17 batch)
 - **evelin-bin 4.1.1 → 4.2.0** — re-vendored the official static-musl release
   tarball (verified against the release `SHA256SUMS`). 4.2.0 ships 7 static

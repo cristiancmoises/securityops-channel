@@ -43,8 +43,8 @@
 ;;; (latest STABLE per Google's version-history API).  nonguix's
 ;;; `make-google-chrome' is version-parameterised, so we just call it with the
 ;;; new version + a real downloaded .deb hash (clean, no inherit-baking).
-;;; Hash: `guix download .../google-chrome-stable_150.0.7871.128-1_amd64.deb'.
+;;; Hash: `guix download .../google-chrome-stable_150.0.7871.181-1_amd64.deb'.
 (define-public google-chrome-stable
   (chrome:make-google-chrome
-   "stable" "150.0.7871.128"
-   "1yqykbczkrl6ji29a72cq38miz6acrqbwpliagxbisvqb345kvc3"))
+   "stable" "150.0.7871.181"
+   "1x4j9pv1mds0vxn517m7bi7qfqh1dr3k7a3p1525l8xiyw2hkigy"))
