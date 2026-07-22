@@ -26,12 +26,12 @@
 ;;; `librewolf-neuter-locale-download.patch' no longer applies to 152.0.x's
 ;;; `curl'-based script, so it is done inline via `substitute*' below.)
 ;;;
-;;; Hashes (all fetched + verified 2026-07-15):
-;;;   firefox 152.0.6 source  (ftp.mozilla.org)  -> firefox-hash
-;;;   librewolf/source 152.0.6-1 (codeberg, git) -> librewolf-hash
-;;;   firefox-l10n @ e42882cf (github, git)       -> l10n-hash
+;;; Hashes (all fetched + verified 2026-07-17):
+;;;   firefox 153.0 source    (ftp.mozilla.org)  -> firefox-hash
+;;;   librewolf/source 153.0-3 (codeberg, git)   -> librewolf-hash
+;;;   firefox-l10n @ 235fd5b0 (github, git)       -> l10n-hash
 ;;; The l10n commit is the `revision' from
-;;; firefox-152.0.6/browser/locales/l10n-changesets.json in the Firefox source.
+;;; firefox-153.0/browser/locales/l10n-changesets.json in the Firefox source.
 ;;;
 ;;; A full build is a multi-hour Firefox compile (deferred to reconfigure, like
 ;;; torbrowser).  The SOURCE assembly is verifiable here:
@@ -82,15 +82,15 @@
 (define firefox-l10n
   ;; Match this commit to the upstream tarball.  The hash is in
   ;; firefox-NNN.0/browser/locales/l10n-changesets.json (the "revision" field;
-  ;; the same value repeats for every language).  For 152.0.6 it is e42882cf.
-  (let ((commit "e42882cfa3ac852e9df3683aed1dc27b3a62b9fb"))
+  ;; the same value repeats for every language).  For 153.0 it is 235fd5b0.
+  (let ((commit "235fd5b0427bec104e6af4055756b286554fce17"))
     (origin
       (method git-fetch)
       (uri (git-reference
             (url "https://github.com/mozilla-l10n/firefox-l10n.git")
             (commit commit)))
       (file-name (git-file-name "firefox-l10n" commit))
-      (sha256 (base32 "1dd723aw26pfxmkm72agqj0i6ap85m5yshxfirh8434ka2fir775")))))
+      (sha256 (base32 "003l3jzsf2ysj5vwsjcx91csrj2626j61s0zga3ffkm0v5w72xra")))))
 
 (define* (make-librewolf-source #:key version firefox-hash librewolf-hash l10n)
   (let* ((ff-src (firefox-source-origin
@@ -186,14 +186,17 @@
                      "media/libwebp"
                      "modules/zlib"))))))
 
-;;; LibreWolf 152.0.6-1 — inherits guix's package; only version + source change.
+;;; LibreWolf 153.0-3 — inherits guix's package; only version + source change.
+;;; NOTE: this is a MAJOR firefox 152 -> 153 bump.  The source assembly is
+;;; verified, but the compile runs against guix's 152-era build args/toolchain;
+;;; watch the first reconfigure for a build-time incompatibility.
 (define-public librewolf
   (package
     (inherit lw:librewolf)
-    (version "152.0.6-1")
+    (version "153.0-3")
     (source
      (make-librewolf-source
       #:version version
-      #:firefox-hash "03hgcrhdc56qiy1f5b8ps2z7vc5fqk9xznp642mfvm0rim7hq8pa"
-      #:librewolf-hash "0klx4r2wqjak1ypywi44nh8i184hpwlcyf19yvzq4marysvkb6rv"
+      #:firefox-hash "08jmllczhrjg00gchji1k2y177c4a1cfp6jm3v9r5in4r1s0yldw"
+      #:librewolf-hash "021620653fj7p8dpd3wj65msc6d8frpdx97db2qjvbcwx0hbw5li"
       #:l10n firefox-l10n))))
