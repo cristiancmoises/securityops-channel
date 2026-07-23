@@ -6,6 +6,16 @@ tag rather than SemVer of the code.
 
 ## [Unreleased]
 
+### Fixed — torbrowser reports its real version (2026-07-23)
+- **torbrowser now reports 15.0.19 instead of 15.0.14.** Guix's `make-torbrowser`
+  bakes the *displayed* Tor Browser version from its own `%torbrowser-version`
+  constant (15.0.14) into the `--with-base-browser-version` configure flag and
+  `MOZ_BUILD_DATE` — independent of our `version` + `source` override — so the
+  built browser ran the 15.0.19 engine (Firefox 140.13.0esr) but branded itself
+  15.0.14. The recipe now also rewrites `--with-base-browser-version` → 15.0.19
+  and `MOZ_BUILD_DATE` → the official 15.0.19 BuildID `20260720080000` (read from
+  the upstream 15.0.19 bundle's `application.ini`). Full rebuild + reconfigure.
+
 ### Changed — full-update batch (2026-07-17)
 - **google-chrome-stable 150.0.7871.128 → 150.0.7871.181** (real `.deb` hash;
   built).
