@@ -161,9 +161,14 @@ Cada app vive no próprio repositório na forja. Para o canal ser
 
 ### ⚠️ Re-exportado — existe upstream mais novo, mas o bump é impraticável aqui
 
-- **ungoogled-chromium** (fonte) `147.0.7727.137-1` — o build de fonte é
-  **impossível sob Tor** (o tarball base do Chromium só existe no GCS do Google,
-  que bloqueia todo nó de saída Tor). Use o `ungoogled-chromium-bin` acima.
+- **ungoogled-chromium** (fonte) `147.0.7727.137-1` — é a versão do guix fixado.
+  O **147 compila normalmente sob Tor**: a fonte vem como **substituto**
+  (`.tar.zst`) do `bordeaux.guix.gnu.org`, que é alcançável via Tor (verificado em
+  2026-07-23: `guix build -S ungoogled-chromium` → *0 construídos, 1,1 GB
+  baixados*). O que é **impossível sob Tor** é **subir para uma versão mais nova**
+  de fonte: o tarball-base "-lite" do Chromium novo só existe no GCS do Google
+  (bloqueia 403 todo nó de saída Tor) e ainda não tem substituto. Para um motor
+  **atual**, use o `ungoogled-chromium-bin` (150) acima.
 
 ---
 
@@ -250,10 +255,14 @@ diretamente.
   único `rustc`), então numa máquina de 15 GiB ele é morto por OOM em qualquer
   `-j`. A solução é **swap**: um swapfile de 24 GiB deixa o build de LTO completo
   terminar; então `guix build --cores=4 librewolf` conclui e o navegador roda.
-- **ungoogled-chromium — pré-compilado (`-bin`), build de fonte bloqueado sob
-  Tor.** O tarball base do Chromium só existe no GCS do Google, que bloqueia
-  (403) todo nó de saída Tor. Por isso o canal entrega o binário oficial
-  pré-compilado.
+- **ungoogled-chromium — o 147 de fonte compila sob Tor; só a versão *nova* é
+  bloqueada.** A fonte do `ungoogled-chromium` 147 (do guix fixado) chega como
+  **substituto** (`.tar.zst`) do `bordeaux`, alcançável via Tor — então o build
+  de fonte do 147 funciona. O que trava é **subir para uma versão mais nova**: o
+  tarball-base "-lite" do Chromium novo só existe no GCS do Google (bloqueia 403
+  todo nó de saída Tor) e ainda não tem substituto. Por isso, para um motor
+  atual, o canal entrega o binário oficial pré-compilado `ungoogled-chromium-bin`
+  (150).
 - **Mullvad (vendorizado, apenas x86_64).** Fixado na versão estável publicada;
   vendorizado porque as fases de build embutem `version` no passo de descompactar
   o `.deb`.
