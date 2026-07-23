@@ -422,11 +422,16 @@ definitions are a few lines, so upstream bugfixes flow through automatically.
 
 **Tor Browser (source build).** Guix's `make-torbrowser` and `torbrowser-assets`
 are module-private, so `torbrowser` here inherits guix's package and overrides
-only `version` + `source` (the 15.0.19 Firefox source,
-`140.13.0esr-15.0-1-build2`). The bundled assets, l10n/translation commits and
-`MOZ_BUILD_DATE` stay at the 15.0.14 baseline — fonts/torrc/localisation that
-don't change across a patch release. The standalone `torbrowser-assets` (15.0.19)
-is provided for a fully-pristine rebuild.
+`version` + `source` (the 15.0.19 Firefox source, `140.13.0esr-15.0-1-build2`)
+**plus the two version constants guix's `make-torbrowser` bakes from its own
+`%torbrowser-version` (15.0.14)**: without this the browser would report *15.0.14
+on a 15.0.19 engine*, so the recipe rewrites `--with-base-browser-version` →
+`15.0.19` and `MOZ_BUILD_DATE` → the official 15.0.19 BuildID `20260720080000`
+(from the upstream bundle's `application.ini`) — the About dialog now reads
+**15.0.19**. Only the bundled fonts/torrc-defaults + l10n still come from guix's
+15.0.14 assets (identical across the patch release; Tor Browser spoofs
+`navigator.buildID` to web content regardless). The standalone
+`torbrowser-assets` (15.0.19) is provided for a fully-pristine rebuild.
 
 **LibreWolf 152 (done).** Bumped to 152.0.1-2 in the new module
 `securityops/packages/librewolf.scm`, which vendors guix's *private*
