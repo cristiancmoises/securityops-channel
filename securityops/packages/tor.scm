@@ -72,8 +72,23 @@
         (base32 "19ajpd9ly4825ri5q3gwpb12cf0969g1dqgpncmx5cyyd5k0y7yx"))))
     (arguments
      (substitute-keyword-arguments (package-arguments tb:torbrowser)
+       ;; Guix's make-torbrowser bakes the DISPLAYED Tor Browser version from its
+       ;; %torbrowser-version constant (15.0.14) into --with-base-browser-version
+       ;; and MOZ_BUILD_DATE, independently of our version+source override — so
+       ;; the browser would report 15.0.14 on a 15.0.19 engine.  Rewrite both to
+       ;; 15.0.19: the real base-browser-version, and the official 15.0.19
+       ;; build id (BuildID from the upstream 15.0.19 bundle's application.ini).
+       ;; Also add ThinLTO.  (The bundled fonts/torrc-defaults still come from
+       ;; guix's 15.0.14 assets — unchanged across the patch release.)
        ((#:configure-flags flags #~'())
-        #~(append #$flags (list "--enable-lto=thin")))))))
+        #~(append (delete "--with-base-browser-version=15.0.14" #$flags)
+                  (list "--with-base-browser-version=15.0.19"
+                        "--enable-lto=thin")))
+       ((#:phases phases '%standard-phases)
+        #~(modify-phases #$phases
+            (add-after 'setenv 'fix-tbb-build-date
+              (lambda _
+                (setenv "MOZ_BUILD_DATE" "20260720080000")))))))))
 
 ;;; ---------------------------------------------------------------------------
 ;;; torbrowser-assets — the official prebuilt bundle (15.0.19) from which fonts
