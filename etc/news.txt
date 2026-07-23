@@ -7,6 +7,42 @@
 ;;
 (channel-news
  (version 0)
+ (entry (commit "bd51ff2b16ff97ecdce22913ddd4b33e02bcb61a")
+        (title (en "securityops — kitty 0.48.0 + Tor Browser reports its real 15.0.19")
+               (pt_BR "securityops — kitty 0.48.0 + Tor Browser mostra a versao real 15.0.19"))
+        (body
+         (en "Two fixes landed and are installed in the home profile.
+
+kitty 0.47.4 -> 0.48.0.  0.48 imports one new Go module, ebitengine/purego
+0.10.1 (call C from Go without cgo), now packaged in the channel.  kitty builds
+in GOPATH mode, so only genuinely-imported deps need packaging -- the other
+go.mod bumps ride on Guix's existing sources.  A new build phase exports
+GOTOOLCHAIN=local because 0.48's go.mod pins `toolchain go1.26.5', which
+`go list -m' would try to download (and fail) in the offline sandbox.  Built,
+installed, `kitty --version' => 0.48.0.
+
+Tor Browser now reports 15.0.19 instead of 15.0.14.  Guix's make-torbrowser
+baked its own %torbrowser-version (15.0.14) into the DISPLAYED version, so a
+15.0.19 engine branded itself 15.0.14.  The recipe now rewrites
+--with-base-browser-version and MOZ_BUILD_DATE to 15.0.19; verified in the built
+omni.ja (BASE_BROWSER_VERSION = 15.0.19).  Run `guix pull' then
+`guix home reconfigure'.  A pt-BR README (README.pt-BR.md) is now available for
+Brazilian users.  See CHANGELOG.md and README.md.")
+         (pt_BR "Duas correcoes chegaram e estao instaladas no perfil home.
+
+kitty 0.47.4 -> 0.48.0.  A 0.48 importa um novo modulo Go, ebitengine/purego
+0.10.1 (chamar C a partir de Go sem cgo), agora empacotado no canal.  A kitty
+compila em modo GOPATH, entao so as dependencias realmente importadas precisam
+ser empacotadas.  Uma nova fase de build exporta GOTOOLCHAIN=local porque o
+go.mod da 0.48 fixa `toolchain go1.26.5', que o `go list -m' tentaria baixar (e
+falharia) no sandbox offline.  Compilado, instalado, `kitty --version' => 0.48.0.
+
+O Tor Browser agora mostra 15.0.19 em vez de 15.0.14.  O make-torbrowser do Guix
+embutia o proprio %torbrowser-version (15.0.14) na versao EXIBIDA, entao um motor
+15.0.19 se identificava como 15.0.14.  A receita agora reescreve
+--with-base-browser-version e MOZ_BUILD_DATE para 15.0.19.  Rode `guix pull' e
+depois `guix home reconfigure'.  Um README em portugues (README.pt-BR.md) ja
+esta disponivel.  Veja CHANGELOG.md e README.md.")))
  (entry (commit "e4a2de36155861d573465fa73552e433e14b554b")
         (title (en "securityops — latest ungoogled-chromium (prebuilt 149.0.7827.155)"))
         (body

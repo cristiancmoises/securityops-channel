@@ -15,6 +15,25 @@ tag rather than SemVer of the code.
   15.0.14. The recipe now also rewrites `--with-base-browser-version` → 15.0.19
   and `MOZ_BUILD_DATE` → the official 15.0.19 BuildID `20260720080000` (read from
   the upstream 15.0.19 bundle's `application.ini`). Full rebuild + reconfigure.
+  Verified in the built `omni.ja` (`modules/AppConstants.sys.mjs`):
+  `BASE_BROWSER_VERSION = 15.0.19`; reconfigured into the home profile so the
+  running browser now reports **15.0.19 (based on Firefox 140.13.0esr)**.
+
+### Changed — kitty 0.47.4 → 0.48.0 (2026-07-23)
+- **kitty bumped to 0.48.0** (supersedes the "0.48.0 deferred" note below). The
+  earlier "~10 new Go dependencies" estimate was the go.mod diff; kitty builds in
+  **GOPATH mode**, where only *genuinely-imported* modules need packaging. 0.48
+  imports exactly **one** new dep, `github.com/ebitengine/purego` 0.10.1 (call C
+  from Go without cgo, used by the notify kitten) — now defined in
+  `terminals.scm`. The other go.mod bumps ride on Guix's existing sources.
+- **`GOTOOLCHAIN=local` build phase added.** 0.48's `go.mod` pins
+  `toolchain go1.26.5`, so `go list -m` (run by kitty's `setup.py`) tries to
+  download that toolchain and fails in the offline sandbox; forcing the local
+  toolchain (1.26.x, compatible) keeps the build hermetic. Also imported
+  `(guix gexp)` for the `modify-phases` gexp.
+- **Source hash taken from Guix's own `git-fetch` of `v0.48.0`** (a `guix hash
+  -rx` over a working tree can differ from the git-fetch fixed output). Built,
+  installed into the home profile, `kitty --version` → **0.48.0**.
 
 ### Changed — full-update batch (2026-07-17)
 - **google-chrome-stable 150.0.7871.128 → 150.0.7871.181** (real `.deb` hash;
@@ -30,10 +49,11 @@ tag rather than SemVer of the code.
 - **torbrowser-assets 15.0.18 → 15.0.19** — matches torbrowser; built.
 - **tor: confirmed 0.4.9.11 is the newest tor that exists** (gitlab tags + dist
   both top out there — no 0.4.10 / alpha). No change needed; installed as-is.
-- **kitty 0.48.0 deferred** — 0.48 adds ~10 new Go dependencies (rardecode,
-  ipaddress-go, imaging, dbus, go-parallel, go-shm, …) not yet packaged; the
-  build fails at `go list -m`. Kept at 0.47.4 until those inputs are added
-  (analogous to the fish 4.8.0 cargo-inputs situation).
+- **kitty 0.48.0 deferred** — the go.mod diff showed ~10 new Go module bumps and
+  the build failed at `go list -m`; kept at 0.47.4 for this batch. *(Superseded
+  2026-07-23: the failure was the `toolchain go1.26.5` directive, not missing
+  deps — in GOPATH mode only the one newly-imported module, `ebitengine/purego`,
+  was needed. See the 2026-07-23 kitty entry above.)*
 - Installed the latest of everything into the home profile via
   `guix home reconfigure` (torbrowser 15.0.19 is a multi-hour, swap-backed
   Firefox compile).

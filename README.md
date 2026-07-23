@@ -4,6 +4,8 @@
 > applications, packaged the Guix way — real source hashes, every definition
 > inheriting from upstream so it stays small and auditable.
 
+🌐 **Language:** **English** · [Português (Brasil)](README.pt-BR.md)
+
 This channel curates the programs this machine lives in and keeps them at the
 newest official release. Packages the pinned Guix already ships at the latest
 upstream version are **re-exported unchanged** (so the channel is the single
@@ -12,7 +14,7 @@ are *ahead* of Guix/nonguix carry a **real, downloaded source hash**.
 
 - **Host:** `predator-helios-intel` (the live `/etc/config.scm` machine)
 - **Pinned Guix:** commit `d1e9e23` (June 2026); **depends on** `nonguix`
-- **Built/verified:** 2026-06-21; **re-validated 2026-06-22** (Mullvad → 2026.3, LibreWolf → 152.0.1-2); **2026-06-23** (torando-gui 1.0.1 added, then → 1.1.0: native GUI + connectivity fixes — built & installed); **2026-06-24** (vaptvupt 4.0.0 CLI + vaptvupt-gui 1.3.0 added — built from source; steam bootstrap bumped 1.0.0.85 → 1.0.0.86); **2026-06-25** (turborec 2.2.0 added — built from source; CLI + bash launcher run, Tkinter GUI works via the python `tk` output; **LibreWolf 152.0.1-2 + torbrowser 15.0.16 fully compiled & run-verified** — full Firefox source builds, unblocked by a 24 GiB swapfile); **2026-06-30** (glances 4.5.5 added — from-source bump, new `(securityops packages monitoring)` module + private pyinstrument 5.1.2 dep; built, `glances --version` → 4.5.5, `--stdout cpu,mem` returns live data; **lynis 3.1.7** added; **tor → 0.4.9.11**; batch bumps **steam 1.0.0.87 / google-chrome 150.0.7871.46 / ungoogled-chromium-bin 149.0.7827.200-1 / torbrowser 15.0.17 / turborec 3.0.0** — built & verified; **openshot 3.5.1 build fixed** (stale test path)); **2026-07-01** (esquema 0.2.0 added — new `(securityops packages containers)` module: rootless Guile-native container runtime, built from source, libseccomp-backed; `guix build -L . esquema` verified); **2026-07-09** (batch bumps **google-chrome 150.0.7871.114 / ungoogled-chromium-bin 150.0.7871.100-1 / librewolf 152.0.5-1 / turborec 3.1.0 / vaptvupt 4.1.0 / vaptvupt-gui 4.1.0 / moneyprinterturbo 1.3.1** — all built & run-verified; vaptvupt is source-only upstream now, its `make check` crypto/security suite runs in-build; librewolf source assembly verified with new l10n pin `6ee6f5c4`); **2026-07-10** (**vaptvupt(+gui) → 4.2.0** — critical `--dedup` AES-CTR keystream-reuse fix + pure-PQ `--pq-only` mode; built, full check suite incl. the new dedup-nonce regression green, run-verified; then **→ 4.2.1** — `info` now reads the real envelope type and labels `--pq-only` archives "ML-KEM-768 only, no classical layer" instead of hybrid; fix run-verified on a real `--pq-only` archive; then **→ 5.0.0** — ML-KEM-768 made genuinely FIPS 203-conformant, cross-validated against OpenSSL 3.5 **inside the build** (openssl native-input); **BREAKING: regenerate PQ keys, re-encrypt PQ archives from ≤ 4.2.1**; `--pq-only` keygen→encrypt→decrypt round-trip verified); **2026-07-11/12** (**vaptvupt(+gui) → 5.1.0 → 5.2.0 → 5.2.1** — codec 2.65.0→2.65.3 with large ratio gains and ~2× faster extreme; GUI compress-crash fix (thread-safe `_Job` controller), robust auto-detect Verify/Extract, XWayland fallback on Sway; wire format v1.6 unchanged; all built + profile-verified, GUI `--selftest` OK; **turborec → 3.2.0** — `-R/--resolution` native/720p/1080p/1440p/4k lanczos output scaling; built & run-verified; **ungoogled-chromium-bin → 150.0.7871.114-1** — the .114 prebuilt landed, run-verified; **moneyprinterturbo → 1.3.2** — re-vendored, same prune policy; streamlit 1.59.1 + google-genai in the first-run venv); **2026-07-13** (**turborec → 3.3.0** — live YouTube/RTMPS streaming (`record --stream`), adaptive quality; built & run-verified; then **→ 3.4.0** — security-audit fixes; then **→ 3.5.0** — webcam PiP overlay + mic noise suppression; then **→ 3.6.0** — `turborecorder` Wayland (wf-recorder) capture + static-screen stop fix; all built & run-verified); **2026-07-15** (batch bumps **google-chrome 150.0.7871.124 / librewolf 152.0.6-1 (l10n pin `e42882cf`) / torbrowser 15.0.18 / torbrowser-assets 15.0.18 / mirim 1.1.0** — chrome/mirim/tb-assets built & run-verified, librewolf+torbrowser source assemblies verified (full compile deferred to reconfigure); mirim 1.1.0 moved binaries to the archive root + added an unpackaged `mirim-gui`); **2026-07-17** (**evelin-bin → 4.2.0** — 7 static binaries (adds `ev`/`evelin-keyscan`/`evelin-multisig-verify`); built, `evelin-client 4.2.0`, **installed**; batch bumps **google-chrome 150.0.7871.128 / ungoogled-chromium-bin 150.0.7871.128-1** — built & run-verified (`Chromium 150.0.7871.128`); fixed the **moneyprinterturbo** version field (was mislabelled 1.3.4 — upstream's newest tag is v1.3.2); README re-synced to the torando-gui 1.3.4 commits; then **google-chrome → 150.0.7871.181 / librewolf → 153.0-3 (MAJOR 152→153, l10n pin `235fd5b0`) / torbrowser → 15.0.19 / torbrowser-assets → 15.0.19** — chrome/tb-assets built & run-verified, librewolf+torbrowser source assemblies verified (Firefox compiles at reconfigure); **tor confirmed at 0.4.9.11 — the newest tor that exists** (no 0.4.10/alpha); **kitty 0.48.0 deferred** (needs ~10 new Go-dep inputs); ran **`guix home reconfigure`** to install torbrowser 15.0.19 + tor + chrome + the rest at latest)
+- **Built/verified:** 2026-06-21; **re-validated 2026-06-22** (Mullvad → 2026.3, LibreWolf → 152.0.1-2); **2026-06-23** (torando-gui 1.0.1 added, then → 1.1.0: native GUI + connectivity fixes — built & installed); **2026-06-24** (vaptvupt 4.0.0 CLI + vaptvupt-gui 1.3.0 added — built from source; steam bootstrap bumped 1.0.0.85 → 1.0.0.86); **2026-06-25** (turborec 2.2.0 added — built from source; CLI + bash launcher run, Tkinter GUI works via the python `tk` output; **LibreWolf 152.0.1-2 + torbrowser 15.0.16 fully compiled & run-verified** — full Firefox source builds, unblocked by a 24 GiB swapfile); **2026-06-30** (glances 4.5.5 added — from-source bump, new `(securityops packages monitoring)` module + private pyinstrument 5.1.2 dep; built, `glances --version` → 4.5.5, `--stdout cpu,mem` returns live data; **lynis 3.1.7** added; **tor → 0.4.9.11**; batch bumps **steam 1.0.0.87 / google-chrome 150.0.7871.46 / ungoogled-chromium-bin 149.0.7827.200-1 / torbrowser 15.0.17 / turborec 3.0.0** — built & verified; **openshot 3.5.1 build fixed** (stale test path)); **2026-07-01** (esquema 0.2.0 added — new `(securityops packages containers)` module: rootless Guile-native container runtime, built from source, libseccomp-backed; `guix build -L . esquema` verified); **2026-07-09** (batch bumps **google-chrome 150.0.7871.114 / ungoogled-chromium-bin 150.0.7871.100-1 / librewolf 152.0.5-1 / turborec 3.1.0 / vaptvupt 4.1.0 / vaptvupt-gui 4.1.0 / moneyprinterturbo 1.3.1** — all built & run-verified; vaptvupt is source-only upstream now, its `make check` crypto/security suite runs in-build; librewolf source assembly verified with new l10n pin `6ee6f5c4`); **2026-07-10** (**vaptvupt(+gui) → 4.2.0** — critical `--dedup` AES-CTR keystream-reuse fix + pure-PQ `--pq-only` mode; built, full check suite incl. the new dedup-nonce regression green, run-verified; then **→ 4.2.1** — `info` now reads the real envelope type and labels `--pq-only` archives "ML-KEM-768 only, no classical layer" instead of hybrid; fix run-verified on a real `--pq-only` archive; then **→ 5.0.0** — ML-KEM-768 made genuinely FIPS 203-conformant, cross-validated against OpenSSL 3.5 **inside the build** (openssl native-input); **BREAKING: regenerate PQ keys, re-encrypt PQ archives from ≤ 4.2.1**; `--pq-only` keygen→encrypt→decrypt round-trip verified); **2026-07-11/12** (**vaptvupt(+gui) → 5.1.0 → 5.2.0 → 5.2.1** — codec 2.65.0→2.65.3 with large ratio gains and ~2× faster extreme; GUI compress-crash fix (thread-safe `_Job` controller), robust auto-detect Verify/Extract, XWayland fallback on Sway; wire format v1.6 unchanged; all built + profile-verified, GUI `--selftest` OK; **turborec → 3.2.0** — `-R/--resolution` native/720p/1080p/1440p/4k lanczos output scaling; built & run-verified; **ungoogled-chromium-bin → 150.0.7871.114-1** — the .114 prebuilt landed, run-verified; **moneyprinterturbo → 1.3.2** — re-vendored, same prune policy; streamlit 1.59.1 + google-genai in the first-run venv); **2026-07-13** (**turborec → 3.3.0** — live YouTube/RTMPS streaming (`record --stream`), adaptive quality; built & run-verified; then **→ 3.4.0** — security-audit fixes; then **→ 3.5.0** — webcam PiP overlay + mic noise suppression; then **→ 3.6.0** — `turborecorder` Wayland (wf-recorder) capture + static-screen stop fix; all built & run-verified); **2026-07-15** (batch bumps **google-chrome 150.0.7871.124 / librewolf 152.0.6-1 (l10n pin `e42882cf`) / torbrowser 15.0.18 / torbrowser-assets 15.0.18 / mirim 1.1.0** — chrome/mirim/tb-assets built & run-verified, librewolf+torbrowser source assemblies verified (full compile deferred to reconfigure); mirim 1.1.0 moved binaries to the archive root + added an unpackaged `mirim-gui`); **2026-07-17** (**evelin-bin → 4.2.0** — 7 static binaries (adds `ev`/`evelin-keyscan`/`evelin-multisig-verify`); built, `evelin-client 4.2.0`, **installed**; batch bumps **google-chrome 150.0.7871.128 / ungoogled-chromium-bin 150.0.7871.128-1** — built & run-verified (`Chromium 150.0.7871.128`); fixed the **moneyprinterturbo** version field (was mislabelled 1.3.4 — upstream's newest tag is v1.3.2); README re-synced to the torando-gui 1.3.4 commits; then **google-chrome → 150.0.7871.181 / librewolf → 153.0-3 (MAJOR 152→153, l10n pin `235fd5b0`) / torbrowser → 15.0.19 / torbrowser-assets → 15.0.19** — chrome/tb-assets built & run-verified, librewolf+torbrowser source assemblies verified (Firefox compiles at reconfigure); **tor confirmed at 0.4.9.11 — the newest tor that exists** (no 0.4.10/alpha); ran **`guix home reconfigure`** to install torbrowser 15.0.19 + tor + chrome + the rest at latest); **2026-07-23** (**torbrowser version-string fix** — guix's `make-torbrowser` baked its own `%torbrowser-version` 15.0.14 into the displayed version, so a 15.0.19 engine reported 15.0.14; the recipe now rewrites `--with-base-browser-version` + `MOZ_BUILD_DATE` to 15.0.19, verified in the built `omni.ja` (`BASE_BROWSER_VERSION=15.0.19`) and **reconfigured into the home profile**; **kitty → 0.48.0** — one new imported Go dep (`ebitengine/purego`) packaged, `GOTOOLCHAIN=local` phase added (0.48's go.mod pins a toolchain guix can't fetch offline), **built & installed**, `kitty --version` → 0.48.0)
 - **Maintainer:** Cristian Cezar Moisés `<ethicalhacker@riseup.net>`
 - **Home:** [`https://git.securityops.co/cristiancmoises/securityops-channel`](https://git.securityops.co/cristiancmoises/securityops-channel) (official) · mirrors: [Codeberg](https://codeberg.org/berkeley/securityops-channel) · [GitHub](https://github.com/cristiancmoises/securityops-channel)
 - **Signing:** every commit is GPG-signed (ed25519 `0CFA 43B9 … ECFB 46E8`) and the channel is authenticated — see [Publishing & authentication](#publishing--authentication)
@@ -21,7 +23,7 @@ are *ahead* of Guix/nonguix carry a **real, downloaded source hash**.
 
 ## The curated set
 
-### 📇 Full package index (49 packages)
+### 📇 Full package index (50 packages)
 
 Every package this channel defines, its current version, and the most recent
 change. **Class**: 🅑 bumped ahead of Guix/nonguix (real downloaded hash) · 🄟
@@ -31,7 +33,7 @@ per-category sections and caveats follow below.
 
 | Package | Version | Class | Latest change / note |
 |---|---|:--:|---|
-| `kitty` | 0.47.4 | 🅑 | ahead of Guix 0.46.2; pulls two vendored Go deps (↓) |
+| `kitty` | 0.48.0 | 🅑 | ahead of Guix 0.46.2; pulls three vendored Go deps (↓); `GOTOOLCHAIN=local` |
 | `tor` | 0.4.9.11 | 🅑 | ahead of Guix 0.4.9.8 |
 | `torbrowser` | 15.0.19 | 🅑 | source build + ThinLTO; ahead of Guix 15.0.14 |
 | `torbrowser-assets` | 15.0.19 | 🅑 | official bundle (fonts + torrc-defaults); matched to `torbrowser` |
@@ -80,6 +82,7 @@ per-category sections and caveats follow below.
 | `moneyprinterturbo` | 1.3.2 | 🄕 | vendored 3rd-party AI short-video generator; fonts pruned |
 | `go-github-com-emmansun-base64` | 0.9.0 | 🄓 | kitty build dependency |
 | `go-github-com-sgtdi-fswatcher` | 1.3.0 | 🄓 | kitty build dependency |
+| `go-github-com-ebitengine-purego` | 0.10.1 | 🄓 | kitty 0.48 build dependency (call C from Go, no cgo) |
 
 ### 🔌 Services (2)
 
@@ -98,7 +101,7 @@ Full `(operating-system …)` examples are below: [**torando-gui service**](#run
 
 | Package | This channel | Upstream had | Source |
 |---|---|---|---|
-| **kitty** | 0.47.4 | 0.46.2 (guix) | git tag `v0.47.4` |
+| **kitty** | 0.48.0 | 0.46.2 (guix) | git tag `v0.48.0` |
 | **tor** | 0.4.9.11 | 0.4.9.8 (guix) | dist.torproject.org tarball |
 | **torbrowser** | 15.0.19 | 15.0.14 (guix) | source build (see caveat) |
 | **torbrowser-assets** | 15.0.19 | _(private in guix)_ | official bundle (fonts + torrc-defaults) |
@@ -129,8 +132,8 @@ Full `(operating-system …)` examples are below: [**torando-gui service**](#run
 > `chromium --version` → `Chromium 150.0.7871.128`. This is the recommended
 > chromium on `PATH`.
 >
-> **librewolf** was in this table; it is now **bumped to 152.0.6-1** (see the
-> table above and the LibreWolf caveat).
+> **librewolf** was in this table; it is now **bumped to 153.0-3** (major 152→153;
+> see the table above and the LibreWolf caveat).
 
 > A full version audit of **every other** package in `/etc/config.scm` and
 > `~/.config/guix/home.scm` (yours vs. latest upstream) is in **[AUDIT.md](AUDIT.md)**
@@ -353,8 +356,8 @@ a prefix and reference the prefixed symbol:
 
 ```scheme
 ;; in (use-modules …)
-((securityops packages terminals) #:prefix so:)   ; so:kitty   0.47.4 (gnu 0.46.2)
-((securityops packages tor)       #:prefix so:)   ; so:tor     0.4.9.9, so:torbrowser 15.0.17
+((securityops packages terminals) #:prefix so:)   ; so:kitty   0.48.0 (gnu 0.46.2)
+((securityops packages tor)       #:prefix so:)   ; so:tor     0.4.9.11, so:torbrowser 15.0.19
 ((securityops packages browsers)  #:prefix so:)   ; so:google-chrome-stable 150, so:librewolf 153.0-3
 ((securityops packages vpn)       #:prefix so:)   ; so:mullvad-vpn-desktop  2026.3
 ((securityops packages video)     #:prefix so:)   ; so:openshot 3.5.1 (gnu 3.4.0)
@@ -389,7 +392,7 @@ securityops-channel/
 ├── .guix-authorizations       # OpenPGP keys allowed to sign commits (channel auth)
 ├── etc/news.txt              # `guix pull --news` entries (per release)
 ├── securityops/packages/
-│   ├── terminals.scm         # kitty (bump) + its two new Go deps, alacritty (re-export)
+│   ├── terminals.scm         # kitty 0.48.0 (bump) + its three new Go deps, alacritty (re-export)
 │   ├── tor.scm               # tor, torbrowser, torbrowser-assets (bumps)
 │   ├── shells.scm            # fish (re-export)
 │   ├── emacs.scm             # emacs, emacs-pgtk (re-export)
@@ -433,15 +436,15 @@ on a 15.0.19 engine*, so the recipe rewrites `--with-base-browser-version` →
 `navigator.buildID` to web content regardless). The standalone
 `torbrowser-assets` (15.0.19) is provided for a fully-pristine rebuild.
 
-**LibreWolf 152 (done).** Bumped to 152.0.1-2 in the new module
+**LibreWolf 153 (done).** Bumped to 153.0-3 (major 152→153) in the module
 `securityops/packages/librewolf.scm`, which vendors guix's *private*
 `make-librewolf-source` (Firefox source + librewolf overlay + l10n) and then
 inherits guix's `librewolf`, overriding only `version` + `source`. The l10n commit
-is the `revision` from `firefox-152.0.1/browser/locales/l10n-changesets.json`
-(`9929bc50`). The computed-origin source was assembled and verified
-(`guix build -S librewolf` → `librewolf-152.0.1-2.source.tar.zst`). The full
-Firefox compile is now **built & run-verified** (full LTO) on this host. Wired
-into `/etc/config.scm` and `home.scm` as `so:librewolf`.
+is the `revision` from `firefox-153.0/browser/locales/l10n-changesets.json`
+(`235fd5b0`). The computed-origin source is assembled and verified
+(`guix build -S librewolf` → `librewolf-153.0-3.source.tar.zst`); the full
+Firefox compile is left to the reconfigure (full LTO, see the RAM note below).
+Wired into `/etc/config.scm` and `home.scm` as `so:librewolf`.
 
 > **Building Firefox-class packages (librewolf / torbrowser / icecat) on a
 > RAM-constrained host.** Their final rust crate `gkrust` is whole-program LTO —
