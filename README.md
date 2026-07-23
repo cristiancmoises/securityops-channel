@@ -57,7 +57,7 @@ per-category sections and caveats follow below.
 | `keepassxc` | 2.7.12 | 🄡 | latest in Guix |
 | `ueberzugpp` | 2.9.10 | 🄡 | latest in Guix |
 | `lf` | 41 | 🄡 | latest in Guix |
-| `ungoogled-chromium` (source) | 147.0.7727.137-1 | 🄡 | newer exists but source build is Tor-blocked — use `-bin` ↑ |
+| `ungoogled-chromium` (source) | 147.0.7727.137-1 | 🄡 | = guix's latest; 147 builds over Tor via substitute — only a *newer* source is Tor-blocked, use `-bin` ↑ |
 | `masscan` | 1.3.2 | 🄡 | latest in Guix |
 | `arp-scan` | 1.10.0 | 🄡 | latest in Guix |
 | `netdiscover` | 0.21 | 🄡 | latest in Guix |
@@ -123,7 +123,7 @@ Full `(operating-system …)` examples are below: [**torando-gui service**](#run
 
 | Package | This channel (= guix) | Upstream | Why not bumped |
 |---|---|---|---|
-| **ungoogled-chromium** (source) | 147.0.7727.137-1 | 150.0.7871.128-1 | source-bump **impossible over Tor** — the Chromium "-lite" base tarball lives only on Google's GCS, which 403-blocks every Tor exit; guix gets existing versions via substitutes, but a new release has none (see caveat). Use `ungoogled-chromium-bin` ↓ |
+| **ungoogled-chromium** (source) | 147.0.7727.137-1 | 150.0.7871.128-1 | 147 **builds over Tor** (source is a `bordeaux` substitute); a *newer*-version source-bump is **impossible over Tor** — the "-lite" base tarball lives only on Google's GCS, which 403-blocks every Tor exit and has no substitute yet (see caveat). Use `ungoogled-chromium-bin` ↓ |
 
 > **ungoogled-chromium-bin** — the latest ungoogled-chromium *is* available here as
 > a **prebuilt** binary: `150.0.7871.128-1`, the official upstream portable Linux
@@ -454,17 +454,24 @@ Wired into `/etc/config.scm` and `home.scm` as `so:librewolf`.
 > lets the full-LTO build complete (peaks spill to disk); then
 > `guix build --cores=4 librewolf` finishes cleanly and the browser runs.
 
-**ungoogled-chromium — prebuilt 150 (`ungoogled-chromium-bin`), source-build
-blocked over Tor.** A *from-source* bump is not merely guix-maintainer-level
-work here, it is **impossible on this Tor-only host**: guix assembles the source
+**ungoogled-chromium — the shipped source build (147) works over Tor; a *newer*
+source is what's blocked.** To be precise: the re-exported source
+`ungoogled-chromium` **147.0.7727.137-1** (= the version the pinned guix ships)
+**builds fine on this Tor-only host** — its source comes as a `.tar.zst`
+**substitute** from `bordeaux.guix.gnu.org`, which is Tor-reachable (verified
+2026-07-23: `guix build -S ungoogled-chromium` → *0 built, 1.1 GB downloaded* as
+`chromium-147.0.7727.137-lite.tar.zst`). What is **impossible over Tor** is a
+*from-source bump to a newer version*: guix assembles the source
 from a Chromium "-lite" base tarball that lives only on Google's
 `commondatastorage` GCS bucket, and that bucket **403-blocks every Tor exit**
 (verified across 6+ rotated circuits — even the tiny `.hashes` integrity file and
 guix's own known-good 147 tarball; no Wayback copy exists). guix can build
-*existing* versions only because their source is served as a substitute
-(`.tar.zst`) from `bordeaux.guix.gnu.org`; a brand-new release has no substitute,
-so its base tarball must come straight from Google. (It would also be a multi-hour
-/ ~30GB-RAM compile on 15GB RAM regardless.) **Resolution:** the channel now ships
+*existing* versions only because that source is on `bordeaux`; a brand-new release
+has no substitute yet, so its base tarball must come straight from Google. Bumping
+this package per-hand isn't viable either — it would mean vendoring guix's whole
+newer recipe (version-specific ungoogled patch set) *and* still hitting the
+Google-only tarball. (It would also be a multi-hour / ~30GB-RAM compile on 15GB
+RAM regardless.) **For a *current* engine:** the channel ships
 `ungoogled-chromium-bin` — the official upstream **prebuilt** portable Linux
 x86_64 binary `150.0.7871.128-1` (the newest prebuilt), hosted on GitHub
 (Tor-reachable), `sha256`-verified against
@@ -502,6 +509,12 @@ Done 2026-06-21 against the live daemon (egress works through Tor):
   `google-chrome-stable`, `mullvad-vpn-desktop`; `librewolf`'s computed-origin
   source was assembled & verified 2026-06-22) — `kitty`/`openshot` actually
   re-ran their `git-fetch` derivations and matched.
+- **2026-07-23 — built, installed & run-verified into the home profile:**
+  `kitty` 0.48.0 (`kitty --version` → 0.48.0) and `torbrowser` 15.0.19, the
+  latter checked at the string level (the built `omni.ja`'s
+  `modules/AppConstants.sys.mjs` has `BASE_BROWSER_VERSION = 15.0.19`). Also
+  confirmed the re-exported source `ungoogled-chromium` 147 fetches over Tor as a
+  `bordeaux` substitute (`guix build -S` → 0 built, 1.1 GB downloaded).
 
 Full multi-hour compiles (emacs, kitty, vlc, the Firefox-based torbrowser) are
 left to your `guix pull` / reconfigure, per the chosen "verified hashes +
