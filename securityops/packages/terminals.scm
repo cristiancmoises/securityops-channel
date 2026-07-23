@@ -11,6 +11,7 @@
 
 (define-module (securityops packages terminals)
   #:use-module (guix packages)
+  #:use-module (guix gexp)                      ; #~ / modify-phases for the kitty go-toolchain phase
   #:use-module (guix utils)                    ; substitute-keyword-arguments
   #:use-module (guix git-download)
   #:use-module (guix build-system go)
@@ -73,17 +74,46 @@ kitty's @code{watch} kitten.")
     (license license:expat)))
 
 ;;; ---------------------------------------------------------------------------
-;;; kitty — bumped ahead of Guix: 0.46.2 -> 0.47.4 (latest upstream).
+;;; kitty — bumped ahead of Guix: 0.46.2 -> 0.48.0 (latest upstream).
 ;;;
 ;;; Inherits the upstream package and ORIGIN so the docs-build snippet and
 ;;; module list are preserved verbatim; only the git tag and the content hash
 ;;; change.  `version' is in scope inside `source', so the v-tag tracks it.
-;;; Hash computed with `guix hash -rx' over a clean `git clone -b v0.47.4'.
+;;; Hash is Guix's own git-fetch of tag v0.48.0 (authoritative — a plain
+;;; `guix hash -rx' over a working tree can differ from the git-fetch fixed
+;;; output, so always take the value Guix reports on a hash mismatch).
 ;;; ---------------------------------------------------------------------------
+;;; ebitengine/purego — call C from Go without cgo.  A NEW direct dependency of
+;;; kitty 0.48 (imported once, in the notify kitten); Guix does not package it,
+;;; so define it here.  kitty builds in GOPATH mode, so only genuinely-imported
+;;; deps need providing — the other go.mod bumps (chroma, x/sys, …) are used
+;;; from Guix's existing sources.
+(define-public go-github-com-ebitengine-purego
+  (package
+    (name "go-github-com-ebitengine-purego")
+    (version "0.10.1")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/ebitengine/purego")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "12bcfb1zwrk5pc1spkbpd0ymvkpwhfyk9ni77p164pp7c3r21bkv"))))
+    (build-system go-build-system)
+    (arguments (list #:import-path "github.com/ebitengine/purego"
+                     #:tests? #f))
+    (home-page "https://github.com/ebitengine/purego")
+    (synopsis "Call C from Go without cgo")
+    (description "purego lets Go programs call C functions without using cgo, by
+loading shared libraries and dispatching into them at runtime.")
+    (license license:asl2.0)))
+
 (define-public kitty
   (package
     (inherit gnu:kitty)
-    (version "0.47.4")
+    (version "0.48.0")
     (source
      (origin
        (inherit (package-source gnu:kitty))
@@ -92,19 +122,28 @@ kitty's @code{watch} kitten.")
              (commit (string-append "v" version))))
        (file-name (git-file-name (package-name gnu:kitty) version))
        (sha256
-        (base32 "1m8sn8hs63qw8n3hvn07pqmnd4grqfr59pxgwa4jq7ivd1nrcfsh"))))
-    ;; kitty 0.47.4 adds tests that need a real environment the build sandbox
-    ;; lacks: kitty_tests/dnd_kitten imports the display-only graphics module
-    ;; (which Guix already strips) and the Go TestMachineId needs
-    ;; /etc/machine-id.  The release is upstream-tested and the build itself is
-    ;; unaffected, so skip the suite.
+        (base32 "1nbfkkjcs5c54w5fd02djljxl90fykmc5w470mrs1yrhfilyq7gv"))))
+    ;; kitty's tests need a real environment the build sandbox lacks
+    ;; (kitty_tests/dnd_kitten imports the display-only graphics module Guix
+    ;; strips; the Go TestMachineId needs /etc/machine-id).  The release is
+    ;; upstream-tested and the build itself is unaffected, so skip the suite.
+    ;;
+    ;; 0.48's go.mod pins `toolchain go1.26.5', but Guix ships go-1.26.4 — so
+    ;; `go list -m' (run by kitty's setup.py) tries to DOWNLOAD that toolchain
+    ;; and fails offline.  Force the local toolchain (1.26.x is compatible).
     (arguments
      (substitute-keyword-arguments (package-arguments gnu:kitty)
-       ((#:tests? _ #f) #f)))
+       ((#:tests? _ #f) #f)
+       ((#:phases phases '%standard-phases)
+        #~(modify-phases #$phases
+            (add-after 'unpack 'set-go-toolchain-local
+              (lambda _
+                (setenv "GOTOOLCHAIN" "local")))))))
     (native-inputs
      (modify-inputs (package-native-inputs gnu:kitty)
        (append go-github-com-emmansun-base64
-               go-github-com-sgtdi-fswatcher)))))
+               go-github-com-sgtdi-fswatcher
+               go-github-com-ebitengine-purego)))))
 
 ;;; ---------------------------------------------------------------------------
 ;;; alacritty — Guix already ships the latest upstream (0.17.0).  Re-exported
