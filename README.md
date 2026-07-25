@@ -15,6 +15,12 @@ are *ahead* of Guix/nonguix carry a **real, downloaded source hash**.
 - **Host:** `predator-helios-intel` (the live `/etc/config.scm` machine)
 - **Pinned Guix:** commit `d1e9e23` (June 2026); **depends on** `nonguix`
 - **Built/verified:** 2026-06-21; **re-validated 2026-06-22** (Mullvad → 2026.3, LibreWolf → 152.0.1-2); **2026-06-23** (torando-gui 1.0.1 added, then → 1.1.0: native GUI + connectivity fixes — built & installed); **2026-06-24** (vaptvupt 4.0.0 CLI + vaptvupt-gui 1.3.0 added — built from source; steam bootstrap bumped 1.0.0.85 → 1.0.0.86); **2026-06-25** (turborec 2.2.0 added — built from source; CLI + bash launcher run, Tkinter GUI works via the python `tk` output; **LibreWolf 152.0.1-2 + torbrowser 15.0.16 fully compiled & run-verified** — full Firefox source builds, unblocked by a 24 GiB swapfile); **2026-06-30** (glances 4.5.5 added — from-source bump, new `(securityops packages monitoring)` module + private pyinstrument 5.1.2 dep; built, `glances --version` → 4.5.5, `--stdout cpu,mem` returns live data; **lynis 3.1.7** added; **tor → 0.4.9.11**; batch bumps **steam 1.0.0.87 / google-chrome 150.0.7871.46 / ungoogled-chromium-bin 149.0.7827.200-1 / torbrowser 15.0.17 / turborec 3.0.0** — built & verified; **openshot 3.5.1 build fixed** (stale test path)); **2026-07-01** (esquema 0.2.0 added — new `(securityops packages containers)` module: rootless Guile-native container runtime, built from source, libseccomp-backed; `guix build -L . esquema` verified); **2026-07-09** (batch bumps **google-chrome 150.0.7871.114 / ungoogled-chromium-bin 150.0.7871.100-1 / librewolf 152.0.5-1 / turborec 3.1.0 / vaptvupt 4.1.0 / vaptvupt-gui 4.1.0 / moneyprinterturbo 1.3.1** — all built & run-verified; vaptvupt is source-only upstream now, its `make check` crypto/security suite runs in-build; librewolf source assembly verified with new l10n pin `6ee6f5c4`); **2026-07-10** (**vaptvupt(+gui) → 4.2.0** — critical `--dedup` AES-CTR keystream-reuse fix + pure-PQ `--pq-only` mode; built, full check suite incl. the new dedup-nonce regression green, run-verified; then **→ 4.2.1** — `info` now reads the real envelope type and labels `--pq-only` archives "ML-KEM-768 only, no classical layer" instead of hybrid; fix run-verified on a real `--pq-only` archive; then **→ 5.0.0** — ML-KEM-768 made genuinely FIPS 203-conformant, cross-validated against OpenSSL 3.5 **inside the build** (openssl native-input); **BREAKING: regenerate PQ keys, re-encrypt PQ archives from ≤ 4.2.1**; `--pq-only` keygen→encrypt→decrypt round-trip verified); **2026-07-11/12** (**vaptvupt(+gui) → 5.1.0 → 5.2.0 → 5.2.1** — codec 2.65.0→2.65.3 with large ratio gains and ~2× faster extreme; GUI compress-crash fix (thread-safe `_Job` controller), robust auto-detect Verify/Extract, XWayland fallback on Sway; wire format v1.6 unchanged; all built + profile-verified, GUI `--selftest` OK; **turborec → 3.2.0** — `-R/--resolution` native/720p/1080p/1440p/4k lanczos output scaling; built & run-verified; **ungoogled-chromium-bin → 150.0.7871.114-1** — the .114 prebuilt landed, run-verified; **moneyprinterturbo → 1.3.2** — re-vendored, same prune policy; streamlit 1.59.1 + google-genai in the first-run venv); **2026-07-13** (**turborec → 3.3.0** — live YouTube/RTMPS streaming (`record --stream`), adaptive quality; built & run-verified; then **→ 3.4.0** — security-audit fixes; then **→ 3.5.0** — webcam PiP overlay + mic noise suppression; then **→ 3.6.0** — `turborecorder` Wayland (wf-recorder) capture + static-screen stop fix; all built & run-verified); **2026-07-15** (batch bumps **google-chrome 150.0.7871.124 / librewolf 152.0.6-1 (l10n pin `e42882cf`) / torbrowser 15.0.18 / torbrowser-assets 15.0.18 / mirim 1.1.0** — chrome/mirim/tb-assets built & run-verified, librewolf+torbrowser source assemblies verified (full compile deferred to reconfigure); mirim 1.1.0 moved binaries to the archive root + added an unpackaged `mirim-gui`); **2026-07-17** (**evelin-bin → 4.2.0** — 7 static binaries (adds `ev`/`evelin-keyscan`/`evelin-multisig-verify`); built, `evelin-client 4.2.0`, **installed**; batch bumps **google-chrome 150.0.7871.128 / ungoogled-chromium-bin 150.0.7871.128-1** — built & run-verified (`Chromium 150.0.7871.128`); fixed the **moneyprinterturbo** version field (was mislabelled 1.3.4 — upstream's newest tag is v1.3.2); README re-synced to the torando-gui 1.3.4 commits; then **google-chrome → 150.0.7871.181 / librewolf → 153.0-3 (MAJOR 152→153, l10n pin `235fd5b0`) / torbrowser → 15.0.19 / torbrowser-assets → 15.0.19** — chrome/tb-assets built & run-verified, librewolf+torbrowser source assemblies verified (Firefox compiles at reconfigure); **tor confirmed at 0.4.9.11 — the newest tor that exists** (no 0.4.10/alpha); ran **`guix home reconfigure`** to install torbrowser 15.0.19 + tor + chrome + the rest at latest); **2026-07-23** (**torbrowser version-string fix** — guix's `make-torbrowser` baked its own `%torbrowser-version` 15.0.14 into the displayed version, so a 15.0.19 engine reported 15.0.14; the recipe now rewrites `--with-base-browser-version` + `MOZ_BUILD_DATE` to 15.0.19, verified in the built `omni.ja` (`BASE_BROWSER_VERSION=15.0.19`) and **reconfigured into the home profile**; **kitty → 0.48.0** — one new imported Go dep (`ebitengine/purego`) packaged, `GOTOOLCHAIN=local` phase added (0.48's go.mod pins a toolchain guix can't fetch offline), **built & installed**, `kitty --version` → 0.48.0)
+- **2026-07-25 refresh (built, installed, and profile-verified):** `fish`
+  4.8.1, `kitty` 0.48.1, `google-chrome-stable` 150.0.7871.186,
+  `ungoogled-chromium-bin` 150.0.7871.186-1, `evelin-bin` 4.3.0, `turborec`
+  3.7.0, `moneyprinterturbo` 1.3.3, `mtr` 0.96, `sdb` 2.4.8, `radare2` 6.1.8,
+  and `rizin` 0.9.1. All package builds passed; Fish additionally passed all
+  197 integration tests and 272 Cargo tests.
 - **Maintainer:** Cristian Cezar Moisés `<ethicalhacker@riseup.net>`
 - **Home:** [`https://git.securityops.co/cristiancmoises/securityops-channel`](https://git.securityops.co/cristiancmoises/securityops-channel) (official) · mirrors: [Codeberg](https://codeberg.org/berkeley/securityops-channel) · [GitHub](https://github.com/cristiancmoises/securityops-channel)
 - **Signing:** every commit is GPG-signed (ed25519 `0CFA 43B9 … ECFB 46E8`) and the channel is authenticated — see [Publishing & authentication](#publishing--authentication)
@@ -23,7 +29,7 @@ are *ahead* of Guix/nonguix carry a **real, downloaded source hash**.
 
 ## The curated set
 
-### 📇 Full package index (50 packages)
+### 📇 Full package index (51 packages)
 
 Every package this channel defines, its current version, and the most recent
 change. **Class**: 🅑 bumped ahead of Guix/nonguix (real downloaded hash) · 🄟
@@ -33,12 +39,12 @@ per-category sections and caveats follow below.
 
 | Package | Version | Class | Latest change / note |
 |---|---|:--:|---|
-| `kitty` | 0.48.0 | 🅑 | ahead of Guix 0.46.2; pulls three vendored Go deps (↓); `GOTOOLCHAIN=local` |
+| `kitty` | 0.48.1 | 🅑 | ahead of Guix 0.46.2; pulls three vendored Go deps (↓); `GOTOOLCHAIN=local` |
 | `tor` | 0.4.9.11 | 🅑 | ahead of Guix 0.4.9.8 |
 | `torbrowser` | 15.0.19 | 🅑 | source build + ThinLTO; ahead of Guix 15.0.14 |
 | `torbrowser-assets` | 15.0.19 | 🅑 | official bundle (fonts + torrc-defaults); matched to `torbrowser` |
 | `openshot` | 3.5.1 | 🅑 | ahead of Guix 3.4.0; stale-test-path build fixed |
-| `google-chrome-stable` | 150.0.7871.181 | 🅑 | ahead of nonguix; real `.deb` hash |
+| `google-chrome-stable` | 150.0.7871.186 | 🅑 | ahead of nonguix; real `.deb` hash |
 | `mullvad-vpn-desktop` | 2026.3 | 🅑 | vendored `.deb`; the daemon service runs this build |
 | `librewolf` | 153.0-3 | 🅑 | source build; **major 152→153 bump** (l10n pin `235fd5b0`); compile watched at first reconfigure |
 | `steam` | 1.0.0.87 | 🅑 | Valve beta bootstrap (nonguix container rebuilt) |
@@ -47,9 +53,9 @@ per-category sections and caveats follow below.
 | `nmap` | 7.99 | 🅑 | ahead of Guix 7.98 |
 | `fping` | 5.5 | 🅑 | ahead of Guix 5.3 |
 | `hydra` | 9.7 | 🅑 | THC-Hydra; ahead of Guix 9.6 |
-| `ungoogled-chromium-bin` | 150.0.7871.128-1 | 🄟 | official prebuilt portablelinux; the recommended chromium |
+| `ungoogled-chromium-bin` | 150.0.7871.186-1 | 🄟 | current official PortableLinux asset; built and runtime-verified |
 | `alacritty` | 0.17.0 | 🄡 | latest in Guix |
-| `fish` | 4.7.1 | 🄡 | latest in Guix; upstream 4.8.0 needs a full cargo-inputs regen |
+| `fish` | 4.8.1 | 🅑 | hermetic Cargo source build; 197/197 integration tests + 272 Cargo tests pass |
 | `emacs` | 30.2 | 🄡 | latest in Guix |
 | `emacs-pgtk` | 30.2 | 🄡 | pure-GTK Emacs; latest in Guix |
 | `mpv` | 0.41.0 | 🄡 | latest in Guix |
@@ -61,28 +67,29 @@ per-category sections and caveats follow below.
 | `masscan` | 1.3.2 | 🄡 | latest in Guix |
 | `arp-scan` | 1.10.0 | 🄡 | latest in Guix |
 | `netdiscover` | 0.21 | 🄡 | latest in Guix |
-| `mtr` | 0.95 | 🄡 | upstream 0.96 has an `utils.h` include-path bug — kept on Guix |
+| `mtr` | 0.96 | 🅑 | ahead of Guix 0.95; official release builds without a downstream patch |
 | `whois` | 5.6.6 | 🄡 | latest in Guix |
 | `proxychains-ng` | 4.17 | 🄡 | latest in Guix |
 | `aircrack-ng` | 1.7 | 🄡 | latest in Guix |
 | `reaver` | 1.6.6 | 🄡 | latest in Guix |
 | `kismet` | 2025.09.R1 | 🄡 | latest in Guix |
-| `radare2` | 6.1.4 | 🄡 | upstream 6.1.8 needs `zydis` (not in Guix) — kept on Guix |
-| `rizin` | 0.8.2 | 🄡 | upstream 0.9.1 reworked meson options — kept on Guix |
+| `sdb` | 2.4.8 | 🅑 | ahead of Guix 2.4.2; current offline/system dependency for radare2 |
+| `radare2` | 6.1.8 | 🅑 | system Zydis/Zycore + channel `sdb` 2.4.8; offline build passes |
+| `rizin` | 0.9.1 | 🅑 | updated Meson flags/system libraries; offline hash implementation passes its suite |
 | `binwalk` | 3.1.0 | 🄡 | latest in Guix |
 | `age` | 1.3.1 | 🄡 | latest in Guix |
-| `evelin-bin` | 4.2.0 | 🄕 | official static-musl release tarball; 4.2.0 adds `ev`, `evelin-keyscan`, `evelin-multisig-verify` |
+| `evelin-bin` | 4.3.0 | 🄕 | official static-musl release tarball; quiet-by-default, scp-like client UX; protocol/key/ticket formats unchanged |
 | `btp` | 0.7 | 🄕 | Rust; binaries patchelf'd to glibc/gcc (`btpctl`, `btpd`) |
 | `mirim` | 1.1.0 | 🄕 | prebuilt Rust binaries (patchelf'd); `mirim`, `mirim-sign` (upstream also ships a `mirim-gui`, not packaged) |
 | `torando-gui` | 1.3.4 | 🄕 | Python daemon + GTK4/WebKit GUI; ships a Shepherd service; ip6tables IPv6 killswitch + cross-platform backends (1.3.1–1.3.4: Windows/packaging fixes, Linux build unchanged) |
 | `vaptvupt` | 5.2.1 | 🄕 | PQ backup compressor (ML-KEM-768/FIPS 203); source-only; see BREAKING note ↓ |
 | `vaptvupt-gui` | 5.2.1 | 🄕 | PySide6/Qt6 frontend; thread-safe `_Job`, auto-detect Verify |
-| `turborec` | 3.6.0 | 🄕 | screen/audio recorder; live YouTube/RTMPS streaming; webcam PiP + noise suppression; 3.6.0 `turborecorder` Wayland (wf-recorder) capture |
+| `turborec` | 3.7.0 | 🄕 | screen/audio recorder; auto defaults, device/encoder validation, Linux Pulse fallback, cross-platform reliability fixes |
 | `esquema` | 0.2.0 | 🄕 | rootless Guile-native container runtime (libseccomp) |
-| `moneyprinterturbo` | 1.3.2 | 🄕 | vendored 3rd-party AI short-video generator; fonts pruned |
-| `go-github-com-emmansun-base64` | 0.9.0 | 🄓 | kitty build dependency |
+| `moneyprinterturbo` | 1.3.3 | 🄕 | vendored 3rd-party AI short-video generator; voice preview, BGM modes, clip speed/transitions, recovery/update notifications; fonts pruned |
+| `go-github-com-emmansun-base64` | 0.10.0 | 🄓 | kitty build dependency |
 | `go-github-com-sgtdi-fswatcher` | 1.3.0 | 🄓 | kitty build dependency |
-| `go-github-com-ebitengine-purego` | 0.10.1 | 🄓 | kitty 0.48 build dependency (call C from Go, no cgo) |
+| `go-github-com-ebitengine-purego` | 0.10.2 | 🄓 | kitty 0.48.1 build dependency (GOPATH-compatible patch bump; call C from Go, no cgo) |
 
 ### 🔌 Services (2)
 
@@ -101,35 +108,41 @@ Full `(operating-system …)` examples are below: [**torando-gui service**](#run
 
 | Package | This channel | Upstream had | Source |
 |---|---|---|---|
-| **kitty** | 0.48.0 | 0.46.2 (guix) | git tag `v0.48.0` |
+| **kitty** | 0.48.1 | 0.46.2 (guix) | git tag `v0.48.1` |
+| **fish** | 4.8.1 | 4.7.1 (guix) | official source + Cargo.lock-matched offline crate set |
 | **tor** | 0.4.9.11 | 0.4.9.8 (guix) | dist.torproject.org tarball |
 | **torbrowser** | 15.0.19 | 15.0.14 (guix) | source build (see caveat) |
 | **torbrowser-assets** | 15.0.19 | _(private in guix)_ | official bundle (fonts + torrc-defaults) |
 | **openshot** | 3.5.1 | 3.4.0 (guix) | git tag `v3.5.1` |
-| **google-chrome-stable** | 150.0.7871.181 | 148.0.7778.215 (nonguix) | dl.google.com `.deb` |
+| **google-chrome-stable** | 150.0.7871.186 | 148.0.7778.215 (nonguix) | dl.google.com `.deb` |
 | **mullvad-vpn-desktop** | 2026.3 | 2025.8 (small-guix) | cdn.mullvad.net `.deb` (vendored) |
 | **librewolf** | 153.0-3 | 151.0.4-1 (guix) | source build (vendored `make-librewolf-source`; major 152→153) |
 | **steam** | 1.0.0.87 _(Valve beta)_ | 1.0.0.85 (nonguix, stable) | Valve precise archive (nonguix container rebuilt around bumped bootstrap) |
 | **glances** | 4.5.5 | 4.3.0 (guix) | git tag `v4.5.5` (pyproject; +`pyinstrument` 5.1.2) |
 | **lynis** | 3.1.7 | 3.1.1 (guix) | git tag `3.1.7` (shell; plugins stripped) |
+| **mtr** | 0.96 | 0.95 (guix) | official release tarball |
+| **sdb** | 2.4.8 | 2.4.2 (guix) | upstream git revision `2.4.8` |
+| **radare2** | 6.1.8 | 6.1.4 (guix) | upstream git revision `6.1.8`; system Zydis/Zycore |
+| **rizin** | 0.9.1 | 0.8.2 (guix) | official release tarball; updated Meson/system-dependency flags |
 
 ### ✅ Re-exported — already latest in Guix/nonguix (track upstream automatically)
 
-`alacritty` 0.17.0 · `fish` 4.7.1 · `emacs` 30.2 · `emacs-pgtk` 30.2 ·
-`mpv` 0.41.0 · `vlc` 3.0.23 · `keepassxc` 2.7.12 · `ueberzugpp` 2.9.10 ·
-`lf` 41
+`alacritty` 0.17.0 · `emacs` 30.2 · `emacs-pgtk` 30.2 · `mpv` 0.41.0 ·
+`vlc` 3.0.23 · `keepassxc` 2.7.12 · `ueberzugpp` 2.9.10 · `lf` 41
 
 ### ⚠️ Re-exported — newer upstream exists but a bump is impractical here
 
 | Package | This channel (= guix) | Upstream | Why not bumped |
 |---|---|---|---|
-| **ungoogled-chromium** (source) | 147.0.7727.137-1 | 150.0.7871.128-1 | 147 **builds over Tor** (source is a `bordeaux` substitute); a *newer*-version source-bump is **impossible over Tor** — the "-lite" base tarball lives only on Google's GCS, which 403-blocks every Tor exit and has no substitute yet (see caveat). Use `ungoogled-chromium-bin` ↓ |
+| **ungoogled-chromium** (source) | 147.0.7727.137-1 | 150.0.7871.186-1 | 147 **builds over Tor** (source is a `bordeaux` substitute); a *newer*-version source-bump is **impossible over Tor** — the "-lite" base tarball lives only on Google's GCS, which 403-blocks every Tor exit and has no substitute yet (see caveat). Use the current `ungoogled-chromium-bin` ↓ |
 
-> **ungoogled-chromium-bin** — the latest ungoogled-chromium *is* available here as
-> a **prebuilt** binary: `150.0.7871.128-1`, the official upstream portable Linux
-> x86_64 build hosted on GitHub (Tor-reachable), sha256-verified and wrapped with
-> nonguix's `chromium-binary-build-system`. **Build-and-run verified** —
-> `chromium --version` → `Chromium 150.0.7871.128`. This is the recommended
+> **ungoogled-chromium-bin** — `150.0.7871.186-1` is the current upstream
+> PortableLinux x86_64 release. Its asset landed during the final validation
+> sweep on 2026-07-25, is hosted on GitHub (Tor-reachable), matches the official
+> API sha256 digest, and is wrapped with nonguix's
+> `chromium-binary-build-system`.
+> **Build-and-run verified** —
+> `chromium --version` → `Chromium 150.0.7871.186`. This is the recommended
 > chromium on `PATH`.
 >
 > **librewolf** was in this table; it is now **bumped to 153.0-3** (major 152→153;
@@ -150,15 +163,15 @@ Each app lives in its own repo on the forge. To keep this channel
 
 | Package | Version | How | Status |
 |---|---|---|---|
-| **evelin-bin** | 4.2.0 | official static-musl release tarball (7 fully-static binaries: `ev`, `evelin-agent`/`-client`/`-keygen`/`-keyscan`/`-server`, `evelin-multisig-verify`) | ✅ builds & runs (`evelin-client 4.2.0`) |
+| **evelin-bin** | 4.3.0 | official static-musl release tarball (7 fully-static binaries: `ev`, `evelin-agent`/`-client`/`-keygen`/`-keyscan`/`-server`, `evelin-multisig-verify`). 4.3.0 makes the client quiet by default and adds scp-like copy UX; protocol, key, and ticket formats are unchanged | ✅ builds & runs (`evelin-client 4.3.0`) |
 | **btp** | 0.7 | built from source (`cargo`), binaries patchelf'd to glibc/gcc | ✅ builds & runs (`btpctl`, `btpd`) |
 | **mirim** | 1.1.0 | prebuilt x86_64 release binaries (`copy-build-system` + patchelf to store glibc/gcc), like `btp`/`evelin-bin`. v1.1.0 moved the binaries to the archive root and adds a `mirim-gui` (not packaged — needs a graphical runtime) | ✅ builds & runs (`mirim`, `mirim-sign`) |
 | **torando-gui** | 1.3.4 | built from source (pure Python daemon; native GTK4/WebKit GUI optional, browser fallback). 1.2.0/1.3.0: ip6tables IPv6 killswitch (closes the v6 leak) + native macOS/BSD/Windows backends; 1.3.1–1.3.4: Windows all-in-one + packaging fixes — Linux channel build unchanged | ✅ builds, installs & runs (`torando-gui`, `torando-guid`) |
 | **vaptvupt** | 5.2.1 | built from source (C11 Makefile; source-only since 4.1.0, links only `-lm -lpthread`; `make check` crypto/security suite runs in-build — since 5.0.0 incl. **FIPS 203 cross-validation against OpenSSL 3.5**, verified green). 5.0.0: ML-KEM-768 now genuinely FIPS 203-conformant; **BREAKING — `--pq`/`--pq-only` keys & archives from ≤ 4.2.1 no longer decrypt: regenerate keys + re-encrypt** (password mode/plain compression unaffected). 5.1.0–5.2.1: codec 2.65.0→2.65.3 (large text-ratio gains, ~2× faster extreme, byte-identical output); wire format stays v1.6, interoperable with 5.0.x. 4.2.0: critical `--dedup` keystream-reuse fix (re-encrypt `--dedup` archives from ≤ 4.1.0) | ✅ builds & runs; `--pq-only` round-trip verified |
 | **vaptvupt-gui** | 5.2.1 | PySide6/Qt6 frontend from the same tarball (versioned with the CLI); 5.0.0 reworks it for source-only builds (build-aware Hybrid/Full-PQ selector, PQ-key auto-detect) + XWayland fallback so it appears on Sway; 5.2.x: thread-safe `_Job` controller (fixes compress crash/hang/corruption), CR progress frames parsed, robust Verify/Extract with encryption auto-detect + guided credentials; launcher pins the CLI via `VAPTVUPT_BIN` | ✅ builds (`vaptvupt-gui`, `zupt-gui`); GUI `--selftest` OK |
-| **turborec** | 3.4.0 | built from source (pure-Python CLI + Tkinter GUI + bash X11 launcher; self-contained `#!/bin/sh` shims pin python3/bash + ffmpeg/pactl/xrandr/xdpyinfo/lspci, + Wayland wf-recorder/wlr-randr/swaymsg + wmctrl; 3.1.0 `--audio-channels`, 3.2.0 `-R/--resolution` scaling, 3.3.0 live streaming `record --stream KEY` (YouTube/RTMPS default) + adaptive quality, 3.4.0 security-audit fixes, 3.5.0 webcam PiP overlay (`--camera`) + mic noise suppression (`--denoise`), 3.6.0 `turborecorder` Wayland (wf-recorder) capture + static-screen stop fix) | ✅ builds & runs (`turborec`, `turborecorder`) |
+| **turborec** | 3.7.0 | built from source (pure-Python CLI + Tkinter GUI + bash X11 launcher; self-contained `#!/bin/sh` shims pin python3/bash + ffmpeg/pactl/xrandr/xdpyinfo/lspci, + Wayland wf-recorder/wlr-randr/swaymsg + wmctrl; 3.1.0 `--audio-channels`, 3.2.0 `-R/--resolution` scaling, 3.3.0 live streaming `record --stream KEY` (YouTube/RTMPS default) + adaptive quality, 3.4.0 security-audit fixes, 3.5.0 webcam PiP overlay (`--camera`) + mic noise suppression (`--denoise`), 3.6.0 Wayland capture, 3.7.0 auto defaults, device/encoder validation, Linux Pulse fallback, and cross-platform reliability fixes) | ✅ builds & runs (`turborec`, `turborecorder`) |
 | **esquema** | 0.2.0 | built from source (C core `libesquema.so` via `make` + libseccomp; Guile modules byte-compiled; ships the `(esquema esquema-service)` Shepherd service) | ✅ builds & FFI-loads (`esquema-init` → 42); functional/security/ASan suites green |
-| **moneyprinterturbo** | 1.3.2 | vendored third-party (harry0703; not a forge repo). AI one-click short-video generator; the (font-pruned) upstream source + a self-contained launcher that builds a first-run venv over Tor; proprietary CJK fonts dropped and repointed to bundled WenQuanYi Zen Hei | ✅ builds; launcher boots (venv on first run) |
+| **moneyprinterturbo** | 1.3.3 | vendored third-party (harry0703; not a forge repo). AI one-click short-video generator; adds voice preview, generated/matched/custom BGM modes, clip speed/transitions, recovery, and update notifications. The same source-pruning policy remains: proprietary CJK fonts are dropped and references point to bundled WenQuanYi Zen Hei; the self-contained launcher builds a first-run venv over Tor | ✅ builds; launcher/version metadata verified (venv on first run) |
 
 To re-vendor an updated app: rebuild/redownload its artifact into
 `packages/sources/`, bump `version`, and `guix build -L . <pkg>`.
@@ -248,18 +261,19 @@ a Guix System service, use the bundled service type:
 
 ## Security toolset
 
-`security.scm` re-exports a curated security toolset from Guix, so it installs
-from this channel and tracks Guix.  Three are **bumped ahead of Guix** here
-(inherit + version + real source hash), all built & run-verified: `nmap` 7.99
-(Guix 7.98), `fping` 5.5 (Guix 5.3) and `hydra` 9.7 (Guix 9.6).  A few others
-lag Guix but a *clean* bump is not just version+source, so they stay on Guix for
-now: `mtr` 0.96 moved `utils.h` without fixing `packet/` includes; `radare2`
-6.1.8 pulls a new `zydis` meson subproject not yet in Guix; `rizin` 0.9 reworked
-its meson options.  `lynis` is bumped here too (3.1.7 vs Guix 3.1.1):
+`security.scm` provides a curated security toolset, re-exporting current Guix
+packages and carrying eight definitions **ahead of Guix** (inherit + version +
+real source hash): `nmap` 7.99, `fping` 5.5, `mtr` 0.96, `hydra` 9.7, `sdb`
+2.4.8, `radare2` 6.1.8, `rizin` 0.9.1, and `lynis` 3.1.7. The earlier
+MTR/Radare2/Rizin deferrals are superseded: MTR's official source contains both
+required `utils.h` files; Radare2 now uses Guix's system Zydis/Zycore with the
+channel's current SDB; and Rizin's 0.9 Meson flags and offline hash backend are
+wired explicitly. All builds pass, including Rizin's complete test suite.
 
-> **nmap 7.99** · masscan · arp-scan · netdiscover · **fping 5.5** · mtr · whois ·
-> proxychains-ng · aircrack-ng · reaver · kismet · **hydra 9.7** (THC) · radare2 ·
-> rizin · binwalk · age · **lynis 3.1.7**   *(bold = bumped ahead of Guix)*
+> **nmap 7.99** · masscan · arp-scan · netdiscover · **fping 5.5** · **mtr 0.96** · whois ·
+> proxychains-ng · aircrack-ng · reaver · kismet · **hydra 9.7** (THC) ·
+> **sdb 2.4.8** · **radare2 6.1.8** · **rizin 0.9.1** · binwalk · age ·
+> **lynis 3.1.7**   *(bold = bumped ahead of Guix)*
 
 **Not yet in Guix** (TODO — package on request; quick: Go/Rust single-binaries;
 heavy: zaproxy/volatility3): `sqlmap` · `nikto` · `gobuster` · `ffuf` ·
@@ -300,8 +314,8 @@ Then:
 
 ```sh
 guix pull
-guix install kitty tor torbrowser openshot google-chrome-stable mullvad-vpn-desktop
-# everything else resolves to the same package guix/nonguix ships
+guix install kitty fish tor torbrowser openshot google-chrome-stable \
+  ungoogled-chromium-bin mullvad-vpn-desktop mtr sdb radare2 rizin
 ```
 
 Because every package here has a version **≥** what guix/nonguix ships,
@@ -347,34 +361,36 @@ git -C securityops-channel log --show-signature -1
 
 ### Consuming the channel from `/etc/config.scm` and `home.scm`
 
-A bare `kitty` / `tor` / `torbrowser` / `google-chrome-stable` written against
-`(gnu packages …)` / `(nongnu packages …)` resolves to *guix's own* (older)
-package, **not** this channel's — module bindings are resolved by the module you
-import, while `guix install <name>` is what picks the highest version by name. So
-to actually run the bumped versions declaratively, import the channel module with
-a prefix and reference the prefixed symbol:
+A bare bumped package such as `kitty`, `fish`, `radare2`, or
+`google-chrome-stable` written against `(gnu packages …)` / `(nongnu packages
+…)` resolves to *guix's own* (older) package, **not** this channel's — module
+bindings are resolved by the module you import, while `guix install <name>` is
+what picks the highest version by name. To run the bumped versions
+declaratively, import the channel module with a prefix and reference the
+prefixed symbol:
 
 ```scheme
 ;; in (use-modules …)
-((securityops packages terminals) #:prefix so:)   ; so:kitty   0.48.0 (gnu 0.46.2)
+((securityops packages terminals) #:prefix so:)   ; so:kitty   0.48.1 (gnu 0.46.2)
+((securityops packages shells)    #:prefix so:)   ; so:fish    4.8.1 (gnu 4.7.1)
 ((securityops packages tor)       #:prefix so:)   ; so:tor     0.4.9.11, so:torbrowser 15.0.19
 ((securityops packages browsers)  #:prefix so:)   ; so:google-chrome-stable 150, so:librewolf 153.0-3
+((securityops packages security)  #:prefix so:)   ; so:mtr, so:sdb, so:radare2, so:rizin
 ((securityops packages vpn)       #:prefix so:)   ; so:mullvad-vpn-desktop  2026.3
 ((securityops packages video)     #:prefix so:)   ; so:openshot 3.5.1 (gnu 3.4.0)
 ((securityops packages games)     #:prefix so:)   ; so:steam   1.0.0.87 (nonguix 1.0.0.85)
 ((securityops packages monitoring) #:prefix so:)  ; so:glances 4.5.5 (gnu 4.3.0)
 
-;; …then in the package list use so:kitty, so:tor, so:torbrowser, …
+;; …then in the package list use so:kitty, so:fish, so:radare2, …
 ;; and for the daemon, override the service field:
 (service mullvad-daemon-service-type
          (mullvad-daemon-configuration
           (mullvad-vpn-desktop so:mullvad-vpn-desktop)))
 ```
 
-The live `/etc/config.scm` and `~/.config/guix/home.scm` are wired this way for
-exactly the packages that are ahead of guix/nonguix; the re-exports
-(`alacritty`, `fish`, `emacs`, `mpv`, `vlc`, `keepassxc`, `ueberzugpp`, `lf`)
-are byte-identical to guix's, so they are left as bare symbols.
+Use this pattern for every package carried ahead of guix/nonguix. The remaining
+re-exports (`alacritty`, `emacs`, `mpv`, `vlc`, `keepassxc`, `ueberzugpp`,
+`lf`) are byte-identical to guix's and can remain bare symbols.
 
 To apply after a channel edit: `guix pull` (picks up the new `securityops`
 commit), then `guix system reconfigure /etc/config.scm` and `guix home
@@ -392,19 +408,20 @@ securityops-channel/
 ├── .guix-authorizations       # OpenPGP keys allowed to sign commits (channel auth)
 ├── etc/news.txt              # `guix pull --news` entries (per release)
 ├── securityops/packages/
-│   ├── terminals.scm         # kitty 0.48.0 (bump) + its three new Go deps, alacritty (re-export)
+│   ├── terminals.scm         # kitty 0.48.1 (bump) + its three Go deps, alacritty (re-export)
 │   ├── tor.scm               # tor, torbrowser, torbrowser-assets (bumps)
-│   ├── shells.scm            # fish (re-export)
+│   ├── shells.scm            # fish 4.8.1 hermetic Cargo source build
+│   ├── fish-crates.scm       # Fish 4.8.1 Cargo.lock-matched offline sources
 │   ├── emacs.scm             # emacs, emacs-pgtk (re-export)
 │   ├── video.scm             # openshot (bump), mpv, vlc (re-export)
 │   ├── utils.scm             # keepassxc, ueberzugpp, lf (re-export)
 │   ├── browsers.scm          # google-chrome (bump), librewolf + ungoogled-chromium-bin (re-export of ↓), ungoogled-chromium (re-export)
 │   ├── librewolf.scm         # librewolf 153.0-3 (vendored make-librewolf-source)
-│   ├── chromium.scm          # ungoogled-chromium-bin 150.0.7871.128 (prebuilt, chromium-binary-build-system)
+│   ├── chromium.scm          # ungoogled-chromium-bin 150.0.7871.186 (prebuilt, chromium-binary-build-system)
 │   ├── vpn.scm               # mullvad-vpn-desktop (vendored bump)
 │   ├── games.scm             # steam 1.0.0.87 (nonguix container, bumped bootstrap)
 │   ├── apps.scm              # first-party: evelin-bin, btp, mirim, torando-gui, vaptvupt(+gui), turborec, moneyprinterturbo (vendored)
-│   ├── security.scm          # curated security toolset (re-exports) + lynis 3.1.7 (bump)
+│   ├── security.scm          # curated toolset; mtr/sdb/radare2/rizin + other bumps/re-exports
 │   ├── monitoring.scm        # glances 4.5.5 (bump) + python-pyinstrument 5.1.2 (private dep bump)
 │   ├── containers.scm        # esquema 0.2.0 — rootless Guile-native container runtime (first-party, from source)
 │   └── sources/              # vendored release/built artifacts (local-file)
@@ -473,12 +490,13 @@ newer recipe (version-specific ungoogled patch set) *and* still hitting the
 Google-only tarball. (It would also be a multi-hour / ~30GB-RAM compile on 15GB
 RAM regardless.) **For a *current* engine:** the channel ships
 `ungoogled-chromium-bin` — the official upstream **prebuilt** portable Linux
-x86_64 binary `150.0.7871.128-1` (the newest prebuilt), hosted on GitHub
-(Tor-reachable), `sha256`-verified against
+x86_64 binary `150.0.7871.186-1`. Its PortableLinux asset was published during
+the final validation sweep on 2026-07-25 and is hosted on GitHub (Tor-reachable),
+`sha256`-verified against
 the upstream `ungoogled-chromium-binaries` metadata, and wrapped with nonguix's
 `chromium-binary-build-system` (patchelf onto the Guix glibc loader + library set;
 no bundled `chrome-sandbox`, so Chromium uses the unprivileged user-namespace
-sandbox). Build-and-run verified: `chromium --version` → `Chromium 150.0.7871.128`.
+sandbox). Build-and-run verified: `chromium --version` → `Chromium 150.0.7871.186`.
 The source-built `ungoogled-chromium` (147) remains re-exported for anyone wanting
 the substitutable build; `google-chrome-stable` 150 also provides a current engine.
 
@@ -515,30 +533,44 @@ Done 2026-06-21 against the live daemon (egress works through Tor):
   `modules/AppConstants.sys.mjs` has `BASE_BROWSER_VERSION = 15.0.19`). Also
   confirmed the re-exported source `ungoogled-chromium` 147 fetches over Tor as a
   `bordeaux` substitute (`guix build -S` → 0 built, 1.1 GB downloaded).
+- **2026-07-25 — final refresh built, installed, and profile-verified:** `fish`
+  4.8.1, `kitty` 0.48.1,
+  `google-chrome-stable` 150.0.7871.186, `ungoogled-chromium-bin`
+  150.0.7871.186-1, `evelin-bin` 4.3.0, `turborec` 3.7.0,
+  `moneyprinterturbo` 1.3.3, `mtr` 0.96, `sdb` 2.4.8, `radare2` 6.1.8, and
+  `rizin` 0.9.1. Fish passed 197/197 integration tests and 272 Cargo tests;
+  Rizin's complete suite passed; version/runtime smoke checks passed for the
+  applicable browser, terminal, and vendored-app outputs. The vendored-source
+  and font-pruning policies remain unchanged. The Home profile carries Fish,
+  Kitty, Chrome, ungoogled Chromium, and MoneyPrinterTurbo; the user profile
+  carries Evelin, TurboRecorder, MTR, SDB, Radare2, and Rizin.
 
-Full multi-hour compiles (emacs, kitty, vlc, the Firefox-based torbrowser) are
-left to your `guix pull` / reconfigure, per the chosen "verified hashes +
-evaluate" depth.
+Future multi-hour compiles (emacs, vlc, and Firefox-based browser bumps) are
+left to the corresponding `guix pull` / reconfigure.
 
 ---
 
 ## Keeping packages current — `./update-channel`
 
-One command checks every channel package against upstream and auto-applies the
-updates Guix can do safely:
+One command reports updater-visible releases and can apply the recipe edits that
+Guix's updater supports:
 
 ```sh
-./update-channel                       # check: current vs latest for every package
-./update-channel update --build --commit   # apply guix-refresh updates, build-verify, sign-commit
+./update-channel                       # report current vs updater-visible candidates
+./update-channel update --build --commit   # apply supported edits, build them, sign the commit
 ```
 
-- **Auto** (via `guix refresh -u` — rewrites `version` + real `sha256`): the
-  github/gnu/pypi-backed packages (`kitty`, `openshot`, `tor`, `glances`, …).
+- **Auto where supported** (via `guix refresh -u` — rewrites `version` + real
+  `sha256`): github/gnu/pypi-backed packages (`kitty`, `openshot`, `tor`,
+  `glances`, …). `--build` validates the derivations produced by those edits; a
+  check alone does not validate builds, runtime behavior, or profile activation.
 - **Reported, apply deliberately:** source-builds (`torbrowser`, `librewolf` —
   auto-bumping triggers multi-hour compiles) and binary/vendored packages
   (`google-chrome-stable`, `steam`, `mullvad-vpn-desktop`, `ungoogled-chromium-bin`,
-  the first-party apps). The tool prints the exact upstream version and the file
-  to edit, then bump it by hand:
+  the first-party apps). Reported tags also need artifact inspection: the
+  ungoogled-chromium `.186-1` PortableLinux asset arrived after the initial
+  check and was caught by the final validation sweep. Verify these updates
+  independently.
 
 ## Bumping a package later
 

@@ -6,6 +6,53 @@ tag rather than SemVer of the code.
 
 ## [Unreleased]
 
+### Changed — latest-package refresh (2026-07-25)
+
+- **fish 4.7.1 → 4.8.1** — converted the Guix re-export into a hermetic source
+  package with an offline crate set matched to the release's Cargo.lock. The
+  complete build passed **197/197 integration tests and 272 Cargo tests**,
+  superseding the earlier cargo-input-regeneration deferral.
+- **mtr 0.95 → 0.96** from the official release tarball. A fresh source audit
+  confirmed that both `packet/utils.h` and `ui/utils.h` are present, so the
+  earlier include-path deferral no longer applies; the inherited Guix recipe
+  builds cleanly without a downstream patch.
+- **sdb 2.4.2 → 2.4.8**, **radare2 6.1.4 → 6.1.8**, and **rizin 0.8.2 →
+  0.9.1** — the reverse-engineering deferrals are resolved. Radare2 uses Guix's
+  system Zydis/Zycore and the channel's current SDB (which supplies
+  `sdb_rename`). Rizin's 0.9 Meson options were re-derived against Guix's system
+  libraries; its offline bundled hash implementation avoids the incompatible
+  system-OpenSSL SHA3 plugin naming. All three builds pass, including Rizin's
+  complete test suite.
+- **kitty 0.48.0 → 0.48.1** from the official `v0.48.1` tag. Its
+  `go-github-com-emmansun-base64` dependency moves **0.9.0 → 0.10.0**, and
+  `go-github-com-ebitengine-purego` moves **0.10.1 → 0.10.2**. Kitty names
+  purego 0.10.1 in `go.mod`, but its Guix recipe builds in GOPATH mode; the
+  compatible 0.10.2 source completed a full Kitty rebuild and version smoke
+  test. The hermetic `GOTOOLCHAIN=local`/GOPATH policy is unchanged.
+- **google-chrome-stable 150.0.7871.181 → 150.0.7871.186** (official `.deb`,
+  real downloaded hash) and **ungoogled-chromium-bin 150.0.7871.128-1 →
+  150.0.7871.186-1** (official PortableLinux x86_64 binary). The `.186-1` asset
+  was published during the final validation sweep at 2026-07-25 15:50 UTC; its
+  official API sha256 digest was verified, the package built, and
+  `chromium --version` reports 150.0.7871.186.
+- **evelin-bin 4.2.0 → 4.3.0** — re-vendored the official static-musl release
+  tarball and verified its published sha256. The client is quiet by default and
+  gains scp-like copy UX; protocol, key, and ticket formats do not change.
+- **turborec 3.6.0 → 3.7.0** — re-vendored from the upstream tag. It adds
+  automatic defaults, device/encoder validation, a Linux Pulse fallback, and
+  cross-platform device, Unicode, multi-monitor, and window-capture reliability
+  fixes; the existing Guix launcher inputs remain sufficient.
+- **moneyprinterturbo 1.3.2 → 1.3.3** — re-vendored with the same explicit
+  source whitelist and font-pruning policy. It adds voice preview,
+  generated/matched/custom BGM modes, clip speed and transitions, recovery, and
+  update notifications.
+- All eleven user-facing package builds completed and were installed.
+  Runtime/version smoke checks passed where applicable, and the explicit test
+  suites above are green. The Home profile carries Fish 4.8.1, Kitty 0.48.1,
+  Chrome 150.0.7871.186, Chromium 150.0.7871.186-1, and MoneyPrinterTurbo 1.3.3;
+  the user profile carries Evelin 4.3.0, TurboRecorder 3.7.0, MTR 0.96, SDB
+  2.4.8, Radare2 6.1.8, and Rizin 0.9.1.
+
 ### Fixed — torbrowser reports its real version (2026-07-23)
 - **torbrowser now reports 15.0.19 instead of 15.0.14.** Guix's `make-torbrowser`
   bakes the *displayed* Tor Browser version from its own `%torbrowser-version`
@@ -152,6 +199,8 @@ pins) found `torbrowser-assets` behind and several re-exports lagging Guix.
   (0.9 reworked meson options — inherited `-Duse_swift_demangler` removed),
   **fish 4.8.0** (Guix builds fish 4.x from a pinned ~120-crate `cargo-inputs`
   set; needs the whole set regenerated for 4.8.0's Cargo.lock).
+  *Superseded on 2026-07-25: dedicated recipes now build MTR 0.96, Radare2
+  6.1.8, Rizin 0.9.1, and Fish 4.8.1; see the current refresh entry above.*
 - Confirmed already at latest upstream (audit): kitty, tor, torbrowser, openshot,
   glances, lynis, esquema, and all other re-exports (alacritty, emacs, mpv, vlc,
   keepassxc, ueberzugpp, lf, masscan, aircrack-ng, age, binwalk, whois, arp-scan,
