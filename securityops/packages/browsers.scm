@@ -32,19 +32,19 @@
 ;;;
 ;;;  * `ungoogled-chromium-bin' (see (securityops packages chromium)) is the
 ;;;    LATEST ungoogled-chromium obtainable here: the official upstream PREBUILT
-;;;    Linux x86_64 portable binary (149.0.7827.155-1), hosted on GitHub
+;;;    Linux x86_64 portable binary (150.0.7871.186-1), hosted on GitHub
 ;;;    (Tor-reachable) and sha256-verified, wrapped with nonguix's
 ;;;    chromium-binary-build-system.  Build-and-run verified: `chromium --version'
-;;;    => Chromium 149.0.7827.155.  This is the recommended chromium on PATH.
+;;;    => Chromium 150.0.7871.186.  This is the recommended chromium on PATH.
 (define-public ungoogled-chromium cr:ungoogled-chromium)
 (define-public ungoogled-chromium-bin scr:ungoogled-chromium-bin)
 
-;;; google-chrome — bumped ahead of nonguix: 148.0.7778.215 -> 149.0.7827.155
+;;; google-chrome — bumped ahead of nonguix: 148.0.7778.215 -> 150.0.7871.186
 ;;; (latest STABLE per Google's version-history API).  nonguix's
 ;;; `make-google-chrome' is version-parameterised, so we just call it with the
 ;;; new version + a real downloaded .deb hash (clean, no inherit-baking).
-;;; Hash: `guix download .../google-chrome-stable_150.0.7871.181-1_amd64.deb'.
+;;; Hash: `guix download .../google-chrome-stable_150.0.7871.186-1_amd64.deb'.
 (define-public google-chrome-stable
   (chrome:make-google-chrome
-   "stable" "150.0.7871.181"
-   "1x4j9pv1mds0vxn517m7bi7qfqh1dr3k7a3p1525l8xiyw2hkigy"))
+   "stable" "150.0.7871.186"
+   "004xf4n1xk7r1cz7n1ybx2h6lm4ghsb9b9ppcgp6jnaxdl5y14s1"))

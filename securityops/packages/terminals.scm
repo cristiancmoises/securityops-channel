@@ -20,16 +20,16 @@
   #:use-module ((gnu packages terminals) #:prefix gnu:))
 
 ;;; ---------------------------------------------------------------------------
-;;; Go dependencies NEW in kitty 0.47.x that Guix's kitty 0.46.2 does not carry.
-;;; Guix wires kitty's ~20 Go modules as explicit native-inputs; 0.47.x added
-;;; these two, so an inherit+version bump alone fails to build ("cannot find
+;;; Go dependencies NEW in kitty 0.47+ that Guix's kitty 0.46.2 does not carry.
+;;; Guix wires kitty's ~20 Go modules as explicit native-inputs; 0.47+ added
+;;; these, so an inherit+version bump alone fails to build ("cannot find
 ;;; package github.com/emmansun/base64 …").  Both are tiny: their only non-test
 ;;; dependency is golang.org/x/sys, already in Guix.
 ;;; ---------------------------------------------------------------------------
 (define-public go-github-com-emmansun-base64
   (package
     (name "go-github-com-emmansun-base64")
-    (version "0.9.0")
+    (version "0.10.0")
     (source
      (origin
        (method git-fetch)
@@ -38,7 +38,7 @@
              (commit (string-append "v" version))))
        (file-name (git-file-name name version))
        (sha256
-        (base32 "0c1i624nkqb3zcrx5gnmynjg2yvlsglygaw7ms8vry5153dr6i51"))))
+        (base32 "0mkkk9xhc55jfq1nbavb8vivv2xb8sp0l807ci0ak3aimxxjqj9c"))))
     (build-system go-build-system)
     (arguments (list #:import-path "github.com/emmansun/base64"))
     (propagated-inputs (list gb:go-golang-org-x-sys))
@@ -74,12 +74,12 @@ kitty's @code{watch} kitten.")
     (license license:expat)))
 
 ;;; ---------------------------------------------------------------------------
-;;; kitty — bumped ahead of Guix: 0.46.2 -> 0.48.0 (latest upstream).
+;;; kitty — bumped ahead of Guix: 0.46.2 -> 0.48.1 (latest upstream).
 ;;;
 ;;; Inherits the upstream package and ORIGIN so the docs-build snippet and
 ;;; module list are preserved verbatim; only the git tag and the content hash
 ;;; change.  `version' is in scope inside `source', so the v-tag tracks it.
-;;; Hash is Guix's own git-fetch of tag v0.48.0 (authoritative — a plain
+;;; Hash is Guix's own git-fetch of tag v0.48.1 (authoritative — a plain
 ;;; `guix hash -rx' over a working tree can differ from the git-fetch fixed
 ;;; output, so always take the value Guix reports on a hash mismatch).
 ;;; ---------------------------------------------------------------------------
@@ -87,11 +87,13 @@ kitty's @code{watch} kitten.")
 ;;; kitty 0.48 (imported once, in the notify kitten); Guix does not package it,
 ;;; so define it here.  kitty builds in GOPATH mode, so only genuinely-imported
 ;;; deps need providing — the other go.mod bumps (chroma, x/sys, …) are used
-;;; from Guix's existing sources.
+;;; from Guix's existing sources.  Kitty's go.mod names 0.10.1, but GOPATH mode
+;;; does not consume module-version metadata; the compatible 0.10.2 patch
+;;; release was therefore build- and run-verified with Kitty 0.48.1.
 (define-public go-github-com-ebitengine-purego
   (package
     (name "go-github-com-ebitengine-purego")
-    (version "0.10.1")
+    (version "0.10.2")
     (source
      (origin
        (method git-fetch)
@@ -100,7 +102,7 @@ kitty's @code{watch} kitten.")
              (commit (string-append "v" version))))
        (file-name (git-file-name name version))
        (sha256
-        (base32 "12bcfb1zwrk5pc1spkbpd0ymvkpwhfyk9ni77p164pp7c3r21bkv"))))
+        (base32 "116f20maszn27178al7cj3w428n2kixp9ys9jzf6i17y5qapkszh"))))
     (build-system go-build-system)
     (arguments (list #:import-path "github.com/ebitengine/purego"
                      #:tests? #f))
@@ -113,7 +115,7 @@ loading shared libraries and dispatching into them at runtime.")
 (define-public kitty
   (package
     (inherit gnu:kitty)
-    (version "0.48.0")
+    (version "0.48.1")
     (source
      (origin
        (inherit (package-source gnu:kitty))
@@ -122,7 +124,7 @@ loading shared libraries and dispatching into them at runtime.")
              (commit (string-append "v" version))))
        (file-name (git-file-name (package-name gnu:kitty) version))
        (sha256
-        (base32 "1nbfkkjcs5c54w5fd02djljxl90fykmc5w470mrs1yrhfilyq7gv"))))
+        (base32 "0f9kwfg38x7a34ix9wg56blg0l3hjxksw1819si6wks4s7vl91w7"))))
     ;; kitty's tests need a real environment the build sandbox lacks
     ;; (kitty_tests/dnd_kitten imports the display-only graphics module Guix
     ;; strips; the Go TestMachineId needs /etc/machine-id).  The release is

@@ -14,12 +14,22 @@ você os instala, e eles acompanhem o Guix automaticamente); pacotes que estão
 
 - **Host:** `predator-helios-intel` (a máquina do `/etc/config.scm` ativo)
 - **Guix fixado:** commit `d1e9e23` (junho/2026); **depende de** `nonguix`
+- **Atualização de 2026-07-25 (compilada, instalada e verificada nos
+  perfis):** `fish` 4.8.1, `kitty` 0.48.1 (com
+  `go-github-com-emmansun-base64` 0.10.0 e `go-github-com-ebitengine-purego`
+  0.10.2), `google-chrome-stable` 150.0.7871.186, `ungoogled-chromium-bin`
+  150.0.7871.186-1, `evelin-bin` 4.3.0, `turborec` 3.7.0,
+  `moneyprinterturbo` 1.3.3, `mtr` 0.96, `sdb` 2.4.8, `radare2` 6.1.8 e
+  `rizin` 0.9.1. Todas as compilações passaram; o Fish também passou 197/197
+  testes de integração e 272 testes Cargo. O perfil Home contém Fish, Kitty,
+  Chrome, Chromium e MoneyPrinterTurbo; o perfil de usuário contém Evelin,
+  TurboRecorder, MTR, SDB, Radare2 e Rizin.
 - **Mantenedor:** Cristian Cezar Moisés `<ethicalhacker@riseup.net>`
 - **Casa:** [`https://git.securityops.co/cristiancmoises/securityops-channel`](https://git.securityops.co/cristiancmoises/securityops-channel) (oficial) · espelhos: [Codeberg](https://codeberg.org/berkeley/securityops-channel) · [GitHub](https://github.com/cristiancmoises/securityops-channel)
 - **Assinatura:** todo commit é assinado com GPG (ed25519 `0CFA 43B9 … ECFB 46E8`) e o canal é autenticado (veja [Publicação e autenticação](#publicação-e-autenticação))
 
-> A lista completa de pacotes (índice de 50 pacotes), com versões e a última
-> mudança de cada um, está no [README em inglês](README.md#-full-package-index-50-packages).
+> A lista completa de pacotes (índice de 51 pacotes), com versões e a última
+> mudança de cada um, está no [README em inglês](README.md#-full-package-index-51-packages).
 > Este documento cobre tudo que um usuário brasileiro precisa para **instalar,
 > usar, verificar e manter** o canal, além de uma visão geral dos pacotes.
 
@@ -56,8 +66,8 @@ Depois:
 
 ```sh
 guix pull
-guix install kitty tor torbrowser openshot google-chrome-stable mullvad-vpn-desktop
-# o restante resolve para o mesmo pacote que o guix/nonguix entrega
+guix install kitty fish tor torbrowser openshot google-chrome-stable \
+  ungoogled-chromium-bin mullvad-vpn-desktop mtr sdb radare2 rizin
 ```
 
 Como todo pacote aqui tem versão **≥** ao que o guix/nonguix entrega,
@@ -106,8 +116,8 @@ git -C securityops-channel log --show-signature -1
 
 ## O conjunto curado
 
-O canal define **50 pacotes** em 5 classes. O índice completo (versão + última
-mudança de cada um) fica no [README em inglês](README.md#-full-package-index-50-packages);
+O canal define **51 pacotes** em 5 classes. O índice completo (versão + última
+mudança de cada um) fica no [README em inglês](README.md#-full-package-index-51-packages);
 abaixo, a visão por categoria.
 
 ### ⬆️ À frente do Guix / nonguix (hashes reais baixados)
@@ -116,30 +126,36 @@ Pacotes com versão própria, à frente do que o Guix/nonguix entrega:
 
 | Pacote | Versão | Fonte |
 |---|---|---|
-| **kitty** | 0.48.0 | tag git `v0.48.0` (+ 3 deps Go vendorizadas; `GOTOOLCHAIN=local`) |
+| **kitty** | 0.48.1 | tag git `v0.48.1` (+ 3 deps Go vendorizadas; `GOTOOLCHAIN=local`) |
+| **fish** | 4.8.1 | fonte oficial + conjunto de crates offline correspondente ao Cargo.lock; 197/197 testes de integração e 272 testes Cargo |
 | **tor** | 0.4.9.11 | tarball dist.torproject.org |
 | **torbrowser** | 15.0.19 | build de fonte + ThinLTO (veja ressalvas) |
 | **torbrowser-assets** | 15.0.19 | bundle oficial (fontes + torrc-defaults) |
 | **openshot** | 3.5.1 | tag git `v3.5.1` |
-| **google-chrome-stable** | 150.0.7871.181 | `.deb` do dl.google.com |
+| **google-chrome-stable** | 150.0.7871.186 | `.deb` do dl.google.com |
 | **mullvad-vpn-desktop** | 2026.3 | `.deb` do cdn.mullvad.net (vendorizado) |
 | **librewolf** | 153.0-3 | build de fonte (`make-librewolf-source` vendorizado) |
 | **steam** | 1.0.0.87 | beta da Valve (contêiner nonguix) |
 | **glances** | 4.5.5 | tag git `v4.5.5` (+ `pyinstrument` 5.1.2) |
 | **lynis** | 3.1.7 | tag git `3.1.7` (plugins proprietários removidos) |
-| **nmap** | 7.99 · **fping** 5.5 · **hydra** 9.7 | ferramentas de segurança à frente do Guix |
+| **nmap** | 7.99 · **fping** 5.5 · **hydra** 9.7 · **mtr** 0.96 | ferramentas de rede/segurança à frente do Guix |
+| **sdb** | 2.4.8 | dependência offline atual do Radare2; à frente do Guix 2.4.2 |
+| **radare2** | 6.1.8 | Zydis/Zycore do sistema + `sdb` 2.4.8 do canal |
+| **rizin** | 0.9.1 | flags Meson/dependências de sistema atualizadas; suíte completa aprovada |
 
 ### 🄟 Binário pré-compilado
 
-- **ungoogled-chromium-bin** `150.0.7871.128-1` — build portátil oficial para
-  Linux x86_64 (verificado por sha256, empacotado com o
-  `chromium-binary-build-system` do nonguix). É o chromium recomendado no `PATH`.
+- **ungoogled-chromium-bin** `150.0.7871.186-1` — release PortableLinux x86_64
+  oficial atual (o asset chegou durante a validação final em 2026-07-25),
+  verificado pelo digest sha256 da API e empacotado com o
+  `chromium-binary-build-system` do nonguix. É a versão recomendada no `PATH`;
+  `chromium --version` retorna `Chromium 150.0.7871.186`.
 
 ### ✅ Re-exportados — já mais recentes no Guix/nonguix
 
 Acompanham o Guix automaticamente:
-`alacritty` 0.17.0 · `fish` 4.7.1 · `emacs` 30.2 · `emacs-pgtk` 30.2 ·
-`mpv` 0.41.0 · `vlc` 3.0.23 · `keepassxc` 2.7.12 · `ueberzugpp` 2.9.10 · `lf` 41
+`alacritty` 0.17.0 · `emacs` 30.2 · `emacs-pgtk` 30.2 · `mpv` 0.41.0 ·
+`vlc` 3.0.23 · `keepassxc` 2.7.12 · `ueberzugpp` 2.9.10 · `lf` 41
 
 ### 🄕 Apps primeiros (first-party) da forja `git.securityops.co/cristiancmoises`
 
@@ -150,14 +166,14 @@ Cada app vive no próprio repositório na forja. Para o canal ser
 
 | Pacote | Versão | O quê |
 |---|---|---|
-| **evelin-bin** | 4.2.0 | transporte pós-quântico (7 binários estáticos musl) |
+| **evelin-bin** | 4.3.0 | transporte pós-quântico (7 binários estáticos musl); cliente silencioso por padrão e cópia no estilo scp, sem mudanças nos formatos de protocolo/chaves/tickets |
 | **btp** | 0.7 | Rust; binários patchelf'd (`btpctl`, `btpd`) |
 | **mirim** | 1.1.0 | cofre pós-quântico + assinatura ML-DSA-87 (binários pré-compilados) |
 | **torando-gui** | 1.3.4 | daemon de controle Tor + GUI GTK4; serviço Shepherd |
 | **vaptvupt** (+`-gui`) | 5.2.1 | compressor de backup pós-quântico (ML-KEM-768/FIPS 203) |
-| **turborec** | 3.6.0 | gravador de tela/áudio; streaming ao vivo, webcam PiP |
+| **turborec** | 3.7.0 | gravador de tela/áudio; padrões automáticos, validação de dispositivos/encoders, fallback Pulse no Linux e correções multiplataforma |
 | **esquema** | 0.2.0 | runtime de contêiner rootless nativo em Guile |
-| **moneyprinterturbo** | 1.3.2 | gerador de vídeos curtos por IA (vendorizado; fontes proprietárias removidas) |
+| **moneyprinterturbo** | 1.3.3 | gerador de vídeos curtos por IA; prévia de voz, modos de BGM, velocidade/transições, recuperação e avisos de atualização (mesma política de vendorização/poda de fontes) |
 
 ### ⚠️ Re-exportado — existe upstream mais novo, mas o bump é impraticável aqui
 
@@ -168,7 +184,8 @@ Cada app vive no próprio repositório na forja. Para o canal ser
   baixados*). O que é **impossível sob Tor** é **subir para uma versão mais nova**
   de fonte: o tarball-base "-lite" do Chromium novo só existe no GCS do Google
   (bloqueia 403 todo nó de saída Tor) e ainda não tem substituto. Para um motor
-  **atual**, use o `ungoogled-chromium-bin` (150) acima.
+  **atual**, use o `ungoogled-chromium-bin` `.186-1` acima, cujo asset
+  PortableLinux foi publicado durante a validação final.
 
 ---
 
@@ -207,25 +224,27 @@ a seção *Esquema* no [README em inglês](README.md#esquema--rootless-guile-nat
 
 ## Consumindo o canal em `/etc/config.scm` e `home.scm`
 
-Um `kitty` / `tor` / `torbrowser` / `google-chrome-stable` "pelado", escrito
-contra `(gnu packages …)` / `(nongnu packages …)`, resolve para o pacote
-*próprio do guix* (mais antigo), **não** para o deste canal — as ligações de
-módulo são resolvidas pelo módulo que você importa, enquanto o
-`guix install <nome>` é que escolhe a maior versão pelo nome. Então, para rodar
-as versões atualizadas de forma declarativa, importe o módulo do canal com um
+Um pacote atualizado "pelado", como `kitty`, `fish`, `radare2` ou
+`google-chrome-stable`, escrito contra `(gnu packages …)` / `(nongnu packages
+…)`, resolve para o pacote *próprio do guix* (mais antigo), **não** para o deste
+canal — as ligações de módulo são resolvidas pelo módulo que você importa,
+enquanto `guix install <nome>` escolhe a maior versão pelo nome. Para rodar as
+versões atualizadas de forma declarativa, importe o módulo do canal com um
 prefixo e use o símbolo prefixado:
 
 ```scheme
 ;; em (use-modules …)
 ((securityops packages terminals) #:prefix so:)   ; so:kitty
+((securityops packages shells)    #:prefix so:)   ; so:fish
 ((securityops packages tor)       #:prefix so:)   ; so:tor, so:torbrowser
 ((securityops packages browsers)  #:prefix so:)   ; so:google-chrome-stable, so:ungoogled-chromium-bin
+((securityops packages security)  #:prefix so:)   ; so:mtr, so:sdb, so:radare2, so:rizin
 ((securityops packages vpn)       #:prefix so:)   ; so:mullvad-vpn-desktop
 ((securityops packages video)     #:prefix so:)   ; so:openshot
 ((securityops packages games)     #:prefix so:)   ; so:steam
 ((securityops packages monitoring) #:prefix so:)  ; so:glances
 
-;; …e na lista de pacotes use so:kitty, so:tor, so:torbrowser, …
+;; …e na lista de pacotes use so:kitty, so:fish, so:radare2, …
 ;; e, para o daemon, sobrescreva o campo do serviço:
 (service mullvad-daemon-service-type
          (mullvad-daemon-configuration
@@ -262,7 +281,8 @@ diretamente.
   tarball-base "-lite" do Chromium novo só existe no GCS do Google (bloqueia 403
   todo nó de saída Tor) e ainda não tem substituto. Por isso, para um motor
   atual, o canal entrega o binário oficial pré-compilado `ungoogled-chromium-bin`
-  (150).
+  `150.0.7871.186-1`. O asset PortableLinux atual chegou durante a validação
+  final e foi verificado pelo digest sha256 oficial.
 - **Mullvad (vendorizado, apenas x86_64).** Fixado na versão estável publicada;
   vendorizado porque as fases de build embutem `version` no passo de descompactar
   o `.deb`.
@@ -274,21 +294,26 @@ A lista completa de ressalvas está no
 
 ## Mantendo os pacotes atualizados — `./update-channel`
 
-Um comando confere cada pacote do canal contra o upstream e aplica as
-atualizações que o Guix consegue fazer com segurança:
+Um comando relata as versões que os updaters conseguem enxergar e pode aplicar
+as alterações de receita que o Guix suporta:
 
 ```sh
-./update-channel                       # confere: atual vs mais recente de cada pacote
-./update-channel update --build --commit   # aplica os updates via guix-refresh, verifica o build, assina o commit
+./update-channel                       # relata versão atual vs candidatas visíveis
+./update-channel update --build --commit   # aplica alterações suportadas, compila e assina
 ```
 
-- **Automático** (via `guix refresh -u` — reescreve `version` + `sha256` real):
-  os pacotes com base em github/gnu/pypi (`openshot`, `tor`, `glances`, …).
+- **Automático onde suportado** (via `guix refresh -u` — reescreve `version` +
+  `sha256` real): pacotes com base em github/gnu/pypi (`openshot`, `tor`,
+  `glances`, …). A opção `--build` valida as derivações geradas; só conferir não
+  valida a compilação, a execução nem a ativação do perfil.
 - **Reportado, aplique deliberadamente:** builds de fonte (`torbrowser`,
   `librewolf` — auto-bump dispara compilações de horas) e pacotes
   binários/vendorizados (`google-chrome-stable`, `steam`,
   `mullvad-vpn-desktop`, `ungoogled-chromium-bin`, os apps first-party). A
-  ferramenta mostra a versão exata do upstream e o arquivo a editar.
+  ferramenta mostra a candidata do upstream e o arquivo a editar, mas ainda é
+  preciso inspecionar os assets e validar à parte. O asset PortableLinux
+  ungoogled-chromium `.186-1`, por exemplo, chegou depois da conferência inicial
+  e foi encontrado na validação final.
 
 ---
 
