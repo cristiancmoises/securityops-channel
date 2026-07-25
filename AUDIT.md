@@ -4,7 +4,9 @@
 A deep version audit of **every package declared** in `/etc/config.scm` (system)
 and `~/.config/guix/home.scm` (home), against the latest upstream, on host
 `predator-helios-intel`. Compiled 2026-06-21; channel-handled section refreshed
-2026-06-30; Guix pin `d1e9e23` (Jun 2026).
+2026-07-25; Guix pin `d1e9e23` (Jun 2026). The large system/home tables remain
+the original audit snapshot; the channel-handled reconciliation below is
+current.
 
 **Method:** package symbols were extracted from each `(packages …)` form, each
 resolved with `guix show` ("your version") and checked with `guix refresh`
@@ -18,30 +20,49 @@ single most behind is **docker 20.10.27 → 29.6.0** (nine majors; runners-up:
 containerd 1.6.22 → 2.3.2, openssl 3.5.7 → 4.0.1, nix 2.25.5 → 2.34.7,
 **gopls 0.22.0 → 0.46.0**).
 
-> **Scope = report only.** This audits versions; it does NOT touch
-> `config.scm`/`home.scm` — your configs are untouched. Bump anything here (or
-> fold it into this channel) as you see fit.
+> **Scope of the main tables = audit snapshot.** This refresh did not bulk-edit
+> the 391 system/Home packages listed below. The active `home.scm` only gained
+> the channel-backed Fish provider needed to activate Fish 4.8.1; the channel
+> package updates themselves are recorded in the reconciliation section.
 
 ## Handled by securityops-channel
 
-These declared apps are provided by this channel at the latest version, so treat
-any "outdated" row for them below as **already addressed here**:
+These declared apps are provided by this channel at the latest buildable release
+(or, for binary packages, the newest release with the required asset), so treat
+any "outdated" row for them below as **already addressed in the channel**:
 
-- **Bumped ahead of Guix/nonguix:** `kitty` 0.48.0, `tor` 0.4.9.11,
-  `torbrowser` 15.0.19, `openshot` 3.5.1, `google-chrome-stable` 150.0.7871.181,
+- **Bumped ahead of Guix/nonguix:** `fish` 4.8.1, `kitty` 0.48.1, `tor` 0.4.9.11,
+  `torbrowser` 15.0.19, `openshot` 3.5.1, `google-chrome-stable` 150.0.7871.186,
   `mullvad-vpn-desktop` **2026.3** (bumped 2026-06-22), `librewolf` **153.0-3**
   (major 152→153; the rest re-verified as still-latest),
   `steam` **1.0.0.87** (nonguix bootstrap 1.0.0.85; container rebuilt around the
   bumped bootstrap, 2026-06-24), `glances` **4.5.5** (guix 4.3.0; from-source
   bump with the new `pyinstrument` 5.1.2 core dep, 2026-06-30), `lynis` **3.1.7**
   (guix 3.1.1; shell auditing tool, from-source bump, 2026-06-30).
-- **Already latest (re-exported):** `alacritty`, `fish`, `emacs`, `emacs-pgtk`,
-  `mpv`, `vlc`, `keepassxc`, `ueberzugpp`, `lf`.
+- **Hermetic/source refreshes completed 2026-07-25:** Fish **4.8.1** now has an
+  offline Cargo.lock-matched source recipe and passed **197/197 integration
+  tests plus 272 Cargo tests**. `mtr` **0.96**, `sdb` **2.4.8**, `radare2`
+  **6.1.8**, and `rizin` **0.9.1** also build successfully, superseding their
+  earlier deferrals; Rizin's complete test suite passes.
+- **Vendored apps refreshed 2026-07-25:** `evelin-bin` **4.3.0**, `turborec`
+  **3.7.0**, and `moneyprinterturbo` **1.3.3**. Their established vendoring and
+  source/font-pruning policies are unchanged; all built and passed their
+  runtime/version checks. Kitty's internal `go-github-com-emmansun-base64`
+  dependency is now **0.10.0**. The GOPATH-compatible
+  `go-github-com-ebitengine-purego` patch release is now **0.10.2** and was
+  validated by a full Kitty rebuild.
+- **Already latest (re-exported):** `alacritty`, `emacs`, `emacs-pgtk`, `mpv`,
+  `vlc`, `keepassxc`, `ueberzugpp`, `lf`.
 - **ungoogled-chromium:** source-build `ungoogled-chromium` stays at 147 (a
   from-source bump is impossible over Tor — Google's GCS 403-blocks the "-lite"
   base tarball for any version without a guix substitute). Latest ungoogled is
-  shipped instead as `ungoogled-chromium-bin` 149.0.7827.200-1 — official upstream
-  prebuilt, GitHub-hosted, sha256-verified, build-and-run verified.
+  shipped instead as `ungoogled-chromium-bin` 150.0.7871.186-1 — official
+  upstream prebuilt, GitHub-hosted, sha256-verified, build-and-run verified.
+  Its PortableLinux asset arrived during the final validation sweep.
+
+> The refreshed packages are installed and profile-verified: Home contains
+> Fish, Kitty, Chrome, Chromium, and MoneyPrinterTurbo; the user profile contains
+> Evelin, TurboRecorder, MTR, SDB, Radare2, and Rizin.
 
 ## Active `home.scm` reconciliation
 
@@ -63,8 +84,8 @@ active config):
 | fd | 10.4.2 | 10.4.2 | ✅ latest |
 | ripgrep | 15.1.0 | 15.1.0 | ✅ latest |
 | aspell-dict-en | 2020.12.07-0 | — | ❔ no updater |
-| ungoogled-chromium (source) | 147.0.7727.137-1 | 149.0.7827.200-1 | ⛔ source unbuildable over Tor (GCS 403) |
-| ungoogled-chromium-bin | 149.0.7827.200-1 | 149.0.7827.200-1 | ✅ prebuilt, sha256+run verified |
+| ungoogled-chromium (source) | 147.0.7727.137-1 | 150.0.7871.186-1 | ⛔ newer source unbuildable over Tor (GCS 403) |
+| ungoogled-chromium-bin | 150.0.7871.186-1 | 150.0.7871.186-1 | ✅ active Home profile; sha256+build+runtime verified |
 
 ---
 
@@ -483,4 +504,3 @@ A total of **391** explicitly-declared packages were audited across the two conf
 | wmctrl | Home | 1.07 | updater failed |
 | yarn | System | 1.22.22 | no updater |
 | zip | Home | 3.0 | updater failed |
-
