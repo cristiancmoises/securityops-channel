@@ -13,8 +13,10 @@
   #:use-module (guix packages)
   #:use-module (guix download)
   #:use-module (guix git-download)
+  #:use-module (guix gexp)
   #:use-module (guix utils)
   #:use-module ((gnu packages admin) #:prefix adm:)
+  #:use-module ((gnu packages databases) #:prefix db:)
   #:use-module ((gnu packages networking) #:prefix net:)
   #:use-module ((gnu packages password-utils) #:prefix pw:)
   #:use-module ((gnu packages engineering) #:prefix eng:)
@@ -46,11 +48,20 @@
        (uri (string-append "https://fping.org/dist/fping-" version ".tar.gz"))
        (sha256
         (base32 "1zhqxs3pif3b68kp36mz67d2w6yaqy8qqgp0mxdi1zsmdhmy7i0m"))))))
-;; mtr: kept on Guix (0.95).  Upstream 0.96 moved `utils.h' to ui/ but its
-;; packet/*.c still `#include "utils.h"' without that path, so a plain
-;; version+source bump fails to build; leave it tracking Guix until upstream
-;; (or Guix) fixes the include path.
-(define-public mtr net:mtr)
+;; mtr — the official 0.96 release is a clean version/source bump over Guix's
+;; 0.95 recipe.  Both packet/utils.h and ui/utils.h are present in the release;
+;; no downstream include-path patch is required.
+(define-public mtr
+  (package
+    (inherit net:mtr)
+    (version "0.96")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (string-append "https://www.bitwizard.nl/mtr/files/mtr-"
+                           version ".tar.gz"))
+       (sha256
+        (base32 "0yh3544x4rhrhcp92s2svznbqf8jknzrznphl8g6qqazingrmlgz"))))))
 (define-public whois net:whois)
 (define-public proxychains-ng net:proxychains-ng)
 
@@ -75,16 +86,89 @@
         (base32 "13l0kfi97mmiizk0j68wyfmwrr9hiz48s4rxc8crjd1zv75lg0z9"))))))
 
 ;;; Reverse engineering / firmware / forensics.
-;; radare2: kept on Guix.  Upstream 6.1.x made `zydis' (github zyantific/zydis)
-;; a hard meson subproject for x86 disassembly; it is not in Guix, so an offline
-;; build of 6.1.8 fails fetching zydis-amalgamated.  Needs zydis packaged first;
-;; leave tracking Guix until then.
-(define-public radare2 eng:radare2)
-;; rizin: kept on Guix (0.8.2).  Upstream 0.9 reworked its meson options (Guix's
-;; inherited configure-flags pass `-Duse_swift_demangler=true', removed in 0.9),
-;; so a bump needs the flag set re-derived against 0.9; deferred — leave tracking
-;; Guix until its own bump.
-(define-public rizin eng:rizin)
+;; radare2 6.1.8 needs the new system-Zydis option and sdb >= 2.4.6.  Guix has
+;; Zydis/Zycore, but its sdb 2.4.2 lacks sdb_rename; package current sdb 2.4.8
+;; and keep Guix's patches that force offline system sdb/QuickJS builds.
+(define-public sdb
+  (package
+    (inherit db:sdb)
+    (version "2.4.8")
+    (source
+     (origin
+       (inherit (package-source db:sdb))
+       (uri (git-reference
+             (url "https://github.com/radareorg/sdb")
+             (commit version)))
+       (file-name (git-file-name "sdb" version))
+       (sha256
+        (base32 "0iwix941jbiwxw4jal6jvppvp0ls3yqjxslkw7c7g62i7d14inn8"))))))
+
+(define-public radare2
+  (package
+    (inherit eng:radare2)
+    (version "6.1.8")
+    (source
+     (origin
+       (inherit (package-source eng:radare2))
+       (uri (git-reference
+             (url "https://github.com/radareorg/radare2")
+             (commit version)))
+       (file-name (git-file-name "radare2" version))
+       (sha256
+        (base32 "1p8h3wwmbaizxj08pif2mk8vcq2xiv5yavhdgcdwf8mcyp99c7qs"))))
+    (arguments
+     (substitute-keyword-arguments (package-arguments eng:radare2)
+       ((#:configure-flags flags #~'())
+        #~(append #$flags
+                  (list "-Duse_sys_zydis=true")))))
+    (inputs
+     (modify-inputs (package-inputs eng:radare2)
+       (replace "sdb" sdb)
+       (append eng:zydis eng:zycore)))))
+
+;; Rizin 0.9 removed the Swift-demangler option and added a Zydis backend.
+;; Use Guix's system libraries except OpenSSL: 0.9.1's system-OpenSSL SHA3
+;; plugin is named sha3_224 while the public API/tests require sha3-224.
+;; Rizin's bundled hash implementation is offline, passes the complete suite,
+;; and returns the expected digest.
+(define-public rizin
+  (package
+    (inherit eng:rizin)
+    (version "0.9.1")
+    (source
+     (origin
+       (inherit (package-source eng:rizin))
+       (uri (string-append
+             "https://github.com/rizinorg/rizin/releases/download/v"
+             version "/rizin-src-v" version ".tar.xz"))
+       (sha256
+        (base32 "1jixajg107lxhdqywvs97s0izz27yyqphm718akxvbx7miywvhbs"))))
+    (arguments
+     (substitute-keyword-arguments (package-arguments eng:rizin)
+       ((#:configure-flags _)
+        #~(list "--wrap-mode=nodownload"
+                "-Dpackager=guix"
+                (string-append "-Dpackager_version=" #$version)
+                "-Duse_sys_capstone=enabled"
+                "-Duse_sys_magic=enabled"
+                "-Duse_sys_zydis=enabled"
+                "-Duse_sys_libzip=enabled"
+                "-Duse_sys_zlib=enabled"
+                "-Duse_sys_lz4=enabled"
+                "-Duse_sys_libzstd=enabled"
+                "-Duse_sys_xxhash=enabled"
+                "-Duse_sys_openssl=disabled"
+                "-Duse_sys_tree_sitter=enabled"
+                "-Duse_sys_lzma=enabled"
+                "-Duse_sys_libmspack=enabled"
+                "-Duse_sys_pcre2=enabled"
+                "-Duse_zlib=true"
+                "-Duse_lzma=true"
+                "-Dinstall_sigdb=false"
+                "-Duse_gpl=true"))))
+    (inputs
+     (modify-inputs (package-inputs eng:rizin)
+       (append eng:zydis eng:zycore)))))
 (define-public binwalk fw:binwalk)
 
 ;;; Crypto

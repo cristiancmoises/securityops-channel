@@ -73,15 +73,15 @@
         libinput-minimal mtdev libevdev eudev))
 
 ;;; evelin — post-quantum transport (ML-KEM-1024 / ML-DSA-87 / ChaCha20-Poly1305).
-;;; Packaged from the OFFICIAL upstream static-musl release tarball (v4.1.1),
+;;; Packaged from the OFFICIAL upstream static-musl release tarball (v4.3.0),
 ;;; matching your existing ~/Downloads/evelin.scm.  Fully static (musl,
 ;;; link-self-contained): no runtime inputs, no patchelf, no grafting.
 ;;; Ships ev + client/server/agent/keygen/keyscan/multisig-verify, man pages, docs.
 (define-public evelin-bin
   (package
     (name "evelin-bin")
-    (version "4.2.0")
-    (source (local-file "sources/evelin-v4.2.0-linux-x86_64-musl.tar.gz"))
+    (version "4.3.0")
+    (source (local-file "sources/evelin-v4.3.0-linux-x86_64-musl.tar.gz"))
     (build-system copy-build-system)
     (arguments
      (list
@@ -432,11 +432,12 @@ launcher pins the matching @code{vaptvupt} CLI from the store via
     (home-page "https://git.securityops.co/cristiancmoises/vaptvupt")
     (license license:agpl3+)))
 
-;;; turborec — Turbo Recorder 3.6.0: a hardware-accelerated Linux screen + audio
+;;; turborec — Turbo Recorder 3.7.0: a hardware-accelerated screen + audio
 ;;; recorder.  `turborec.py' is a pure-stdlib Python CLI with a Tkinter GUI (the
-;;; `gui' subcommand); `turborecorder' is an X11 bash launcher that builds a
-;;; quality-first FFmpeg pipeline (NVENC > VAAPI > x264).  Built FROM SOURCE with
-;;; copy-build-system (no compile): the two scripts install under lib/, and
+;;; `gui' subcommand); `turborecorder' is a Linux X11/Wayland bash launcher that
+;;; builds a quality-first FFmpeg pipeline (NVENC > VAAPI > x264).  Built FROM
+;;; SOURCE with copy-build-system (no compile): the two scripts install under
+;;; lib/, and
 ;;; self-contained `#!/bin/sh' shims in bin/ pin the store python3/bash and
 ;;; prepend the store bins of the tools they exec (ffmpeg, pactl, xrandr,
 ;;; xdpyinfo, lspci).  The Tkinter GUI gets the python `tk' output (which carries
@@ -445,8 +446,8 @@ launcher pins the matching @code{vaptvupt} CLI from the store via
 (define-public turborec
   (package
     (name "turborec")
-    (version "3.6.0")
-    (source (local-file "sources/turborec-3.6.0-src.tar.gz"))
+    (version "3.7.0")
+    (source (local-file "sources/turborec-3.7.0-src.tar.gz"))
     (build-system copy-build-system)
     (inputs
      `(("python" ,python)
@@ -529,20 +530,20 @@ exec ~a ~a/turborecorder \"$@\"\n"
                    (string-append "Icon=" out
                                   "/share/icons/hicolor/scalable/apps/turborec.svg")))))))))
     (supported-systems '("x86_64-linux"))
-    (synopsis "Hardware-accelerated Linux screen + audio recorder (FFmpeg, X11)")
+    (synopsis "Hardware-accelerated screen and audio recorder")
     (description
      "Turbo Recorder captures the screen and audio into a quality-first FFmpeg
 pipeline, auto-detecting the best hardware encoder (NVIDIA NVENC, then Intel/AMD
 VAAPI, then software x264), the native screen resolution, and the default
 microphone and system-audio sources.  @command{turborec} is a cross-platform
 Python CLI with a Tkinter GUI (@command{turborec gui}); @command{turborecorder}
-is an X11 bash launcher.  Built from source and self-contained: the launchers
-pin the store @code{python3}/@code{bash} and the tools they call (@code{ffmpeg},
-@code{pactl}, @code{xrandr}, @code{xdpyinfo}, @code{lspci}).")
+is a Linux X11/Wayland bash launcher.  Built from source and self-contained: the
+launchers pin the store @code{python3}/@code{bash} and the tools they call
+(@code{ffmpeg}, @code{pactl}, @code{xrandr}, @code{xdpyinfo}, @code{lspci}).")
     (home-page "https://git.securityops.co/cristiancmoises/turborec")
     (license license:gpl3)))
 
-;;; moneyprinterturbo — one-click AI short-video generator (harry0703 v1.3.2).
+;;; moneyprinterturbo — one-click AI short-video generator (harry0703 v1.3.3).
 ;;; THIRD-PARTY Python app with a huge, partly-unpackaged dependency tree
 ;;; (streamlit, moviepy, edge-tts, litellm, faster-whisper, the cloud SDKs), so a
 ;;; full native python-build-system package is infeasible here.  Instead this ships
@@ -576,8 +577,8 @@ pin the store @code{python3}/@code{bash} and the tools they call (@code{ffmpeg},
 (define-public moneyprinterturbo
   (package
     (name "moneyprinterturbo")
-    (version "1.3.2")                    ;upstream's latest tag is v1.3.2
-    (source (local-file "sources/moneyprinterturbo-1.3.2-src.tar.gz"))
+    (version "1.3.3")                    ;upstream's latest tag is v1.3.3
+    (source (local-file "sources/moneyprinterturbo-1.3.3-src.tar.gz"))
     (build-system copy-build-system)
     (inputs
      `(("python" ,python)
@@ -653,7 +654,7 @@ set -e
 export PATH=\"~a${PATH:+:$PATH}\"
 STORE_SHARE=\"~a\"
 APP_HOME=\"${MPT_HOME:-${XDG_DATA_HOME:-$HOME/.local/share}/moneyprinterturbo}\"
-VERSION=\"1.3.2\"
+VERSION=\"1.3.3\"
 export TORSOCKS_ALLOW_INBOUND=1
 export TORSOCKS_CONF_FILE=\"~a\"
 export GRPC_DNS_RESOLVER=native
@@ -696,7 +697,7 @@ export PYTHONPATH=\"$APP_HOME${PYTHONPATH:+:$PYTHONPATH}\"
      "MoneyPrinterTurbo generates short-form videos from a topic: an LLM writes the
 script and keywords, stock B-roll is pulled from Pexels/Pixabay, edge-tts adds a
 voice-over, subtitles are burned in, and FFmpeg assembles the final clip.  This
-package ships the upstream v1.3.2 source (proprietary CJK fonts removed; WenQuanYi
+package ships the upstream v1.3.3 source (proprietary CJK fonts removed; WenQuanYi
 Zen Hei bundled as the default subtitle font) plus self-contained
 @command{moneyprinterturbo} (Streamlit WebUI) and @command{moneyprinterturbo-api}
 (FastAPI) launchers.  On first run each launcher copies the app into
