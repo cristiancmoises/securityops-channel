@@ -5,40 +5,48 @@
 ;;;
 ;;; This file is part of the securityops channel.
 ;;;
-;;; LibreWolf — bumped ahead of Guix: 152.0.1-2 -> 152.0.4-1 (latest upstream).
+;;; LibreWolf — bumped ahead of Guix: 151.0.4-1 -> 153.0.3-1 (latest upstream).
 ;;;
 ;;; Guix builds librewolf from the module-PRIVATE `make-librewolf-source'
 ;;; (Firefox release source + the codeberg librewolf/source overlay + a pinned
 ;;; firefox-l10n checkout, assembled by a `computed-origin-method' derivation).
 ;;; A channel cannot reach that helper, so the source-assembly machinery
 ;;; (`firefox-source-origin', `librewolf-source-origin', `computed-origin-method',
-;;; `firefox-l10n', `make-librewolf-source') is VENDORED here verbatim from
-;;; gnu/packages/librewolf.scm; only the three release hashes and the l10n commit
-;;; change.  The package then INHERITS guix's `librewolf' (build phases, inputs,
+;;; `firefox-l10n', `make-librewolf-source') is adapted and vendored here from
+;;; gnu/packages/librewolf.scm.  The release pins plus two compatibility
+;;; substitutions for the current upstream Makefile/l10n script differ.  The
+;;; package then INHERITS guix's `librewolf' (build phases, inputs,
 ;;; clang/llvm/rust toolchain, configure flags, %librewolf-build-id) and overrides
-;;; only `version' + `source' — exactly the torbrowser-bump pattern, so upstream
-;;; build fixes keep flowing through.
+;;; `version', `source', the release build ID, cbindgen, and NSS.  Firefox 153
+;;; requires cbindgen >= 0.29.4 and NSS >= 3.125, while the inherited Guix
+;;; package still supplies cbindgen 0.29.2 and nss-rapid 3.124.  The 0.29.4
+;;; crate's Cargo.lock differs from 0.29.2 only in cbindgen's own version, so the
+;;; private update below safely reuses Guix's complete 0.29 dependency closure.
+;;; NSS 3.126 is the current Mozilla rapid release and matches the official Guix
+;;; 153.0.3-1 recipe.  The build ID likewise matches that recipe; leaving the
+;;; inherited 151.0.4-1 timestamp can break cache validation.
 ;;;
 ;;; The librewolf-specific patches (`librewolf-compare-paths.patch',
 ;;; `librewolf-use-system-wide-dir.patch', …) are guix-bundled; `search-patches'
 ;;; resolves them from guix's patch dir on the channel load path — no need to
 ;;; vendor them.  (The l10n-download neuter is NOT a search-patch here: guix's
-;;; `librewolf-neuter-locale-download.patch' no longer applies to 152.0.x's
+;;; `librewolf-neuter-locale-download.patch' no longer applies to the current
 ;;; `curl'-based script, so it is done inline via `substitute*' below.)
 ;;;
-;;; Hashes (all fetched + verified 2026-07-17):
-;;;   firefox 153.0 source    (ftp.mozilla.org)  -> firefox-hash
-;;;   librewolf/source 153.0-3 (codeberg, git)   -> librewolf-hash
-;;;   firefox-l10n @ 235fd5b0 (github, git)       -> l10n-hash
+;;; Hashes (all fetched + verified 2026-08-09):
+;;;   firefox 153.0.3 source      (ftp.mozilla.org) -> firefox-hash
+;;;   librewolf/source 153.0.3-1  (codeberg, git)   -> librewolf-hash
+;;;   firefox-l10n @ 6795ea14     (github, git)     -> l10n-hash
 ;;; The l10n commit is the `revision' from
-;;; firefox-153.0/browser/locales/l10n-changesets.json in the Firefox source.
+;;; firefox-153.0.3/browser/locales/l10n-changesets.json in the Firefox source.
 ;;;
-;;; A full build is a multi-hour Firefox compile (deferred to reconfigure, like
-;;; torbrowser).  The SOURCE assembly is verifiable here:
+;;; The exact full Firefox/LTO build passed on 2026-08-09.  The computed SOURCE
+;;; assembly can also be checked independently with:
 ;;;   guix build -L ~/securityops-channel -S librewolf
 
 (define-module (securityops packages librewolf)
   #:use-module (guix packages)
+  #:use-module (guix build-system cargo)
   #:use-module (guix download)
   #:use-module (guix git-download)
   #:use-module (guix gexp)
@@ -50,7 +58,37 @@
   #:use-module (gnu packages compression)
   #:use-module (gnu packages python)
   #:use-module (gnu packages python-xyz)
+  #:use-module ((gnu packages nss) #:prefix nss:)
+  #:use-module ((gnu packages rust-apps) #:prefix rust-apps:)
   #:use-module ((gnu packages librewolf) #:prefix lw:))
+
+(define rust-cbindgen-0.29.4
+  (package
+    (inherit rust-apps:rust-cbindgen-0.29)
+    (version "0.29.4")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (crate-uri "cbindgen" version))
+       (file-name (string-append "rust-cbindgen-" version ".tar.gz"))
+       (sha256
+        (base32 "085f02ma9cdz0alnl1p6b1x6bmr7i9nnasq2fjk7n5lw9i457jrf"))))))
+
+(define nss-rapid-3.126
+  ;; Firefox 153's in-tree NSS is 3.125, so its --with-system-nss check rejects
+  ;; the inherited 3.124.  This is the exact nss-rapid source update in Guix
+  ;; master; all build arguments, patches, and inputs remain inherited.
+  (package
+    (inherit nss:nss-rapid)
+    (version "3.126")
+    (source
+     (origin
+       (inherit (package-source nss:nss-rapid))
+       (uri (string-append
+             "https://ftp.mozilla.org/pub/security/nss/releases/NSS_3_126_RTM/"
+             "src/nss-" version ".tar.gz"))
+       (sha256
+        (base32 "0dz3z7hliwy0w5kq0j5y840fyypvkwj0n91rsy13sig1idspr83s"))))))
 
 (define (firefox-source-origin version hash)
   (origin
@@ -81,16 +119,16 @@
 
 (define firefox-l10n
   ;; Match this commit to the upstream tarball.  The hash is in
-  ;; firefox-NNN.0/browser/locales/l10n-changesets.json (the "revision" field;
-  ;; the same value repeats for every language).  For 153.0 it is 235fd5b0.
-  (let ((commit "235fd5b0427bec104e6af4055756b286554fce17"))
+  ;; firefox-NNN/browser/locales/l10n-changesets.json (the "revision" field;
+  ;; the same value repeats for every language).  For 153.0.3 it is 6795ea14.
+  (let ((commit "6795ea14a5bd5ed79a930e6759823c7236476ae4"))
     (origin
       (method git-fetch)
       (uri (git-reference
             (url "https://github.com/mozilla-l10n/firefox-l10n.git")
             (commit commit)))
       (file-name (git-file-name "firefox-l10n" commit))
-      (sha256 (base32 "003l3jzsf2ysj5vwsjcx91csrj2626j61s0zga3ffkm0v5w72xra")))))
+      (sha256 (base32 "1d47zfrw2gf23c9pa5rzbi5nx9jap2g0icm8dqsar6jb9y7svinc")))))
 
 (define* (make-librewolf-source #:key version firefox-hash librewolf-hash l10n)
   (let* ((ff-src (firefox-source-origin
@@ -140,8 +178,8 @@
                ;; Patch Makefile to use the upstream source instead of
                ;; downloading.
                (substitute* '("Makefile")
-                 (("^ff_source_tarball:=.*")
-                  (string-append "ff_source_tarball:=" #+ff-src)))
+                 (("^(ff_source_tarball *:= *).*" _ var)
+                  (string-append var #+ff-src)))
 
                ;; Neuter GPG signing of the tarball.
                (substitute* '("Makefile")
@@ -186,17 +224,32 @@
                      "media/libwebp"
                      "modules/zlib"))))))
 
-;;; LibreWolf 153.0-3 — inherits guix's package; only version + source change.
-;;; NOTE: this is a MAJOR firefox 152 -> 153 bump.  The source assembly is
-;;; verified, but the compile runs against guix's 152-era build args/toolchain;
-;;; watch the first reconfigure for a build-time incompatibility.
+;;; LibreWolf 153.0.3-1 — inherits guix's package and replaces the source plus
+;;; the build dependencies whose minimum versions changed in Firefox 153.
+;;; The source assembly and inherited Guix build stack use the current
+;;; Rust 1.94/Clang 21/LLVM 21/ICU 78/NSS rapid toolchain expected by Firefox
+;;; 153; the exact full browser build and runtime metadata were verified on
+;;; 2026-08-09.
 (define-public librewolf
   (package
     (inherit lw:librewolf)
-    (version "153.0-3")
+    (version "153.0.3-1")
     (source
      (make-librewolf-source
       #:version version
-      #:firefox-hash "08jmllczhrjg00gchji1k2y177c4a1cfp6jm3v9r5in4r1s0yldw"
-      #:librewolf-hash "021620653fj7p8dpd3wj65msc6d8frpdx97db2qjvbcwx0hbw5li"
-      #:l10n firefox-l10n))))
+      #:firefox-hash "09dwrhl6whin17fmyr1ynzak80q4qr37pxj285rqhl41idj6h527"
+      #:librewolf-hash "111pfyyn3ldv7jyid34lsmh8g8alk2vf8zj8bga23v9z5i4h8grl"
+      #:l10n firefox-l10n))
+    (arguments
+     (substitute-keyword-arguments (package-arguments lw:librewolf)
+       ((#:phases phases '%standard-phases)
+        #~(modify-phases #$phases
+            (replace 'set-build-id
+              (lambda _
+                (setenv "MOZ_BUILD_DATE" "20260804215502")))))))
+    (native-inputs
+     (modify-inputs (package-native-inputs lw:librewolf)
+       (replace "rust-cbindgen" rust-cbindgen-0.29.4)))
+    (inputs
+     (modify-inputs (package-inputs lw:librewolf)
+       (replace "nss-rapid" nss-rapid-3.126)))))

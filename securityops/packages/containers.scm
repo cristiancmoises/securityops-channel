@@ -4,7 +4,7 @@
 ;;; This file is part of the securityops channel.
 ;;;
 ;;; First-party container / sandbox runtimes from
-;;; git.securityops.co/cristiancmoises.  As with (securityops packages apps),
+;;; git.securityops.com.br/cristiancmoises.  As with (securityops packages apps),
 ;;; the source is VENDORED under packages/sources/ and referenced with
 ;;; `local-file' (content-addressed at add time, no hash field) so the channel
 ;;; stays self-contained and buildable by the daemon with no network access.
@@ -117,5 +117,5 @@ kills TIOCSTI/TIOCLINUX terminal injection) and applies best-effort cgroup v2
 limits.  It provides the @code{(esquema runtime)}, @code{(esquema container)}
 and @code{(esquema sandbox)} modules and a GNU Shepherd service type in
 @code{(esquema esquema-service)}.")
-    (home-page "https://git.securityops.co/cristiancmoises/esquema")
+    (home-page "https://codeberg.org/berkeley/esquema")
     (license license:gpl3+)))

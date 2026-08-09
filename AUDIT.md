@@ -4,7 +4,7 @@
 A deep version audit of **every package declared** in `/etc/config.scm` (system)
 and `~/.config/guix/home.scm` (home), against the latest upstream, on host
 `predator-helios-intel`. Compiled 2026-06-21; channel-handled section refreshed
-2026-07-25; Guix pin `d1e9e23` (Jun 2026). The large system/home tables remain
+2026-08-09; Guix pin `d1e9e23` (Jun 2026). The large system/home tables remain
 the original audit snapshot; the channel-handled reconciliation below is
 current.
 
@@ -21,48 +21,75 @@ containerd 1.6.22 → 2.3.2, openssl 3.5.7 → 4.0.1, nix 2.25.5 → 2.34.7,
 **gopls 0.22.0 → 0.46.0**).
 
 > **Scope of the main tables = audit snapshot.** This refresh did not bulk-edit
-> the 391 system/Home packages listed below. The active `home.scm` only gained
-> the channel-backed Fish provider needed to activate Fish 4.8.1; the channel
-> package updates themselves are recorded in the reconciliation section.
+> the 391 system/Home packages listed below. The dated table values remain the
+> original audit snapshot; the current channel packages and activated Home/user
+> profile state are recorded in the reconciliation section.
 
 ## Handled by securityops-channel
 
-These declared apps are provided by this channel at the latest buildable release
-(or, for binary packages, the newest release with the required asset), so treat
-any "outdated" row for them below as **already addressed in the channel**:
+An authoritative 2026-08-09 release audit checked **every channel definition**,
+including packages without a useful Guix updater, private build dependencies,
+binary assets, and all first-party releases. The packages below are the only
+version changes found; every other channel package is current except the
+documented source-built ungoogled Chromium 147 fallback (the current 151 engine
+is supplied by `ungoogled-chromium-bin`). An updater report alone was not
+treated as evidence that a package builds, runs, or is active in a profile.
 
-- **Bumped ahead of Guix/nonguix:** `fish` 4.8.1, `kitty` 0.48.1, `tor` 0.4.9.11,
-  `torbrowser` 15.0.19, `openshot` 3.5.1, `google-chrome-stable` 150.0.7871.186,
-  `mullvad-vpn-desktop` **2026.3** (bumped 2026-06-22), `librewolf` **153.0-3**
-  (major 152→153; the rest re-verified as still-latest),
-  `steam` **1.0.0.87** (nonguix bootstrap 1.0.0.85; container rebuilt around the
-  bumped bootstrap, 2026-06-24), `glances` **4.5.5** (guix 4.3.0; from-source
-  bump with the new `pyinstrument` 5.1.2 core dep, 2026-06-30), `lynis` **3.1.7**
-  (guix 3.1.1; shell auditing tool, from-source bump, 2026-06-30).
-- **Hermetic/source refreshes completed 2026-07-25:** Fish **4.8.1** now has an
-  offline Cargo.lock-matched source recipe and passed **197/197 integration
-  tests plus 272 Cargo tests**. `mtr` **0.96**, `sdb` **2.4.8**, `radare2`
-  **6.1.8**, and `rizin` **0.9.1** also build successfully, superseding their
-  earlier deferrals; Rizin's complete test suite passes.
-- **Vendored apps refreshed 2026-07-25:** `evelin-bin` **4.3.0**, `turborec`
-  **3.7.0**, and `moneyprinterturbo` **1.3.3**. Their established vendoring and
-  source/font-pruning policies are unchanged; all built and passed their
-  runtime/version checks. Kitty's internal `go-github-com-emmansun-base64`
-  dependency is now **0.10.0**. The GOPATH-compatible
-  `go-github-com-ebitengine-purego` patch release is now **0.10.2** and was
-  validated by a full Kitty rebuild.
-- **Already latest (re-exported):** `alacritty`, `emacs`, `emacs-pgtk`, `mpv`,
-  `vlc`, `keepassxc`, `ueberzugpp`, `lf`.
-- **ungoogled-chromium:** source-build `ungoogled-chromium` stays at 147 (a
-  from-source bump is impossible over Tor — Google's GCS 403-blocks the "-lite"
-  base tarball for any version without a guix substitute). Latest ungoogled is
-  shipped instead as `ungoogled-chromium-bin` 150.0.7871.186-1 — official
-  upstream prebuilt, GitHub-hosted, sha256-verified, build-and-run verified.
-  Its PortableLinux asset arrived during the final validation sweep.
+- **August refresh targets:** `kitty` **0.48.2**, `glances` **4.5.6** with
+  private `pyinstrument` **5.1.3**, `google-chrome-stable`
+  **151.0.7922.108**, `ungoogled-chromium-bin` **151.0.7922.108-1**,
+  `librewolf` **153.0.3-1** with l10n revision `6795ea14`, `sdb` **2.5.0**,
+  `radare2` **6.2.0**, and `lf` **42** (tag `r42`).
+- **Verified exact channel builds/checks:** Kitty 0.48.2 builds and both
+  `kitty`/`kitten` report 0.48.2. Glances 4.5.6 + Pyinstrument 5.1.3 build;
+  Glances reports 4.5.6/PsUtil 7.2.2 and returns live CPU/memory metrics. SDB
+  2.5.0 and Radare2 6.2.0 build and run with system Zydis and channel SDB. lf
+  42 (`r42`) builds with its exact seven-module private go.mod graph; UAX29
+  public-library tests, displaywidth tests, all transitive dependency builds,
+  and lf's full suite pass.
+- **LibreWolf full build/runtime verified:** Firefox
+  153.0.3, LibreWolf's 153.0.3-1 overlay, and l10n revision `6795ea14` assemble
+  successfully after correcting the upstream Makefile matcher. The recipe also
+  carries the official BuildID `20260804215502`, private cbindgen 0.29.4, and
+  private NSS 3.126. Its exact `mach configure` accepts cbindgen, NSPR, and NSS;
+  the multi-hour, swap-backed full-LTO build passes. Runtime reports `Mozilla
+  LibreWolf 153.0.3-1`, and both runtime INI files contain the official BuildID.
+- **Chromium-family validation complete:** the exact
+  `google-chrome-stable` 151.0.7922.108 and `ungoogled-chromium-bin`
+  151.0.7922.108-1 builds pass, and each reports 151.0.7922.108 at runtime. Both
+  are active in the Home profile.
+- **Private dependencies do not change the public package count:** LibreWolf's
+  cbindgen 0.29.4 and NSS 3.126, Glances' Pyinstrument 5.1.3, and lf's exact
+  go.mod modules—`uax29/v2` 2.7.0,
+  `displaywidth` 0.11.0, `tcell/v3` 3.4.1, `fsnotify` 1.10.1, `x/sys` 0.47.0,
+  `x/term` 0.45.0, and `x/text` 0.40.0—are deliberately private. lf remains
+  one public package; the channel index remains at 51.
+- **All remaining channel releases are current, apart from the documented
+  source-Chromium 147 fallback**, including Fish 4.8.1, Tor
+  0.4.9.11, Tor Browser 15.0.19, OpenShot 3.5.1, Mullvad 2026.3, Steam
+  **1.0.0.87 stable**, Lynis 3.1.7, MTR 0.96, Rizin 0.9.1, every unchanged
+  re-export, and all first-party apps. For Tor Browser, the engine/display
+  version/MOZ date are current and the inherited fonts/torrc are byte-identical
+  to 15.0.19, but the private l10n pins remain known-stale at 15.0.14. The July
+  vendoring and source/font-prune policies remain unchanged.
+- **Homepage reconciliation:** Evelin and BTP retain their canonical Forgejo
+  project URLs. Mirim, Torando, VaptVupt CLI/GUI, TurboRecorder, and Esquema now
+  point to their active `berkeley` Codeberg mirrors. This metadata correction
+  does not change the vendored, offline source inputs.
+- **ungoogled-chromium strategy:** source-build `ungoogled-chromium` stays at
+  147 (a from-source bump is impossible over Tor because Google's GCS
+  403-blocks the "-lite" base tarball for any version without a Guix
+  substitute). The current engine is instead packaged as the official
+  PortableLinux `ungoogled-chromium-bin` 151.0.7922.108-1; its build/runtime
+  verification passes and the release is active in the Home profile.
 
-> The refreshed packages are installed and profile-verified: Home contains
-> Fish, Kitty, Chrome, Chromium, and MoneyPrinterTurbo; the user profile contains
-> Evelin, TurboRecorder, MTR, SDB, Radare2, and Rizin.
+> **August profile activation verified.** Home has Fish 4.8.1, Kitty 0.48.2,
+> Chrome 151.0.7922.108, Chromium 151.0.7922.108, LibreWolf 153.0.3-1, lf 42,
+> and Tor Browser 15.0.19 (Firefox ESR 140.13.0;
+> `BASE_BROWSER_VERSION = 15.0.19`). The direct user profile has Fish 4.8.1,
+> LibreWolf 153.0.3-1, SDB 2.5.0, Radare2 6.2.0, and Glances 4.5.6/PsUtil
+> 7.2.2. These are live-profile checks, separate from the dated main-table
+> snapshot below.
 
 ## Active `home.scm` reconciliation
 
@@ -84,8 +111,8 @@ active config):
 | fd | 10.4.2 | 10.4.2 | ✅ latest |
 | ripgrep | 15.1.0 | 15.1.0 | ✅ latest |
 | aspell-dict-en | 2020.12.07-0 | — | ❔ no updater |
-| ungoogled-chromium (source) | 147.0.7727.137-1 | 150.0.7871.186-1 | ⛔ newer source unbuildable over Tor (GCS 403) |
-| ungoogled-chromium-bin | 150.0.7871.186-1 | 150.0.7871.186-1 | ✅ active Home profile; sha256+build+runtime verified |
+| ungoogled-chromium (source) | 147.0.7727.137-1 | 151.0.7922.108-1 | ⛔ newer source unbuildable over Tor (GCS 403) |
+| ungoogled-chromium-bin | 151.0.7922.108-1 | 151.0.7922.108-1 | ✅ August build/runtime and Home-profile activation verified |
 
 ---
 

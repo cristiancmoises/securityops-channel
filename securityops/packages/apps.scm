@@ -3,7 +3,7 @@
 ;;;
 ;;; This file is part of the securityops channel.
 ;;;
-;;; First-party applications from git.securityops.co/cristiancmoises.
+;;; First-party applications from git.securityops.com.br/cristiancmoises.
 ;;;
 ;;; Each app lives in its own repo on the forge.  To keep this channel
 ;;; self-contained, their sources/release artifacts are VENDORED under
@@ -101,7 +101,7 @@
 musl-static release: ML-KEM-1024 key exchange, ML-DSA-87 authentication,
 ChaCha20-Poly1305 AEAD.  Binaries are fully static and carry no runtime
 dependencies.")
-    (home-page "https://git.securityops.co/cristiancmoises/evelin")
+    (home-page "https://git.securityops.com.br/cristiancmoises/evelin")
     (license license:agpl3+)))
 
 ;;; btp — Built from source (v0.7) on this host with `cargo build --release'
@@ -143,7 +143,7 @@ dependencies.")
      "@code{btpctl} (command-line client) and @code{btpd} (daemon) from the BTP
 project, built from the v0.7 source release.  Built-from-source dynamic binaries
 relinked against Guix's glibc.")
-    (home-page "https://git.securityops.co/cristiancmoises/btp")
+    (home-page "https://git.securityops.com.br/cristiancmoises/btp")
     (license license:asl2.0)))
 
 ;;; mirim — Built from source (v1.0.0) with `cargo build --release --features
@@ -187,7 +187,7 @@ relinked against Guix's glibc.")
 Argon2) and @code{mirim-sign} (detached ML-DSA-87 / FIPS 204 signatures);
 prebuilt x86_64 binaries from the v1.1.0 release, patchelf'd to the store
 glibc/gcc.")
-    (home-page "https://git.securityops.co/cristiancmoises/mirim")
+    (home-page "https://codeberg.org/berkeley/mirim")
     (license license:agpl3)))
 
 ;;; torando-gui — loopback web GUI + root daemon that routes ONE local user's
@@ -272,7 +272,7 @@ leak around Tor, and reports live bootstrap, DNS-leak and exit status.  Built
 from source (pure Python); the shims and systemd unit are rewired to the store,
 so the package is self-contained.  This is the Linux build of a project that
 also targets macOS, the BSDs and Windows.")
-    (home-page "https://codeberg.org/cristiancmoises/torando-gui")
+    (home-page "https://codeberg.org/berkeley/torando-gui")
     (license license:agpl3)))
 
 ;;; vaptvupt — pure-C11 post-quantum backup compressor (CLI, v5.0.0) and its
@@ -327,7 +327,7 @@ keystream-reuse flaw in @code{--dedup} archives (re-encrypt any written by
 AES-256-CTR + HMAC-SHA256 Encrypt-then-MAC with measured constant-time tag
 comparison and runtime AES-NI/SHA-NI dispatch; the embedded VaptVupt 2.60.4
 LZ+ANS codec ships CBMC-verified BCJ filters.")
-    (home-page "https://git.securityops.co/cristiancmoises/vaptvupt")
+    (home-page "https://codeberg.org/berkeley/vaptvupt")
     (license (list license:agpl3+ license:gpl3+))))
 
 ;;; vaptvupt-gui — PySide6 (Qt6) frontend, installed from the same tarball with
@@ -429,7 +429,7 @@ Keywords=backup;encryption;post-quantum;compression;zupt;\n"
 encryption via the native ML-KEM-768 + X25519 hybrid (@code{--pq}).  The
 launcher pins the matching @code{vaptvupt} CLI from the store via
 @env{VAPTVUPT_BIN}, so GUI and CLI versions can never drift apart.")
-    (home-page "https://git.securityops.co/cristiancmoises/vaptvupt")
+    (home-page "https://codeberg.org/berkeley/vaptvupt")
     (license license:agpl3+)))
 
 ;;; turborec — Turbo Recorder 3.7.0: a hardware-accelerated screen + audio
@@ -540,7 +540,7 @@ Python CLI with a Tkinter GUI (@command{turborec gui}); @command{turborecorder}
 is a Linux X11/Wayland bash launcher.  Built from source and self-contained: the
 launchers pin the store @code{python3}/@code{bash} and the tools they call
 (@code{ffmpeg}, @code{pactl}, @code{xrandr}, @code{xdpyinfo}, @code{lspci}).")
-    (home-page "https://git.securityops.co/cristiancmoises/turborec")
+    (home-page "https://codeberg.org/berkeley/turborec")
     (license license:gpl3)))
 
 ;;; moneyprinterturbo — one-click AI short-video generator (harry0703 v1.3.3).

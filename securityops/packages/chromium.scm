@@ -17,15 +17,15 @@
 ;;; The ungoogled-software project publishes official, integrity-hashed PREBUILT
 ;;; Linux x86_64 binaries on GitHub (Tor-reachable), tracked in the
 ;;; ungoogled-chromium-binaries metadata repo under linux_portable/64bit.  The
-;;; newest prebuilt at packaging time is 150.0.7871.186-1 (published
-;;; 2026-07-25).  We wrap that tarball
+;;; newest prebuilt at packaging time is 151.0.7922.108-1 (published
+;;; 2026-08-08).  We wrap that tarball
 ;;; with nonguix's chromium-binary-build-system (same machinery as google-chrome):
 ;;; patchelf the 9 bundled ELF objects onto the Guix glibc loader + library set,
 ;;; install the bundle under share/, and expose bin/chromium.  No bundled
 ;;; chrome-sandbox => Chromium uses the unprivileged user-namespace sandbox.
 ;;;
 ;;; sha256 (base32) verified against the official upstream metadata
-;;; (54ffb53f7c9b7d0148cef6c221977045a0dc4e805de55ed065350b22b87e8570).
+;;; (3d117fc07afa7132c3675b2a1032221c969087cfbaca97c52f2481f653b3e1f1).
 
 (define-module (securityops packages chromium)
   #:use-module (guix packages)
@@ -52,7 +52,7 @@
 (define-public ungoogled-chromium-bin
   (package
     (name "ungoogled-chromium-bin")
-    (version "150.0.7871.186-1")
+    (version "151.0.7922.108-1")
     (source
      (origin
        (method url-fetch)
@@ -61,7 +61,7 @@
              "ungoogled-chromium-portablelinux/releases/download/"
              version "/ungoogled-chromium-" version "-x86_64_linux.tar.xz"))
        (sha256
-        (base32 "0w45gsw242rmcp85xraxh17dr825f2bj3hpnrr402zcvghzvbzsl"))))
+        (base32 "1wg1nd9zd0945z2rgjmsry3r15hw48r10ajvcz1k4wgsgb07y49x"))))
     (build-system chromium-binary-build-system)
     (arguments
      (list

@@ -24,8 +24,33 @@ você os instala, e eles acompanhem o Guix automaticamente); pacotes que estão
   testes de integração e 272 testes Cargo. O perfil Home contém Fish, Kitty,
   Chrome, Chromium e MoneyPrinterTurbo; o perfil de usuário contém Evelin,
   TurboRecorder, MTR, SDB, Radare2 e Rizin.
+- **Atualização abrangente de 2026-08-09 (auditoria e validação autoritativas e
+  ativação dos perfis Home e direto de usuário concluída):** `kitty` 0.48.2,
+  `glances` 4.5.6
+  (dependência privada `pyinstrument` 5.1.3), `google-chrome-stable`
+  151.0.7922.108, `ungoogled-chromium-bin` 151.0.7922.108-1, `librewolf`
+  153.0.3-1 (pin l10n `6795ea14`), `sdb` 2.5.0, `radare2` 6.2.0 e `lf` 42
+  (tag upstream `r42`; sete módulos Go privados: `uax29/v2` 2.7.0,
+  `displaywidth` 0.11.0, `tcell/v3` 3.4.1, `fsnotify` 1.10.1, `x/sys` 0.47.0,
+  `x/term` 0.45.0 e `x/text` 0.40.0). Kitty, Glances, SDB, Radare2 e lf
+  passaram as compilações exatas e seus testes rápidos/suítes; a montagem
+  completa da fonte Firefox/overlay/l10n e o `mach configure` do LibreWolf
+  passaram após corrigir o matcher do Makefile e atualizar privadamente
+  `rust-cbindgen` para 0.29.4 e `nss-rapid` para 3.126. O build LTO exato passou
+  e `librewolf --version` reporta `Mozilla LibreWolf 153.0.3-1`. Chrome e
+  Chromium também passaram os builds exatos e ambos reportam 151.0.7922.108 em
+  runtime. O perfil Home agora contém Fish 4.8.1, Kitty 0.48.2, Chrome
+  151.0.7922.108, ungoogled Chromium 151.0.7922.108, LibreWolf 153.0.3-1, lf 42
+  e Tor Browser 15.0.19 (Firefox ESR 140.13.0;
+  `BASE_BROWSER_VERSION = 15.0.19`). O perfil direto de usuário contém Fish
+  4.8.1, LibreWolf 153.0.3-1, SDB 2.5.0, Radare2 6.2.0 e Glances 4.5.6/PsUtil
+  7.2.2. A auditoria release a release de
+  todas as definições confirmou que os demais releases estão atuais, salvo o
+  fallback documentado do ungoogled Chromium 147 compilado de fonte (o motor
+  atual 151 é fornecido pelo `-bin`), inclusive todos os apps first-party; a ressalva dos pins privados de l10n
+  15.0.14 do Tor Browser está documentada abaixo.
 - **Mantenedor:** Cristian Cezar Moisés `<ethicalhacker@riseup.net>`
-- **Casa:** [`https://git.securityops.co/cristiancmoises/securityops-channel`](https://git.securityops.co/cristiancmoises/securityops-channel) (oficial) · espelhos: [Codeberg](https://codeberg.org/berkeley/securityops-channel) · [GitHub](https://github.com/cristiancmoises/securityops-channel)
+- **Casa:** [`https://git.securityops.com.br/cristiancmoises/securityops-channel`](https://git.securityops.com.br/cristiancmoises/securityops-channel) (oficial) · espelhos: [Codeberg](https://codeberg.org/berkeley/securityops-channel) · [GitHub](https://github.com/cristiancmoises/securityops-channel)
 - **Assinatura:** todo commit é assinado com GPG (ed25519 `0CFA 43B9 … ECFB 46E8`) e o canal é autenticado (veja [Publicação e autenticação](#publicação-e-autenticação))
 
 > A lista completa de pacotes (índice de 51 pacotes), com versões e a última
@@ -45,7 +70,7 @@ verifique a assinatura de cada commit:
 ```scheme
 (channel
  (name 'securityops)
- (url "https://git.securityops.co/cristiancmoises/securityops-channel")
+ (url "https://git.securityops.com.br/cristiancmoises/securityops-channel")
  (branch "main")
  (introduction
   (make-channel-introduction
@@ -66,8 +91,9 @@ Depois:
 
 ```sh
 guix pull
-guix install kitty fish tor torbrowser openshot google-chrome-stable \
-  ungoogled-chromium-bin mullvad-vpn-desktop mtr sdb radare2 rizin
+guix install kitty fish tor torbrowser openshot glances librewolf \
+  google-chrome-stable \
+  ungoogled-chromium-bin mullvad-vpn-desktop lf mtr sdb radare2 rizin
 ```
 
 Como todo pacote aqui tem versão **≥** ao que o guix/nonguix entrega,
@@ -83,7 +109,7 @@ estão à frente.
 Clone por HTTPS a partir da forja oficial — ou de qualquer espelho — sem conta:
 
 ```sh
-git clone https://git.securityops.co/cristiancmoises/securityops-channel   # oficial
+git clone https://git.securityops.com.br/cristiancmoises/securityops-channel   # oficial
 git clone https://codeberg.org/berkeley/securityops-channel               # espelho
 git clone https://github.com/cristiancmoises/securityops-channel          # espelho
 ```
@@ -126,41 +152,49 @@ Pacotes com versão própria, à frente do que o Guix/nonguix entrega:
 
 | Pacote | Versão | Fonte |
 |---|---|---|
-| **kitty** | 0.48.1 | tag git `v0.48.1` (+ 3 deps Go vendorizadas; `GOTOOLCHAIN=local`) |
+| **kitty** | 0.48.2 | tag git `v0.48.2` (+ 3 deps Go empacotadas; `GOTOOLCHAIN=local`); build/runtime aprovados |
 | **fish** | 4.8.1 | fonte oficial + conjunto de crates offline correspondente ao Cargo.lock; 197/197 testes de integração e 272 testes Cargo |
 | **tor** | 0.4.9.11 | tarball dist.torproject.org |
-| **torbrowser** | 15.0.19 | build de fonte + ThinLTO (veja ressalvas) |
-| **torbrowser-assets** | 15.0.19 | bundle oficial (fontes + torrc-defaults) |
+| **torbrowser** | 15.0.19 | motor/branding atuais; pins privados de l10n ainda no 15.0.14 (veja ressalvas) |
+| **torbrowser-assets** | 15.0.19 | bundle oficial independente; fontes/torrc são byte a byte iguais aos arquivos herdados 15.0.14 |
 | **openshot** | 3.5.1 | tag git `v3.5.1` |
-| **google-chrome-stable** | 150.0.7871.186 | `.deb` do dl.google.com |
+| **google-chrome-stable** | 151.0.7922.108 | `.deb` do dl.google.com; build/runtime aprovados |
 | **mullvad-vpn-desktop** | 2026.3 | `.deb` do cdn.mullvad.net (vendorizado) |
-| **librewolf** | 153.0-3 | build de fonte (`make-librewolf-source` vendorizado) |
-| **steam** | 1.0.0.87 | beta da Valve (contêiner nonguix) |
-| **glances** | 4.5.5 | tag git `v4.5.5` (+ `pyinstrument` 5.1.2) |
+| **librewolf** | 153.0.3-1 | Firefox 153.0.3 + overlay/l10n `6795ea14`; cbindgen 0.29.4/NSS 3.126 privados; build LTO/runtime aprovados |
+| **steam** | 1.0.0.87 | estável da Valve (contêiner nonguix) |
+| **glances** | 4.5.6 | corrige cinco CVEs (68520, 68519, 68518, 62982, 68517); `pyinstrument` privado 5.1.3; build/métricas ao vivo aprovados |
 | **lynis** | 3.1.7 | tag git `3.1.7` (plugins proprietários removidos) |
 | **nmap** | 7.99 · **fping** 5.5 · **hydra** 9.7 · **mtr** 0.96 | ferramentas de rede/segurança à frente do Guix |
-| **sdb** | 2.4.8 | dependência offline atual do Radare2; à frente do Guix 2.4.2 |
-| **radare2** | 6.1.8 | Zydis/Zycore do sistema + `sdb` 2.4.8 do canal |
+| **sdb** | 2.5.0 | dependência offline atual do Radare2; build/runtime aprovados |
+| **radare2** | 6.2.0 | Zydis/Zycore do sistema + `sdb` 2.5.0 do canal; build/runtime aprovados |
 | **rizin** | 0.9.1 | flags Meson/dependências de sistema atualizadas; suíte completa aprovada |
+| **lf** | 42 | tag `r42`; à frente do Guix 41; grafo go.mod privado exato com 7 módulos; build e suítes completas aprovados |
 
 ### 🄟 Binário pré-compilado
 
-- **ungoogled-chromium-bin** `150.0.7871.186-1` — release PortableLinux x86_64
-  oficial atual (o asset chegou durante a validação final em 2026-07-25),
-  verificado pelo digest sha256 da API e empacotado com o
-  `chromium-binary-build-system` do nonguix. É a versão recomendada no `PATH`;
-  `chromium --version` retorna `Chromium 150.0.7871.186`.
+- **ungoogled-chromium-bin** `151.0.7922.108-1` — release PortableLinux x86_64
+  oficial atual, fixado pelo hash real baixado e empacotado com o
+  `chromium-binary-build-system` do nonguix. O build passou,
+  `chromium --version` reporta `Chromium 151.0.7922.108` e esse release está
+  ativo no perfil Home como a versão Chromium atual recomendada.
 
 ### ✅ Re-exportados — já mais recentes no Guix/nonguix
 
 Acompanham o Guix automaticamente:
 `alacritty` 0.17.0 · `emacs` 30.2 · `emacs-pgtk` 30.2 · `mpv` 0.41.0 ·
-`vlc` 3.0.23 · `keepassxc` 2.7.12 · `ueberzugpp` 2.9.10 · `lf` 41
+`vlc` 3.0.23 · `keepassxc` 2.7.12 · `ueberzugpp` 2.9.10
 
-### 🄕 Apps primeiros (first-party) da forja `git.securityops.co/cristiancmoises`
+### 🄕 Apps SecurityOps / first-party
 
-Cada app vive no próprio repositório na forja. Para o canal ser
-**autocontido** (compila sem acesso à rede), as fontes/artefatos são
+Os campos `home-page` apontam para o projeto público ativo: Evelin e BTP usam
+os projetos canônicos no Forgejo;
+[Mirim](https://codeberg.org/berkeley/mirim),
+[Torando](https://codeberg.org/berkeley/torando-gui),
+[VaptVupt](https://codeberg.org/berkeley/vaptvupt) (CLI e GUI),
+[TurboRecorder](https://codeberg.org/berkeley/turborec) e
+[Esquema](https://codeberg.org/berkeley/esquema) usam os espelhos `berkeley` no
+Codeberg. O canal continua canônico em `git.securityops.com.br` e espelhado no
+Codeberg/GitHub. Para o build ser **autocontido**, as fontes/artefatos continuam
 **vendorizados** em `securityops/packages/sources/` e referenciados com
 `local-file`:
 
@@ -184,8 +218,15 @@ Cada app vive no próprio repositório na forja. Para o canal ser
   baixados*). O que é **impossível sob Tor** é **subir para uma versão mais nova**
   de fonte: o tarball-base "-lite" do Chromium novo só existe no GCS do Google
   (bloqueia 403 todo nó de saída Tor) e ainda não tem substituto. Para um motor
-  **atual**, use o `ungoogled-chromium-bin` `.186-1` acima, cujo asset
-  PortableLinux foi publicado durante a validação final.
+  **atual**, use o `ungoogled-chromium-bin` `151.0.7922.108-1` acima; o build e
+  o runtime estão validados, e esse release está ativo no perfil Home.
+
+> A auditoria autoritativa de 2026-08-09 cobriu todas as definições do canal,
+> inclusive dependências privadas e releases first-party. Todos os pacotes fora
+> da lista de atualização estão atuais, salvo a exceção documentada do Chromium
+> de fonte 147, inclusive Tor 0.4.9.11, Tor Browser
+> 15.0.19 e Steam 1.0.0.87 estável. A auditoria completa e a distinção entre
+> o estado do canal e dos perfis ativos estão em [AUDIT.md](AUDIT.md).
 
 ---
 
@@ -238,6 +279,7 @@ prefixo e use o símbolo prefixado:
 ((securityops packages shells)    #:prefix so:)   ; so:fish
 ((securityops packages tor)       #:prefix so:)   ; so:tor, so:torbrowser
 ((securityops packages browsers)  #:prefix so:)   ; so:google-chrome-stable, so:ungoogled-chromium-bin
+((securityops packages utils)     #:prefix so:)   ; so:lf 42 (tag r42)
 ((securityops packages security)  #:prefix so:)   ; so:mtr, so:sdb, so:radare2, so:rizin
 ((securityops packages vpn)       #:prefix so:)   ; so:mullvad-vpn-desktop
 ((securityops packages video)     #:prefix so:)   ; so:openshot
@@ -250,6 +292,10 @@ prefixo e use o símbolo prefixado:
          (mullvad-daemon-configuration
           (mullvad-vpn-desktop so:mullvad-vpn-desktop)))
 ```
+
+O Pyinstrument do Glances e os sete módulos do grafo go.mod exato do lf são
+definições privadas de build, não exportações públicas. Portanto o lf continua
+sendo um único pacote e o índice público permanece com 51 pacotes.
 
 Para aplicar após editar o canal: `guix pull` (pega o novo commit do
 `securityops`), depois `guix system reconfigure /etc/config.scm` e
@@ -267,8 +313,30 @@ diretamente.
   (15.0.14): a receita reescreve `--with-base-browser-version` → `15.0.19` e
   `MOZ_BUILD_DATE` → o BuildID oficial `20260720080000`, para que o "Sobre"
   mostre **15.0.19** (sem isso, ele mostraria 15.0.14 sobre um motor 15.0.19).
-  As fontes/torrc-defaults ainda vêm dos assets 15.0.14 do guix (idênticos numa
-  versão de correção).
+  Assim, o motor, a versão base exibida e o `MOZ_BUILD_DATE` são 15.0.19. As
+  fontes e o `torrc-defaults` herdados ainda vêm do pacote privado 15.0.14 do
+  Guix, mas uma comparação byte a byte confirmou que os 147 arquivos de fonte e
+  o `torrc-defaults` são idênticos ao bundle oficial 15.0.19; esses assets são
+  equivalentes. **Somente a localização está conhecidamente defasada:** os pins
+  privados de l10n continuam no 15.0.14, embora o 15.0.19 tenha mudado a revisão
+  base-browser de `6749f7ce` para `38c3b4e6` e a tor-browser de `a2e92e2c` para
+  `510b52a6`. O pacote independente `torbrowser-assets` 15.0.19 entrega o bundle
+  público atual, mas não consegue atualizar as entradas privadas de l10n do
+  pacote herdado.
+- **LibreWolf 153.0.3-1 (build completo e runtime verificados).** Firefox
+  153.0.3, o overlay LibreWolf 153.0.3-1 e a revisão l10n
+  `6795ea14` são fixados juntos. O pacote herda a receita LibreWolf do Guix, mas
+  sobrescreve a fonte do release, o `MOZ_BUILD_DATE`/BuildID oficial
+  `20260804215502` e duas dependências cuja versão mínima aumentou no Firefox
+  153: `rust-cbindgen` privado 0.29.4 no lugar de 0.29.2 e `nss-rapid` privado
+  3.126 no lugar de 3.124. Depois da correção do matcher do Makefile upstream,
+  a montagem da fonte computada e o `mach configure` concluíram com sucesso. O
+  build LTO completo também passou. Sua saída exata sem grafts é
+  `/gnu/store/acyszcmi1h01qb4258ribxlx1fa86j88-librewolf-153.0.3-1`; o runtime
+  reporta `Mozilla LibreWolf 153.0.3-1` e BuildID `20260804215502` em
+  `application.ini` e `platform.ini`. Variantes com grafts desse build estão
+  ativas tanto no perfil Home quanto no perfil direto de usuário e reportam a
+  mesma versão e o mesmo BuildID.
 - **Compilar pacotes classe Firefox (librewolf/torbrowser) em máquina com pouca
   RAM.** O crate rust final (`gkrust`) é LTO de programa inteiro (~14 GiB num
   único `rustc`), então numa máquina de 15 GiB ele é morto por OOM em qualquer
@@ -280,9 +348,10 @@ diretamente.
   de fonte do 147 funciona. O que trava é **subir para uma versão mais nova**: o
   tarball-base "-lite" do Chromium novo só existe no GCS do Google (bloqueia 403
   todo nó de saída Tor) e ainda não tem substituto. Por isso, para um motor
-  atual, o canal entrega o binário oficial pré-compilado `ungoogled-chromium-bin`
-  `150.0.7871.186-1`. O asset PortableLinux atual chegou durante a validação
-  final e foi verificado pelo digest sha256 oficial.
+  atual, o canal define o binário oficial pré-compilado
+  `ungoogled-chromium-bin` `151.0.7922.108-1`. Seu hash real está fixado; o
+  build passou, `chromium --version` reporta `Chromium 151.0.7922.108` e esse
+  release está ativo no perfil Home.
 - **Mullvad (vendorizado, apenas x86_64).** Fixado na versão estável publicada;
   vendorizado porque as fases de build embutem `version` no passo de descompactar
   o `.deb`.
@@ -294,13 +363,21 @@ A lista completa de ressalvas está no
 
 ## Mantendo os pacotes atualizados — `./update-channel`
 
-Um comando relata as versões que os updaters conseguem enxergar e pode aplicar
-as alterações de receita que o Guix suporta:
+Um comando relata as versões que os updaters conseguem enxergar para o
+subconjunto registrado e pode aplicar as alterações de receita que o Guix
+suporta. É um auxiliar de conveniência, não substitui a auditoria release a
+release dos 51 pacotes públicos:
 
 ```sh
 ./update-channel                       # relata versão atual vs candidatas visíveis
 ./update-channel update --build --commit   # aplica alterações suportadas, compila e assina
 ```
+
+Uma falha ao consultar o upstream ou a versão atual é contada como
+`unknown/failed` e faz `check` terminar com código diferente de zero; assim,
+uma auditoria de rede incompleta não aparece como aprovada. Como o Esquema não
+tem tags públicas de release, seu checker lê o `ESQUEMA_VERSION_STRING`
+autoritativo diretamente do cabeçalho upstream.
 
 - **Automático onde suportado** (via `guix refresh -u` — reescreve `version` +
   `sha256` real): pacotes com base em github/gnu/pypi (`openshot`, `tor`,
@@ -311,16 +388,16 @@ as alterações de receita que o Guix suporta:
   binários/vendorizados (`google-chrome-stable`, `steam`,
   `mullvad-vpn-desktop`, `ungoogled-chromium-bin`, os apps first-party). A
   ferramenta mostra a candidata do upstream e o arquivo a editar, mas ainda é
-  preciso inspecionar os assets e validar à parte. O asset PortableLinux
-  ungoogled-chromium `.186-1`, por exemplo, chegou depois da conferência inicial
-  e foi encontrado na validação final.
+  preciso inspecionar os assets e validar à parte: candidatos e assets binários
+  podem aparecer em momentos diferentes, e a atualização automática não prova
+  build, runtime nem ativação do perfil.
 
 ---
 
 ## Publicação e autenticação
 
 O canal é publicado e **autenticado**. Todos clonam e fazem pull por **HTTPS**
-a partir do `git.securityops.co` (ou dos espelhos Codeberg/GitHub); o push é
+a partir do `git.securityops.com.br` (ou dos espelhos Codeberg/GitHub); o push é
 restrito ao mantenedor. Todo commit é **assinado com GPG** (ed25519
 `0CFA 43B9 AA96 42EA AF2B  E983 C4C6 61C9 ECFB 46E8`); o `.guix-authorizations`
 lista essa chave como único signatário autorizado, e a `(introduction …)` na
