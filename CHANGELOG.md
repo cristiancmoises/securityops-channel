@@ -6,6 +6,70 @@ tag rather than SemVer of the code.
 
 ## [Unreleased]
 
+### Changed — comprehensive package refresh (2026-08-09)
+
+- **kitty 0.48.1 → 0.48.2** from the official `v0.48.2` tag. The existing
+  hermetic `GOTOOLCHAIN=local`/GOPATH setup and its three packaged Go
+  dependencies remain sufficient. The exact channel build completed and both
+  `kitty` and `kitten` report 0.48.2.
+- **glances 4.5.5 → 4.5.6** and its private core dependency
+  **Pyinstrument 5.1.2 → 5.1.3**. Glances 4.5.6 addresses
+  CVE-2026-68520, CVE-2026-68519, CVE-2026-68518, CVE-2026-62982, and
+  CVE-2026-68517. The exact package build passes; `glances --version` reports
+  4.5.6/PsUtil 7.2.2 and a bounded live `cpu.user,mem.percent` stdout check
+  returned metrics. Pyinstrument remains private and does not add a channel
+  export.
+- **google-chrome-stable 150.0.7871.186 → 151.0.7922.108** (official `.deb`,
+  real downloaded hash) and **ungoogled-chromium-bin 150.0.7871.186-1 →
+  151.0.7922.108-1** (official PortableLinux x86_64 asset, real downloaded
+  hash). Both exact builds pass; Google Chrome and ungoogled Chromium each
+  report 151.0.7922.108 at runtime and are active in the Home profile.
+- **LibreWolf 153.0-3 → 153.0.3-1**: Firefox 153.0.3, LibreWolf's
+  153.0.3-1 source overlay, and l10n revision `6795ea14` are pinned together.
+  The source assembler's Makefile matcher was updated for the current upstream
+  assignment, after which the complete Firefox/overlay/l10n computed-origin
+  source passed. The inherited release BuildID is replaced with the official
+  `20260804215502`, and Firefox 153's raised minimums are supplied by private
+  `rust-cbindgen` 0.29.4 and `nss-rapid` 3.126 packages. The exact `mach
+  configure` accepts cbindgen, NSPR, and NSS; the full multi-hour, swap-backed
+  LTO build passes. `librewolf --version` reports `Mozilla LibreWolf 153.0.3-1`,
+  and both runtime INI files carry BuildID `20260804215502`.
+- **sdb 2.4.8 → 2.5.0** and **radare2 6.1.8 → 6.2.0**. The exact channel
+  builds and runtime checks pass with Guix's system Zydis/Zycore and channel
+  SDB.
+- **lf 41 → 42** (upstream tag `r42`). The package is now carried ahead of
+  Guix with the release's exact seven-module private go.mod graph:
+  `github.com/clipperhouse/uax29/v2` 2.7.0,
+  `github.com/clipperhouse/displaywidth` 0.11.0,
+  `github.com/gdamore/tcell/v3` 3.4.1, `github.com/fsnotify/fsnotify` 1.10.1,
+  `golang.org/x/sys` 0.47.0, `golang.org/x/term` 0.45.0, and
+  `golang.org/x/text` 0.40.0. The exact graph is integrated and test-green:
+  UAX29's public-library tests, displaywidth's tests, the transitive dependency
+  builds, and lf's full test suite all pass. These modules are deliberately not
+  exported, so lf remains one public package and the channel index remains at
+  51.
+- Corrected project homepage metadata to the active public locations. Evelin
+  and BTP retain their canonical Forgejo projects; Mirim, Torando, VaptVupt
+  CLI/GUI, TurboRecorder, and Esquema point to their `berkeley` Codeberg
+  mirrors. Vendored sources and offline-build policy are unchanged.
+- An authoritative release audit covered every channel definition, including
+  private dependencies and first-party packages. All packages outside this
+  refresh are current except the documented source-built ungoogled Chromium
+  147 fallback (the `-bin` package provides the current 151 engine): this
+  explicitly includes Tor 0.4.9.11, Tor Browser
+  15.0.19, Steam 1.0.0.87 (now the stable release), Rizin 0.9.1, and every
+  first-party app. Tor Browser's engine, displayed version, fonts, and torrc
+  are current/equivalent, but its inherited private l10n pins remain at the
+  known-stale 15.0.14 revisions; see the README caveat. Automated updater
+  output was only one input to this audit; it is not treated as build, runtime,
+  or profile verification.
+- Profile activation is complete. The Home profile carries Fish 4.8.1, Kitty
+  0.48.2, Chrome 151.0.7922.108, ungoogled Chromium 151.0.7922.108, LibreWolf
+  153.0.3-1, lf 42, and Tor Browser 15.0.19 (Firefox ESR 140.13.0;
+  `BASE_BROWSER_VERSION = 15.0.19`). The direct user profile carries Fish
+  4.8.1, LibreWolf 153.0.3-1, SDB 2.5.0, Radare2 6.2.0, and Glances
+  4.5.6/PsUtil 7.2.2.
+
 ### Changed — latest-package refresh (2026-07-25)
 
 - **fish 4.7.1 → 4.8.1** — converted the Guix re-export into a hermetic source
@@ -145,7 +209,7 @@ tag rather than SemVer of the code.
 
 ### Changed — turborec 3.6.0 (2026-07-13)
 - **turborec 3.5.0 → 3.6.0** (re-vendored from tag `v3.6.0`, `1d033f3e`; on
-  Codeberg + git.securityops.co + local). The `turborecorder` bash launcher
+  Codeberg + git.securityops.com.br + local). The `turborecorder` bash launcher
   gains **native Wayland capture via `wf-recorder`** plus a static-screen stop
   fix. `wf-recorder` is already pinned in the launcher's shim PATH (0.6.0), so
   no new input — recipe bump only. Built and run-verified (`turborec --version`
@@ -153,7 +217,7 @@ tag rather than SemVer of the code.
 
 ### Changed — turborec 3.5.0 (2026-07-13)
 - **turborec 3.4.0 → 3.5.0** (re-vendored from tag `v3.5.0`, `a42e979a`; on
-  Codeberg + git.securityops.co + local). Adds a **webcam picture-in-picture
+  Codeberg + git.securityops.com.br + local). Adds a **webcam picture-in-picture
   overlay** (`record --camera DEVICE` + `--camera-size`/`--camera-position`,
   OBS-style) and **built-in mic noise suppression** (`--denoise
   off|light|medium|strong`, ffmpeg-native `afftdn` — no model file). Pure
@@ -163,7 +227,7 @@ tag rather than SemVer of the code.
 
 ### Changed — turborec 3.4.0 (2026-07-13)
 - **turborec 3.3.0 → 3.4.0** (re-vendored from tag `v3.4.0`, `4acda876`; now
-  published on both Codeberg and git.securityops.co). Upstream 3.4.0 is
+  published on both Codeberg and git.securityops.com.br). Upstream 3.4.0 is
   "self-contained Windows app + **security audit fixes**"; only the Linux
   `turborec.py` audit hardening (91 lines) is relevant here — the Windows/CI
   bits are inert on Guix. No new external tool (same ffmpeg/pactl/xrandr/
@@ -181,7 +245,7 @@ tag rather than SemVer of the code.
   (`turborec --version` → 3.3.0; `record --help` shows `--stream`/`--stream-url`;
   shim PATH still pins ffmpeg/pactl/xrandr/xdpyinfo/wf-recorder/wlr-randr/sway/
   wmctrl/lspci). Note: at vendor time `v3.3.0` was on Codeberg but not yet on
-  git.securityops.co — push the tag there for `./update-channel check`.
+  git.securityops.com.br — push the tag there for `./update-channel check`.
 
 ### Changed — re-exports bumped ahead of Guix (2026-07-13)
 A full version audit (every channel package vs real upstream, not just Guix's
@@ -228,7 +292,7 @@ pins) found `torbrowser-assets` behind and several re-exports lagging Guix.
   tier. Pure ffmpeg-filter work: no new inputs, recipe bump only. Built and
   run-verified (`turborec --version` → 3.2.0, `-R` present in help).
   Note: at vendor time the `v3.2.0` tag existed on Codeberg but not yet on
-  git.securityops.co — push `main` + tag there for `./update-channel check`
+  git.securityops.com.br — push `main` + tag there for `./update-channel check`
   to read cleanly.
 
 ### Changed — vaptvupt 5.1.0 → 5.2.1 (2026-07-11/12)
@@ -476,7 +540,7 @@ pins) found `torbrowser-assets` behind and several re-exports lagging Guix.
   cleanly and the browser launches. See README → LibreWolf caveat.
 
 ### Published & authenticated
-- The channel is now public: official home **git.securityops.co** (cloned/pulled
+- The channel is now public: official home **git.securityops.com.br** (cloned/pulled
   over HTTPS, no account) with mirrors on **Codeberg** and **GitHub**.
 - **Every commit is GPG-signed** (ed25519 `0CFA 43B9 AA96 42EA AF2B  E983 C4C6
   61C9 ECFB 46E8`). Added **`.guix-authorizations`** (the maintainer key as the
@@ -662,7 +726,7 @@ curated set into the live `/etc/config.scm` and `~/.config/guix/home.scm`.
 
 ## [0.2.0] — 2026-06-21
 
-First-party applications from `git.securityops.co/cristiancmoises` and a curated
+First-party applications from `git.securityops.com.br/cristiancmoises` and a curated
 security toolset. To keep the channel self-contained (it builds with no network),
 app sources/artifacts are **vendored** into `packages/sources/` and referenced
 via `local-file`.
