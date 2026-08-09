@@ -16,7 +16,7 @@
   #:use-module ((gnu packages monitoring) #:prefix mon:)
   #:use-module ((gnu packages python-check) #:prefix pyc:))
 
-;;; python-pyinstrument — private helper, bumped 5.1.1 -> 5.1.2 because glances
+;;; python-pyinstrument — private helper, bumped 5.1.1 -> 5.1.3 because glances
 ;;; 4.5.x declares `pyinstrument>=5.1.2' as a core dependency and Guix only ships
 ;;; 5.1.1 (the pyproject sanity-check would otherwise flag a version conflict).
 ;;; Patch bump: inherit, swap version + source.  Its own test suite is skipped —
@@ -26,13 +26,13 @@
 (define python-pyinstrument
   (package
     (inherit pyc:python-pyinstrument)
-    (version "5.1.2")
+    (version "5.1.3")
     (source
      (origin
        (method url-fetch)
        (uri (pypi-uri "pyinstrument" version))
        (sha256
-        (base32 "1w0bcmfdniy44vjbk6gxp5n3w35qyxlcr89lffikyjd95mkrs55g"))))
+        (base32 "19vb0s18sm8pz6sd05bb3bsmgq7854ip2r6q8ry2dfwhz9v5bp4k"))))
     ;; Tests are skipped, so drop the test-only native-inputs (keeps setuptools)
     ;; to avoid building the trio/pytest-trio stack just to discard it.
     (native-inputs
@@ -43,18 +43,18 @@
      (substitute-keyword-arguments (package-arguments pyc:python-pyinstrument)
        ((#:tests? _ #t) #f)))))
 
-;;; glances — bumped ahead of Guix: 4.3.0 -> 4.5.5 (latest stable).  Cross-
+;;; glances — bumped ahead of Guix: 4.3.0 -> 4.5.6 (latest stable).  Cross-
 ;;; platform curses/web system monitor (psutil-based).  Inherits Guix's package
 ;;; and overrides version + source; adds the new `pyinstrument' core dependency
 ;;; (via the bumped helper above) and rewrites the arguments because the 4.3.0
 ;;; custom test entry (`unittest-core.py') no longer exists in 4.5.x (tests moved
 ;;; to tests/), so tests are skipped here.  The weekly PyPI update-check is still
 ;;; disabled, exactly as Guix does.
-;;; Hash: `guix hash -rx' on a checkout of the v4.5.5 tag.
+;;; Hash: Guix's fixed-output hash for the v4.5.6 tag.
 (define-public glances
   (package
     (inherit mon:glances)
-    (version "4.5.5")
+    (version "4.5.6")
     (source
      (origin
        (method git-fetch)
@@ -63,7 +63,7 @@
              (commit (string-append "v" version))))
        (file-name (git-file-name "glances" version))
        (sha256
-        (base32 "1i8f901x62ggwivaf0l3irbmpagwpp1yn1vcjsy8wjyqvvpjs826"))))
+        (base32 "08jd8b6ax7k2rvn6yazd7akq4p4nplrg1ihdacs3rppcfwicy1fa"))))
     (propagated-inputs
      (modify-inputs (package-propagated-inputs mon:glances)
        (append python-pyinstrument)))

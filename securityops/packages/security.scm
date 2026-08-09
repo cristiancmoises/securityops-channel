@@ -86,13 +86,13 @@
         (base32 "13l0kfi97mmiizk0j68wyfmwrr9hiz48s4rxc8crjd1zv75lg0z9"))))))
 
 ;;; Reverse engineering / firmware / forensics.
-;; radare2 6.1.8 needs the new system-Zydis option and sdb >= 2.4.6.  Guix has
-;; Zydis/Zycore, but its sdb 2.4.2 lacks sdb_rename; package current sdb 2.4.8
+;; radare2 6.2.0 needs the system-Zydis option and a current sdb.  Guix has
+;; Zydis/Zycore, but its sdb 2.4.2 lacks sdb_rename; package current sdb 2.5.0
 ;; and keep Guix's patches that force offline system sdb/QuickJS builds.
 (define-public sdb
   (package
     (inherit db:sdb)
-    (version "2.4.8")
+    (version "2.5.0")
     (source
      (origin
        (inherit (package-source db:sdb))
@@ -101,12 +101,12 @@
              (commit version)))
        (file-name (git-file-name "sdb" version))
        (sha256
-        (base32 "0iwix941jbiwxw4jal6jvppvp0ls3yqjxslkw7c7g62i7d14inn8"))))))
+        (base32 "1fci72hcm2a0k9rnsfkcr2qsfprzxfycghpr4i3wargj781lc9jd"))))))
 
 (define-public radare2
   (package
     (inherit eng:radare2)
-    (version "6.1.8")
+    (version "6.2.0")
     (source
      (origin
        (inherit (package-source eng:radare2))
@@ -115,7 +115,7 @@
              (commit version)))
        (file-name (git-file-name "radare2" version))
        (sha256
-        (base32 "1p8h3wwmbaizxj08pif2mk8vcq2xiv5yavhdgcdwf8mcyp99c7qs"))))
+        (base32 "1vzlxn0xdgm8ijaj5nz9l3j52a48g93canzvalp3bcmkyms8s47c"))))
     (arguments
      (substitute-keyword-arguments (package-arguments eng:radare2)
        ((#:configure-flags flags #~'())

@@ -8,8 +8,8 @@
 #   ./update-channel update [--build] [--commit] [--only PKG]...
 #   ./update-channel -h | --help
 #
-#   check                Show, for every channel package, current vs latest
-#                        upstream and whether an update is available.
+#   check                Show current vs latest upstream for every package in
+#                        this helper's registry (not the channel's full index).
 #   update               Auto-apply updates Guix can do itself (guix refresh -u:
 #                        version + real source hash) for the updater-backed
 #                        packages, then optionally build-verify and commit.
@@ -19,8 +19,9 @@
 #
 # Design: `guix refresh -u` is the safe, authoritative auto-updater (it rewrites
 # the (version ...) + (sha256 ...) itself) and covers the github/gnu/pypi-backed
-# packages.  Source-built (torbrowser, librewolf) and binary/vendored packages
-# (chrome, mullvad, steam, ungoogled, the first-party apps) have NO Guix updater
+# packages registered below.  Source-built (torbrowser, librewolf) and
+# binary/vendored packages (chrome, mullvad, steam, ungoogled, the first-party
+# apps) have NO Guix updater
 # and/or auto-bumping them triggers multi-hour compiles or app-specific
 # re-vendoring — so those are CHECK-ONLY: the tool surfaces the exact upstream
 # version + where to bump it, and you apply it deliberately.
@@ -33,8 +34,8 @@ CURL=(curl -fsSL --max-time 20)
 
 # ---- pretty output -----------------------------------------------------------
 if [ -t 1 ] && [ -z "${NO_COLOR:-}" ]; then
-  B=$'\e[1m'; D=$'\e[2m'; R=$'\e[0m'; GRN=$'\e[32m'; YEL=$'\e[33m'; RED=$'\e[31m'; CYN=$'\e[36m'
-else B=; D=; R=; GRN=; YEL=; RED=; CYN=; fi
+  B=$'\e[1m'; D=$'\e[2m'; R=$'\e[0m'; GRN=$'\e[32m'; YEL=$'\e[33m'; RED=$'\e[31m'
+else B=; D=; R=; GRN=; YEL=; RED=; fi
 say()  { printf '%s\n' "$*"; }
 sec()  { printf '\n%s== %s ==%s\n' "$B" "$*" "$R"; }
 die()  { printf '%serror:%s %s\n' "$RED" "$R" "$*" >&2; exit 1; }
@@ -51,17 +52,37 @@ declare -A CHECKER=(
   [google-chrome-stable]=latest_chrome
   [steam]=latest_steam
   [ungoogled-chromium-bin]=latest_ungoogled
+  [esquema]=latest_esquema
+)
+declare -A CHECK_FILE=(
+  [torbrowser]="tor.scm"
+  [librewolf]="librewolf.scm"
+  [mullvad-vpn-desktop]="vpn.scm"
+  [google-chrome-stable]="browsers.scm"
+  [steam]="games.scm"
+  [ungoogled-chromium-bin]="chromium.scm"
+  [esquema]="containers.scm (re-vendor source)"
 )
 # First-party apps (forge / github) -> "host:repo" ; checked via tags.
 declare -A FORGE_APP=(
   [evelin-bin]=securityops:evelin
   [btp]=securityops:btp
-  [mirim]=securityops:mirim
-  [torando-gui]=securityops:torando-gui
-  [vaptvupt]=securityops:vaptvupt
-  [vaptvupt-gui]=securityops:vaptvupt
-  [turborec]=securityops:turborec
+  [mirim]=codeberg:berkeley/mirim
+  [torando-gui]=codeberg:berkeley/torando-gui
+  [vaptvupt]=codeberg:berkeley/vaptvupt
+  [vaptvupt-gui]=codeberg:berkeley/vaptvupt
+  [turborec]=codeberg:berkeley/turborec
   [moneyprinterturbo]=github:harry0703/MoneyPrinterTurbo
+)
+declare -A FORGE_FILE=(
+  [evelin-bin]="apps.scm (re-vendor source)"
+  [btp]="apps.scm (re-vendor source)"
+  [mirim]="apps.scm (re-vendor source)"
+  [torando-gui]="apps.scm (re-vendor source)"
+  [vaptvupt]="apps.scm (re-vendor source)"
+  [vaptvupt-gui]="apps.scm (re-vendor source)"
+  [turborec]="apps.scm (re-vendor source)"
+  [moneyprinterturbo]="apps.scm (re-vendor source)"
 )
 
 # ---- helpers -----------------------------------------------------------------
@@ -104,10 +125,17 @@ latest_steam() { "${CURL[@]}" "https://repo.steampowered.com/steam/archive/preci
 latest_ungoogled() { "${CURL[@]}" "https://api.github.com/repos/ungoogled-software/ungoogled-chromium-portablelinux/releases?per_page=1" 2>/dev/null \
   | python3 -c "import sys,json;d=json.load(sys.stdin);print(d[0]['tag_name'] if d else '?')" 2>/dev/null || echo '?'; }
 
+# Esquema has no release tags on either public forge.  Its ABI version macro is
+# the upstream project's authoritative version marker, so check that directly.
+latest_esquema() { "${CURL[@]}" "https://codeberg.org/berkeley/esquema/raw/branch/main/c/esquema.h" 2>/dev/null \
+  | sed -nE 's/^[[:space:]]*#define[[:space:]]+ESQUEMA_VERSION_STRING[[:space:]]+"([^"]+)".*/\1/p' \
+  | head -1 || echo '?'; }
+
 latest_forge() { # arg: host:repo  -> newest tag
   local host="${1%%:*}" repo="${1#*:}" url
   case "$host" in
-    securityops) url="https://git.securityops.co/cristiancmoises/$repo" ;;
+    securityops) url="https://git.securityops.com.br/cristiancmoises/$repo" ;;
+    codeberg)    url="https://codeberg.org/$repo" ;;
     github)      url="https://github.com/$repo" ;;
     *) echo '?'; return ;;
   esac
@@ -118,14 +146,25 @@ latest_forge() { # arg: host:repo  -> newest tag
 # ---- check -------------------------------------------------------------------
 UPDATES_AUTO=()   # "pkg cur new"   (guix refresh can apply)
 UPDATES_MANUAL=() # "pkg cur new where"
+UNKNOWN_CHECKS=() # package names whose current/upstream lookup failed
 
 do_check() {
   sec "Guix-updatable (auto: guix refresh -u)"
-  local out
-  out="$("$GUIX" refresh -L "$CHAN" "${REFRESH_PKGS[@]}" 2>&1)"
-  local p cur new line
+  local out refresh_rc=0
+  out="$("$GUIX" refresh -L "$CHAN" "${REFRESH_PKGS[@]}" 2>&1)" || refresh_rc=$?
+  local p cur new
   for p in "${REFRESH_PKGS[@]}"; do
     cur="$(cur_ver "$p")"
+    if [ -z "$cur" ]; then
+      printf '  %-22s %s? current version lookup failed%s\n' "$p" "$YEL" "$R"
+      UNKNOWN_CHECKS+=("$p")
+      continue
+    elif [ "$refresh_rc" -ne 0 ]; then
+      printf '  %-22s %s%s%s   %s? guix refresh failed (exit %s)%s\n' \
+        "$p" "$D" "${cur:-?}" "$R" "$YEL" "$refresh_rc" "$R"
+      UNKNOWN_CHECKS+=("$p")
+      continue
+    fi
     new="$(printf '%s\n' "$out" | sed -nE "s#.*:[0-9]+:[0-9]+: ${p} would be upgraded from [^ ]+ to ([^ ]+).*#\1#p" | head -1)"
     if [ -n "$new" ]; then
       printf '  %s%-22s%s %s -> %s%s%s   %s(guix refresh -u)%s\n' "$B" "$p" "$R" "$cur" "$GRN" "$new" "$R" "$D" "$R"
@@ -137,12 +176,12 @@ do_check() {
 
   sec "Check-only (source-build / binary — apply deliberately)"
   for p in $(printf '%s\n' "${!CHECKER[@]}" | sort); do
-    print_manual "$p" "$(${CHECKER[$p]})" "${p}.scm"
+    print_manual "$p" "$(${CHECKER[$p]})" "${CHECK_FILE[$p]}"
   done
 
   sec "First-party apps (forge / github — re-vendor to update)"
   for p in $(printf '%s\n' "${!FORGE_APP[@]}" | sort); do
-    print_manual "$p" "$(latest_forge "${FORGE_APP[$p]}")" "apps.scm (re-vendor source)"
+    print_manual "$p" "$(latest_forge "${FORGE_APP[$p]}")" "${FORGE_FILE[$p]}"
   done
 
   summary
@@ -150,8 +189,12 @@ do_check() {
 
 print_manual() {
   local p="$1" new="$2" where="$3" cur; cur="$(cur_ver "$p")"
-  if [ "$new" = "?" ] || [ -z "$new" ]; then
+  if [ -z "$cur" ]; then
+    printf '  %-22s %s? current version lookup failed%s\n' "$p" "$YEL" "$R"
+    UNKNOWN_CHECKS+=("$p")
+  elif [ "$new" = "?" ] || [ -z "$new" ]; then
     printf '  %-22s %s%s%s   %s? upstream check failed%s\n' "$p" "$D" "${cur:-?}" "$R" "$YEL" "$R"
+    UNKNOWN_CHECKS+=("$p")
   elif is_newer "$cur" "$new"; then
     printf '  %s%-22s%s %s -> %s%s%s   %s%s%s\n' "$B" "$p" "$R" "$cur" "$YEL" "$new" "$R" "$D" "$where" "$R"
     UPDATES_MANUAL+=("$p|$cur|$new|$where")
@@ -162,7 +205,7 @@ print_manual() {
 
 summary() {
   sec "Summary"
-  say "  ${GRN}${#UPDATES_AUTO[@]}${R} auto-updatable  ·  ${YEL}${#UPDATES_MANUAL[@]}${R} need a manual/deliberate bump"
+  say "  ${GRN}${#UPDATES_AUTO[@]}${R} auto-updatable  ·  ${YEL}${#UPDATES_MANUAL[@]}${R} need a manual/deliberate bump  ·  ${RED}${#UNKNOWN_CHECKS[@]}${R} unknown/failed"
   if [ "${#UPDATES_AUTO[@]}" -gt 0 ]; then
     say "  → apply the automatic ones:  ${B}./update-channel update --build --commit${R}"
   fi
@@ -170,6 +213,10 @@ summary() {
     say "  → manual bumps (edit version + sha256, then ${D}guix build -L . PKG${R}):"
     local e; for e in "${UPDATES_MANUAL[@]}"; do IFS='|' read -r p c n w <<<"$e"
       printf '      %s%-20s%s %s -> %s   %s%s%s\n' "$B" "$p" "$R" "$c" "$n" "$D" "$w" "$R"; done
+  fi
+  if [ "${#UNKNOWN_CHECKS[@]}" -gt 0 ]; then
+    say "  ${RED}! audit incomplete; retry or inspect: ${UNKNOWN_CHECKS[*]}${R}"
+    return 1
   fi
 }
 
@@ -183,6 +230,19 @@ do_update() {
 
   local -a targets=("${REFRESH_PKGS[@]}")
   [ "${#only[@]}" -gt 0 ] && targets=("${only[@]}")
+
+  # A refresh rewrites package files in place.  Refuse to mix those edits with
+  # pre-existing package work, and never let an existing staged change hitch a
+  # ride in `--commit'.  Unstaged documentation edits are left untouched.
+  local pre_dirty pre_staged
+  pre_dirty="$(git -C "$CHAN" status --porcelain --untracked-files=all -- securityops/packages/)"
+  pre_staged="$(git -C "$CHAN" diff --cached --name-only)"
+  if [ -n "$pre_dirty" ]; then
+    die "package definitions are already modified; commit/stash them before update"
+  fi
+  if [ "$commit" = 1 ] && [ -n "$pre_staged" ]; then
+    die "the index already contains staged changes; commit/unstage them before --commit"
+  fi
 
   # Refresh PER PACKAGE so one package's transient updater/network error (e.g. a
   # GitHub TLS blip) skips only that package instead of aborting the whole run.
@@ -202,8 +262,8 @@ do_update() {
     fi
   done
 
-  # Only ever consider/commit the channel's package definitions — never the
-  # working tree's other edits (this very script, README, ...).
+  # The package tree was clean above, so these are precisely the files changed
+  # by successful refresh invocations.  Never stage README/script/other edits.
   local changed; changed="$(git -C "$CHAN" diff --name-only -- securityops/packages/ | grep '\.scm$' || true)"
   if [ -z "$changed" ]; then
     say "${D}No definitions changed (already up to date).${R}"
@@ -237,7 +297,11 @@ $(git -C "$CHAN" --no-pager diff --cached --stat)" \
 
 # ---- main --------------------------------------------------------------------
 case "${1:-check}" in
-  -h|--help|help) sed -n '2,30p' "$0" | sed 's/^# \{0,1\}//' ;;
+  -h|--help|help)
+    awk 'NR == 1 { next }
+         /^#/ { sub(/^# ?/, ""); print; next }
+         { exit }' "$0"
+    ;;
   check)  shift || true; do_check ;;
   update) shift; do_update "$@" ;;
   *) die "unknown command: $1  (try: check | update | --help)" ;;
