@@ -14,21 +14,16 @@
 
 ;;; steam — nonguix ships a thin bootstrap (Valve's `steam-launcher' from the
 ;;; precise archive) that the real client self-updates around.  nonguix pins
-;;; that bootstrap at 1.0.0.85 (Valve's `stable' apt suite); this channel tracks
-;;; the newest one Valve publishes, 1.0.0.87, by rebuilding nonguix's steam
+;;; that bootstrap at 1.0.0.85; this channel tracks Valve's current stable
+;;; 1.0.0.87 archive by rebuilding nonguix's steam
 ;;; container around a version-bumped wrap-package.  Everything else (the FHS
 ;;; sandbox, the library set, the mesa driver) is inherited unchanged from nonguix.
-;;;
-;;; NOTE: 1.0.0.87 is from Valve's `beta' suite (the precise archive's newest
-;;; steam-launcher); stable is still 1.0.0.85.  This is a deliberate
-;;; ahead-of-stable choice for the self-updating shim — bump the wrap-package
-;;; below back to 1.0.0.85 if you want stable-only.
 ;;;
 ;;; NOTE: home.scm installs `steam' and transforms it to the NVIDIA variant via
 ;;; `replace-mesa' (-> steam-nvidia / nvda-580); that transformation is
 ;;; orthogonal to this bootstrap bump.
 (define %steam-container
-  ;; nonguix's stock mesa container; its wrap-package is the 1.0.0.85 client.
+  ;; nonguix's stock mesa container; replace its older wrap-package below.
   (nong:steam-container-for mesa))
 
 (define steam-client/latest
