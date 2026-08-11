@@ -414,3 +414,8 @@ Código do canal: **GPL-3.0-or-later** (veja [LICENSE](LICENSE)); `vpn.scm`
 carrega os cabeçalhos de copyright do small-guix de onde foi vendorizado. Cada
 programa empacotado mantém a própria licença upstream, declarada na sua
 definição.
+
+Alguns projetos separados da Security Ops oferecem uma opção pública copyleft
+ou contrato comercial específico e assinado separadamente. Uma receita Guix
+não concede essa opção comercial e não relicencia dependências. Consulte
+[o escopo exato e a lista de projetos inspecionados](LICENSING.pt-BR.md).
