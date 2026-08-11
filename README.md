@@ -697,3 +697,8 @@ fingerprint to `.guix-authorizations` in a commit signed by the old key.
 Channel code: **GPL-3.0-or-later** (see [LICENSE](LICENSE)); `vpn.scm` carries
 the upstream small-guix copyright headers it was vendored from. Each packaged
 program keeps its own upstream license, declared in its definition.
+
+Some separately maintained Security Ops projects offer a public copyleft
+option or a project-specific, separately signed commercial agreement. A Guix
+recipe does not grant that commercial option and does not relicense any
+dependency. See [the exact scope and inspected project list](LICENSING.md).
