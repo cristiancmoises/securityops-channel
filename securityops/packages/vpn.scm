@@ -32,7 +32,7 @@
   #:use-module (nonguix build-system chromium-binary)
   #:use-module ((guix licenses) #:prefix license:))
 
-(define %mullvad-vpn-desktop-version "2026.3")
+(define %mullvad-vpn-desktop-version "2026.4")
 
 (define-public mullvad-vpn-desktop
   (package
@@ -45,7 +45,7 @@
                            version "/MullvadVPN-" version "_amd64.deb"))
        (file-name (string-append name "-" version "-" (%current-system) ".deb"))
        (sha256
-        (base32 "1jhsjf707mv3i29i1r62cb6dml5n4n2s48h9as40d1w0mrryxiiq"))))
+        (base32 "0fs5b4f8axk73a32qs3rk3gf25xpk5jjaj4d1kzhzj8xkq3mimzi"))))
     (build-system chromium-binary-build-system)
     (arguments
      (list
