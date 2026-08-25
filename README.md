@@ -24,11 +24,12 @@ are *ahead* of Guix/nonguix carry a **real, downloaded source hash**.
 - **2026-08-09 comprehensive refresh (authoritative audit, validation, and
   Home/user profile activation complete):** `kitty` 0.48.2,
   `glances` 4.5.6 (private `pyinstrument` 5.1.3),
-  `google-chrome-stable` 151.0.7922.108, `ungoogled-chromium-bin`
-  151.0.7922.108-1, `librewolf` 153.0.3-1 (l10n pin `6795ea14`), `sdb` 2.5.0,
-  `radare2` 6.2.0, and `lf` 42 (upstream tag `r42`; seven private Go modules:
+  `google-chrome-stable` 151.0.7922.173, `ungoogled-chromium-bin`
+  151.0.7922.173-1, `librewolf` 153.0.4-1 (l10n pin `6795ea14`), `sdb` 2.5.0,
+  `radare2` 6.2.0, `lf` 42 (upstream tag `r42`; seven private Go modules:
   `uax29/v2` 2.7.0, `displaywidth` 0.11.0, `tcell/v3` 3.4.1, `fsnotify` 1.10.1,
-  `x/sys` 0.47.0, `x/term` 0.45.0, and `x/text` 0.40.0).
+  `x/sys` 0.47.0, `x/term` 0.45.0, and `x/text` 0.40.0), `torbrowser` 15.0.20,
+  `mullvad-vpn` 2026.4, and `moneyprinterturbo` 1.3.5.
   Kitty, SDB, Radare2, and
   lf pass their exact channel builds and runtime/test checks; LibreWolf's
   Firefox/overlay/l10n source assembly and `mach configure` pass after correcting
