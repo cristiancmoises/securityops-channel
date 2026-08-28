@@ -31,7 +31,7 @@
   #:use-module (gnu packages pulseaudio)         ;pulseaudio/pactl (turborec)
   #:use-module (gnu packages xorg)               ;xrandr, xdpyinfo (turborec)
   #:use-module (gnu packages pciutils)           ;lspci (turborec)
-  #:use-module (gnu packages wm)                 ;wlr-randr, sway/swaymsg (turborec Wayland)
+  #:use-module (gnu packages window-management)  ;wlr-randr, sway/swaymsg (turborec Wayland)
   #:use-module (gnu packages xdisorg)            ;wmctrl (turborec X11 window capture)
   #:use-module (gnu packages version-control)    ;git-minimal (moneyprinterturbo venv bootstrap)
   #:use-module (gnu packages fonts)              ;font-wqy-zenhei (moneyprinterturbo CJK subtitles)
