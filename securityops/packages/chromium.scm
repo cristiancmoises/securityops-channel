@@ -42,7 +42,8 @@
   #:use-module (gnu packages image)
   #:use-module (gnu packages linux)
   #:use-module (gnu packages pciutils)
-  #:use-module (gnu packages photo)
+  ;; Avoid importing libcamera-minimal twice (networking also exports it).
+  #:use-module ((gnu packages photo) #:hide (libcamera-minimal))
   #:use-module (gnu packages qt)
   #:use-module (gnu packages video)
   #:use-module (gnu packages wget)
@@ -61,7 +62,7 @@
              "ungoogled-chromium-portablelinux/releases/download/"
              version "/ungoogled-chromium-" version "-x86_64_linux.tar.xz"))
        (sha256
-        (base32 "MU4DCNBZMQZTQMTDMYZTOOBUGU3DKMZWGM3TCYJUHE4TQY3CHBSTMYJQMMZWCMTGMNSDCMTDGA2WKZBQGIZGKNBSMQ4WKOLGHBTDGNA="))))
+        (base32 "0d4gkyg2vr12s1gc04nd5wx0qslfrfc4j6ip6rjlay7k5hw9s578"))))
     (build-system chromium-binary-build-system)
     (arguments
      (list
