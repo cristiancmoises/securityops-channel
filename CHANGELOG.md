@@ -6,6 +6,9 @@ tag rather than SemVer of the code.
 
 ## [Unreleased]
 
+### Changed — DSH approval policy (2026-08-09)
+- DSH harness approval policy changed from `ask` to `never` (prompts disabled). No sandbox escalation required; session operates with `danger-full-access` file permissions.
+
 ### Changed — comprehensive package refresh (2026-08-09)
 
 - **kitty 0.48.1 → 0.48.2** from the official `v0.48.2` tag. The existing
