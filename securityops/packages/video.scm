@@ -16,11 +16,11 @@
 (define-public mpv gnu:mpv)
 (define-public vlc gnu:vlc)
 
-;;; openshot — bumped ahead of Guix: 3.4.0 -> 3.5.1 (latest upstream).
-;;; git-fetch of tag v3.5.1; inherits the upstream origin (snippet preserved).
-;;; Hash: `guix hash -rx' over `git clone -b v3.5.1 .../OpenShot/openshot-qt'.
+;;; openshot — bumped ahead of Guix: 3.4.0 -> 4.0.0 (latest upstream).
+;;; git-fetch of tag v4.0.0; inherits the upstream origin (snippet preserved).
+;;; Hash: `guix hash -rx' over `git clone -b v4.0.0 .../OpenShot/openshot-qt'.
 ;;;
-;;; 3.5.1 restructured its test suite: Guix's inherited check phase invokes the
+;;; 3.5.1 and later restructure the test suite: Guix's inherited check phase invokes the
 ;;; removed `src/tests/query_tests.py' (now split into unittest modules such as
 ;;; `src/tests/test_query.py'), so the build failed in `check'.  The inherited
 ;;; check phase guards on `tests?', so #:tests? #f makes it a no-op while every
@@ -28,7 +28,7 @@
 (define-public openshot
   (package
     (inherit gnu:openshot)
-    (version "3.5.1")
+    (version "4.0.0")
     (source
      (origin
        (inherit (package-source gnu:openshot))
@@ -37,7 +37,7 @@
              (commit (string-append "v" version))))
        (file-name (git-file-name (package-name gnu:openshot) version))
        (sha256
-        (base32 "0df8sb7k43m580b50c1g430fqbml6vzszaklp9z7767j4gfz1dl8"))))
+        (base32 "1ngz9v1syclwg8z8wp8i0h2pn4qvz0ligz73w40hbznpn1pk48k9"))))
     (arguments
      (substitute-keyword-arguments (package-arguments gnu:openshot)
        ((#:tests? _ #t) #f)))))

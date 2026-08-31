@@ -53,8 +53,8 @@ você os instala, e eles acompanhem o Guix automaticamente); pacotes que estão
 - **Casa:** [`https://git.securityops.com.br/cristiancmoises/securityops-channel`](https://git.securityops.com.br/cristiancmoises/securityops-channel) (oficial) · espelhos: [Codeberg](https://codeberg.org/berkeley/securityops-channel) · [GitHub](https://github.com/cristiancmoises/securityops-channel)
 - **Assinatura:** todo commit é assinado com GPG (ed25519 `0CFA 43B9 … ECFB 46E8`) e o canal é autenticado (veja [Publicação e autenticação](#publicação-e-autenticação))
 
-> A lista completa de pacotes (índice de 51 pacotes), com versões e a última
-> mudança de cada um, está no [README em inglês](README.md#-full-package-index-51-packages).
+> A lista completa de pacotes (índice de 52 pacotes), com versões e a última
+> mudança de cada um, está no [README em inglês](README.md#-full-package-index-52-packages).
 > Este documento cobre tudo que um usuário brasileiro precisa para **instalar,
 > usar, verificar e manter** o canal, além de uma visão geral dos pacotes.
 
@@ -142,8 +142,8 @@ git -C securityops-channel log --show-signature -1
 
 ## O conjunto curado
 
-O canal define **51 pacotes** em 5 classes. O índice completo (versão + última
-mudança de cada um) fica no [README em inglês](README.md#-full-package-index-51-packages);
+O canal define **52 pacotes** em 5 classes. O índice completo (versão + última
+mudança de cada um) fica no [README em inglês](README.md#-full-package-index-52-packages);
 abaixo, a visão por categoria.
 
 ### ⬆️ À frente do Guix / nonguix (hashes reais baixados)
@@ -265,6 +265,20 @@ a seção *Esquema* no [README em inglês](README.md#esquema--rootless-guile-nat
 
 ## Consumindo o canal em `/etc/config.scm` e `home.scm`
 
+`xlibre-server` é um overlay da receita upstream `guix-xlibre`; portanto,
+adicione ambos os canais ao `channels.scm` e importe os dois módulos para usá-lo:
+
+```scheme
+(channel
+ (name 'guix-xlibre)
+ (url "https://gitlab.vulnix.sh/spacecadet/guix-xlibre.git"))
+```
+
+Depois use `((securityops packages xlibre) #:prefix so:)` e
+`so:xlibre-server`. O overlay mantém a receita do guix-xlibre, mas fixa a fonte
+do servidor XLibre em 25.2.2; o patch Intel obsoleto foi omitido porque a série
+25.2 já contém a política correspondente.
+
 Um pacote atualizado "pelado", como `kitty`, `fish`, `radare2` ou
 `google-chrome-stable`, escrito contra `(gnu packages …)` / `(nongnu packages
 …)`, resolve para o pacote *próprio do guix* (mais antigo), **não** para o deste
@@ -285,6 +299,7 @@ prefixo e use o símbolo prefixado:
 ((securityops packages video)     #:prefix so:)   ; so:openshot
 ((securityops packages games)     #:prefix so:)   ; so:steam
 ((securityops packages monitoring) #:prefix so:)  ; so:glances
+((securityops packages xlibre)    #:prefix so:)   ; so:xlibre-server 25.2.2 (requer guix-xlibre)
 
 ;; …e na lista de pacotes use so:kitty, so:fish, so:radare2, …
 ;; e, para o daemon, sobrescreva o campo do serviço:
@@ -295,7 +310,7 @@ prefixo e use o símbolo prefixado:
 
 O Pyinstrument do Glances e os sete módulos do grafo go.mod exato do lf são
 definições privadas de build, não exportações públicas. Portanto o lf continua
-sendo um único pacote e o índice público permanece com 51 pacotes.
+sendo um único pacote e o índice público permanece com 52 pacotes.
 
 Para aplicar após editar o canal: `guix pull` (pega o novo commit do
 `securityops`), depois `guix system reconfigure /etc/config.scm` e
@@ -366,7 +381,7 @@ A lista completa de ressalvas está no
 Um comando relata as versões que os updaters conseguem enxergar para o
 subconjunto registrado e pode aplicar as alterações de receita que o Guix
 suporta. É um auxiliar de conveniência, não substitui a auditoria release a
-release dos 51 pacotes públicos:
+release dos 52 pacotes públicos:
 
 ```sh
 ./update-channel                       # relata versão atual vs candidatas visíveis

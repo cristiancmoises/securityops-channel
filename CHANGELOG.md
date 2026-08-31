@@ -6,6 +6,18 @@ tag rather than SemVer of the code.
 
 ## [Unreleased]
 
+### Changed — XLibre 25.2.2 and OpenShot 4.0.0 (2026-08-31)
+
+- Added `(securityops packages xlibre)` with `xlibre-server` 25.2.2 from the
+  official `xlibre-xserver-25.2.2` tag, with a verified Guix git-fetch hash.
+  It inherits the guix-xlibre recipe, but omits its obsolete pre-gen4 Intel
+  patch: upstream 25.2 already includes the equivalent (stricter pre-gen3)
+  policy, and the older patch no longer applies.  The `guix-xlibre` dependency
+  is declared and documented in both READMEs.
+- Updated **OpenShot 3.5.1 → 4.0.0** with `guix refresh -u`; the inherited
+  disabled test phase remains necessary because upstream's post-3.5 test
+  layout no longer matches Guix's old test entry point.
+
 ### Changed — comprehensive package refresh (2026-08-09)
 
 - **kitty 0.48.1 → 0.48.2** from the official `v0.48.2` tag. The existing
