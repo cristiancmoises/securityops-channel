@@ -265,15 +265,8 @@ a seção *Esquema* no [README em inglês](README.md#esquema--rootless-guile-nat
 
 ## Consumindo o canal em `/etc/config.scm` e `home.scm`
 
-`xlibre-server` é um overlay da receita upstream `guix-xlibre`; portanto,
-adicione ambos os canais ao `channels.scm` e importe os dois módulos para usá-lo:
-
-```scheme
-(channel
- (name 'guix-xlibre)
- (url "https://gitlab.vulnix.sh/spacecadet/guix-xlibre.git"))
-```
-
+`xlibre-server` é um overlay da receita upstream `guix-xlibre`. O canal declara
+`guix-xlibre` como dependência, então `guix pull` o obtém automaticamente.
 Depois use `((securityops packages xlibre) #:prefix so:)` e
 `so:xlibre-server`. O overlay mantém a receita do guix-xlibre, mas fixa a fonte
 do servidor XLibre em 25.2.2; o patch Intel obsoleto foi omitido porque a série

@@ -406,19 +406,12 @@ git -C securityops-channel log --show-signature -1
 
 ### Consuming the channel from `/etc/config.scm` and `home.scm`
 
-`xlibre-server` is an overlay of the upstream `guix-xlibre` recipe, so add
-both channels to `channels.scm` and import both modules when using it:
-
-```scheme
-(channel
- (name 'guix-xlibre)
- (url "https://gitlab.vulnix.sh/spacecadet/guix-xlibre.git"))
-```
-
-Then use `((securityops packages xlibre) #:prefix so:)` and `so:xlibre-server`.
-The overlay retains guix-xlibre's recipe while pinning the XLibre server source
-to 25.2.2; its obsolete Intel-driver patch is intentionally omitted because the
-25.2 series already contains the corresponding policy.
+`xlibre-server` is an overlay of the upstream `guix-xlibre` recipe.  The
+channel declares `guix-xlibre` as a dependency, so `guix pull` obtains it
+automatically.  Then use `((securityops packages xlibre) #:prefix so:)` and
+`so:xlibre-server`.  The overlay retains guix-xlibre's recipe while pinning the
+XLibre server source to 25.2.2; its obsolete Intel-driver patch is intentionally
+omitted because the 25.2 series already contains the corresponding policy.
 
 A bare bumped package such as `kitty`, `fish`, `radare2`, or
 `google-chrome-stable` written against `(gnu packages …)` / `(nongnu packages
