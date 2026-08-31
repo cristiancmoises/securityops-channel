@@ -56,7 +56,7 @@ are *ahead* of Guix/nonguix carry a **real, downloaded source hash**.
 
 ## The curated set
 
-### 📇 Full package index (51 packages)
+### 📇 Full package index (52 packages)
 
 Every package this channel defines, its current version, and the most recent
 change. **Class**: 🅑 bumped ahead of Guix/nonguix (real downloaded hash) · 🄟
@@ -67,6 +67,7 @@ per-category sections and caveats follow below.
 
 | Package | Version | Class | Latest change / note |
 |---|---|:--:|---|
+| `xlibre-server` | 25.2.2 | 🅑 | current stable XLibre server overlay on the `guix-xlibre` recipe; source hash and derivation verified |
 | `kitty` | 0.48.2 | 🅑 | ahead of Guix 0.46.2; pulls three vendored Go deps (↓); exact build/runtime passes |
 | `tor` | 0.4.9.11 | 🅑 | ahead of Guix 0.4.9.8 |
 | `torbrowser` | 15.0.19 | 🅑 | engine/branding current; inherited private l10n pins remain at 15.0.14 (caveat ↓) |
@@ -121,7 +122,7 @@ per-category sections and caveats follow below.
 
 Glances' Pyinstrument and lf's seven exact go.mod modules are private build
 definitions, not public exports, so lf remains one public package and the index
-remains at 51.
+remains at 52.
 
 ### 🔌 Services (2)
 
@@ -405,6 +406,20 @@ git -C securityops-channel log --show-signature -1
 
 ### Consuming the channel from `/etc/config.scm` and `home.scm`
 
+`xlibre-server` is an overlay of the upstream `guix-xlibre` recipe, so add
+both channels to `channels.scm` and import both modules when using it:
+
+```scheme
+(channel
+ (name 'guix-xlibre)
+ (url "https://gitlab.vulnix.sh/spacecadet/guix-xlibre.git"))
+```
+
+Then use `((securityops packages xlibre) #:prefix so:)` and `so:xlibre-server`.
+The overlay retains guix-xlibre's recipe while pinning the XLibre server source
+to 25.2.2; its obsolete Intel-driver patch is intentionally omitted because the
+25.2 series already contains the corresponding policy.
+
 A bare bumped package such as `kitty`, `fish`, `radare2`, or
 `google-chrome-stable` written against `(gnu packages …)` / `(nongnu packages
 …)` resolves to *guix's own* (older) package, **not** this channel's — module
@@ -422,9 +437,10 @@ prefixed symbol:
 ((securityops packages utils)     #:prefix so:)   ; so:lf      42 (gnu 41; tag r42)
 ((securityops packages security)  #:prefix so:)   ; so:mtr, so:sdb, so:radare2, so:rizin
 ((securityops packages vpn)       #:prefix so:)   ; so:mullvad-vpn-desktop  2026.3
-((securityops packages video)     #:prefix so:)   ; so:openshot 3.5.1 (gnu 3.4.0)
+((securityops packages video)     #:prefix so:)   ; so:openshot 4.0.0 (gnu 3.4.0)
 ((securityops packages games)     #:prefix so:)   ; so:steam   1.0.0.87 (nonguix 1.0.0.85)
 ((securityops packages monitoring) #:prefix so:)  ; so:glances 4.5.6 (gnu 4.3.0)
+((securityops packages xlibre)    #:prefix so:)   ; so:xlibre-server 25.2.2 (requires guix-xlibre)
 
 ;; …then in the package list use so:kitty, so:fish, so:radare2, …
 ;; and for the daemon, override the service field:
@@ -458,7 +474,8 @@ securityops-channel/
 │   ├── shells.scm            # fish 4.8.1 hermetic Cargo source build
 │   ├── fish-crates.scm       # Fish 4.8.1 Cargo.lock-matched offline sources
 │   ├── emacs.scm             # emacs, emacs-pgtk (re-export)
-│   ├── video.scm             # openshot (bump), mpv, vlc (re-export)
+│   ├── video.scm             # openshot 4.0.0 (bump), mpv, vlc (re-export)
+│   ├── xlibre.scm            # xlibre-server 25.2.2 overlay (requires guix-xlibre)
 │   ├── utils.scm             # lf 42/tag r42 (bump) + seven private Go modules; keepassxc/ueberzugpp (re-export)
 │   ├── browsers.scm          # google-chrome (bump), librewolf + ungoogled-chromium-bin (re-export of ↓), ungoogled-chromium (re-export)
 │   ├── librewolf.scm         # librewolf 153.0.3-1 (vendored make-librewolf-source)
@@ -638,7 +655,7 @@ left to the corresponding `guix pull` / reconfigure.
 
 One command reports updater-visible releases for its registered subset and can
 apply the recipe edits that Guix's updater supports. It is a convenience helper,
-not a replacement for the release-by-release audit of all 51 public packages:
+not a replacement for the release-by-release audit of all 52 public packages:
 
 ```sh
 ./update-channel                       # report current vs updater-visible candidates
