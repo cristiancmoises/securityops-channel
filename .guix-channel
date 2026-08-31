@@ -5,12 +5,13 @@
 ;; versions of the securityops workstation's most-used applications
 ;; (alacritty, kitty, tor, torbrowser, fish, emacs, mpv, vlc, openshot,
 ;; keepassxc, ueberzugpp, lf, librewolf, ungoogled-chromium, google-chrome,
-;; mullvad-vpn-desktop, steam, glances, esquema).
+;; mullvad-vpn-desktop, steam, glances, esquema, xlibre-server).
 ;;
 ;; Depends on nonguix for google-chrome, steam, and Mullvad's
 ;; `chromium-binary-build-system'.  (You already have nonguix in channels.scm,
 ;; pinned at bf39542 — well after the introduction commit below, so no
-;; conflict.)
+;; conflict.)  Also depends on guix-xlibre for the XLibre server recipe that
+;; the channel's xlibre-server overlay inherits.
 ;;
 (channel
  (version 0)
@@ -28,4 +29,7 @@
     (channel-introduction
      (version 0)
      (commit "897c1a470da759236cc11798f4e0a5f7d4d59fbc")
-     (signer "2A39 3FFF 68F4 EF7A 3D29  12AF 6F51 20A0 22FB B2D5"))))))
+     (signer "2A39 3FFF 68F4 EF7A 3D29  12AF 6F51 20A0 22FB B2D5")))
+  (channel
+   (name guix-xlibre)
+   (url "https://gitlab.vulnix.sh/spacecadet/guix-xlibre.git"))))
