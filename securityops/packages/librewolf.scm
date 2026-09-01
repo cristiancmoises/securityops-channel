@@ -237,7 +237,7 @@
     (source
      (make-librewolf-source
       #:version version
-      #:firefox-hash "09dwrhl6whin17fmyr1ynzak80q4qr37pxj285rqhl41idj6h527"
+      #:firefox-hash "0j4a0ak5658n6iwgx4jc0agqlf1dc403p6qkrw23pfv69j987app"
       #:librewolf-hash "04f5yn0fsc0fbp907vfy6s8mkszdi4xnssn7xdxz7xrb9fmbdbjr"
       #:l10n firefox-l10n))
     (arguments
