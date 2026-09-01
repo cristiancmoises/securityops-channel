@@ -124,7 +124,14 @@
     (inputs
      (modify-inputs (package-inputs eng:radare2)
        (replace "sdb" sdb)
-       (append eng:zydis eng:zycore)))))
+       (append eng:zydis eng:zycore)))
+    ;; Guix exposes sdb to consumers through radare2's propagated inputs, not
+    ;; regular inputs.  Keep that public dependency on the channel's 2.5.0
+    ;; package as well, otherwise a profile containing both packages conflicts
+    ;; with the inherited 2.4.6 copy.
+    (propagated-inputs
+     (modify-inputs (package-propagated-inputs eng:radare2)
+       (replace "sdb" sdb)))))
 
 ;; Rizin 0.9 removed the Swift-demangler option and added a Zydis backend.
 ;; Use Guix's system libraries except OpenSSL: 0.9.1's system-OpenSSL SHA3
