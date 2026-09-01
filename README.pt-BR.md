@@ -4,13 +4,17 @@
 > empacotados do jeito Guix — hashes de fonte reais, cada definição herdando do
 > upstream para permanecer pequena e auditável.
 
-🌐 **Idioma:** **Português (Brasil)** · [English](README.md)
+Idioma: **Português (Brasil)** · [English](README.md)
+
+## Visão geral
 
 Este canal cura os programas nos quais esta máquina vive e os mantém na versão
 oficial mais nova. Pacotes que o Guix fixado já entrega na versão mais recente
 são **re-exportados sem alteração** (para que o canal seja o único lugar de onde
 você os instala, e eles acompanhem o Guix automaticamente); pacotes que estão
 *à frente* do Guix/nonguix carregam um **hash de fonte real, baixado**.
+
+## Release atual
 
 - **Host:** `predator-helios-intel` (a máquina do `/etc/config.scm` ativo)
 - **Guix fixado:** commit `d1e9e23` (junho/2026); **depende de** `nonguix`
@@ -151,7 +155,7 @@ O canal define **52 pacotes** em 5 classes. O índice completo (versão + últim
 mudança de cada um) fica no [README em inglês](README.md#-full-package-index-52-packages);
 abaixo, a visão por categoria.
 
-### ⬆️ À frente do Guix / nonguix (hashes reais baixados)
+### Updated: À frente do Guix / nonguix (hashes reais baixados)
 
 Pacotes com versão própria, à frente do que o Guix/nonguix entrega:
 
@@ -175,7 +179,7 @@ Pacotes com versão própria, à frente do que o Guix/nonguix entrega:
 | **rizin** | 0.9.1 | flags Meson/dependências de sistema atualizadas; suíte completa aprovada |
 | **lf** | 42 | tag `r42`; à frente do Guix 41; grafo go.mod privado exato com 7 módulos; build e suítes completas aprovados |
 
-### 🄟 Binário pré-compilado
+### Prebuilt Binário pré-compilado
 
 - **ungoogled-chromium-bin** `151.0.7922.173-1` — release PortableLinux x86_64
   oficial atual, fixado pelo hash real baixado e empacotado com o
@@ -183,13 +187,13 @@ Pacotes com versão própria, à frente do que o Guix/nonguix entrega:
   `chromium --version` reporta `Chromium 151.0.7922.173` e esse release está
   ativo no perfil Home como a versão Chromium atual recomendada.
 
-### ✅ Re-exportados — já mais recentes no Guix/nonguix
+### Verified: Re-exportados — já mais recentes no Guix/nonguix
 
 Acompanham o Guix automaticamente:
 `alacritty` 0.17.0 · `emacs` 30.2 · `emacs-pgtk` 30.2 · `mpv` 0.41.0 ·
 `vlc` 3.0.23 · `keepassxc` 2.7.12 · `ueberzugpp` 2.9.10
 
-### 🄕 Apps SecurityOps / first-party
+### First-party Apps SecurityOps / first-party
 
 Os campos `home-page` apontam para o projeto público ativo: Evelin e BTP usam
 os projetos canônicos no Forgejo;
@@ -214,7 +218,7 @@ Codeberg/GitHub. Para o build ser **autocontido**, as fontes/artefatos continuam
 | **esquema** | 0.2.0 | runtime de contêiner rootless nativo em Guile |
 | **moneyprinterturbo** | 1.3.3 | gerador de vídeos curtos por IA; prévia de voz, modos de BGM, velocidade/transições, recuperação e avisos de atualização (mesma política de vendorização/poda de fontes) |
 
-### ⚠️ Re-exportado — existe upstream mais novo, mas o bump é impraticável aqui
+### Caution: Re-exportado — existe upstream mais novo, mas o bump é impraticável aqui
 
 - **ungoogled-chromium** (fonte) `147.0.7727.137-1` — é a versão do guix fixado.
   O **147 compila normalmente sob Tor**: a fonte vem como **substituto**
