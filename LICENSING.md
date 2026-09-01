@@ -15,8 +15,8 @@ Several separately maintained, first-party Security Ops projects provide a
 public copyleft option and may provide different terms through a separately
 executed commercial agreement. In the local repositories inspected for this
 release, that model is documented for Evelin, Evelin Cells, Esquema, Zupt, its
-bundled VaptVupt Codec, libvuptsdk, Mirim, and Cofre Soberano PQ. Their exact
-public licenses differ: Zupt contains AGPL and GPL scopes, VaptVupt Codec is GPL,
+bundled compression codec, libvuptsdk, Mirim, and Cofre Soberano PQ. Their exact
+public licenses differ: Zupt contains AGPL and GPL scopes, the bundled codec is GPL,
 Mirim is AGPLv3-only, and the other named code is generally AGPLv3-or-later.
 
 That statement is not a commercial license grant. A project-specific

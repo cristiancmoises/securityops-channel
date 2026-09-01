@@ -15,8 +15,8 @@ Vários projetos próprios e separados da Security Ops oferecem uma opção
 pública copyleft e podem oferecer termos diferentes por contrato comercial
 assinado separadamente. Nos repositórios locais inspecionados para esta
 versão, esse modelo está documentado para Evelin, Evelin Cells, Esquema,
-Zupt, seu VaptVupt Codec embutido, libvuptsdk, Mirim e Cofre Soberano PQ. As
-licenças públicas diferem: Zupt possui escopos AGPL e GPL, VaptVupt Codec é GPL,
+Zupt, seu codec de compressão embutido, libvuptsdk, Mirim e Cofre Soberano PQ. As
+licenças públicas diferem: Zupt possui escopos AGPL e GPL, o codec embutido é GPL,
 Mirim é somente AGPLv3 e os demais códigos citados geralmente são
 AGPLv3-or-later.
 
