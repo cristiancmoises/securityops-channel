@@ -14,58 +14,30 @@ são **re-exportados sem alteração** (para que o canal seja o único lugar de 
 você os instala, e eles acompanhem o Guix automaticamente); pacotes que estão
 *à frente* do Guix/nonguix carregam um **hash de fonte real, baixado**.
 
-## Release atual
+## Status do canal
 
-- **Host:** `predator-helios-intel` (a máquina do `/etc/config.scm` ativo)
-- **Guix fixado:** commit `d1e9e23` (junho/2026); **depende de** `nonguix`
-- **Atualização de 2026-09-01 (validação do canal concluída):** os pacotes
-  first-party **`zupt`** e **`zupt-gui`** estão na versão 5.2.8, do arquivo
-  oficial verificado. Chrome está em 152.0.7977.64, LibreWolf em 153.0.4-1, Tor
-  Browser/assets em 15.0.20 e XLibre em 25.2.2; os hashes relacionados foram
-  corrigidos.
-- **Atualização de 2026-07-25 (compilada, instalada e verificada nos
-  perfis):** `fish` 4.8.1, `kitty` 0.48.1 (com
-  `go-github-com-emmansun-base64` 0.10.0 e `go-github-com-ebitengine-purego`
-  0.10.2), `google-chrome-stable` 150.0.7871.186, `ungoogled-chromium-bin`
-  150.0.7871.186-1, `evelin-bin` 4.3.0, `turborec` 3.7.0,
-  `moneyprinterturbo` 1.3.3, `mtr` 0.96, `sdb` 2.4.8, `radare2` 6.1.8 e
-  `rizin` 0.9.1. Todas as compilações passaram; o Fish também passou 197/197
-  testes de integração e 272 testes Cargo. O perfil Home contém Fish, Kitty,
-  Chrome, Chromium e MoneyPrinterTurbo; o perfil de usuário contém Evelin,
-  TurboRecorder, MTR, SDB, Radare2 e Rizin.
-- **Atualização abrangente de 2026-08-09 (auditoria e validação autoritativas e
-  ativação dos perfis Home e direto de usuário concluída):** `kitty` 0.48.2,
-  `glances` 4.5.6
-  (dependência privada `pyinstrument` 5.1.3), `google-chrome-stable`
-  151.0.7922.108, `ungoogled-chromium-bin` 151.0.7922.108-1, `librewolf`
-  153.0.3-1 (pin l10n `6795ea14`), `sdb` 2.5.0, `radare2` 6.2.0 e `lf` 42
-  (tag upstream `r42`; sete módulos Go privados: `uax29/v2` 2.7.0,
-  `displaywidth` 0.11.0, `tcell/v3` 3.4.1, `fsnotify` 1.10.1, `x/sys` 0.47.0,
-  `x/term` 0.45.0 e `x/text` 0.40.0). Kitty, Glances, SDB, Radare2 e lf
-  passaram as compilações exatas e seus testes rápidos/suítes; a montagem
-  completa da fonte Firefox/overlay/l10n e o `mach configure` do LibreWolf
-  passaram após corrigir o matcher do Makefile e atualizar privadamente
-  `rust-cbindgen` para 0.29.4 e `nss-rapid` para 3.126. O build LTO exato passou
-  e `librewolf --version` reporta `Mozilla LibreWolf 153.0.3-1`. Chrome e
-  Chromium também passaram os builds exatos e ambos reportam 151.0.7922.108 em
-  runtime. O perfil Home agora contém Fish 4.8.1, Kitty 0.48.2, Chrome
-  151.0.7922.108, ungoogled Chromium 151.0.7922.108, LibreWolf 153.0.3-1, lf 42
-  e Tor Browser 15.0.19 (Firefox ESR 140.13.0;
-  `BASE_BROWSER_VERSION = 15.0.19`). O perfil direto de usuário contém Fish
-  4.8.1, LibreWolf 153.0.3-1, SDB 2.5.0, Radare2 6.2.0 e Glances 4.5.6/PsUtil
-  7.2.2. A auditoria release a release de
-  todas as definições confirmou que os demais releases estão atuais, salvo o
-  fallback documentado do ungoogled Chromium 147 compilado de fonte (o motor
-  atual 151 é fornecido pelo `-bin`), inclusive todos os apps first-party; a ressalva dos pins privados de l10n
-  15.0.14 do Tor Browser está documentada abaixo.
-- **Mantenedor:** Cristian Cezar Moisés `<ethicalhacker@riseup.net>`
-- **Casa:** [`https://git.securityops.com.br/cristiancmoises/securityops-channel`](https://git.securityops.com.br/cristiancmoises/securityops-channel) (oficial) · espelhos: [Codeberg](https://codeberg.org/berkeley/securityops-channel) · [GitHub](https://github.com/cristiancmoises/securityops-channel)
-- **Assinatura:** todo commit é assinado com GPG (ed25519 `0CFA 43B9 … ECFB 46E8`) e o canal é autenticado (veja [Publicação e autenticação](#publicação-e-autenticação))
+| Item | Estado atual |
+|---|---|
+| Host | `predator-helios-intel` |
+| Base Guix | Commit `d1e9e23` (junho de 2026); requer `nonguix` |
+| Atualização mais recente | 2026-09-01 |
+| Validação | Hashes de fonte corrigidos e validação do canal concluída |
+| Mantenedor | Cristian Cezar Moisés `<ethicalhacker@riseup.net>` |
+| Repositório canônico | [git.securityops.com.br](https://git.securityops.com.br/cristiancmoises/securityops-channel) |
+| Espelhos | [Codeberg](https://codeberg.org/berkeley/securityops-channel) e [GitHub](https://github.com/cristiancmoises/securityops-channel) |
+| Autenticação | Todo commit é assinado por GPG; veja [Publicação e autenticação](#publicação-e-autenticação) |
 
-> A lista completa de pacotes (índice de 52 pacotes), com versões e a última
-> mudança de cada um, está no [README em inglês](README.md#-full-package-index-52-packages).
-> Este documento cobre tudo que um usuário brasileiro precisa para **instalar,
-> usar, verificar e manter** o canal, além de uma visão geral dos pacotes.
+### Pacotes em destaque
+
+| Pacote | Versão |
+|---|---|
+| `zupt`, `zupt-gui` | 5.2.8 |
+| Google Chrome | 152.0.7977.64 |
+| LibreWolf | 153.0.4-1 |
+| Tor Browser e assets | 15.0.20 |
+| XLibre | 25.2.2 |
+
+Para alterações datadas e notas detalhadas de validação, consulte [CHANGELOG.md](CHANGELOG.md).
 
 ---
 

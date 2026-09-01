@@ -14,52 +14,30 @@ upstream version are **re-exported unchanged** (so the channel is the single
 place you install them from, and they track Guix automatically); packages that
 are *ahead* of Guix/nonguix carry a **real, downloaded source hash**.
 
-## Current release
+## Channel status
 
-- **Host:** `predator-helios-intel` (the live `/etc/config.scm` machine)
-- **Pinned Guix:** commit `d1e9e23` (June 2026); **depends on** `nonguix`
-- **2026-09-01 refresh (channel validation complete):** the first-party
-  **`zupt`** and **`zupt-gui`** packages are at 5.2.8 from the verified
-  upstream release archive. Google Chrome is 152.0.7977.64, LibreWolf 153.0.4-1,
-  Tor Browser/assets 15.0.20, and XLibre 25.2.2; related source hashes were
-  repaired.
-- **Built/verified:** 2026-06-21; **re-validated 2026-06-22** (Mullvad → 2026.3, LibreWolf → 152.0.1-2); **2026-06-23** (torando-gui 1.0.1 added, then → 1.1.0: native GUI + connectivity fixes — built & installed); **2026-06-24** (zupt 4.0.0 CLI + zupt-gui 1.3.0 added — built from source; steam bootstrap bumped 1.0.0.85 → 1.0.0.86); **2026-06-25** (turborec 2.2.0 added — built from source; CLI + bash launcher run, Tkinter GUI works via the python `tk` output; **LibreWolf 152.0.1-2 + torbrowser 15.0.16 fully compiled & run-verified** — full Firefox source builds, unblocked by a 24 GiB swapfile); **2026-06-30** (glances 4.5.5 added — from-source bump, new `(securityops packages monitoring)` module + private pyinstrument 5.1.2 dep; built, `glances --version` → 4.5.5, `--stdout cpu,mem` returns live data; **lynis 3.1.7** added; **tor → 0.4.9.11**; batch bumps **steam 1.0.0.87 / google-chrome 150.0.7871.46 / ungoogled-chromium-bin 149.0.7827.200-1 / torbrowser 15.0.17 / turborec 3.0.0** — built & verified; **openshot 3.5.1 build fixed** (stale test path)); **2026-07-01** (esquema 0.2.0 added — new `(securityops packages containers)` module: rootless Guile-native container runtime, built from source, libseccomp-backed; `guix build -L . esquema` verified); **2026-07-09** (batch bumps **google-chrome 150.0.7871.114 / ungoogled-chromium-bin 150.0.7871.100-1 / librewolf 152.0.5-1 / turborec 3.1.0 / zupt 4.1.0 / zupt-gui 4.1.0 / moneyprinterturbo 1.3.1** — all built & run-verified; zupt is source-only upstream now, its `make check` crypto/security suite runs in-build; librewolf source assembly verified with new l10n pin `6ee6f5c4`); **2026-07-10** (**zupt(+gui) → 4.2.0** — critical `--dedup` AES-CTR keystream-reuse fix + pure-PQ `--pq-only` mode; built, full check suite incl. the new dedup-nonce regression green, run-verified; then **→ 4.2.1** — `info` now reads the real envelope type and labels `--pq-only` archives "ML-KEM-768 only, no classical layer" instead of hybrid; fix run-verified on a real `--pq-only` archive; then **→ 5.0.0** — ML-KEM-768 made genuinely FIPS 203-conformant, cross-validated against OpenSSL 3.5 **inside the build** (openssl native-input); **BREAKING: regenerate PQ keys, re-encrypt PQ archives from ≤ 4.2.1**; `--pq-only` keygen→encrypt→decrypt round-trip verified); **2026-07-11/12** (**zupt(+gui) → 5.1.0 → 5.2.0 → 5.2.1** — codec 2.65.0→2.65.3 with large ratio gains and ~2× faster extreme; GUI compress-crash fix (thread-safe `_Job` controller), robust auto-detect Verify/Extract, XWayland fallback on Sway; wire format v1.6 unchanged; all built + profile-verified, GUI `--selftest` OK; **turborec → 3.2.0** — `-R/--resolution` native/720p/1080p/1440p/4k lanczos output scaling; built & run-verified; **ungoogled-chromium-bin → 150.0.7871.114-1** — the .114 prebuilt landed, run-verified; **moneyprinterturbo → 1.3.2** — re-vendored, same prune policy; streamlit 1.59.1 + google-genai in the first-run venv); **2026-07-13** (**turborec → 3.3.0** — live YouTube/RTMPS streaming (`record --stream`), adaptive quality; built & run-verified; then **→ 3.4.0** — security-audit fixes; then **→ 3.5.0** — webcam PiP overlay + mic noise suppression; then **→ 3.6.0** — `turborecorder` Wayland (wf-recorder) capture + static-screen stop fix; all built & run-verified); **2026-07-15** (batch bumps **google-chrome 150.0.7871.124 / librewolf 152.0.6-1 (l10n pin `e42882cf`) / torbrowser 15.0.18 / torbrowser-assets 15.0.18 / mirim 1.1.0** — chrome/mirim/tb-assets built & run-verified, librewolf+torbrowser source assemblies verified (full compile deferred to reconfigure); mirim 1.1.0 moved binaries to the archive root + added an unpackaged `mirim-gui`); **2026-07-17** (**evelin-bin → 4.2.0** — 7 static binaries (adds `ev`/`evelin-keyscan`/`evelin-multisig-verify`); built, `evelin-client 4.2.0`, **installed**; batch bumps **google-chrome 150.0.7871.128 / ungoogled-chromium-bin 150.0.7871.128-1** — built & run-verified (`Chromium 150.0.7871.128`); fixed the **moneyprinterturbo** version field (was mislabelled 1.3.4 — upstream's newest tag is v1.3.2); README re-synced to the torando-gui 1.3.4 commits; then **google-chrome → 150.0.7871.181 / librewolf → 153.0-3 (MAJOR 152→153, l10n pin `235fd5b0`) / torbrowser → 15.0.19 / torbrowser-assets → 15.0.19** — chrome/tb-assets built & run-verified, librewolf+torbrowser source assemblies verified (Firefox compiles at reconfigure); **tor confirmed at 0.4.9.11 — the newest tor that exists** (no 0.4.10/alpha); ran **`guix home reconfigure`** to install torbrowser 15.0.19 + tor + chrome + the rest at latest); **2026-07-23** (**torbrowser version-string fix** — guix's `make-torbrowser` baked its own `%torbrowser-version` 15.0.14 into the displayed version, so a 15.0.19 engine reported 15.0.14; the recipe now rewrites `--with-base-browser-version` + `MOZ_BUILD_DATE` to 15.0.19, verified in the built `omni.ja` (`BASE_BROWSER_VERSION=15.0.19`) and **reconfigured into the home profile**; **kitty → 0.48.0** — one new imported Go dep (`ebitengine/purego`) packaged, `GOTOOLCHAIN=local` phase added (0.48's go.mod pins a toolchain guix can't fetch offline), **built & installed**, `kitty --version` → 0.48.0)
-- **2026-07-25 refresh (built, installed, and profile-verified):** `fish`
-  4.8.1, `kitty` 0.48.1, `google-chrome-stable` 150.0.7871.186,
-  `ungoogled-chromium-bin` 150.0.7871.186-1, `evelin-bin` 4.3.0, `turborec`
-  3.7.0, `moneyprinterturbo` 1.3.3, `mtr` 0.96, `sdb` 2.4.8, `radare2` 6.1.8,
-  and `rizin` 0.9.1. All package builds passed; Fish additionally passed all
-  197 integration tests and 272 Cargo tests.
-- **2026-08-09 comprehensive refresh (authoritative audit, validation, and
-  Home/user profile activation complete):** `kitty` 0.48.2,
-  `glances` 4.5.6 (private `pyinstrument` 5.1.3),
-  `google-chrome-stable` 151.0.7922.173, `ungoogled-chromium-bin`
-  151.0.7922.173-1, `librewolf` 153.0.4-1 (l10n pin `6795ea14`), `sdb` 2.5.0,
-  `radare2` 6.2.0, `lf` 42 (upstream tag `r42`; seven private Go modules:
-  `uax29/v2` 2.7.0, `displaywidth` 0.11.0, `tcell/v3` 3.4.1, `fsnotify` 1.10.1,
-  `x/sys` 0.47.0, `x/term` 0.45.0, and `x/text` 0.40.0), `torbrowser` 15.0.20,
-  `mullvad-vpn` 2026.4, and `moneyprinterturbo` 1.3.5.
-  Kitty, SDB, Radare2, and
-  lf pass their exact channel builds and runtime/test checks; LibreWolf's
-  Firefox/overlay/l10n source assembly and `mach configure` pass after correcting
-  the upstream Makefile matcher and privately updating `rust-cbindgen` to 0.29.4
-  and `nss-rapid` to 3.126. Its exact full-LTO build passes and `librewolf
-  --version` reports `Mozilla LibreWolf 153.0.3-1`. Glances also passes its
-  exact build and live-metrics smoke check;
-  Chrome and ungoogled Chromium pass their exact builds and both runtime checks
-  report 151.0.7922.108. The Home profile now carries Fish 4.8.1, Kitty 0.48.2,
-  Chrome 151.0.7922.108, ungoogled Chromium 151.0.7922.108, LibreWolf
-  153.0.3-1, lf 42, and Tor Browser 15.0.19 (Firefox ESR 140.13.0;
-  `BASE_BROWSER_VERSION = 15.0.19`). The direct user profile carries Fish
-  4.8.1, LibreWolf 153.0.3-1, SDB 2.5.0, Radare2 6.2.0, and Glances
-  4.5.6/PsUtil 7.2.2. A
-  release-by-release audit of every channel definition found all other package
-  releases current except the documented source-built ungoogled Chromium 147
-  fallback (the current 151 engine is provided by `-bin`), including every first-party app; Tor
-  Browser's private 15.0.14 l10n-pin caveat is documented below.
-- **Maintainer:** Cristian Cezar Moisés `<ethicalhacker@riseup.net>`
-- **Home:** [`https://git.securityops.com.br/cristiancmoises/securityops-channel`](https://git.securityops.com.br/cristiancmoises/securityops-channel) (official) · mirrors: [Codeberg](https://codeberg.org/berkeley/securityops-channel) · [GitHub](https://github.com/cristiancmoises/securityops-channel)
-- **Signing:** every commit is GPG-signed (ed25519 `0CFA 43B9 … ECFB 46E8`) and the channel is authenticated — see [Publishing & authentication](#publishing--authentication)
+| Item | Current status |
+|---|---|
+| Host | `predator-helios-intel` |
+| Guix baseline | Commit `d1e9e23` (June 2026); requires `nonguix` |
+| Latest channel refresh | 2026-09-01 |
+| Validation | Source hashes repaired and channel validation completed |
+| Maintainer | Cristian Cezar Moisés `<ethicalhacker@riseup.net>` |
+| Canonical repository | [git.securityops.com.br](https://git.securityops.com.br/cristiancmoises/securityops-channel) |
+| Mirrors | [Codeberg](https://codeberg.org/berkeley/securityops-channel) and [GitHub](https://github.com/cristiancmoises/securityops-channel) |
+| Authentication | Every commit is GPG-signed; see [Publishing & authentication](#publishing--authentication) |
+
+### Highlighted packages
+
+| Package | Version |
+|---|---|
+| `zupt`, `zupt-gui` | 5.2.8 |
+| Google Chrome | 152.0.7977.64 |
+| LibreWolf | 153.0.4-1 |
+| Tor Browser and assets | 15.0.20 |
+| XLibre | 25.2.2 |
+
+For dated changes and detailed validation notes, see [CHANGELOG.md](CHANGELOG.md).
 
 ---
 
