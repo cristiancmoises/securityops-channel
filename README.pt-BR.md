@@ -15,10 +15,8 @@ você os instala, e eles acompanhem o Guix automaticamente); pacotes que estão
 - **Host:** `predator-helios-intel` (a máquina do `/etc/config.scm` ativo)
 - **Guix fixado:** commit `d1e9e23` (junho/2026); **depende de** `nonguix`
 - **Atualização de 2026-09-01 (validação do canal concluída):** os pacotes
-  first-party antes chamados `vaptvupt` e `vaptvupt-gui` agora são **`zupt`** e
-  **`zupt-gui`** na versão 5.2.8, do arquivo oficial verificado. Os nomes
-  legados, comandos, alias da GUI, entrada desktop e arquivo vendorizado foram
-  removidos. Chrome está em 152.0.7977.64, LibreWolf em 153.0.4-1, Tor
+  first-party **`zupt`** e **`zupt-gui`** estão na versão 5.2.8, do arquivo
+  oficial verificado. Chrome está em 152.0.7977.64, LibreWolf em 153.0.4-1, Tor
   Browser/assets em 15.0.20 e XLibre em 25.2.2; os hashes relacionados foram
   corrigidos.
 - **Atualização de 2026-07-25 (compilada, instalada e verificada nos

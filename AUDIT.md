@@ -27,8 +27,8 @@ containerd 1.6.22 → 2.3.2, openssl 3.5.7 → 4.0.1, nix 2.25.5 → 2.34.7,
 
 ## Handled by securityops-channel
 
-**2026-09-01 refresh:** package metadata now tracks Zupt 5.2.8 (renamed from
-VaptVupt; no legacy channel package remains), Google Chrome 152.0.7977.64,
+**2026-09-01 refresh:** package metadata now tracks Zupt 5.2.8, Google Chrome
+152.0.7977.64,
 LibreWolf 153.0.4-1, Tor Browser/assets 15.0.20, XLibre 25.2.2, and the
 existing ungoogled Chromium portable binary 151.0.7922.173-1.  The Zupt source
 tarball checksum and the repaired LibreWolf/Tor Browser source hashes were
@@ -80,7 +80,7 @@ treated as evidence that a package builds, runs, or is active in a profile.
   to 15.0.19, but the private l10n pins remain known-stale at 15.0.14. The July
   vendoring and source/font-prune policies remain unchanged.
 - **Homepage reconciliation:** Evelin and BTP retain their canonical Forgejo
-  project URLs. Mirim, Torando, VaptVupt CLI/GUI, TurboRecorder, and Esquema now
+  project URLs. Mirim, Torando, Zupt CLI/GUI, TurboRecorder, and Esquema now
   point to their active `berkeley` Codeberg mirrors. This metadata correction
   does not change the vendored, offline source inputs.
 - **ungoogled-chromium strategy:** source-build `ungoogled-chromium` stays at
