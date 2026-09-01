@@ -15,18 +15,16 @@
   #:use-module (guix git-download)
   #:use-module ((xlibre) #:prefix guix-xlibre:))
 
-;;; XLibre 25.2 is the current maintained stable series.  Keep the server
-;;; source pinned to its latest non-prerelease upstream tag.
+;;; XLibre 25.2.2 is the newest upstream server release.
 (define-public xlibre-server
   (package
     (inherit guix-xlibre:xlibre-server)
     (version "25.2.2")
     (source
      (origin
-       ;; The 25.2 series incorporates the Intel-driver policy that the
-       ;; inherited pre-gen4 patch used to provide; that old patch no longer
-       ;; applies cleanly, so retain the recipe but drop only its patch list.
        (inherit (package-source guix-xlibre:xlibre-server))
+       ;; The 25.2 series incorporates the Intel-driver policy that the
+       ;; inherited pre-gen4 patch used to provide; omit only that stale patch.
        (patches '())
        (uri (git-reference
              (url "https://github.com/X11Libre/xserver")
