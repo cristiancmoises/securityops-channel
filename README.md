@@ -4,13 +4,17 @@
 > applications, packaged the Guix way — real source hashes, every definition
 > inheriting from upstream so it stays small and auditable.
 
-🌐 **Language:** **English** · [Português (Brasil)](README.pt-BR.md)
+Language: **English** · [Português (Brasil)](README.pt-BR.md)
+
+## Overview
 
 This channel curates the programs this machine lives in and keeps them at the
 newest official release. Packages the pinned Guix already ships at the latest
 upstream version are **re-exported unchanged** (so the channel is the single
 place you install them from, and they track Guix automatically); packages that
 are *ahead* of Guix/nonguix carry a **real, downloaded source hash**.
+
+## Current release
 
 - **Host:** `predator-helios-intel` (the live `/etc/config.scm` machine)
 - **Pinned Guix:** commit `d1e9e23` (June 2026); **depends on** `nonguix`
@@ -61,75 +65,74 @@ are *ahead* of Guix/nonguix carry a **real, downloaded source hash**.
 
 ## The curated set
 
-### 📇 Full package index (52 packages)
+### Full package index (52 packages)
 
 Every package this channel defines, its current version, and the most recent
-change. **Class**: 🅑 bumped ahead of Guix/nonguix (real downloaded hash) · 🄟
-prebuilt binary · 🄡 re-exported (tracks pinned Guix; documented source-Chromium
-exception below) · 🄕 first-party
-(SecurityOps project) / vendored · 🄓 internal build dependency. The detailed
-per-category sections and caveats follow below.
+change. **Class:** Updated ahead of Guix/nonguix (real downloaded hash);
+Prebuilt binary; Re-exported (tracks pinned Guix, except for the documented
+source-Chromium caveat); First-party or vendored; or Internal build dependency.
+The detailed per-category sections and caveats follow below.
 
 | Package | Version | Class | Latest change / note |
 |---|---|:--:|---|
-| `xlibre-server` | 25.2.2 | 🅑 | newest XLibre server overlay on the `guix-xlibre` recipe; source hash pinned |
-| `kitty` | 0.48.2 | 🅑 | ahead of Guix 0.46.2; pulls three vendored Go deps (↓); exact build/runtime passes |
-| `tor` | 0.4.9.11 | 🅑 | ahead of Guix 0.4.9.8 |
-| `torbrowser` | 15.0.20 | 🅑 | engine/branding current; inherited private l10n pins remain at 15.0.14 (caveat ↓) |
-| `torbrowser-assets` | 15.0.20 | 🅑 | standalone official fonts/torrc bundle |
-| `openshot` | 3.5.1 | 🅑 | ahead of Guix 3.4.0; stale-test-path build fixed |
-| `google-chrome-stable` | 152.0.7977.64 | 🅑 | ahead of nonguix; official `.deb` hash pinned |
-| `mullvad-vpn-desktop` | 2026.3 | 🅑 | vendored `.deb`; the daemon service runs this build |
-| `librewolf` | 153.0.4-1 | 🅑 | Firefox 153.0.4 + l10n `6795ea14`; private cbindgen 0.29.4/NSS 3.126 |
-| `steam` | 1.0.0.87 | 🅑 | current Valve stable bootstrap (nonguix container rebuilt) |
-| `glances` | 4.5.6 | 🅑 | fixes five CVEs (68520, 68519, 68518, 62982, 68517); private `pyinstrument` 5.1.3; build/live metrics pass |
-| `lynis` | 3.1.7 | 🅑 | ahead of Guix 3.1.1; bundled proprietary plugins stripped |
-| `nmap` | 7.99 | 🅑 | ahead of Guix 7.98 |
-| `fping` | 5.5 | 🅑 | ahead of Guix 5.3 |
-| `hydra` | 9.7 | 🅑 | THC-Hydra; ahead of Guix 9.6 |
-| `ungoogled-chromium-bin` | 151.0.7922.173-1 | 🄟 | current official PortableLinux asset |
-| `alacritty` | 0.17.0 | 🄡 | latest in Guix |
-| `fish` | 4.8.1 | 🅑 | hermetic Cargo source build; 197/197 integration tests + 272 Cargo tests pass |
-| `emacs` | 30.2 | 🄡 | latest in Guix |
-| `emacs-pgtk` | 30.2 | 🄡 | pure-GTK Emacs; latest in Guix |
-| `mpv` | 0.41.0 | 🄡 | latest in Guix |
-| `vlc` | 3.0.23 | 🄡 | latest stable (VLC 4.x not released) |
-| `keepassxc` | 2.7.12 | 🄡 | latest in Guix |
-| `ueberzugpp` | 2.9.10 | 🄡 | latest in Guix |
-| `lf` | 42 | 🅑 | tag `r42`; ahead of Guix 41; seven private go.mod modules; full build/test suite passes |
-| `ungoogled-chromium` (source) | 147.0.7727.137-1 | 🄡 | = guix's latest; 147 builds over Tor via substitute — only a *newer* source is Tor-blocked, use `-bin` ↑ |
-| `masscan` | 1.3.2 | 🄡 | latest in Guix |
-| `arp-scan` | 1.10.0 | 🄡 | latest in Guix |
-| `netdiscover` | 0.21 | 🄡 | latest in Guix |
-| `mtr` | 0.96 | 🅑 | ahead of Guix 0.95; official release builds without a downstream patch |
-| `whois` | 5.6.6 | 🄡 | latest in Guix |
-| `proxychains-ng` | 4.17 | 🄡 | latest in Guix |
-| `aircrack-ng` | 1.7 | 🄡 | latest in Guix |
-| `reaver` | 1.6.6 | 🄡 | latest in Guix |
-| `kismet` | 2025.09.R1 | 🄡 | latest in Guix |
-| `sdb` | 2.5.0 | 🅑 | ahead of Guix 2.4.2; current offline/system dependency for radare2; build/runtime passes |
-| `radare2` | 6.2.0 | 🅑 | system Zydis/Zycore + channel `sdb` 2.5.0; offline build/runtime passes |
-| `rizin` | 0.9.1 | 🅑 | updated Meson flags/system libraries; offline hash implementation passes its suite |
-| `binwalk` | 3.1.0 | 🄡 | latest in Guix |
-| `age` | 1.3.1 | 🄡 | latest in Guix |
-| `evelin-bin` | 4.3.0 | 🄕 | official static-musl release tarball; quiet-by-default, scp-like client UX; protocol/key/ticket formats unchanged |
-| `btp` | 0.7 | 🄕 | Rust; binaries patchelf'd to glibc/gcc (`btpctl`, `btpd`) |
-| `mirim` | 1.1.0 | 🄕 | prebuilt Rust binaries (patchelf'd); `mirim`, `mirim-sign` (upstream also ships a `mirim-gui`, not packaged) |
-| `torando-gui` | 1.3.4 | 🄕 | Python daemon + GTK4/WebKit GUI; ships a Shepherd service; ip6tables IPv6 killswitch + cross-platform backends (1.3.1–1.3.4: Windows/packaging fixes, Linux build unchanged) |
-| `zupt` | 5.2.8 | 🄕 | PQ backup compressor (ML-KEM-768/FIPS 203); source-only; restored product/command name |
-| `zupt-gui` | 5.2.8 | 🄕 | PySide6/Qt6 frontend pinned to the matching `zupt` store path |
-| `turborec` | 3.7.0 | 🄕 | screen/audio recorder; auto defaults, device/encoder validation, Linux Pulse fallback, cross-platform reliability fixes |
-| `esquema` | 0.2.0 | 🄕 | rootless Guile-native container runtime (libseccomp) |
-| `moneyprinterturbo` | 1.3.3 | 🄕 | vendored 3rd-party AI short-video generator; voice preview, BGM modes, clip speed/transitions, recovery/update notifications; fonts pruned |
-| `go-github-com-emmansun-base64` | 0.10.0 | 🄓 | kitty build dependency |
-| `go-github-com-sgtdi-fswatcher` | 1.3.0 | 🄓 | kitty build dependency |
-| `go-github-com-ebitengine-purego` | 0.10.2 | 🄓 | kitty 0.48.2 build dependency (GOPATH-compatible; call C from Go, no cgo) |
+| `xlibre-server` | 25.2.2 | Updated | newest XLibre server overlay on the `guix-xlibre` recipe; source hash pinned |
+| `kitty` | 0.48.2 | Updated | ahead of Guix 0.46.2; pulls three vendored Go deps (↓); exact build/runtime passes |
+| `tor` | 0.4.9.11 | Updated | ahead of Guix 0.4.9.8 |
+| `torbrowser` | 15.0.20 | Updated | engine/branding current; inherited private l10n pins remain at 15.0.14 (caveat ↓) |
+| `torbrowser-assets` | 15.0.20 | Updated | standalone official fonts/torrc bundle |
+| `openshot` | 3.5.1 | Updated | ahead of Guix 3.4.0; stale-test-path build fixed |
+| `google-chrome-stable` | 152.0.7977.64 | Updated | ahead of nonguix; official `.deb` hash pinned |
+| `mullvad-vpn-desktop` | 2026.3 | Updated | vendored `.deb`; the daemon service runs this build |
+| `librewolf` | 153.0.4-1 | Updated | Firefox 153.0.4 + l10n `6795ea14`; private cbindgen 0.29.4/NSS 3.126 |
+| `steam` | 1.0.0.87 | Updated | current Valve stable bootstrap (nonguix container rebuilt) |
+| `glances` | 4.5.6 | Updated | fixes five CVEs (68520, 68519, 68518, 62982, 68517); private `pyinstrument` 5.1.3; build/live metrics pass |
+| `lynis` | 3.1.7 | Updated | ahead of Guix 3.1.1; bundled proprietary plugins stripped |
+| `nmap` | 7.99 | Updated | ahead of Guix 7.98 |
+| `fping` | 5.5 | Updated | ahead of Guix 5.3 |
+| `hydra` | 9.7 | Updated | THC-Hydra; ahead of Guix 9.6 |
+| `ungoogled-chromium-bin` | 151.0.7922.173-1 | Prebuilt | current official PortableLinux asset |
+| `alacritty` | 0.17.0 | Re-exported | latest in Guix |
+| `fish` | 4.8.1 | Updated | hermetic Cargo source build; 197/197 integration tests + 272 Cargo tests pass |
+| `emacs` | 30.2 | Re-exported | latest in Guix |
+| `emacs-pgtk` | 30.2 | Re-exported | pure-GTK Emacs; latest in Guix |
+| `mpv` | 0.41.0 | Re-exported | latest in Guix |
+| `vlc` | 3.0.23 | Re-exported | latest stable (VLC 4.x not released) |
+| `keepassxc` | 2.7.12 | Re-exported | latest in Guix |
+| `ueberzugpp` | 2.9.10 | Re-exported | latest in Guix |
+| `lf` | 42 | Updated | tag `r42`; ahead of Guix 41; seven private go.mod modules; full build/test suite passes |
+| `ungoogled-chromium` (source) | 147.0.7727.137-1 | Re-exported | = guix's latest; 147 builds over Tor via substitute — only a *newer* source is Tor-blocked, use `-bin` ↑ |
+| `masscan` | 1.3.2 | Re-exported | latest in Guix |
+| `arp-scan` | 1.10.0 | Re-exported | latest in Guix |
+| `netdiscover` | 0.21 | Re-exported | latest in Guix |
+| `mtr` | 0.96 | Updated | ahead of Guix 0.95; official release builds without a downstream patch |
+| `whois` | 5.6.6 | Re-exported | latest in Guix |
+| `proxychains-ng` | 4.17 | Re-exported | latest in Guix |
+| `aircrack-ng` | 1.7 | Re-exported | latest in Guix |
+| `reaver` | 1.6.6 | Re-exported | latest in Guix |
+| `kismet` | 2025.09.R1 | Re-exported | latest in Guix |
+| `sdb` | 2.5.0 | Updated | ahead of Guix 2.4.2; current offline/system dependency for radare2; build/runtime passes |
+| `radare2` | 6.2.0 | Updated | system Zydis/Zycore + channel `sdb` 2.5.0; offline build/runtime passes |
+| `rizin` | 0.9.1 | Updated | updated Meson flags/system libraries; offline hash implementation passes its suite |
+| `binwalk` | 3.1.0 | Re-exported | latest in Guix |
+| `age` | 1.3.1 | Re-exported | latest in Guix |
+| `evelin-bin` | 4.3.0 | First-party | official static-musl release tarball; quiet-by-default, scp-like client UX; protocol/key/ticket formats unchanged |
+| `btp` | 0.7 | First-party | Rust; binaries patchelf'd to glibc/gcc (`btpctl`, `btpd`) |
+| `mirim` | 1.1.0 | First-party | prebuilt Rust binaries (patchelf'd); `mirim`, `mirim-sign` (upstream also ships a `mirim-gui`, not packaged) |
+| `torando-gui` | 1.3.4 | First-party | Python daemon + GTK4/WebKit GUI; ships a Shepherd service; ip6tables IPv6 killswitch + cross-platform backends (1.3.1–1.3.4: Windows/packaging fixes, Linux build unchanged) |
+| `zupt` | 5.2.8 | First-party | PQ backup compressor (ML-KEM-768/FIPS 203); source-only; restored product/command name |
+| `zupt-gui` | 5.2.8 | First-party | PySide6/Qt6 frontend pinned to the matching `zupt` store path |
+| `turborec` | 3.7.0 | First-party | screen/audio recorder; auto defaults, device/encoder validation, Linux Pulse fallback, cross-platform reliability fixes |
+| `esquema` | 0.2.0 | First-party | rootless Guile-native container runtime (libseccomp) |
+| `moneyprinterturbo` | 1.3.3 | First-party | vendored 3rd-party AI short-video generator; voice preview, BGM modes, clip speed/transitions, recovery/update notifications; fonts pruned |
+| `go-github-com-emmansun-base64` | 0.10.0 | Internal dependency | kitty build dependency |
+| `go-github-com-sgtdi-fswatcher` | 1.3.0 | Internal dependency | kitty build dependency |
+| `go-github-com-ebitengine-purego` | 0.10.2 | Internal dependency | kitty 0.48.2 build dependency (GOPATH-compatible; call C from Go, no cgo) |
 
 Glances' Pyinstrument and lf's seven exact go.mod modules are private build
 definitions, not public exports, so lf remains one public package and the index
 remains at 52.
 
-### 🔌 Services (2)
+### Services (2)
 
 Two native **GNU Shepherd** service types for `guix system reconfigure` — the
 systemd units shipped in the upstream packages are inert on Guix System, so the
@@ -142,7 +145,7 @@ channel supplies real Shepherd services:
 
 Full `(operating-system …)` examples are below: [**torando-gui service**](#running-torando-gui-as-a-shepherd-service-guix-system) and [**esquema service**](#esquema--rootless-guile-native-container-runtime).
 
-### ⬆️ Bumped ahead of Guix / nonguix (real downloaded hashes)
+### Updated: Bumped ahead of Guix / nonguix (real downloaded hashes)
 
 | Package | This channel | Upstream had | Source |
 |---|---|---|---|
@@ -164,12 +167,12 @@ Full `(operating-system …)` examples are below: [**torando-gui service**](#run
 | **rizin** | 0.9.1 | 0.8.2 (guix) | official release tarball; updated Meson/system-dependency flags |
 | **lf** | 42 | 41 (guix) | git tag `r42`; private exact go.mod graph: `uax29/v2` 2.7.0, `displaywidth` 0.11.0, `tcell/v3` 3.4.1, `fsnotify` 1.10.1, `x/sys` 0.47.0, `x/term` 0.45.0, `x/text` 0.40.0 |
 
-### ✅ Re-exported — already latest in Guix/nonguix (track upstream automatically)
+### Verified: Re-exported — already latest in Guix/nonguix (track upstream automatically)
 
 `alacritty` 0.17.0 · `emacs` 30.2 · `emacs-pgtk` 30.2 · `mpv` 0.41.0 ·
 `vlc` 3.0.23 · `keepassxc` 2.7.12 · `ueberzugpp` 2.9.10
 
-### ⚠️ Re-exported — newer upstream exists but a bump is impractical here
+### Caution: Re-exported — newer upstream exists but a bump is impractical here
 
 | Package | This channel (= guix) | Upstream | Why not bumped |
 |---|---|---|---|
@@ -211,15 +214,15 @@ fetched at build time.
 
 | Package | Version | How | Status |
 |---|---|---|---|
-| **evelin-bin** | 4.3.0 | official static-musl release tarball (7 fully-static binaries: `ev`, `evelin-agent`/`-client`/`-keygen`/`-keyscan`/`-server`, `evelin-multisig-verify`). 4.3.0 makes the client quiet by default and adds scp-like copy UX; protocol, key, and ticket formats are unchanged | ✅ builds & runs (`evelin-client 4.3.0`) |
-| **btp** | 0.7 | built from source (`cargo`), binaries patchelf'd to glibc/gcc | ✅ builds & runs (`btpctl`, `btpd`) |
-| **mirim** | 1.1.0 | prebuilt x86_64 release binaries (`copy-build-system` + patchelf to store glibc/gcc), like `btp`/`evelin-bin`. v1.1.0 moved the binaries to the archive root and adds a `mirim-gui` (not packaged — needs a graphical runtime) | ✅ builds & runs (`mirim`, `mirim-sign`) |
-| **torando-gui** | 1.3.4 | built from source (pure Python daemon; native GTK4/WebKit GUI optional, browser fallback). 1.2.0/1.3.0: ip6tables IPv6 killswitch (closes the v6 leak) + native macOS/BSD/Windows backends; 1.3.1–1.3.4: Windows all-in-one + packaging fixes — Linux channel build unchanged | ✅ builds, installs & runs (`torando-gui`, `torando-guid`) |
-| **zupt** | 5.2.8 | built from the verified upstream source tarball (C11 Makefile; installs the `zupt` command). It retains FIPS 203 ML-KEM-768, hybrid `--pq`, and source-only builds; archives/keys from ≤4.2.1 retain the documented incompatibility. | ✅ channel build and command check |
-| **zupt-gui** | 5.2.8 | PySide6/Qt6 frontend from the same tarball. The launcher pins the matching CLI using `ZUPT_BIN`; it installs only `zupt-gui` and no legacy GUI alias. | ✅ channel build and launcher check |
-| **turborec** | 3.7.0 | built from source (pure-Python CLI + Tkinter GUI + bash X11 launcher; self-contained `#!/bin/sh` shims pin python3/bash + ffmpeg/pactl/xrandr/xdpyinfo/lspci, + Wayland wf-recorder/wlr-randr/swaymsg + wmctrl; 3.1.0 `--audio-channels`, 3.2.0 `-R/--resolution` scaling, 3.3.0 live streaming `record --stream KEY` (YouTube/RTMPS default) + adaptive quality, 3.4.0 security-audit fixes, 3.5.0 webcam PiP overlay (`--camera`) + mic noise suppression (`--denoise`), 3.6.0 Wayland capture, 3.7.0 auto defaults, device/encoder validation, Linux Pulse fallback, and cross-platform reliability fixes) | ✅ builds & runs (`turborec`, `turborecorder`) |
-| **esquema** | 0.2.0 | built from source (C core `libesquema.so` via `make` + libseccomp; Guile modules byte-compiled; ships the `(esquema esquema-service)` Shepherd service) | ✅ builds & FFI-loads (`esquema-init` → 42); functional/security/ASan suites green |
-| **moneyprinterturbo** | 1.3.3 | vendored third-party (harry0703; not a forge repo). AI one-click short-video generator; adds voice preview, generated/matched/custom BGM modes, clip speed/transitions, recovery, and update notifications. The same source-pruning policy remains: proprietary CJK fonts are dropped and references point to bundled WenQuanYi Zen Hei; the self-contained launcher builds a first-run venv over Tor | ✅ builds; launcher/version metadata verified (venv on first run) |
+| **evelin-bin** | 4.3.0 | official static-musl release tarball (7 fully-static binaries: `ev`, `evelin-agent`/`-client`/`-keygen`/`-keyscan`/`-server`, `evelin-multisig-verify`). 4.3.0 makes the client quiet by default and adds scp-like copy UX; protocol, key, and ticket formats are unchanged | Verified: builds & runs (`evelin-client 4.3.0`) |
+| **btp** | 0.7 | built from source (`cargo`), binaries patchelf'd to glibc/gcc | Verified: builds & runs (`btpctl`, `btpd`) |
+| **mirim** | 1.1.0 | prebuilt x86_64 release binaries (`copy-build-system` + patchelf to store glibc/gcc), like `btp`/`evelin-bin`. v1.1.0 moved the binaries to the archive root and adds a `mirim-gui` (not packaged — needs a graphical runtime) | Verified: builds & runs (`mirim`, `mirim-sign`) |
+| **torando-gui** | 1.3.4 | built from source (pure Python daemon; native GTK4/WebKit GUI optional, browser fallback). 1.2.0/1.3.0: ip6tables IPv6 killswitch (closes the v6 leak) + native macOS/BSD/Windows backends; 1.3.1–1.3.4: Windows all-in-one + packaging fixes — Linux channel build unchanged | Verified: builds, installs & runs (`torando-gui`, `torando-guid`) |
+| **zupt** | 5.2.8 | built from the verified upstream source tarball (C11 Makefile; installs the `zupt` command). It retains FIPS 203 ML-KEM-768, hybrid `--pq`, and source-only builds; archives/keys from ≤4.2.1 retain the documented incompatibility. | Verified: channel build and command check |
+| **zupt-gui** | 5.2.8 | PySide6/Qt6 frontend from the same tarball. The launcher pins the matching CLI using `ZUPT_BIN`; it installs only `zupt-gui` and no legacy GUI alias. | Verified: channel build and launcher check |
+| **turborec** | 3.7.0 | built from source (pure-Python CLI + Tkinter GUI + bash X11 launcher; self-contained `#!/bin/sh` shims pin python3/bash + ffmpeg/pactl/xrandr/xdpyinfo/lspci, + Wayland wf-recorder/wlr-randr/swaymsg + wmctrl; 3.1.0 `--audio-channels`, 3.2.0 `-R/--resolution` scaling, 3.3.0 live streaming `record --stream KEY` (YouTube/RTMPS default) + adaptive quality, 3.4.0 security-audit fixes, 3.5.0 webcam PiP overlay (`--camera`) + mic noise suppression (`--denoise`), 3.6.0 Wayland capture, 3.7.0 auto defaults, device/encoder validation, Linux Pulse fallback, and cross-platform reliability fixes) | Verified: builds & runs (`turborec`, `turborecorder`) |
+| **esquema** | 0.2.0 | built from source (C core `libesquema.so` via `make` + libseccomp; Guile modules byte-compiled; ships the `(esquema esquema-service)` Shepherd service) | Verified: builds & FFI-loads (`esquema-init` → 42); functional/security/ASan suites green |
+| **moneyprinterturbo** | 1.3.3 | vendored third-party (harry0703; not a forge repo). AI one-click short-video generator; adds voice preview, generated/matched/custom BGM modes, clip speed/transitions, recovery, and update notifications. The same source-pruning policy remains: proprietary CJK fonts are dropped and references point to bundled WenQuanYi Zen Hei; the self-contained launcher builds a first-run venv over Tor | Verified: builds; launcher/version metadata verified (venv on first run) |
 
 To re-vendor an updated app: rebuild/redownload its artifact into
 `packages/sources/`, bump `version`, and `guix build -L . <pkg>`.
