@@ -27,6 +27,13 @@ containerd 1.6.22 → 2.3.2, openssl 3.5.7 → 4.0.1, nix 2.25.5 → 2.34.7,
 
 ## Handled by securityops-channel
 
+**2026-09-01 refresh:** package metadata now tracks Zupt 5.2.8 (renamed from
+VaptVupt; no legacy channel package remains), Google Chrome 152.0.7977.64,
+LibreWolf 153.0.4-1, Tor Browser/assets 15.0.20, XLibre 25.2.2, and the
+existing ungoogled Chromium portable binary 151.0.7922.173-1.  The Zupt source
+tarball checksum and the repaired LibreWolf/Tor Browser source hashes were
+verified.  The dated material below remains an August audit snapshot.
+
 An authoritative 2026-08-09 release audit checked **every channel definition**,
 including packages without a useful Guix updater, private build dependencies,
 binary assets, and all first-party releases. The packages below are the only

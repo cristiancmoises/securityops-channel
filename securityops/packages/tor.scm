@@ -67,7 +67,7 @@
              "https://archive.torproject.org/tor-package-archive/torbrowser/"
              version "/src-firefox-tor-browser-140.14.0esr-15.0-1-build2.tar.xz"))
        (sha256
-        (base32 "c7e27acd5346e57688c4ab0af3f09208702e626efd4385541013b0f8140acf69"))))
+        (base32 "178ari1jaxbijwfjpmh1z222xrgxab1szx2d4x17q65jkww05ihb"))))
     (arguments
       (substitute-keyword-arguments (package-arguments tb:torbrowser)
         ;; Guix's make-torbrowser bakes the DISPLAYED Tor Browser version from its

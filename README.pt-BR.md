@@ -14,6 +14,13 @@ você os instala, e eles acompanhem o Guix automaticamente); pacotes que estão
 
 - **Host:** `predator-helios-intel` (a máquina do `/etc/config.scm` ativo)
 - **Guix fixado:** commit `d1e9e23` (junho/2026); **depende de** `nonguix`
+- **Atualização de 2026-09-01 (validação do canal concluída):** os pacotes
+  first-party antes chamados `vaptvupt` e `vaptvupt-gui` agora são **`zupt`** e
+  **`zupt-gui`** na versão 5.2.8, do arquivo oficial verificado. Os nomes
+  legados, comandos, alias da GUI, entrada desktop e arquivo vendorizado foram
+  removidos. Chrome está em 152.0.7977.64, LibreWolf em 153.0.4-1, Tor
+  Browser/assets em 15.0.20 e XLibre em 25.2.2; os hashes relacionados foram
+  corrigidos.
 - **Atualização de 2026-07-25 (compilada, instalada e verificada nos
   perfis):** `fish` 4.8.1, `kitty` 0.48.1 (com
   `go-github-com-emmansun-base64` 0.10.0 e `go-github-com-ebitengine-purego`
@@ -155,12 +162,12 @@ Pacotes com versão própria, à frente do que o Guix/nonguix entrega:
 | **kitty** | 0.48.2 | tag git `v0.48.2` (+ 3 deps Go empacotadas; `GOTOOLCHAIN=local`); build/runtime aprovados |
 | **fish** | 4.8.1 | fonte oficial + conjunto de crates offline correspondente ao Cargo.lock; 197/197 testes de integração e 272 testes Cargo |
 | **tor** | 0.4.9.11 | tarball dist.torproject.org |
-| **torbrowser** | 15.0.19 | motor/branding atuais; pins privados de l10n ainda no 15.0.14 (veja ressalvas) |
-| **torbrowser-assets** | 15.0.19 | bundle oficial independente; fontes/torrc são byte a byte iguais aos arquivos herdados 15.0.14 |
+| **torbrowser** | 15.0.20 | motor/branding atuais; pins privados de l10n ainda no 15.0.14 (veja ressalvas) |
+| **torbrowser-assets** | 15.0.20 | bundle oficial independente |
 | **openshot** | 3.5.1 | tag git `v3.5.1` |
-| **google-chrome-stable** | 151.0.7922.108 | `.deb` do dl.google.com; build/runtime aprovados |
+| **google-chrome-stable** | 152.0.7977.64 | `.deb` oficial do dl.google.com; hash Guix fixado |
 | **mullvad-vpn-desktop** | 2026.3 | `.deb` do cdn.mullvad.net (vendorizado) |
-| **librewolf** | 153.0.3-1 | Firefox 153.0.3 + overlay/l10n `6795ea14`; cbindgen 0.29.4/NSS 3.126 privados; build LTO/runtime aprovados |
+| **librewolf** | 153.0.4-1 | Firefox 153.0.4 + overlay/l10n `6795ea14`; cbindgen 0.29.4/NSS 3.126 privados |
 | **steam** | 1.0.0.87 | estável da Valve (contêiner nonguix) |
 | **glances** | 4.5.6 | corrige cinco CVEs (68520, 68519, 68518, 62982, 68517); `pyinstrument` privado 5.1.3; build/métricas ao vivo aprovados |
 | **lynis** | 3.1.7 | tag git `3.1.7` (plugins proprietários removidos) |
@@ -172,10 +179,10 @@ Pacotes com versão própria, à frente do que o Guix/nonguix entrega:
 
 ### 🄟 Binário pré-compilado
 
-- **ungoogled-chromium-bin** `151.0.7922.108-1` — release PortableLinux x86_64
+- **ungoogled-chromium-bin** `151.0.7922.173-1` — release PortableLinux x86_64
   oficial atual, fixado pelo hash real baixado e empacotado com o
   `chromium-binary-build-system` do nonguix. O build passou,
-  `chromium --version` reporta `Chromium 151.0.7922.108` e esse release está
+  `chromium --version` reporta `Chromium 151.0.7922.173` e esse release está
   ativo no perfil Home como a versão Chromium atual recomendada.
 
 ### ✅ Re-exportados — já mais recentes no Guix/nonguix
@@ -190,7 +197,7 @@ Os campos `home-page` apontam para o projeto público ativo: Evelin e BTP usam
 os projetos canônicos no Forgejo;
 [Mirim](https://codeberg.org/berkeley/mirim),
 [Torando](https://codeberg.org/berkeley/torando-gui),
-[VaptVupt](https://codeberg.org/berkeley/vaptvupt) (CLI e GUI),
+[Zupt](https://github.com/cristiancmoises/zupt) (CLI e GUI),
 [TurboRecorder](https://codeberg.org/berkeley/turborec) e
 [Esquema](https://codeberg.org/berkeley/esquema) usam os espelhos `berkeley` no
 Codeberg. O canal continua canônico em `git.securityops.com.br` e espelhado no
@@ -204,7 +211,7 @@ Codeberg/GitHub. Para o build ser **autocontido**, as fontes/artefatos continuam
 | **btp** | 0.7 | Rust; binários patchelf'd (`btpctl`, `btpd`) |
 | **mirim** | 1.1.0 | cofre pós-quântico + assinatura ML-DSA-87 (binários pré-compilados) |
 | **torando-gui** | 1.3.4 | daemon de controle Tor + GUI GTK4; serviço Shepherd |
-| **vaptvupt** (+`-gui`) | 5.2.1 | compressor de backup pós-quântico (ML-KEM-768/FIPS 203) |
+| **zupt** (+`-gui`) | 5.2.8 | compressor de backup pós-quântico (ML-KEM-768/FIPS 203); nome e comandos Zupt restaurados |
 | **turborec** | 3.7.0 | gravador de tela/áudio; padrões automáticos, validação de dispositivos/encoders, fallback Pulse no Linux e correções multiplataforma |
 | **esquema** | 0.2.0 | runtime de contêiner rootless nativo em Guile |
 | **moneyprinterturbo** | 1.3.3 | gerador de vídeos curtos por IA; prévia de voz, modos de BGM, velocidade/transições, recuperação e avisos de atualização (mesma política de vendorização/poda de fontes) |
@@ -269,8 +276,8 @@ a seção *Esquema* no [README em inglês](README.md#esquema--rootless-guile-nat
 `guix-xlibre` como dependência, então `guix pull` o obtém automaticamente.
 Depois use `((securityops packages xlibre) #:prefix so:)` e
 `so:xlibre-server`. O overlay mantém a receita do guix-xlibre, mas fixa a fonte
-do servidor XLibre em 25.2.2; o patch Intel obsoleto foi omitido porque a série
-25.2 já contém a política correspondente.
+do servidor XLibre na versão mais recente 25.2.2. O patch Intel obsoleto não é
+aplicado porque sua política já está presente upstream.
 
 Um pacote atualizado "pelado", como `kitty`, `fish`, `radare2` ou
 `google-chrome-stable`, escrito contra `(gnu packages …)` / `(nongnu packages
