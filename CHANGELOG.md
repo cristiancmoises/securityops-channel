@@ -19,6 +19,8 @@ tag rather than SemVer of the code.
   evaluates again.
 - Restored the XLibre overlay to the latest upstream **25.2.2** tag and its
   verified source hash.  The inherited obsolete Intel patch remains omitted.
+- Corrected `radare2`'s propagated `sdb` input to use the channel's 2.5.0
+  package, avoiding the profile conflict with Guix's inherited 2.4.6 copy.
 
 ### Changed — XLibre 25.2.2 and OpenShot 4.0.0 (2026-08-31)
 
