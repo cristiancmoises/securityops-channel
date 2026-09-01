@@ -71,8 +71,8 @@ declare -A FORGE_APP=(
   [btp]=securityops:btp
   [mirim]=codeberg:berkeley/mirim
   [torando-gui]=codeberg:berkeley/torando-gui
-  [vaptvupt]=codeberg:berkeley/vaptvupt
-  [vaptvupt-gui]=codeberg:berkeley/vaptvupt
+  [zupt]=github:cristiancmoises/zupt
+  [zupt-gui]=github:cristiancmoises/zupt
   [turborec]=codeberg:berkeley/turborec
   [moneyprinterturbo]=github:harry0703/MoneyPrinterTurbo
 )
@@ -81,8 +81,8 @@ declare -A FORGE_FILE=(
   [btp]="apps.scm (re-vendor source)"
   [mirim]="apps.scm (re-vendor source)"
   [torando-gui]="apps.scm (re-vendor source)"
-  [vaptvupt]="apps.scm (re-vendor source)"
-  [vaptvupt-gui]="apps.scm (re-vendor source)"
+  [zupt]="apps.scm (re-vendor source)"
+  [zupt-gui]="apps.scm (re-vendor source)"
   [turborec]="apps.scm (re-vendor source)"
   [moneyprinterturbo]="apps.scm (re-vendor source)"
 )
