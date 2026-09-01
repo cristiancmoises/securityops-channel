@@ -25,7 +25,7 @@ containerd 1.6.22 → 2.3.2, openssl 3.5.7 → 4.0.1, nix 2.25.5 → 2.34.7,
 > original audit snapshot; the current channel packages and activated Home/user
 > profile state are recorded in the reconciliation section.
 
-## Handled by securityops-channel
+## Channel reconciliation
 
 **2026-09-01 refresh:** package metadata now tracks Zupt 5.2.8, Google Chrome
 152.0.7977.64,
@@ -108,18 +108,18 @@ active config):
 
 | Package | Your version | Latest upstream | Status |
 |---|---|---|---|
-| gopls | 0.22.0 | 0.46.0 | ⬆️ outdated |
-| node-typescript | 5.8.3 | 6.0.3 | ⬆️ outdated |
-| python-pyflakes | 3.2.0 | 3.4.0 | ⬆️ outdated |
-| python-pycodestyle | 2.12.1 | 2.14.0 | ⬆️ outdated |
-| python-bandit | 1.8.6 | 1.9.4 | ⬆️ outdated |
-| shellcheck | 0.10.0 | 0.11.0 | ⬆️ outdated |
-| aspell | 0.60.8.1 | 0.60.8.2 | ⬆️ outdated |
-| fd | 10.4.2 | 10.4.2 | ✅ latest |
-| ripgrep | 15.1.0 | 15.1.0 | ✅ latest |
-| aspell-dict-en | 2020.12.07-0 | — | ❔ no updater |
-| ungoogled-chromium (source) | 147.0.7727.137-1 | 151.0.7922.108-1 | ⛔ newer source unbuildable over Tor (GCS 403) |
-| ungoogled-chromium-bin | 151.0.7922.108-1 | 151.0.7922.108-1 | ✅ August build/runtime and Home-profile activation verified |
+| gopls | 0.22.0 | 0.46.0 | Updated: outdated |
+| node-typescript | 5.8.3 | 6.0.3 | Updated: outdated |
+| python-pyflakes | 3.2.0 | 3.4.0 | Updated: outdated |
+| python-pycodestyle | 2.12.1 | 2.14.0 | Updated: outdated |
+| python-bandit | 1.8.6 | 1.9.4 | Updated: outdated |
+| shellcheck | 0.10.0 | 0.11.0 | Updated: outdated |
+| aspell | 0.60.8.1 | 0.60.8.2 | Updated: outdated |
+| fd | 10.4.2 | 10.4.2 | Verified: latest |
+| ripgrep | 15.1.0 | 15.1.0 | Verified: latest |
+| aspell-dict-en | 2020.12.07-0 | — | No updater |
+| ungoogled-chromium (source) | 147.0.7727.137-1 | 151.0.7922.108-1 | Blocked newer source unbuildable over Tor (GCS 403) |
+| ungoogled-chromium-bin | 151.0.7922.108-1 | 151.0.7922.108-1 | Verified: August build/runtime and Home-profile activation verified |
 
 ---
 
