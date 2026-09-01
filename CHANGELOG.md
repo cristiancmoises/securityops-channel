@@ -6,14 +6,25 @@ tag rather than SemVer of the code.
 
 ## [Unreleased]
 
+### Changed — Zupt rename and channel refresh (2026-09-01)
+
+- Replaced the `vaptvupt` and `vaptvupt-gui` packages with **`zupt`** and
+  **`zupt-gui`** at **5.2.8**, using the verified upstream release tarball.
+  The channel and GUI launcher now install only the restored Zupt names; no
+  legacy package, command, GUI alias, desktop entry, or vendored tarball is
+  retained.  VaptVupt remains named only where it denotes Zupt's bundled codec.
+- Updated **Google Chrome → 152.0.7977.64**, **LibreWolf → 153.0.4-1**, and
+  **Tor Browser/assets → 15.0.20**.  Corrected the malformed Guix hashes in
+  the in-progress LibreWolf and Tor Browser updates, so every channel module
+  evaluates again.
+- Restored the XLibre overlay to the latest upstream **25.2.2** tag and its
+  verified source hash.  The inherited obsolete Intel patch remains omitted.
+
 ### Changed — XLibre 25.2.2 and OpenShot 4.0.0 (2026-08-31)
 
 - Added `(securityops packages xlibre)` with `xlibre-server` 25.2.2 from the
   official `xlibre-xserver-25.2.2` tag, with a verified Guix git-fetch hash.
-  It inherits the guix-xlibre recipe, but omits its obsolete pre-gen4 Intel
-  patch: upstream 25.2 already includes the equivalent (stricter pre-gen3)
-  policy, and the older patch no longer applies.  The `guix-xlibre` dependency
-  is declared and documented in both READMEs.
+  It inherits the guix-xlibre recipe while omitting its obsolete Intel patch.
 - Updated **OpenShot 3.5.1 → 4.0.0** with `guix refresh -u`; the inherited
   disabled test phase remains necessary because upstream's post-3.5 test
   layout no longer matches Guix's old test entry point.

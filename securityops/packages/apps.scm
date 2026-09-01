@@ -15,18 +15,18 @@
 (define-module (securityops packages apps)
   #:use-module (guix packages)
   #:use-module (guix gexp)
-  #:use-module (guix utils)                      ;cc-for-target (vaptvupt)
+  #:use-module (guix utils)                      ;cc-for-target (zupt)
   #:use-module (guix build-system copy)
-  #:use-module (guix build-system gnu)           ;vaptvupt CLI (Makefile)
+  #:use-module (guix build-system gnu)           ;zupt CLI (Makefile)
   #:use-module (gnu packages base)               ;glibc
   #:use-module (gnu packages gcc)                ;gcc:lib (libgcc_s)
   #:use-module (gnu packages elf)                ;patchelf
-  #:use-module (gnu packages tls)                ;openssl 3.5 (vaptvupt FIPS 203 check)
-  #:use-module (gnu packages python)             ;python (torando-gui, vaptvupt-gui)
+  #:use-module (gnu packages tls)                ;openssl 3.5 (zupt FIPS 203 check)
+  #:use-module (gnu packages python)             ;python (torando-gui, zupt-gui)
   #:use-module (gnu packages tor)                ;tor (torando-gui)
   #:use-module (gnu packages linux)              ;iptables, e2fsprogs/chattr (torando-gui)
-  #:use-module (gnu packages qt)                 ;python-pyside-6, qtbase, qtwayland (vaptvupt-gui)
-  #:use-module (gnu packages bash)               ;bash-minimal (vaptvupt-gui launcher)
+  #:use-module (gnu packages qt)                 ;python-pyside-6, qtbase, qtwayland (zupt-gui)
+  #:use-module (gnu packages bash)               ;bash-minimal (zupt-gui launcher)
   #:use-module (gnu packages video)              ;ffmpeg (turborec, moneyprinterturbo)
   #:use-module (gnu packages pulseaudio)         ;pulseaudio/pactl (turborec)
   #:use-module (gnu packages xorg)               ;xrandr, xdpyinfo (turborec)
@@ -35,7 +35,7 @@
   #:use-module (gnu packages xdisorg)            ;wmctrl (turborec X11 window capture)
   #:use-module (gnu packages version-control)    ;git-minimal (moneyprinterturbo venv bootstrap)
   #:use-module (gnu packages fonts)              ;font-wqy-zenhei (moneyprinterturbo CJK subtitles)
-  ;; vaptvupt-gui: PySide6's Qt6 leaf libraries (NOT in its RUNPATH). #:select
+  ;; zupt-gui: PySide6's Qt6 leaf libraries (NOT in its RUNPATH). #:select
   ;; keeps these from clashing with the many modules imported above. mesa=gl;
   ;; the X11/xcb libs, libxft, libevdev, libxau, libxdmcp come from (gnu packages
   ;; xorg); libxkbcommon/pixman/mtdev from (gnu packages xdisorg); eudev from
@@ -57,12 +57,12 @@
   #:use-module ((guix licenses) #:prefix license:))
 
 ;; Leaf runtime libraries PySide6's Qt6 (Core/Gui/Widgets) links but does NOT
-;; carry in its RUNPATH. The vaptvupt-gui launcher puts these on LD_LIBRARY_PATH;
+;; carry in its RUNPATH. The zupt-gui launcher puts these on LD_LIBRARY_PATH;
 ;; without them `import PySide6.QtWidgets` fails with e.g. "libGL.so.1 /
 ;; libzstd.so.1: cannot open shared object file" and the GUI wrongly reports
 ;; "requires PySide6 or PyQt6". NEVER add qtbase/qtwayland here — Qt's own libs
 ;; resolve via PySide6's RUNPATH; a second copy causes private-API symbol clashes.
-(define %vaptvupt-gui-runtime-libs
+(define %zupt-gui-runtime-libs
   (list mesa libxkbcommon fontconfig freetype graphite2 harfbuzz
         icu4c double-conversion pcre2 md4c libb2 brotli
         libpng libjpeg-turbo zlib expat libxml2 pixman glib dbus wayland
@@ -275,10 +275,10 @@ also targets macOS, the BSDs and Windows.")
     (home-page "https://codeberg.org/berkeley/torando-gui")
     (license license:agpl3)))
 
-;;; vaptvupt — pure-C11 post-quantum backup compressor (CLI, v5.0.0) and its
-;;; PySide6/Qt6 desktop frontend (GUI, versioned with the CLI since 4.1.0).
+;;; Zupt — pure-C11 post-quantum backup compressor (CLI, v5.2.8) and its
+;;; PySide6/Qt6 desktop frontend (GUI, versioned with the CLI).
 ;;; Both build from the ONE vendored release tarball.  The CLI is built FROM
-;;; SOURCE with gnu-build-system (plain Makefile, no ./configure).  4.1.0 is a
+;;; SOURCE with gnu-build-system (plain Makefile, no ./configure).  It is a
 ;;; source-only release: the prebuilt vendored shared objects (libzuptsdk /
 ;;; libpqvaptvupt) were dropped upstream, WITH_SDK defaults to 0 and the binary
 ;;; links against only -lm -lpthread — so the old LDFLAGS/patchelf RUNPATH
@@ -286,11 +286,11 @@ also targets macOS, the BSDs and Windows.")
 ;;; --pq-box are now unsupported stubs; native --pq (ML-KEM-768 + X25519)
 ;;; remains, and password mode defaults to PBKDF2-SHA256.  `make check' passes
 ;;; on the source-only build, so tests are enabled.
-(define-public vaptvupt
+(define-public zupt
   (package
-    (name "vaptvupt")
-    (version "5.2.1")
-    (source (local-file "sources/vaptvupt-5.2.1.tar.gz"))
+    (name "zupt")
+    (version "5.2.8")
+    (source (local-file "sources/zupt-5.2.8.tar.gz"))
     (build-system gnu-build-system)
     (arguments
      (list
@@ -302,15 +302,16 @@ also targets macOS, the BSDs and Windows.")
           (delete 'configure))))        ; plain Makefile, no ./configure
     ;; `make check' (crypto vectors + security-regression scripts) runs in the
     ;; container; tests/test_gui_branding.sh's functional check shells out to
-    ;; python3, so python must be a native-input or that one check fails.
+    ;; python3 and tests/test_source_only.sh checks the release's Git metadata,
+    ;; so both python and git-minimal are native inputs.
     ;; openssl (3.5+, has ML-KEM-768) lets tests/test_mlkem_fips203.sh run the
     ;; FIPS 203 cross-decapsulation against OpenSSL instead of skipping —
     ;; build-time only, nothing links it.
-    (native-inputs (list openssl python))
+    (native-inputs (list openssl python git-minimal))
     (supported-systems '("x86_64-linux"))
     (synopsis "Post-quantum backup compression utility (CLI)")
     (description
-     "VaptVupt (formerly Zupt) is a pure-C11 backup compressor with post-quantum
+     "Zupt is a pure-C11 backup compressor with post-quantum
 hybrid encryption.  Since 4.1.0 it is a source-only build with no vendored
 binary SDKs: recipient modes are the native ML-KEM-768 + X25519 hybrid
 (@code{--pq}, recommended) and pure ML-KEM-768 with no classical component
@@ -325,30 +326,30 @@ mode and plain compression are unaffected).  4.2.0 fixed a critical AES-CTR
 keystream-reuse flaw in @code{--dedup} archives (re-encrypt any written by
 4.1.0 or earlier).  Payload protection is
 AES-256-CTR + HMAC-SHA256 Encrypt-then-MAC with measured constant-time tag
-comparison and runtime AES-NI/SHA-NI dispatch; the embedded VaptVupt 2.60.4
-LZ+ANS codec ships CBMC-verified BCJ filters.")
-    (home-page "https://codeberg.org/berkeley/vaptvupt")
+comparison and runtime AES-NI/SHA-NI dispatch; it embeds the VaptVupt LZ+ANS
+codec, which is a codec component rather than a compatibility command.")
+    (home-page "https://github.com/cristiancmoises/zupt")
     (license (list license:agpl3+ license:gpl3+))))
 
-;;; vaptvupt-gui — PySide6 (Qt6) frontend, installed from the same tarball with
+;;; zupt-gui — PySide6 (Qt6) frontend, installed from the same tarball with
 ;;; copy-build-system.  The launcher pins the matching CLI store path via
-;;; VAPTVUPT_BIN (the GUI honours it before any PATH lookup), so GUI and CLI can
-;;; never drift apart; PySide6 is made importable via GUIX_PYTHONPATH and the Qt
+;;; ZUPT_BIN, so GUI and CLI can never drift apart; PySide6 is made importable
+;;; via GUIX_PYTHONPATH and the Qt
 ;;; platform plugins (xcb + wayland) via QT_PLUGIN_PATH.
-(define-public vaptvupt-gui
+(define-public zupt-gui
   (package
-    (name "vaptvupt-gui")
-    (version "5.2.1")                    ; upstream versions the GUI with the CLI now
-    (source (package-source vaptvupt))   ; same release tarball
+    (name "zupt-gui")
+    (version "5.2.8")                    ; upstream versions the GUI with the CLI
+    (source (package-source zupt))        ; same release tarball
     (build-system copy-build-system)
     (arguments
      (list
       #:install-plan
-      #~'(("gui/src/zupt_gui.py" "lib/vaptvupt-gui/")
+      #~'(("gui/src/zupt_gui.py" "lib/zupt-gui/")
           ("gui/assets/zupt-icon.png"
-           "share/icons/hicolor/256x256/apps/vaptvupt-gui.png")
-          ("gui/README.md" "share/doc/vaptvupt-gui/")
-          ("gui/LICENSE-GUI" "share/doc/vaptvupt-gui/"))
+           "share/icons/hicolor/256x256/apps/zupt-gui.png")
+          ("gui/README.md" "share/doc/zupt-gui/")
+          ("gui/LICENSE-GUI" "share/doc/zupt-gui/"))
       #:phases
       #~(modify-phases %standard-phases
           (add-after 'install 'make-launcher
@@ -356,10 +357,10 @@ LZ+ANS codec ships CBMC-verified BCJ filters.")
               (let* ((out     (assoc-ref outputs "out"))
                      (bin     (string-append out "/bin"))
                      (gui     (string-append
-                               out "/lib/vaptvupt-gui/zupt_gui.py"))
+                               out "/lib/zupt-gui/zupt_gui.py"))
                      (sh      (search-input-file inputs "/bin/sh"))
                      (python3 (search-input-file inputs "/bin/python3"))
-                     (cli     (search-input-file inputs "/bin/vaptvupt"))
+                     (cli     (search-input-file inputs "/bin/zupt"))
                      (pyside  (assoc-ref inputs "python-pyside-6"))
                      (site    (car (find-files pyside "^site-packages$"
                                                #:directories? #t)))
@@ -380,37 +381,35 @@ LZ+ANS codec ships CBMC-verified BCJ filters.")
                      (ldpath (string-join
                               (append
                                (list #$@(map (lambda (p) (file-append p "/lib"))
-                                             %vaptvupt-gui-runtime-libs))
+                                             %zupt-gui-runtime-libs))
                                (list (string-append zstdlib "/lib")))
                               ":")))
                 (mkdir-p bin)
-                (call-with-output-file (string-append bin "/vaptvupt-gui")
+                (call-with-output-file (string-append bin "/zupt-gui")
                   (lambda (port)
                     (format port "#!~a
-export VAPTVUPT_BIN=\"~a\"
+export ZUPT_BIN=\"~a\"
 export GUIX_PYTHONPATH=\"~a:~a${GUIX_PYTHONPATH:+:}$GUIX_PYTHONPATH\"
 export QT_PLUGIN_PATH=\"~a/lib/qt6/plugins:~a/lib/qt6/plugins${QT_PLUGIN_PATH:+:}$QT_PLUGIN_PATH\"
 export LD_LIBRARY_PATH=\"~a${LD_LIBRARY_PATH:+:}$LD_LIBRARY_PATH\"
 exec \"~a\" \"~a\" \"$@\"\n"
                             sh cli site shsite qtbase qtwl ldpath python3 gui)))
-                (chmod (string-append bin "/vaptvupt-gui") #o755)
-                ;; Legacy name, mirroring the .deb/.rpm packages.
-                (symlink "vaptvupt-gui" (string-append bin "/zupt-gui")))))
+                (chmod (string-append bin "/zupt-gui") #o755))))
           (add-after 'make-launcher 'install-desktop-file
             (lambda* (#:key outputs #:allow-other-keys)
               (let* ((out  (assoc-ref outputs "out"))
                      (apps (string-append out "/share/applications")))
                 (mkdir-p apps)
                 (call-with-output-file
-                    (string-append apps "/vaptvupt-gui.desktop")
+                    (string-append apps "/zupt-gui.desktop")
                   (lambda (port)
                     (format port "[Desktop Entry]
 Type=Application
-Name=VaptVupt
+Name=Zupt
 GenericName=Post-Quantum Backup
 Comment=Compress, encrypt and restore .zupt archives
-Exec=~a/bin/vaptvupt-gui %F
-Icon=vaptvupt-gui
+Exec=~a/bin/zupt-gui %F
+Icon=zupt-gui
 Terminal=false
 Categories=Utility;Archiving;Security;
 MimeType=application/x-zupt;
@@ -418,18 +417,18 @@ Keywords=backup;encryption;post-quantum;compression;zupt;\n"
                             out)))))))))
     (inputs
      (append (list bash-minimal python python-pyside-6 python-shiboken-6
-                   qtbase qtwayland vaptvupt
+                   qtbase qtwayland zupt
                    (list zstd "lib"))   ; libzstd.so.1 is in zstd's "lib" output
-             %vaptvupt-gui-runtime-libs))
+             %zupt-gui-runtime-libs))
     (supported-systems '("x86_64-linux"))
-    (synopsis "Desktop frontend for VaptVupt (PySide6/Qt6 GUI)")
+    (synopsis "Desktop frontend for Zupt (PySide6/Qt6 GUI)")
     (description
-     "PySide6 (Qt 6) graphical frontend for VaptVupt: create, inspect and extract
+     "PySide6 (Qt 6) graphical frontend for Zupt: create, inspect and extract
 @code{.zupt} archives with password (PBKDF2-SHA256) or post-quantum recipient
 encryption via the native ML-KEM-768 + X25519 hybrid (@code{--pq}).  The
-launcher pins the matching @code{vaptvupt} CLI from the store via
-@env{VAPTVUPT_BIN}, so GUI and CLI versions can never drift apart.")
-    (home-page "https://codeberg.org/berkeley/vaptvupt")
+launcher pins the matching @code{zupt} CLI from the store via @env{ZUPT_BIN},
+so GUI and CLI versions can never drift apart.")
+    (home-page "https://github.com/cristiancmoises/zupt")
     (license license:agpl3+)))
 
 ;;; turborec — Turbo Recorder 3.7.0: a hardware-accelerated screen + audio
