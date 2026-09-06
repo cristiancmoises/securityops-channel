@@ -28,13 +28,13 @@
 (define-public nmap
   (package
     (inherit adm:nmap)
-    (version "7.99")                    ;Guix lags at 7.98
+    (version "7.991")
     (source
      (origin
        (method url-fetch)
        (uri (string-append "https://nmap.org/dist/nmap-" version ".tar.bz2"))
        (sha256
-        (base32 "1cjibl1qq1ggzz45sib9wph8kgjvcgc2cvx04wxfa26izy928lfz"))))))
+        (base32 "1gi9d52jf87i3idizfnx16hw5hcgmadgywa7vnzg7gipjkr0gmd5"))))))
 (define-public masscan adm:masscan)
 (define-public arp-scan net:arp-scan)
 (define-public netdiscover net:netdiscover)
@@ -92,7 +92,7 @@
 (define-public sdb
   (package
     (inherit db:sdb)
-    (version "2.5.0")
+    (version "2.5.2")
     (source
      (origin
        (inherit (package-source db:sdb))
@@ -101,12 +101,12 @@
              (commit version)))
        (file-name (git-file-name "sdb" version))
        (sha256
-        (base32 "1fci72hcm2a0k9rnsfkcr2qsfprzxfycghpr4i3wargj781lc9jd"))))))
+        (base32 "19305r481nfhyy6pixgxhpw0wsv5s4h42z7pdvgdyhbcbimnm5x9"))))))
 
 (define-public radare2
   (package
     (inherit eng:radare2)
-    (version "6.2.0")
+    (version "6.2.2")
     (source
      (origin
        (inherit (package-source eng:radare2))
@@ -115,12 +115,24 @@
              (commit version)))
        (file-name (git-file-name "radare2" version))
        (sha256
-        (base32 "1vzlxn0xdgm8ijaj5nz9l3j52a48g93canzvalp3bcmkyms8s47c"))))
+        (base32 "129fys295677w3nxwirc3qgqvm97y6bc94s1wv8yw1kpg4slk17x"))))
     (arguments
      (substitute-keyword-arguments (package-arguments eng:radare2)
        ((#:configure-flags flags #~'())
         #~(append #$flags
-                  (list "-Duse_sys_zydis=true")))))
+                  (list "-Duse_sys_zydis=true")))
+       ((#:phases phases)
+        #~(modify-phases #$phases
+            (add-after 'unpack 'initialize-test-calling-convention
+              (lambda _
+                ;; The new variadic test requires the amd64 convention, whose
+                ;; database is not installed yet during an isolated build.
+                (substitute* "test/unit/test_anal_function.c"
+                  (("r_config_set_b \\(core->config, \"anal.esil\", false\\);")
+                   (string-append
+                    "r_config_set_b (core->config, \"anal.esil\", false);\n"
+                    "r_anal_cc_set (core->anal, \"rax amd64(rdi, rsi, rdx, rcx, r8, r9, stack)\");\n"
+                    "r_anal_set_cc_default (core->anal, \"amd64\");")))))))))
     (inputs
      (modify-inputs (package-inputs eng:radare2)
        (replace "sdb" sdb)
@@ -179,7 +191,23 @@
 (define-public binwalk fw:binwalk)
 
 ;;; Crypto
-(define-public age gc:age)
+(define-public age
+  (package
+    (inherit gc:age)
+    (version "1.3.2")
+    (arguments
+     (substitute-keyword-arguments (package-arguments gc:age)
+       ((#:build-flags _)
+        #~(list (string-append "-ldflags=-X main.Version="
+                               #$(package-version this-package))))))
+    (source
+     (origin
+       (inherit (package-source gc:age))
+       (uri (git-reference
+             (url "https://github.com/FiloSottile/age")
+             (commit (string-append "v" version))))
+       (sha256
+        (base32 "0l16fsd6zbqngpwxxxm531nxy1073wdgyg97jlg1qnyaig758m83"))))))
 
 ;;; System auditing / hardening — bumped ahead of Guix: 3.1.1 -> 3.1.7 (latest).
 ;;; Lynis is a pure-shell auditing tool; inherit Guix's package and override only

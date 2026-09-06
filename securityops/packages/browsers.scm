@@ -51,8 +51,8 @@
 (define-public google-chrome-stable
   (let ((base
          (chrome:make-google-chrome
-          "stable" "152.0.7977.64"
-          "1ivkk00gy0r78pnmx105hfpxniqfy1x7z4yj3j2vrn8jm0v0gbjf")))
+          "stable" "152.0.7977.82"
+          "0im4mm196nczjcs3wzjyb72jqy9lyb152db823lpm2n752hf89ad")))
     (package
       (inherit base)
       (arguments

@@ -6,8 +6,8 @@
 ;;; Shells — curated set for the securityops workstation.
 
 (define-module (securityops packages shells)
-  #:use-module (securityops packages fish-crates)
   #:use-module ((gnu packages shells) #:prefix gnu:)
+  #:use-module (securityops packages fish-crates)
   #:use-module (gnu packages ncurses)
   #:use-module (gnu packages pcre)
   #:use-module (gnu packages python)
@@ -24,7 +24,7 @@
 (define-public fish
   (package
     (inherit gnu:fish)
-    (version "4.8.1")
+    (version "4.9.2")
     (source
      (origin
        (inherit (package-source gnu:fish))
@@ -33,13 +33,13 @@
              version "/fish-" version ".tar.xz"))
        (sha256
         (base32
-         "10jpqrv7v1szdnwpn2p0y1w5w8lmfqysg490gi596pl63s2nmf0f"))))
+         "1c82vyzhr7hkxpsacfrcrglvyz8if43z58qb48mrda0prrlmgf96"))))
     (inputs
      (cons* gnu:fish-foreign-env
             ncurses
             pcre2
             python
-            fish-4.8.1-cargo-inputs))
+            fish-4.9.2-cargo-inputs))
     (arguments
      (substitute-keyword-arguments (package-arguments gnu:fish)
        ((#:phases phases)
