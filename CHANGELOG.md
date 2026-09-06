@@ -6,6 +6,19 @@ tag rather than SemVer of the code.
 
 ## [Unreleased]
 
+### Changed — package and documentation refresh (2026-09-06)
+
+- Updated Fish, Emacs, Chrome, Chromium binary, Tor Browser, Nmap, SDB,
+  Radare2, age, Evelin, Torando GUI, Zupt, TurboRecorder, MoneyPrinterTurbo
+  and Kitty's purego dependency. See the [version table](PACKAGES.md).
+- Regenerated Fish Cargo sources, adapted Emacs 31 patches, initialized
+  Radare2's isolated test fixture and corrected age's embedded version.
+- Replaced duplicated README release text with concise English and Portuguese
+  guides; separated the package index, usage examples and dated validation.
+- Recorded incomplete builds and upstream-version exceptions in the
+  [refresh report](docs/refresh-2026-09-06.md). Deployment uses the owner's
+  system/Home reconfiguration and substitute server, not mandatory local builds.
+
 ### Changed — Zupt rename and channel refresh (2026-09-01)
 
 - Replaced the `vaptvupt` and `vaptvupt-gui` packages with **`zupt`** and
