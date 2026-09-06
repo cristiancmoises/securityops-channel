@@ -42,7 +42,9 @@ die()  { printf '%serror:%s %s\n' "$RED" "$R" "$*" >&2; exit 1; }
 
 # ---- package registry --------------------------------------------------------
 # Packages Guix can auto-update (have a working `guix refresh` updater).
-REFRESH_PKGS=(kitty openshot tor glances)
+# Fish needs a matching Cargo.lock inventory; Emacs needs version-specific
+# patches. Keep those updates deliberate instead of changing only the version.
+REFRESH_PKGS=(kitty openshot tor glances nmap sdb radare2 age)
 
 # Check-only packages -> shell function that echoes the latest upstream version.
 declare -A CHECKER=(
@@ -67,7 +69,7 @@ declare -A CHECK_FILE=(
 )
 # First-party apps (forge / github) -> "host:repo" ; checked via tags.
 declare -A FORGE_APP=(
-  [evelin-bin]=securityops:evelin
+  [evelin-bin]=securityops-co:evelin
   [btp]=securityops:btp
   [mirim]=codeberg:berkeley/mirim
   [torando-gui]=codeberg:berkeley/torando-gui
@@ -88,7 +90,14 @@ declare -A FORGE_FILE=(
 )
 
 # ---- helpers -----------------------------------------------------------------
-cur_ver() { "$GUIX" show -L "$CHAN" "$1" 2>/dev/null | sed -n 's/^version: //p' | head -1; }
+cur_ver() {
+  local -a paths=(-L "$CHAN")
+  # An unpulled checkout may need the separately installed XLibre channel.
+  if [ -n "${GUIX_XLIBRE_PATH:-}" ]; then
+    paths+=(-L "$GUIX_XLIBRE_PATH")
+  fi
+  "$GUIX" show "${paths[@]}" "$1" 2>/dev/null | sed -n 's/^version: //p' | head -1
+}
 
 # strip a leading 'v' and any git-describe suffix noise
 norm() { printf '%s' "${1#v}"; }
@@ -141,6 +150,7 @@ latest_forge() { # arg: host:repo  -> newest tag
   local host="${1%%:*}" repo="${1#*:}" url
   case "$host" in
     securityops) url="https://git.securityops.com.br/cristiancmoises/$repo" ;;
+    securityops-co) url="https://git.securityops.co/cristiancmoises/$repo" ;;
     codeberg)    url="https://codeberg.org/$repo" ;;
     github)      url="https://github.com/$repo" ;;
     *) echo '?'; return ;;

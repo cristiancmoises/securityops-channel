@@ -73,15 +73,15 @@
         libinput-minimal mtdev libevdev eudev))
 
 ;;; evelin — post-quantum transport (ML-KEM-1024 / ML-DSA-87 / ChaCha20-Poly1305).
-;;; Packaged from the OFFICIAL upstream static-musl release tarball (v4.3.0),
+;;; Packaged from the official upstream static-musl release tarball (v4.4.0),
 ;;; matching your existing ~/Downloads/evelin.scm.  Fully static (musl,
 ;;; link-self-contained): no runtime inputs, no patchelf, no grafting.
 ;;; Ships ev + client/server/agent/keygen/keyscan/multisig-verify, man pages, docs.
 (define-public evelin-bin
   (package
     (name "evelin-bin")
-    (version "4.3.0")
-    (source (local-file "sources/evelin-v4.3.0-linux-x86_64-musl.tar.gz"))
+    (version "4.4.0")
+    (source (local-file "sources/evelin-v4.4.0-linux-x86_64-musl.tar.gz"))
     (build-system copy-build-system)
     (arguments
      (list
@@ -207,8 +207,8 @@ glibc/gcc.")
 (define-public torando-gui
   (package
     (name "torando-gui")
-    (version "1.3.4")
-    (source (local-file "sources/torando-gui-1.3.4-src.tar.gz"))
+    (version "1.4.1")
+    (source (local-file "sources/torando-gui-1.4.1-src.tar.gz"))
     (build-system copy-build-system)
     (inputs (list python tor iptables e2fsprogs))
     (arguments
@@ -275,7 +275,7 @@ also targets macOS, the BSDs and Windows.")
     (home-page "https://codeberg.org/berkeley/torando-gui")
     (license license:agpl3)))
 
-;;; Zupt — pure-C11 post-quantum backup compressor (CLI, v5.2.8) and its
+;;; Zupt — pure-C11 post-quantum backup compressor (CLI, v5.2.9) and its
 ;;; PySide6/Qt6 desktop frontend (GUI, versioned with the CLI).
 ;;; Both build from the ONE vendored release tarball.  The CLI is built FROM
 ;;; SOURCE with gnu-build-system (plain Makefile, no ./configure).  It is a
@@ -289,8 +289,8 @@ also targets macOS, the BSDs and Windows.")
 (define-public zupt
   (package
     (name "zupt")
-    (version "5.2.8")
-    (source (local-file "sources/zupt-5.2.8.tar.gz"))
+    (version "5.2.9")
+    (source (local-file "sources/zupt-5.2.9.tar.gz"))
     (build-system gnu-build-system)
     (arguments
      (list
@@ -339,7 +339,7 @@ codec, which is a codec component rather than a compatibility command.")
 (define-public zupt-gui
   (package
     (name "zupt-gui")
-    (version "5.2.8")                    ; upstream versions the GUI with the CLI
+    (version "5.2.9")                    ; upstream versions the GUI with the CLI
     (source (package-source zupt))        ; same release tarball
     (build-system copy-build-system)
     (arguments
@@ -431,7 +431,7 @@ so GUI and CLI versions can never drift apart.")
     (home-page "https://github.com/cristiancmoises/zupt")
     (license license:agpl3+)))
 
-;;; turborec — Turbo Recorder 3.7.0: a hardware-accelerated screen + audio
+;;; turborec — Turbo Recorder 3.9.1: a hardware-accelerated screen + audio
 ;;; recorder.  `turborec.py' is a pure-stdlib Python CLI with a Tkinter GUI (the
 ;;; `gui' subcommand); `turborecorder' is a Linux X11/Wayland bash launcher that
 ;;; builds a quality-first FFmpeg pipeline (NVENC > VAAPI > x264).  Built FROM
@@ -445,8 +445,8 @@ so GUI and CLI versions can never drift apart.")
 (define-public turborec
   (package
     (name "turborec")
-    (version "3.7.0")
-    (source (local-file "sources/turborec-3.7.0-src.tar.gz"))
+    (version "3.9.1")
+    (source (local-file "sources/turborec-3.9.1-src.tar.gz"))
     (build-system copy-build-system)
     (inputs
      `(("python" ,python)
@@ -542,7 +542,7 @@ launchers pin the store @code{python3}/@code{bash} and the tools they call
     (home-page "https://codeberg.org/berkeley/turborec")
     (license license:gpl3)))
 
-;;; moneyprinterturbo — one-click AI short-video generator (harry0703 v1.3.3).
+;;; moneyprinterturbo — one-click AI short-video generator (harry0703 v1.3.6).
 ;;; THIRD-PARTY Python app with a huge, partly-unpackaged dependency tree
 ;;; (streamlit, moviepy, edge-tts, litellm, faster-whisper, the cloud SDKs), so a
 ;;; full native python-build-system package is infeasible here.  Instead this ships
@@ -576,8 +576,8 @@ launchers pin the store @code{python3}/@code{bash} and the tools they call
 (define-public moneyprinterturbo
   (package
     (name "moneyprinterturbo")
-    (version "1.3.3")                    ;upstream's latest tag is v1.3.3
-    (source (local-file "sources/moneyprinterturbo-1.3.3-src.tar.gz"))
+    (version "1.3.6")
+    (source (local-file "sources/moneyprinterturbo-1.3.6-src.tar.gz"))
     (build-system copy-build-system)
     (inputs
      `(("python" ,python)
@@ -653,7 +653,7 @@ set -e
 export PATH=\"~a${PATH:+:$PATH}\"
 STORE_SHARE=\"~a\"
 APP_HOME=\"${MPT_HOME:-${XDG_DATA_HOME:-$HOME/.local/share}/moneyprinterturbo}\"
-VERSION=\"1.3.3\"
+VERSION=\"1.3.6\"
 export TORSOCKS_ALLOW_INBOUND=1
 export TORSOCKS_CONF_FILE=\"~a\"
 export GRPC_DNS_RESOLVER=native
@@ -696,7 +696,7 @@ export PYTHONPATH=\"$APP_HOME${PYTHONPATH:+:$PYTHONPATH}\"
      "MoneyPrinterTurbo generates short-form videos from a topic: an LLM writes the
 script and keywords, stock B-roll is pulled from Pexels/Pixabay, edge-tts adds a
 voice-over, subtitles are burned in, and FFmpeg assembles the final clip.  This
-package ships the upstream v1.3.3 source (proprietary CJK fonts removed; WenQuanYi
+package ships the upstream v1.3.6 source (proprietary CJK fonts removed; WenQuanYi
 Zen Hei bundled as the default subtitle font) plus self-contained
 @command{moneyprinterturbo} (Streamlit WebUI) and @command{moneyprinterturbo-api}
 (FastAPI) launchers.  On first run each launcher copies the app into

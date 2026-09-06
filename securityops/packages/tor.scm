@@ -34,9 +34,9 @@
         (base32 "1vd825m8v8njsg223hv6syjspgxnj77lgzbr037jm0cc24h1fv1f"))))))
 
 ;;; ---------------------------------------------------------------------------
-;;; torbrowser — bumped ahead of Guix: 15.0.14 -> 15.0.20 (latest STABLE; the
+;;; torbrowser — bumped ahead of Guix: 15.0.14 -> 15.0.21 (latest STABLE; the
 ;;; 16.0aN builds are alphas).  Source-built from the official Tor Browser
-;;; Firefox source (140.14.0esr-15.0-1-build2), inheriting Guix's
+;;; Firefox source (140.15.0esr-15.0-1-build2), inheriting Guix's
 ;;; `mozilla-build-system' machinery.
 ;;;
 ;;; CAVEAT (documented in README): Guix's `make-torbrowser' and
@@ -44,11 +44,11 @@
 ;;; vendoring ~400 lines plus private helpers.  We therefore inherit the
 ;;; upstream package and override only `version' + `source'.  The bundled
 ;;; fonts/torrc-defaults and firefox-l10n / translation commits stay at the
-;;; 15.0.14 baseline.  The selected fonts and torrc-defaults are byte-identical
-;;; to 15.0.20, but the 15.0.20 translation commits differ.  The resulting
-;;; build has the 15.0.20 engine/version/build date with known-stale 15.0.14-era
+;;; 15.0.14 baseline. These inherited assets have not been revalidated against
+;;; 15.0.21; the separately exported assets package is updated. The resulting
+;;; build has the 15.0.21 engine/version/build date with known-stale 15.0.14-era
 ;;; localisation.  Bump that upstream in Guix for a fully pristine build.
-;;; Hash: `guix download .../src-firefox-tor-browser-140.14.0esr-15.0-1-build2.tar.xz'.
+;;; Hash: `guix download .../src-firefox-tor-browser-140.15.0esr-15.0-1-build2.tar.xz'.
 ;;; ---------------------------------------------------------------------------
 ;;; Performance: add ThinLTO on top of Guix's stock hardened/optimised build
 ;;; (--enable-optimize --enable-release --enable-strip, sandbox + PIE kept).
@@ -59,46 +59,46 @@
 (define-public torbrowser
   (package
     (inherit tb:torbrowser)
-    (version "15.0.20")
+    (version "15.0.21")
     (source
      (origin
        (method url-fetch)
        (uri (string-append
              "https://archive.torproject.org/tor-package-archive/torbrowser/"
-             version "/src-firefox-tor-browser-140.14.0esr-15.0-1-build2.tar.xz"))
+             version "/src-firefox-tor-browser-140.15.0esr-15.0-1-build2.tar.xz"))
        (sha256
-        (base32 "178ari1jaxbijwfjpmh1z222xrgxab1szx2d4x17q65jkww05ihb"))))
+        (base32 "1s9xcz0fa7bcpf75kp77fcbqv41szcqmn2ddg89hn83y3z7p9d9a"))))
     (arguments
       (substitute-keyword-arguments (package-arguments tb:torbrowser)
         ;; Guix's make-torbrowser bakes the DISPLAYED Tor Browser version from its
         ;; %torbrowser-version constant (15.0.14) into --with-base-browser-version
         ;; and MOZ_BUILD_DATE, independently of our version+source override — so
-        ;; the browser would report 15.0.14 on a 15.0.20 engine.  Rewrite both to
-        ;; 15.0.20: the real base-browser-version, and the official 15.0.20
-        ;; build id (BuildID from the upstream 15.0.20 bundle's application.ini).
-        ;; Also add ThinLTO.  (The inherited fonts/torrc-defaults are byte-identical
-        ;; to 15.0.20; localisation still comes from guix's stale 15.0.14 pin.)
+        ;; the browser would report 15.0.14 on a 15.0.21 engine.  Rewrite both to
+        ;; 15.0.21: the real base-browser-version, and the official 15.0.21
+        ;; build id (BuildID from the upstream 15.0.21 bundle's application.ini).
+        ;; Also add ThinLTO. Inherited assets/localisation still use Guix's
+        ;; 15.0.14 pin; the separately exported assets do not replace them.
         ((#:configure-flags flags #~'())
          #~(append (delete "--with-base-browser-version=15.0.14" #$flags)
-                   (list "--with-base-browser-version=15.0.20"
+                   (list "--with-base-browser-version=15.0.21"
                          "--enable-lto=thin")))
         ((#:phases phases '%standard-phases)
          #~(modify-phases #$phases
              (add-after 'setenv 'fix-tbb-build-date
                (lambda _
-                 (setenv "MOZ_BUILD_DATE" "20260824080000")))))))))
+                 (setenv "MOZ_BUILD_DATE" "20260901104146")))))))))
 
 ;;; ---------------------------------------------------------------------------
-;;; torbrowser-assets — the official prebuilt bundle (15.0.20) from which fonts
+;;; torbrowser-assets — the official prebuilt bundle (15.0.21) from which fonts
 ;;; and torrc-defaults are taken.  Provided standalone (Guix keeps its copy
 ;;; private); verified by hash.  Use it to extract the latest assets, or as the
 ;;; basis for a fully-pristine torbrowser bump.
-;;; Hash: `guix download .../tor-browser-linux-x86_64-15.0.20.tar.xz'.
+;;; Hash: `guix download .../tor-browser-linux-x86_64-15.0.21.tar.xz'.
 ;;; ---------------------------------------------------------------------------
 (define-public torbrowser-assets
   (package
     (name "torbrowser-assets")
-    (version "15.0.20")
+    (version "15.0.21")
     (source
      (origin
        (method url-fetch)
@@ -106,7 +106,7 @@
              "https://archive.torproject.org/tor-package-archive/torbrowser/"
              version "/tor-browser-linux-x86_64-" version ".tar.xz"))
        (sha256
-        (base32 "1kz25gmpdmbplm2qy62znvvznwx08psgkdi3n5iwl8a93x1spd1f"))))
+        (base32 "17rmzidv2i87x1cyj9gvqamdlnbl7wkdzp5npv1rcqxp32h51pci"))))
     (build-system copy-build-system)
     (arguments
       (list #:install-plan

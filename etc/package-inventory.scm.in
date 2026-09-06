@@ -1,0 +1,16 @@
+;;; SPDX-License-Identifier: GPL-3.0-or-later
+;; Run with guix repl -L . -L /path/to/guix-xlibre etc/package-inventory.scm.in.
+(use-modules (guix packages) (ice-9 format))
+(for-each
+ (lambda (name)
+   (let ((interface (resolve-interface `(securityops packages ,name))))
+     (module-for-each
+      (lambda (symbol binding)
+        (let ((package (variable-ref binding)))
+          (when (package? package)
+            (format #t "~a\t~a\t~a\t~a\n"
+                    name symbol (package-version package)
+                    (package-home-page package)))))
+      interface)))
+ '(apps browsers chromium containers emacs games librewolf monitoring
+   security shells terminals tor utils video vpn xlibre))
