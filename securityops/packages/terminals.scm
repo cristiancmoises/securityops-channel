@@ -92,7 +92,7 @@ kitty's @code{watch} kitten.")
 (define-public go-github-com-ebitengine-purego
   (package
     (name "go-github-com-ebitengine-purego")
-    (version "0.10.2")
+    (version "0.11.0")
     (source
      (origin
        (method git-fetch)
@@ -101,7 +101,7 @@ kitty's @code{watch} kitten.")
              (commit (string-append "v" version))))
        (file-name (git-file-name name version))
        (sha256
-        (base32 "116f20maszn27178al7cj3w428n2kixp9ys9jzf6i17y5qapkszh"))))
+        (base32 "0iyw55fm56klxf1z5cbjvg8x60z16n6r7vyr7li2z0r0f7p3x3l8"))))
     (build-system go-build-system)
     (arguments (list #:import-path "github.com/ebitengine/purego"
                      #:tests? #f))
