@@ -1,6 +1,6 @@
-# Package index
+# Curated package index
 
-Snapshot: 2026-09-06. Evaluated against Guix `fe590afef7319a8ea921d35b67fb39fb79f5a3b3` and nonguix `bf39542ca537fde8839b209ac21d6f3254469b15`, with guix-xlibre available. Re-exported versions change with the consumer's channels.
+Snapshot: 2026-09-06. Evaluated against Guix `fe590afef7319a8ea921d35b67fb39fb79f5a3b3` and nonguix `bf39542ca537fde8839b209ac21d6f3254469b15`. XLibre packaging is now included in SecurityOps. Re-exported versions change with the consumer's channels.
 
 This lists recipe versions, not a claim that every package was rebuilt or is the latest upstream release. See [validation and exceptions](docs/refresh-2026-09-06.md).
 
@@ -62,7 +62,10 @@ This lists recipe versions, not a claim that every package was rebuilt or is the
 Regenerate the inventory with:
 
 ```sh
-guix repl -L . -L /path/to/guix-xlibre etc/package-inventory.scm.in
+guix repl -L . etc/package-inventory.scm.in
 ```
 
 Public exports include three Kitty build dependencies. Duplicate browser re-exports are counted once.
+
+Additional driver exports are provided by the bundled `(xlibre)` compatibility
+module; see [XLibre integration](docs/xlibre-integration.md).

@@ -6,6 +6,16 @@ tag rather than SemVer of the code.
 
 ## [Unreleased]
 
+### Fixed — authenticated channel configuration and integrated XLibre
+
+- Included XLibre's server, driver definitions and `(xlibre)` compatibility API
+  directly in SecurityOps; removed the external guix-xlibre dependency.
+- Added the owner's signed small-guix fork introduction and synchronized its
+  keyring on both Forgejo mirrors. Earlier history was not rewritten.
+- Updated the user/root channel template to eight authenticated, primary-forge
+  entries. Root installation requires rerunning the supplied installer.
+- See [authentication and deployment](docs/channel-authentication-fix.md).
+
 ### Changed — package and documentation refresh (2026-09-06)
 
 - Updated Fish, Emacs, Chrome, Chromium binary, Tor Browser, Nmap, SDB,
