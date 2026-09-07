@@ -17,14 +17,14 @@
  (version 0)
  (news-file "etc/news.txt")
  ;; Official home: git.securityops.com.br, cloned/pulled over HTTPS with no account.
- ;; Public mirrors are Codeberg and GitHub (see README.md → "Install").
+ ;; Public mirrors include git.securityops.co, Codeberg and GitHub.
  ;; Commits are GPG-signed; add the `(introduction ...)' from the README to
  ;; channels.scm to verify signatures on pull (keys in .guix-authorizations).
  (url "https://git.securityops.com.br/cristiancmoises/securityops-channel")
  (dependencies
   (channel
    (name nonguix)
-   (url "https://github.com/nonguix/nonguix")
+   (url "https://git.securityops.com.br/cristiancmoises/nonguix.git")
    (introduction
     (channel-introduction
      (version 0)
@@ -32,4 +32,4 @@
      (signer "2A39 3FFF 68F4 EF7A 3D29  12AF 6F51 20A0 22FB B2D5")))
   (channel
    (name guix-xlibre)
-   (url "https://gitlab.vulnix.sh/spacecadet/guix-xlibre.git"))))
+   (url "https://git.securityops.com.br/cristiancmoises/guix-xlibre.git"))))
