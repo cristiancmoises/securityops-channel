@@ -6,6 +6,16 @@ tag rather than SemVer of the code.
 
 ## [Unreleased]
 
+### Changed — Esquema and Mirim source packages (2026-09-06)
+
+- Updated Esquema to 0.3.0 with standard staged installation, installed-library
+  resolution, portable hardening flags and English/Brazilian Portuguese guides.
+- Corrected Esquema's free-software license metadata to AGPL-3.0-or-later.
+- Updated Mirim to 1.1.1 and replaced the prebuilt CLI/signing package with a
+  build from tagged source and vendored Cargo dependencies; tests run offline.
+- Esquema checks installation and FFI loading inside the Guix build sandbox;
+  namespace/security integration tests run separately on the host.
+
 ### Fixed — authenticated channel configuration and integrated XLibre
 
 - Included XLibre's server, driver definitions and `(xlibre)` compatibility API
