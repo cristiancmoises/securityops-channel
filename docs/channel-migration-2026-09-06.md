@@ -63,6 +63,11 @@ authenticated channels retain their keyring branches. The existing unauthenticat
 small-guix and XLibre pins remain explicit; this migration does not invent new
 trust introductions for them.
 
+The secondary Guix import also completed after its CPU-intensive indexing stage.
+All nine pinned commits are verified on the secondary forge, and the seven
+authentication keyring branch hashes match the primary forge. The initial API
+timeout did not mean that the server-side import had failed.
+
 The dependency metadata at the pinned revisions was inspected. The complete
 dependency closure is listed explicitly, so Guix's breadth-first resolution uses
 the user-provided pinned URLs instead of adding upstream URLs for the same names.
