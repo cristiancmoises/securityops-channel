@@ -100,12 +100,11 @@ a Guix System service, use the bundled service type:
 
 ### Consuming the channel from `/etc/config.scm` and `home.scm`
 
-`xlibre-server` is an overlay of the upstream `guix-xlibre` recipe.  The
-channel declares `guix-xlibre` as a dependency, so `guix pull` obtains it
-automatically.  Then use `((securityops packages xlibre) #:prefix so:)` and
-`so:xlibre-server`.  The overlay retains guix-xlibre's recipe while pinning the
-XLibre server source to the newest 25.2.2 tag. The inherited obsolete
-Intel-driver patch is omitted because its policy is already upstream.
+`xlibre-server`, its drivers and the compatibility `(xlibre)` module are
+included in SecurityOps. No external XLibre channel is required. Use
+`((securityops packages xlibre) #:prefix so:)` and `so:xlibre-server`.
+The server source remains pinned to 25.2.2; the obsolete Intel-driver patch
+is omitted because its policy is already upstream.
 
 A bare bumped package such as `kitty`, `fish`, `radare2`, or
 `google-chrome-stable` written against `(gnu packages …)` / `(nongnu packages
@@ -127,7 +126,7 @@ prefixed symbol:
 ((securityops packages video)     #:prefix so:)   ; so:openshot 4.0.0 (gnu 3.4.0)
 ((securityops packages games)     #:prefix so:)   ; so:steam   1.0.0.87 (nonguix 1.0.0.85)
 ((securityops packages monitoring) #:prefix so:)  ; so:glances 4.5.6 (gnu 4.3.0)
-((securityops packages xlibre)    #:prefix so:)   ; so:xlibre-server 25.2.2 (requires guix-xlibre)
+((securityops packages xlibre)    #:prefix so:)   ; so:xlibre-server 25.2.2 (included)
 
 ;; …then in the package list use so:kitty, so:fish, so:radare2, …
 ;; and for the daemon, override the service field:
@@ -162,7 +161,7 @@ securityops-channel/
 │   ├── fish-crates.scm       # Fish 4.8.1 Cargo.lock-matched offline sources
 │   ├── emacs.scm             # emacs, emacs-pgtk (re-export)
 │   ├── video.scm             # openshot 4.0.0 (bump), mpv, vlc (re-export)
-│   ├── xlibre.scm            # xlibre-server 25.2.2 overlay (requires guix-xlibre)
+│   ├── xlibre.scm            # xlibre-server 25.2.2 export (bundled implementation)
 │   ├── utils.scm             # lf 42/tag r42 (bump) + seven private Go modules; keepassxc/ueberzugpp (re-export)
 │   ├── browsers.scm          # google-chrome (bump), librewolf + ungoogled-chromium-bin (re-export of ↓), ungoogled-chromium (re-export)
 │   ├── librewolf.scm         # librewolf 153.0.4-1 (vendored make-librewolf-source)

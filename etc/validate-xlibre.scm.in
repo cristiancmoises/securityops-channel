@@ -1,0 +1,15 @@
+;;; SPDX-License-Identifier: GPL-3.0-or-later
+;; Run with: guix repl -L . etc/validate-xlibre.scm.in
+(use-modules (guix packages) (guix channels) (srfi srfi-1)
+             (xlibre) ((securityops packages xlibre) #:prefix so:))
+(unless (and (eq? so:xlibre-server xlibre-server)
+             (string=? (package-version xlibre-server) "25.2.2")
+             (= (length %default-xlibre-modules) 13)
+             (every package? %default-xlibre-modules))
+  (error "XLibre compatibility exports or default drivers differ"))
+(let ((deps (channel-instance-dependencies
+             (checkout->channel-instance (getcwd)))))
+  (unless (and (= (length deps) 1)
+               (eq? (channel-name (car deps)) 'nonguix))
+    (error "Unexpected external SecurityOps channel dependency")))
+(display "XLibre compatibility API, 13 default drivers and channel dependencies validated.\n")
