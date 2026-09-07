@@ -21,6 +21,7 @@ A personal GNU Guix channel for workstation applications and security tools.
 | [Package index](PACKAGES.md) | One version table, grouped by module |
 | [Refresh report](docs/refresh-2026-09-06.md) | Updated versions, validation and unfinished work |
 | [Usage reference](docs/usage.md) | Services, Guix System and Guix Home examples |
+| [Channel mirrors](docs/channel-migration-2026-09-06.md) | Primary-only channel sources, dependency policy and root installation |
 | [Changelog](CHANGELOG.md) | Historical release notes |
 | [Update workflow](etc/package-update-prompt.md) | Reusable instructions for a verified package refresh |
 | [Licensing](LICENSING.md) | Package and project licensing boundaries |
