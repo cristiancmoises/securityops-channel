@@ -36,11 +36,10 @@ CHANNELS = {
     "nonguix": ("https://github.com/nonguix/nonguix.git", "bf39542ca537fde8839b209ac21d6f3254469b15"),
     "radix": ("https://codeberg.org/anemofilia/radix.git", "2bbcb60e08bf34241cf7120e35b7a01d06b661b0"),
     "rosenthal": ("https://codeberg.org/hako/rosenthal.git", "05ac833e359ad1c40341052caec4ea391e353eed"),
-    "small-guix": (None, "6366b477effbfb9ae2e2193910b05c6a19aade0a"),
+    "small-guix": (None, "59de79f673669b798f650754b629404418464784"),
     "gocix": ("https://github.com/fishinthecalculator/gocix.git", "5cbc7d0cb911dd27eb364d350ac5a1ef43308316"),
     "sops-guix": ("https://github.com/fishinthecalculator/sops-guix.git", "c53e27e533836ea8595626ba6796dee5362f8c4a"),
-    "guix-xlibre": ("https://gitlab.vulnix.sh/spacecadet/guix-xlibre.git", "09edbfa3c5c4eaafbbb1947445c219ac53c465a6"),
-    "securityops-channel": (None, "98df294f8e626cc16374a20785943c20eb1636ec"),
+    "securityops-channel": (None, "5a9aec5bdf63eb1138e33621a5e0c32a3a2fc1e9"),
 }
 
 

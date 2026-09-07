@@ -1,5 +1,9 @@
 # Channel mirror migration — 2026-09-06
 
+Historical report. The [authentication fix](channel-authentication-fix.md)
+supersedes its nine-channel list, unsigned small-guix pin and external XLibre
+requirement. The current configuration has eight authenticated channels.
+
 ## Configuration policy
 
 The workstation's user channel file now uses only repositories under
