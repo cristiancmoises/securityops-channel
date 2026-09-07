@@ -21,6 +21,7 @@ Um canal pessoal do GNU Guix para aplicativos de trabalho e ferramentas de segur
 | [Índice de pacotes](PACKAGES.md) | Tabela única de versões, organizada por módulo |
 | [Relatório da atualização](docs/refresh-2026-09-06.md) | Versões, validação e trabalho pendente |
 | [Referência de uso](docs/usage.md) | Serviços, Guix System e Guix Home |
+| [Espelhos dos canais](docs/channel-migration-2026-09-06.md) | Fontes no servidor principal, dependências e instalação para root |
 | [Histórico](CHANGELOG.md) | Notas de alterações anteriores |
 | [Fluxo de atualização](etc/package-update-prompt.md) | Instruções reutilizáveis para atualizar com verificação |
 | [Licenciamento](LICENSING.pt-BR.md) | Limites das licenças dos pacotes e projetos |
