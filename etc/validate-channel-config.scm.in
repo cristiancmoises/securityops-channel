@@ -1,0 +1,20 @@
+;;; SPDX-License-Identifier: GPL-3.0-or-later
+;; Run from the repository: guix repl etc/validate-channel-config.scm.in
+(use-modules (guix channels) (srfi srfi-1) (srfi srfi-13) (ice-9 format))
+(define channels (load "channels-primary.scm.in"))
+(define expected '(guix nonguix radix rosenthal small-guix guix-xlibre
+                        securityops gocix sops-guix))
+(unless (and (= (length channels) (length expected))
+             (lset= eq? (map channel-name channels) expected)
+             (every (lambda (channel)
+                      (and (string-prefix?
+                            "https://git.securityops.com.br/cristiancmoises/"
+                            (channel-url channel))
+                           (channel-commit channel)))
+                    channels))
+  (error "Unexpected channel set, URL or missing revision pin"))
+(for-each
+ (lambda (channel)
+   (format #t "~a\t~a\t~a~%" (channel-name channel)
+           (channel-commit channel) (channel-url channel)))
+ channels)
