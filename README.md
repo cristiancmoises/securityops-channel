@@ -8,8 +8,8 @@ A personal GNU Guix channel for workstation applications and security tools.
 
 | Item | Status |
 |---|---|
-| Package definitions | 52 public exports; versions depend on the Guix baseline for re-exports |
-| Dependencies | GNU Guix, nonguix and guix-xlibre |
+| Package definitions | 52 curated entries plus bundled XLibre driver exports |
+| Dependencies | GNU Guix and nonguix; XLibre packaging is included |
 | Latest recipe refresh | 2026-09-06 |
 | Validation | [Build results and known limitations](docs/refresh-2026-09-06.md); not every update is fully validated |
 | Authentication | Signed commits and a pinned channel introduction |
@@ -21,7 +21,7 @@ A personal GNU Guix channel for workstation applications and security tools.
 | [Package index](PACKAGES.md) | One version table, grouped by module |
 | [Refresh report](docs/refresh-2026-09-06.md) | Updated versions, validation and unfinished work |
 | [Usage reference](docs/usage.md) | Services, Guix System and Guix Home examples |
-| [Channel mirrors](docs/channel-migration-2026-09-06.md) | Primary-only channel sources, dependency policy and root installation |
+| [Channel mirrors and authentication](docs/channel-authentication-fix.md) | Eight authenticated channels, integrated XLibre and root installation |
 | [Changelog](CHANGELOG.md) | Historical release notes |
 | [Update workflow](etc/package-update-prompt.md) | Reusable instructions for a verified package refresh |
 | [Licensing](LICENSING.md) | Package and project licensing boundaries |
@@ -29,7 +29,7 @@ A personal GNU Guix channel for workstation applications and security tools.
 ## Install the channel
 
 Add this entry to your `channels.scm` list. Keep the dependencies available;
-`.guix-channel` declares nonguix and guix-xlibre.
+`.guix-channel` declares nonguix. A separate XLibre channel is not needed.
 
 ```scheme
 (channel
@@ -67,11 +67,11 @@ All repositories use the same channel introduction.
 
 ## Build and check a local checkout
 
-With nonguix available to your Guix and the guix-xlibre checkout on the load path:
+With nonguix available to your Guix:
 
 ```sh
-guix repl -L . -L /path/to/guix-xlibre etc/package-inventory.scm.in
-guix build -L . -L /path/to/guix-xlibre fish
+guix repl -L . etc/package-inventory.scm.in
+guix build -L . fish
 ./update-channel check
 ```
 

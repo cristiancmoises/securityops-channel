@@ -8,8 +8,8 @@ Um canal pessoal do GNU Guix para aplicativos de trabalho e ferramentas de segur
 
 | Item | Status |
 |---|---|
-| Definições de pacotes | 52 exportações públicas; reexportações dependem da versão-base do Guix |
-| Dependências | GNU Guix, nonguix e guix-xlibre |
+| Definições de pacotes | 52 entradas selecionadas, além dos drivers XLibre incluídos |
+| Dependências | GNU Guix e nonguix; o empacotamento XLibre está incluído |
 | Última atualização das receitas | 2026-09-06 |
 | Validação | [Resultados e limitações](docs/refresh-2026-09-06.md); nem todas as atualizações foram totalmente validadas |
 | Autenticação | Commits assinados e introdução do canal fixada |
@@ -21,7 +21,7 @@ Um canal pessoal do GNU Guix para aplicativos de trabalho e ferramentas de segur
 | [Índice de pacotes](PACKAGES.md) | Tabela única de versões, organizada por módulo |
 | [Relatório da atualização](docs/refresh-2026-09-06.md) | Versões, validação e trabalho pendente |
 | [Referência de uso](docs/usage.md) | Serviços, Guix System e Guix Home |
-| [Espelhos dos canais](docs/channel-migration-2026-09-06.md) | Fontes no servidor principal, dependências e instalação para root |
+| [Espelhos e autenticação](docs/channel-authentication-fix.md) | Oito canais autenticados, XLibre integrado e instalação para root |
 | [Histórico](CHANGELOG.md) | Notas de alterações anteriores |
 | [Fluxo de atualização](etc/package-update-prompt.md) | Instruções reutilizáveis para atualizar com verificação |
 | [Licenciamento](LICENSING.pt-BR.md) | Limites das licenças dos pacotes e projetos |
@@ -29,7 +29,7 @@ Um canal pessoal do GNU Guix para aplicativos de trabalho e ferramentas de segur
 ## Instalação
 
 Adicione esta entrada à lista de canais em `channels.scm`.
-O arquivo `.guix-channel` declara as dependências nonguix e guix-xlibre.
+O arquivo `.guix-channel` declara nonguix. Não é necessário um canal XLibre separado.
 
 ```scheme
 (channel
