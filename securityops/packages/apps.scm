@@ -18,6 +18,7 @@
   #:use-module (guix utils)                      ;cc-for-target (zupt)
   #:use-module (guix build-system copy)
   #:use-module (guix build-system gnu)           ;zupt CLI (Makefile)
+  #:use-module (gnu packages rust)               ;mirim source build
   #:use-module (gnu packages base)               ;glibc
   #:use-module (gnu packages gcc)                ;gcc:lib (libgcc_s)
   #:use-module (gnu packages elf)                ;patchelf
@@ -146,48 +147,59 @@ relinked against Guix's glibc.")
     (home-page "https://git.securityops.com.br/cristiancmoises/btp")
     (license license:asl2.0)))
 
-;;; mirim — Built from source (v1.0.0) with `cargo build --release --features
-;;; cli,sign'.  Builds cleanly under Guix's Rust 1.93 even though the repo pins
-;;; 1.96 (the pinned rust-toolchain.toml is bypassed; no 1.96-only features are
-;;; used).  Post-quantum secret vault + detached ML-DSA-87 (FIPS 204) signatures.
-;;; Same vendor/patchelf approach as btp.
+;;; mirim 1.1.1 CLI and signing tool, built from tagged sources with offline
+;;; Cargo dependencies.  Source: 5a8f90cc2d3b627c31777671815befc8c119631f.
+;;; Keep vendor files unchanged so Cargo can verify their original checksums.
 (define-public mirim
   (package
     (name "mirim")
-    (version "1.1.0")
-    (source (local-file "sources/mirim-1.1.0-x86_64-linux.tar.gz"))
-    (build-system copy-build-system)
-    (inputs (list glibc `(,gcc "lib")))
-    (native-inputs (list patchelf))
+    (version "1.1.1")
+    (source (local-file "sources/mirim-1.1.1-source.tar.gz"))
+    (build-system gnu-build-system)
     (arguments
      (list
-      ;; 1.1.0 ships the binaries at the archive root (no bin/ dir) and adds a
-      ;; `mirim-gui' — left out here, it needs a graphical runtime we don't wire.
-      #:install-plan
-      #~'(("mirim"      "bin/mirim")
-          ("mirim-sign" "bin/mirim-sign"))
       #:phases
       #~(modify-phases %standard-phases
-          (add-after 'install 'patchelf-binaries
+          ;; Cargo verifies the original vendor file checksums during --frozen builds.
+          ;; The Rust build does not execute the repository's shell scripts.
+          (delete 'patch-source-shebangs)
+          (delete 'patch-generated-file-shebangs)
+          (replace 'configure
             (lambda* (#:key inputs #:allow-other-keys)
-              (let* ((glibc (assoc-ref inputs "glibc"))
-                     (gcclib (assoc-ref inputs "gcc"))
-                     (ld (string-append glibc "/lib/ld-linux-x86-64.so.2"))
-                     (rpath (string-append glibc "/lib:" gcclib "/lib")))
-                (for-each
-                 (lambda (b)
-                   (let ((f (string-append #$output "/bin/" b)))
-                     (invoke "patchelf" "--set-interpreter" ld f)
-                     (invoke "patchelf" "--set-rpath" rpath f)))
-                 '("mirim" "mirim-sign"))))))))
+              (invoke "tar" "xf" (assoc-ref inputs "vendor"))
+              (setenv "CARGO_HOME" (string-append (getcwd) "/.cargo"))
+              (setenv "CC" #$(cc-for-target))))
+          (replace 'build
+            (lambda _
+              (invoke "cargo" "build" "--frozen" "--release" "--features" "sign")))
+          (replace 'check
+            (lambda* (#:key tests? #:allow-other-keys)
+              (when tests?
+                (invoke "cargo" "test" "--frozen" "--features" "sign"))))
+          (replace 'install
+            (lambda _
+              (let ((bin (string-append #$output "/bin"))
+                    (doc (string-append #$output "/share/doc/mirim")))
+                (install-file "target/release/mirim" bin)
+                (install-file "target/release/mirim-sign" bin)
+                (for-each (lambda (file) (install-file file doc))
+                          '("README.md" "README.pt-BR.md" "SECURITY.md"
+                            "LICENSE" "LICENSE-AGPL-3.0" "LICENSE-COMMERCIAL"
+                            "NOTICE" "LICENSING.md" "LICENSING.pt-BR.md"))
+                (copy-recursively "docs" (string-append doc "/docs"))
+                (copy-recursively "samples" (string-append doc "/samples"))))))))
+    (native-inputs
+     `(("rust" ,rust)
+       ("rust:cargo" ,rust "cargo")
+       ("vendor" ,(local-file "sources/mirim-1.1.1-vendor.tar.gz"))))
     (supported-systems '("x86_64-linux"))
-    (synopsis "mirim — post-quantum secret vault and ML-DSA-87 signing tool")
+    (home-page "https://mirim.securityops.co")
+    (synopsis "Encrypted embedded SQL database with post-quantum exports")
     (description
-     "@code{mirim} (post-quantum encrypted vault: ML-KEM-768 + ChaCha20-Poly1305,
-Argon2) and @code{mirim-sign} (detached ML-DSA-87 / FIPS 204 signatures);
-prebuilt x86_64 binaries from the v1.1.0 release, patchelf'd to the store
-glibc/gcc.")
-    (home-page "https://codeberg.org/berkeley/mirim")
+     "Mirim is an embedded SQL database encrypted at rest with
+XChaCha20-Poly1305 and Argon2id.  It supports ML-KEM-768 sealed exports,
+ML-DSA-87 detached signatures and a durable write-ahead log.  This package
+installs the mirim command line interface and mirim-sign.")
     (license license:agpl3)))
 
 ;;; torando-gui — loopback web GUI + root daemon that routes ONE local user's
