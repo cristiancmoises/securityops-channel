@@ -8,7 +8,7 @@ This lists recipe versions, not a claim that every package was rebuilt or is the
 |---|---|---|
 | `apps` | `btp` | 0.7 |
 | `apps` | `evelin-bin` | 4.4.0 |
-| `apps` | `mirim` | 1.1.0 |
+| `apps` | `mirim` | 1.1.1 |
 | `apps` | `moneyprinterturbo` | 1.3.6 |
 | `apps` | `torando-gui` | 1.4.1 |
 | `apps` | `turborec` | 3.9.1 |
@@ -17,7 +17,7 @@ This lists recipe versions, not a claim that every package was rebuilt or is the
 | `browsers` | `google-chrome-stable` | 152.0.7977.82 |
 | `browsers` | `ungoogled-chromium` | 150.0.7871.46-1 |
 | `chromium` | `ungoogled-chromium-bin` | 152.0.7977.82-1 |
-| `containers` | `esquema` | 0.2.0 |
+| `containers` | `esquema` | 0.3.0 |
 | `emacs` | `emacs` | 31.1 |
 | `emacs` | `emacs-pgtk` | 31.1 |
 | `games` | `steam` | 1.0.0.87 |
