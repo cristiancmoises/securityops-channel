@@ -7,6 +7,7 @@
 
 (define-module (securityops packages video)
   #:use-module (guix packages)
+  #:use-module (guix gexp)
   #:use-module (guix utils)
   #:use-module (guix git-download)
   #:use-module ((gnu packages video) #:prefix gnu:))
@@ -39,5 +40,23 @@
        (sha256
         (base32 "1ngz9v1syclwg8z8wp8i0h2pn4qvz0ligz73w40hbznpn1pk48k9"))))
     (arguments
-     (substitute-keyword-arguments (package-arguments gnu:openshot)
-       ((#:tests? _ #t) #f)))))
+     ;; OpenShot 4.0.0 ships src/qt_api.py, but its setuptools layout does not
+     ;; install that file as a top-level Python module.  launch.py imports
+     ;; `qt_api` directly, so install it beside the site packages before Guix's
+     ;; Python sanity-check loads the gui_scripts entry point.
+     (substitute-keyword-arguments
+      (substitute-keyword-arguments (package-arguments gnu:openshot)
+       ((#:tests? _ #t) #f))
+      ((#:phases phases #~%standard-phases)
+       #~(modify-phases #$phases
+           (add-after 'install 'install-qt-api-top-level
+             (lambda* (#:key outputs #:allow-other-keys)
+               (let* ((out (assoc-ref outputs "out"))
+                      (site-packages
+                       (find-files (string-append out "/lib")
+                                   "site-packages$"
+                                   #:directories? #t)))
+                 (unless (= (length site-packages) 1)
+                   (error "expected exactly one site-packages directory"
+                          site-packages))
+                 (install-file "src/qt_api.py" (car site-packages)))))))))))
