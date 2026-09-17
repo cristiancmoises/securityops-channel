@@ -6,6 +6,17 @@ tag rather than SemVer of the code.
 
 ## [Unreleased]
 
+### Changed — guixvis 0.2.0 (2026-09-17)
+
+- Updated guixvis to 0.2.0: both the TUI and the web UI gain eight
+  selectable color themes (dark, one, light, dracula, nord, gruvbox-dark,
+  tokyo-night, catppuccin-mocha); the web theme choice persists between
+  sessions and the graph canvas repaints with the chosen palette.  The
+  vendored Cargo registry is unchanged (no dependency changes); the source
+  tarball is regenerated from the v0.2.0 tag and the package builds in an
+  isolated derivation with the full test suite.
+
+
 ### Added — guixvis package explorer (2026-09-17)
 
 - Added `guixvis` 0.1.0: a first-party TUI plus local web UI for exploring
