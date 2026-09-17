@@ -8,7 +8,7 @@ A personal GNU Guix channel for workstation applications and security tools.
 
 | Item | Status |
 |---|---|
-| Package definitions | 69 curated entries plus bundled XLibre driver exports |
+| Package definitions | 70 curated entries plus bundled XLibre driver exports |
 | Dependencies | GNU Guix and nonguix; XLibre packaging is included |
 | Latest recipe refresh | 2026-09-17 |
 | Validation | [Build results and known limitations](docs/refresh-2026-09-17.md); not every update is fully validated |

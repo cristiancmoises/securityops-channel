@@ -777,3 +777,61 @@ binaries are auto-downloaded.  Keep @code{subtitle_provider = \"edge\"} to avoid
 multi-GB Whisper model download.")
     (home-page "https://github.com/harry0703/MoneyPrinterTurbo")
     (license license:expat)))
+
+;;; guixvis — first-party TUI + local web explorer for GNU Guix packages.
+;;; Pure-Rust: fuzzy search over the full package set, dependency and
+;;; reverse-dependency trees, a force-directed dependency graph, and a local
+;;; web UI (guixvis web) with clickable graph bubbles.  Its registry crates
+;;; are vendored (cargo --frozen, no network in the build), following the
+;;; Mirim pattern; source and vendor snapshots live under packages/sources/.
+(define-public guixvis
+  (package
+    (name "guixvis")
+    (version "0.1.0")
+    (source (local-file "sources/guixvis-0.1.0-src.tar.gz"))
+    (build-system gnu-build-system)
+    (arguments
+     (list
+      #:phases
+      #~(modify-phases %standard-phases
+          ;; Cargo verifies the original vendor checksums during --frozen
+          ;; builds; keep the shebangs untouched.
+          (delete 'patch-source-shebangs)
+          (delete 'patch-generated-file-shebangs)
+          (replace 'configure
+            (lambda* (#:key inputs #:allow-other-keys)
+              (invoke "tar" "xf" (assoc-ref inputs "vendor"))
+              (setenv "CARGO_HOME" (string-append (getcwd) "/.cargo"))
+              (setenv "CC" #$(cc-for-target))))
+          (replace 'build
+            (lambda _
+              (invoke "cargo" "build" "--frozen" "--offline" "--release"
+                      "--features" "web")))
+          (replace 'check
+            (lambda* (#:key tests? #:allow-other-keys)
+              (when tests?
+                (invoke "cargo" "test" "--frozen" "--offline"
+                        "--features" "web"))))
+          (replace 'install
+            (lambda _
+              (let ((bin (string-append #$output "/bin"))
+                    (doc (string-append #$output "/share/doc/guixvis")))
+                (install-file "target/release/guixvis" bin)
+                (for-each (lambda (file) (install-file file doc))
+                          '("README.md" "README.pt-BR.md" "LICENSE"))))))))
+    (native-inputs
+     `(("rust" ,rust)
+       ("rust:cargo" ,rust "cargo")
+       ("vendor" ,(local-file "sources/guixvis-0.1.0-vendor.tar.gz"))))
+    (supported-systems '("x86_64-linux"))
+    (home-page "https://codeberg.org/berkeley/guixvis")
+    (synopsis "Interactive package explorer and dependency visualizer for GNU Guix")
+    (description
+     "guixvis indexes every GNU Guix package and exposes the set through a
+keyboard-first terminal UI and a local web application.  It fuzzy-searches
+name and synopsis, shows package details, licenses and source locations,
+browses dependency and reverse-dependency trees, and draws a force-directed
+dependency graph whose bubbles open the selected package.  The web UI
+(@command{guixvis web}) serves the same graph on 127.0.0.1 with clickable
+bubbles, deep links and browser history.")
+    (license license:gpl3+)))
