@@ -62,6 +62,9 @@ Wayland em `(securityops packages xmonad-wayland)`, compilado a partir do
 commit assinado do repositório público, e um desktop físico com River rodando
 esse gerenciador está em uso desde setembro de 2026. As versões mais recentes
 do XMonad e do xmonad-contrib estão em `(securityops packages xmonad)`.
+O gerenciador também aceita o idioma clássico do `xmonad.hs` via
+`xmonad-wayland --recompile`, facilitando a migração de uma configuração
+X11 para o River.
 
 ## Repositórios
 
