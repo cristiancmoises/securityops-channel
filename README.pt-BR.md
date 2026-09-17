@@ -8,7 +8,7 @@ Um canal pessoal do GNU Guix para aplicativos de trabalho e ferramentas de segur
 
 | Item | Status |
 |---|---|
-| Definições de pacotes | 69 entradas selecionadas, além dos drivers XLibre incluídos |
+| Definições de pacotes | 70 entradas selecionadas, além dos drivers XLibre incluídos |
 | Dependências | GNU Guix e nonguix; o empacotamento XLibre está incluído |
 | Última atualização das receitas | 2026-09-17 |
 | Validação | [Resultados e limitações](docs/refresh-2026-09-17.pt-BR.md); nem todas as atualizações foram totalmente validadas |
