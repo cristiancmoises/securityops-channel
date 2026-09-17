@@ -14,6 +14,7 @@
 
 (define-module (securityops packages apps)
   #:use-module (guix packages)
+  #:use-module (guix git-download)
   #:use-module (guix gexp)
   #:use-module (guix utils)                      ;cc-for-target (zupt)
   #:use-module (guix build-system copy)
@@ -24,6 +25,7 @@
   #:use-module (gnu packages elf)                ;patchelf
   #:use-module (gnu packages tls)                ;openssl 3.5 (zupt FIPS 203 check)
   #:use-module (gnu packages python)             ;python (torando-gui, zupt-gui)
+  #:use-module (gnu packages check)              ;offline MoneyPrinterTurbo tests
   #:use-module (gnu packages tor)                ;tor (torando-gui)
   #:use-module (gnu packages linux)              ;iptables, e2fsprogs/chattr (torando-gui)
   #:use-module (gnu packages qt)                 ;python-pyside-6, qtbase, qtwayland (zupt-gui)
@@ -554,7 +556,7 @@ launchers pin the store @code{python3}/@code{bash} and the tools they call
     (home-page "https://codeberg.org/berkeley/turborec")
     (license license:gpl3)))
 
-;;; moneyprinterturbo — one-click AI short-video generator (harry0703 v1.3.6).
+;;; moneyprinterturbo — one-click AI short-video generator (harry0703 v1.3.7).
 ;;; THIRD-PARTY Python app with a huge, partly-unpackaged dependency tree
 ;;; (streamlit, moviepy, edge-tts, litellm, faster-whisper, the cloud SDKs), so a
 ;;; full native python-build-system package is infeasible here.  Instead this ships
@@ -580,92 +582,144 @@ launchers pin the store @code{python3}/@code{bash} and the tools they call
 ;;;     whisper would pull a ~3GB model over Tor) and the server binds 127.0.0.1.
 ;;; The proprietary default subtitle font STHeitiMedium.ttc is dropped and repointed
 ;;; to bundled WenQuanYi Zen Hei (font-wqy-zenhei, redistributable; covers CJK+Latin)
-;;; so the default render works; Charm (OFL) is also shipped.  The app is imported
+;;; so the default render works.  Upstream's bundled fonts and sample music are
+;;; removed; their redistribution terms are not included in the source archive.
+;;; The app is imported
 ;;; from the writable copy via PYTHONPATH and is never installed into the venv
 ;;; (pyproject package=false), because root_dir() is __file__-relative.
-;;; First-run deps assume cp3x manylinux wheels exist on PyPI (verified for the
-;;; pinned set); if a future pin needs a source build, add a toolchain to the PATH.
+;;; First-run deps require compatible wheels on PyPI; this copy package does
+;;; not build or test the complete Python runtime dependency graph.
 (define-public moneyprinterturbo
   (package
     (name "moneyprinterturbo")
-    (version "1.3.6")
-    (source (local-file "sources/moneyprinterturbo-1.3.6-src.tar.gz"))
+    (version "1.3.7")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/harry0703/MoneyPrinterTurbo")
+             ;; Commit of the v1.3.7 release tag.
+             (commit "cf5a3aedad1741d012152d355aa909d224fc4557")))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "1mij12kk7gv30vbzdbpyhk63r30w5978r3ji6zs1vai8g1cafybw"))
+       (modules '((guix build utils)))
+       (snippet
+        #~(begin
+            (for-each delete-file-recursively
+                      '("resource/fonts" "resource/songs"))
+            (mkdir-p "resource/fonts")
+            (mkdir-p "resource/songs")))))
     (build-system copy-build-system)
-    (inputs
-     `(("python" ,python)
-       ("ffmpeg" ,ffmpeg)
-       ("torsocks" ,torsocks)
-       ("git-minimal" ,git-minimal)
-       ("coreutils" ,coreutils)
-       ("bash-minimal" ,bash-minimal)
-       ("font-wqy-zenhei" ,font-wqy-zenhei)))
+    (native-inputs (list python-pytest))
+    (inputs `(("python" ,python)
+              ("ffmpeg" ,ffmpeg)
+              ("torsocks" ,torsocks)
+              ("git-minimal" ,git-minimal)
+              ("coreutils-minimal" ,coreutils-minimal)
+              ("bash-minimal" ,bash-minimal)
+              ("font-wqy-zenhei" ,font-wqy-zenhei)))
     (arguments
      (list
       #:install-plan
-      #~'(("." "share/moneyprinterturbo"))
+      #~'(("app" "share/moneyprinterturbo/app")
+          ("webui" "share/moneyprinterturbo/webui")
+          ("resource" "share/moneyprinterturbo/resource")
+          ("docs/skill" "share/moneyprinterturbo/docs/skill")
+          ("cli.py" "share/moneyprinterturbo/")
+          ("main.py" "share/moneyprinterturbo/")
+          ("config.example.toml" "share/moneyprinterturbo/")
+          ("pyproject.toml" "share/moneyprinterturbo/")
+          ("requirements.txt" "share/moneyprinterturbo/")
+          ("webui.sh" "share/moneyprinterturbo/")
+          ("README-en.md" "share/moneyprinterturbo/")
+          ("LICENSE" "share/moneyprinterturbo/"))
       #:phases
       #~(modify-phases %standard-phases
-          (delete 'strip)                       ;pure Python + bash, no ELF
+          (delete 'strip) ;pure Python + bash, no ELF
           (delete 'validate-runpath)
+          ;; The remaining upstream suites import runtime dependencies that
+          ;; this wrapper installs only on first use.  These upstream tests
+          ;; exercise task-history and CLI helpers using only Python and pytest.
+          (add-before 'install 'check
+            (lambda* (#:key tests? #:allow-other-keys)
+              (when tests?
+                (setenv "PYTHONDONTWRITEBYTECODE" "1")
+                (invoke "python3"
+                        "-m"
+                        "pytest"
+                        "-q"
+                        "test/services/test_webui_task_history.py"
+                        "test/services/test_mpt_agent_skill.py"))))
           (add-after 'install 'patch-defaults
             (lambda* (#:key inputs outputs #:allow-other-keys)
-              (let* ((out   (assoc-ref outputs "out"))
+              (let* ((out (assoc-ref outputs "out"))
                      (share (string-append out "/share/moneyprinterturbo"))
                      (fonts (string-append share "/resource/fonts"))
-                     (cjk   (string-append (assoc-ref inputs "font-wqy-zenhei")
-                                           "/share/fonts/truetype/wqy-zenhei.ttc")))
+                     (cjk (string-append (assoc-ref inputs "font-wqy-zenhei")
+                           "/share/fonts/truetype/wqy-zenhei.ttc")))
                 ;; Ship a redistributable CJK font and repoint the proprietary
                 ;; default so the out-of-the-box subtitle render does not crash.
-                (copy-file cjk (string-append fonts "/wqy-zenhei.ttc"))
-                (for-each
-                 (lambda (f)
-                   (substitute* (string-append share "/" f)
-                     (("STHeitiMedium\\.ttc") "wqy-zenhei.ttc")
-                     (("MicrosoftYaHeiBold\\.ttc") "wqy-zenhei.ttc")))
-                 '("app/models/schema.py" "app/services/video.py" "webui/Main.py"))
+                (symlink cjk
+                         (string-append fonts "/wqy-zenhei.ttc"))
+                (for-each (lambda (f)
+                            (substitute* (string-append share "/" f)
+                              (("STHeitiMedium\\.ttc")
+                               "wqy-zenhei.ttc")
+                              (("MicrosoftYaHeiBold\\.ttc")
+                               "wqy-zenhei.ttc")))
+                          '("app/models/schema.py" "app/services/video.py"
+                            "webui/Main.py" "config.example.toml"))
                 ;; Never bind the API/UI on all interfaces by default.
                 (substitute* (string-append share "/app/config/config.py")
-                  (("\"0\\.0\\.0\\.0\"") "\"127.0.0.1\""))
+                  (("\"0\\.0\\.0\\.0\"")
+                   "\"127.0.0.1\""))
                 ;; Defensive: never ship a stray user config into the store.
                 (let ((stray (string-append share "/config.toml")))
-                  (when (file-exists? stray) (delete-file stray))))))
+                  (when (file-exists? stray)
+                    (delete-file stray))))))
           (add-after 'patch-defaults 'wrap
             (lambda* (#:key inputs outputs #:allow-other-keys)
-              (let* ((out    (assoc-ref outputs "out"))
-                     (share  (string-append out "/share/moneyprinterturbo"))
-                     (etc    (string-append out "/etc/moneyprinterturbo"))
-                     (conf   (string-append etc "/torsocks.conf"))
-                     (python (string-append (assoc-ref inputs "python") "/bin/python3"))
-                     (ffmpeg (string-append (assoc-ref inputs "ffmpeg") "/bin/ffmpeg"))
-                     (path   (string-join
-                              (map (lambda (in.sub)
-                                     (string-append (assoc-ref inputs (car in.sub))
-                                                    (cdr in.sub)))
-                                   '(("python"      . "/bin")
-                                     ("ffmpeg"      . "/bin")
-                                     ("torsocks"    . "/bin")
-                                     ("git-minimal" . "/bin")
-                                     ("coreutils"   . "/bin")))
-                              ":")))
+              (let* ((out (assoc-ref outputs "out"))
+                     (share (string-append out "/share/moneyprinterturbo"))
+                     (etc (string-append out "/etc/moneyprinterturbo"))
+                     (conf (string-append etc "/torsocks.conf"))
+                     (python (string-append (assoc-ref inputs "python")
+                                            "/bin/python3"))
+                     (ffmpeg (string-append (assoc-ref inputs "ffmpeg")
+                                            "/bin/ffmpeg"))
+                     (path (string-join (map (lambda (in.sub)
+                                               (string-append (assoc-ref
+                                                               inputs
+                                                               (car in.sub))
+                                                              (cdr in.sub)))
+                                             '(("python" . "/bin")
+                                               ("ffmpeg" . "/bin")
+                                               ("torsocks" . "/bin")
+                                               ("git-minimal" . "/bin")
+                                               ("coreutils-minimal" . "/bin")))
+                                        ":")))
                 ;; torsocks.conf: route all TCP through Tor (127.0.0.1:9050) but
                 ;; allow the local server's inbound socket and direct localhost.
                 (mkdir-p etc)
                 (call-with-output-file conf
                   (lambda (port)
-                    (format port "# Generated by the securityops channel.~%TorAddress 127.0.0.1~%TorPort 9050~%AllowInbound 1~%AllowOutboundLocalhost 1~%")))
+                    (format port
+                     "# Generated by the securityops channel.~%TorAddress 127.0.0.1~%TorPort 9050~%AllowInbound 1~%AllowOutboundLocalhost 1~%")))
                 (mkdir-p (string-append out "/bin"))
-                (let ((write-launcher
-                       (lambda (file exec-tail)
-                         (let ((p (string-append out "/bin/" file)))
-                           (call-with-output-file p
-                             (lambda (port)
-                               (format port "#!/bin/sh
+                (let ((write-launcher (lambda (file exec-tail)
+                                        (let ((p (string-append out "/bin/"
+                                                                file)))
+                                          (call-with-output-file p
+                                            (lambda (port)
+                                              (format port
+                                               "#!/bin/sh
 # Generated by the securityops channel: self-contained MoneyPrinterTurbo launcher (Tor-only host).
 set -e
 export PATH=\"~a${PATH:+:$PATH}\"
 STORE_SHARE=\"~a\"
 APP_HOME=\"${MPT_HOME:-${XDG_DATA_HOME:-$HOME/.local/share}/moneyprinterturbo}\"
-VERSION=\"1.3.6\"
+VERSION=\"1.3.7\"
 export TORSOCKS_ALLOW_INBOUND=1
 export TORSOCKS_CONF_FILE=\"~a\"
 export GRPC_DNS_RESOLVER=native
@@ -694,13 +748,16 @@ fi
 export PYTHONPATH=\"$APP_HOME${PYTHONPATH:+:$PYTHONPATH}\"
 ~a
 "
-                                       path share conf ffmpeg python exec-tail)))
-                           (chmod p #o755)))))
-                  (write-launcher
-                   "moneyprinterturbo"
+                                               path
+                                               share
+                                               conf
+                                               ffmpeg
+                                               python
+                                               exec-tail)))
+                                          (chmod p #o755)))))
+                  (write-launcher "moneyprinterturbo"
                    "exec torsocks \"$APP_HOME/.venv/bin/python\" -m streamlit run \"$APP_HOME/webui/Main.py\" --server.address=127.0.0.1 --browser.gatherUsageStats=False --server.headless=true \"$@\"")
-                  (write-launcher
-                   "moneyprinterturbo-api"
+                  (write-launcher "moneyprinterturbo-api"
                    "exec torsocks \"$APP_HOME/.venv/bin/python\" \"$APP_HOME/main.py\" \"$@\""))))))))
     (supported-systems '("x86_64-linux"))
     (synopsis "One-click AI short-video generator (WebUI + API), Tor-wrapped")
@@ -708,8 +765,8 @@ export PYTHONPATH=\"$APP_HOME${PYTHONPATH:+:$PYTHONPATH}\"
      "MoneyPrinterTurbo generates short-form videos from a topic: an LLM writes the
 script and keywords, stock B-roll is pulled from Pexels/Pixabay, edge-tts adds a
 voice-over, subtitles are burned in, and FFmpeg assembles the final clip.  This
-package ships the upstream v1.3.6 source (proprietary CJK fonts removed; WenQuanYi
-Zen Hei bundled as the default subtitle font) plus self-contained
+package ships the upstream v1.3.7 source (bundled fonts and music removed;
+WenQuanYi Zen Hei supplied as the default subtitle font) plus self-contained
 @command{moneyprinterturbo} (Streamlit WebUI) and @command{moneyprinterturbo-api}
 (FastAPI) launchers.  On first run each launcher copies the app into
 @file{$XDG_DATA_HOME/moneyprinterturbo} and pip-installs the pinned

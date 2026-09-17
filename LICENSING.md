@@ -5,6 +5,17 @@ The original Security Ops Guix channel code is GPL-3.0-or-later, as stated in
 particular, `vpn.scm` retains the upstream small-guix notices from which it was
 vendored.
 
+`securityops/packages/river.scm` adapts the BSD-3-Clause packaging recipes
+from xmonad-wayland. Its notice is retained in
+[`LICENSES/xmonad-wayland-BSD3.txt`](LICENSES/xmonad-wayland-BSD3.txt).
+This exception covers the recipe code; River and its dependencies retain
+their respective upstream licenses.
+The River patches under `securityops/patches/` follow River's GPL-3.0-only
+license; their notices are recorded in the patch files.
+
+The integration fixtures under `tests/` carry BSD-3-Clause notices; the recipe
+exception above does not change the GPL license of the River patches.
+
 A Guix package definition does not relicense the program it packages. Each
 program keeps its canonical upstream license, recorded in its package
 definition and installed notices. The public Guix recipe selects a
