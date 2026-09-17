@@ -1,6 +1,6 @@
 # Usage reference
 
-Operational examples for GNU Guix System and Guix Home. For current versions and validation, see [the package index](../PACKAGES.md) and [the refresh report](../docs/refresh-2026-09-06.md).
+Operational examples for GNU Guix System and Guix Home. For current versions and validation, see [the package index](../PACKAGES.md) and [the refresh report](refresh-2026-09-17.md).
 
 ### Services (2)
 
@@ -23,14 +23,19 @@ ships a native service type in `(securityops services torando)`. Add it to your
 `operating-system`:
 
 ```scheme
-(use-modules (securityops services torando))
+(use-modules (guix gexp)
+             (gnu services networking)
+             (securityops services torando))
 
 (operating-system
   ;; …
   (services
-   (cons* (service torando-gui-service-type)        ; daemon on 127.0.0.1:8088
-          (service tor-service-type)                ; Tor itself
-          %desktop-services)))                       ; provides the 'networking target torando-gui requires
+   (cons* (service torando-gui-service-type)
+          (service tor-service-type
+                   (tor-configuration
+                    ;; Supply the Tor configuration you have prepared and tested.
+                    (config-file (local-file "torrc"))))
+          %desktop-services)))
 ```
 
 `guix system reconfigure`, then `herd start torando-gui` (or reboot). The daemon
@@ -39,17 +44,18 @@ token-injected UI on `http://127.0.0.1:8088/`; run the `torando-gui` launcher to
 open it. Configuration fields: `host`, `port`, `package`, `config-file`,
 `seed-config`, `extra-options`.
 
-> **Turnkey on Guix.** `/etc/tor/torrc` is a read-only store symlink owned by
-> `tor-service-type`, so torando-gui's own torrc management cannot write it. The
-> service therefore **auto-seeds `/etc/torando-gui/config.json`** on first
-> activation (only if absent, so GUI changes persist) with
-> `"manage_torrc": false` and `"dns_port": 5353` — matching a `tor-service-type`
-> configured with `(dns-port 5353)` (as on this host; torando's own default is
-> 53, and TransPort 9040 / SocksPort 9050 / ControlPort 9051 are already
-> torando's defaults). Override via the `seed-config` field (a JSON
-> string, or `#f` to seed nothing). Netfilter rules, DNS pinning, killswitch and
-> status all work; Tor service control from the GUI uses `systemctl` and is a
-> no-op on Guix — manage Tor with `herd`.
+Guix generates Tor's configuration in the read-only store. The Torando service seeds
+its own `/etc/torando-gui/config.json` only when that file is absent, with
+`manage_torrc` disabled. It therefore does not configure Tor's listeners.
+Its seed expects DNS port 5353, transparent proxy port 9040, SOCKS port 9050
+and control port 9051. Prepare Tor's `config-file` to match the listeners and
+authentication you intend to use, or adapt Torando's `seed-config` accordingly.
+The default `tor-service-type` alone does not establish this integration.
+
+Changing `seed-config` does not overwrite an existing Torando configuration.
+Review that file as well when changing Tor's ports. The GUI's `systemctl` calls
+do not manage Tor on Guix; use Shepherd (`herd`). Installing these services is
+not a validation of DNS routing, firewall rules or the killswitch on a machine.
 
 ### Esquema — rootless Guile-native container runtime
 
@@ -106,82 +112,83 @@ included in SecurityOps. No external XLibre channel is required. Use
 The server source remains pinned to 25.2.2; the obsolete Intel-driver patch
 is omitted because its policy is already upstream.
 
-A bare bumped package such as `kitty`, `fish`, `radare2`, or
-`google-chrome-stable` written against `(gnu packages …)` / `(nongnu packages
-…)` resolves to *guix's own* (older) package, **not** this channel's — module
-bindings are resolved by the module you import, while `guix install <name>` is
-what picks the highest version by name. To run the bumped versions
-declaratively, import the channel module with a prefix and reference the
-prefixed symbol:
+Scheme resolves a package through the module you import. Importing the channel
+with a prefix makes that choice explicit, including for packages whose names
+also exist in Guix or Nonguix:
 
 ```scheme
-;; in (use-modules …)
-((securityops packages terminals) #:prefix so:)   ; so:kitty   0.48.2 (gnu 0.46.2)
-((securityops packages shells)    #:prefix so:)   ; so:fish    4.8.1 (gnu 4.7.1)
-((securityops packages tor)       #:prefix so:)   ; so:tor     0.4.9.11, so:torbrowser 15.0.20
-((securityops packages browsers)  #:prefix so:)   ; so:google-chrome-stable 152, so:librewolf 153.0.4-1
-((securityops packages utils)     #:prefix so:)   ; so:lf      42 (gnu 41; tag r42)
-((securityops packages security)  #:prefix so:)   ; so:mtr, so:sdb, so:radare2, so:rizin
-((securityops packages vpn)       #:prefix so:)   ; so:mullvad-vpn-desktop  2026.3
-((securityops packages video)     #:prefix so:)   ; so:openshot 4.0.0 (gnu 3.4.0)
-((securityops packages games)     #:prefix so:)   ; so:steam   1.0.0.87 (nonguix 1.0.0.85)
-((securityops packages monitoring) #:prefix so:)  ; so:glances 4.5.6 (gnu 4.3.0)
-((securityops packages xlibre)    #:prefix so:)   ; so:xlibre-server 25.2.2 (included)
+(use-modules ((securityops packages terminals) #:prefix so:)
+             ((securityops packages shells) #:prefix so:)
+             ((securityops packages browsers) #:prefix so:)
+             ((securityops packages tor) #:prefix so:)
+             ((securityops packages river) #:prefix river:)
+             ((securityops packages audio) #:prefix audio:))
 
-;; …then in the package list use so:kitty, so:fish, so:radare2, …
-;; and for the daemon, override the service field:
-(service mullvad-daemon-service-type
-         (mullvad-daemon-configuration
-          (mullvad-vpn-desktop so:mullvad-vpn-desktop)))
+;; Use these bindings in an operating-system or home-environment package list:
+(list so:kitty so:fish so:librewolf so:google-chrome-stable
+      so:torbrowser river:foot-latest river:fuzzel-latest)
 ```
 
-Use this pattern for every package carried ahead of guix/nonguix. The remaining
-re-exports (`alacritty`, `emacs`, `mpv`, `vlc`, `keepassxc`, and `ueberzugpp`)
-are byte-identical to guix's and can remain bare symbols.
+For a separate profile, save a manifest such as `river-tools.scm`:
 
-To apply after a channel edit: `guix pull` (picks up the new `securityops`
-commit), then `guix system reconfigure /etc/config.scm` and `guix home
-reconfigure ~/.config/guix/home.scm` — or skip the pull and pass
-`-L ~/securityops-channel` to reconfigure to use the working tree directly.
+```scheme
+(use-modules (guix profiles)
+             ((securityops packages river) #:prefix river:)
+             ((securityops packages audio) #:prefix audio:))
+
+(packages->manifest
+ (list river:river-xmonad-runtime river:channel-river-input
+       river:foot-latest river:fuzzel-latest river:wlr-randr-latest
+       river:swaybg-latest river:mako-latest river:swaylock-latest
+       audio:pipewire-latest audio:wireplumber-latest))
+```
+
+```sh
+guix package -p "$HOME/.local/share/river-tools" -m river-tools.scm
+```
+
+This installs programs; it does not select a login session, start audio services
+or configure authentication for the screen locker. River 0.4 requires a separate
+window manager. The XMonad-style manager under development is not included in
+this channel refresh; see its [validation status](refresh-2026-09-17.md#river-runtime).
+
+A service has its own package field. Adding a package to a profile does not
+change an already configured service. For example:
+
+```scheme
+(use-modules (gnu services)
+             (gnu services networking)
+             ((securityops packages tor) #:prefix so:))
+
+(service tor-service-type
+         (tor-configuration (tor so:tor)))
+```
+
+After pulling the channel, rebuild the configuration that owns the package:
+`guix system build /etc/config.scm` or
+`guix home build ~/.config/guix/home.scm`. Reconfigure that same configuration
+when you are ready to activate its changes. To use a local checkout, add
+`-L /path/to/securityops-channel` to the Guix command.
 
 ---
 
 ## Layout
 
-```
-securityops-channel/
-├── update-channel             # check + auto-apply upstream updates (one command)
-├── .guix-channel              # manifest: version, news-file, public url, nonguix dep
-├── .guix-authorizations       # OpenPGP keys allowed to sign commits (channel auth)
-├── etc/news.txt              # `guix pull --news` entries (per release)
-├── securityops/packages/
-│   ├── terminals.scm         # kitty 0.48.2 (bump) + its three Go deps, alacritty (re-export)
-│   ├── tor.scm               # tor, torbrowser, torbrowser-assets (bumps)
-│   ├── shells.scm            # fish 4.8.1 hermetic Cargo source build
-│   ├── fish-crates.scm       # Fish 4.8.1 Cargo.lock-matched offline sources
-│   ├── emacs.scm             # emacs, emacs-pgtk (re-export)
-│   ├── video.scm             # openshot 4.0.0 (bump), mpv, vlc (re-export)
-│   ├── xlibre.scm            # xlibre-server 25.2.2 export (bundled implementation)
-│   ├── utils.scm             # lf 42/tag r42 (bump) + seven private Go modules; keepassxc/ueberzugpp (re-export)
-│   ├── browsers.scm          # google-chrome (bump), librewolf + ungoogled-chromium-bin (re-export of ↓), ungoogled-chromium (re-export)
-│   ├── librewolf.scm         # librewolf 153.0.4-1 (vendored make-librewolf-source)
-│   ├── chromium.scm          # ungoogled-chromium-bin 151.0.7922.173-1 (prebuilt)
-│   ├── vpn.scm               # mullvad-vpn-desktop (vendored bump)
-│   ├── games.scm             # steam 1.0.0.87 stable (nonguix container, bumped bootstrap)
-│   ├── apps.scm              # first-party: evelin-bin, btp, mirim, torando-gui, zupt(+gui), turborec, moneyprinterturbo (vendored)
-│   ├── security.scm          # curated toolset; mtr/sdb/radare2/rizin + other bumps/re-exports
-│   ├── monitoring.scm        # glances 4.5.6 (bump) + python-pyinstrument 5.1.3 (private dep)
-│   ├── containers.scm        # esquema 0.2.0 — rootless Guile-native container runtime (first-party, from source)
-│   └── sources/              # vendored release/built artifacts (local-file)
-├── securityops/services/
-│   └── torando.scm           # torando-gui-service-type (GNU Shepherd service)
-├── README.md  CHANGELOG.md  AUDIT.md  LICENSE
-└── .dir-locals.el  .gitignore
-```
+| Path | Purpose |
+| --- | --- |
+| `securityops/packages/` | Package modules; see the [index](../PACKAGES.md) for exports and versions |
+| `securityops/patches/` | Downstream patches with their upstream license notices |
+| `securityops/services/` | Shepherd service definitions |
+| `tests/` | Private headless integration probes for the River patches |
+| `xlibre.scm`, `xlibre-sources.scm` | Bundled XLibre compatibility module and source pins |
+| `.guix-channel`, `.guix-authorizations` | Channel dependencies and authorized signing keys |
+| `etc/` | Inventory, channel configuration and maintenance tools |
+| `docs/` | Usage, integration and dated validation reports |
+| `LICENSE`, `LICENSES/`, `LICENSING.md` | License text and file-level exceptions |
 
-Each module imports the matching upstream module **with a prefix**
-(`#:use-module ((gnu packages tor) #:prefix tor:)`) and either re-exports the
-binding or defines `(package (inherit tor:tor) (version …) (source …))`. Most
-definitions are a few lines, so upstream bugfixes flow through automatically.
+Package modules import Guix or Nonguix definitions with prefixes. Some inherit
+those definitions, while others provide source assemblers, additional inputs or
+build phases. A Guix pin is part of the tested build context; inherited recipes
+can change when that pin changes.
 
 ---
