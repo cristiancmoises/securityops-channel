@@ -1,28 +1,45 @@
 # Curated package index
 
-Snapshot: 2026-09-06. Evaluated against Guix `fe590afef7319a8ea921d35b67fb39fb79f5a3b3` and nonguix `bf39542ca537fde8839b209ac21d6f3254469b15`. XLibre packaging is now included in SecurityOps. Re-exported versions change with the consumer's channels.
+Snapshot: 2026-09-17. Evaluated against Guix `fe590afef7319a8ea921d35b67fb39fb79f5a3b3` and nonguix `bf39542ca537fde8839b209ac21d6f3254469b15`. XLibre packaging is now included in SecurityOps. Re-exported versions change with the consumer's channels.
 
-This lists recipe versions, not a claim that every package was rebuilt or is the latest upstream release. See [validation and exceptions](docs/refresh-2026-09-06.md).
+This lists recipe versions, not a claim that every package was rebuilt or is the latest upstream release. See [validation and exceptions](docs/refresh-2026-09-17.md).
 
 | Module | Package | Recipe version |
 |---|---|---|
 | `apps` | `btp` | 0.7 |
 | `apps` | `evelin-bin` | 4.4.0 |
 | `apps` | `mirim` | 1.1.1 |
-| `apps` | `moneyprinterturbo` | 1.3.6 |
+| `apps` | `moneyprinterturbo` | 1.3.7 |
 | `apps` | `torando-gui` | 1.4.1 |
 | `apps` | `turborec` | 3.9.1 |
 | `apps` | `zupt` | 5.2.9 |
 | `apps` | `zupt-gui` | 5.2.9 |
-| `browsers` | `google-chrome-stable` | 152.0.7977.82 |
+| `audio` | `pipewire-latest` | 1.6.8 |
+| `audio` | `wireplumber-latest` | 0.5.17 |
+| `browsers` | `google-chrome-stable` | 153.0.8010.47 |
 | `browsers` | `ungoogled-chromium` | 150.0.7871.46-1 |
-| `chromium` | `ungoogled-chromium-bin` | 152.0.7977.82-1 |
+| `chromium` | `ungoogled-chromium-bin` | 153.0.8010.47-1 |
 | `containers` | `esquema` | 0.3.0 |
 | `emacs` | `emacs` | 31.1 |
 | `emacs` | `emacs-pgtk` | 31.1 |
 | `games` | `steam` | 1.0.0.87 |
-| `librewolf` | `librewolf` | 153.0.4-1 |
+| `librewolf` | `librewolf` | 156.0-1 |
 | `monitoring` | `glances` | 4.5.6 |
+| `river` | `channel-river-input` | 0.4.1-1.94a3d6c |
+| `river` | `foot-latest` | 1.28.0 |
+| `river` | `fuzzel-latest` | 1.15.0 |
+| `river` | `libevdev-latest` | 1.13.7 |
+| `river` | `libinput-minimal-latest` | 1.31.3 |
+| `river` | `libxkbcommon-latest` | 1.13.2 |
+| `river` | `mako-latest` | 1.11.0 |
+| `river` | `river-xmonad-runtime` | 0.4.8 |
+| `river` | `swaybg-latest` | 1.2.2 |
+| `river` | `swaylock-latest` | 1.8.6 |
+| `river` | `wayland-latest` | 1.26.0 |
+| `river` | `wayland-protocols-latest` | 1.49 |
+| `river` | `wlr-randr-latest` | 0.5.0 |
+| `river` | `wlroots-latest` | 0.20.2 |
+| `river` | `xwayland-latest` | 24.1.13 |
 | `security` | `age` | 1.3.2 |
 | `security` | `aircrack-ng` | 1.7 |
 | `security` | `arp-scan` | 1.10.0 |
@@ -41,15 +58,15 @@ This lists recipe versions, not a claim that every package was rebuilt or is the
 | `security` | `rizin` | 0.9.1 |
 | `security` | `sdb` | 2.5.2 |
 | `security` | `whois` | 5.6.6 |
-| `shells` | `fish` | 4.9.2 |
+| `shells` | `fish` | 4.9.3 |
 | `terminals` | `alacritty` | 0.17.0 |
 | `terminals` | `go-github-com-ebitengine-purego` | 0.11.0 |
 | `terminals` | `go-github-com-emmansun-base64` | 0.10.0 |
 | `terminals` | `go-github-com-sgtdi-fswatcher` | 1.3.0 |
 | `terminals` | `kitty` | 0.48.2 |
-| `tor` | `tor` | 0.4.9.11 |
-| `tor` | `torbrowser` | 15.0.21 |
-| `tor` | `torbrowser-assets` | 15.0.21 |
+| `tor` | `tor` | 0.4.9.12 |
+| `tor` | `torbrowser` | 15.0.23 |
+| `tor` | `torbrowser-assets` | 15.0.23 |
 | `utils` | `keepassxc` | 2.7.12 |
 | `utils` | `lf` | 42 |
 | `utils` | `ueberzugpp` | 2.9.10 |

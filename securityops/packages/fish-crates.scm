@@ -1,6 +1,6 @@
 ;;; SPDX-License-Identifier: GPL-3.0-or-later
 ;;; Copyright © 2026 Cristian Cezar Moisés <ethicalhacker@riseup.net>
-;;; Registry sources from the official Fish 4.9.2 Cargo.lock.
+;;; Registry sources from the official Fish 4.9.3 Cargo.lock.
 (define-module (securityops packages fish-crates)
   #:use-module (guix build-system cargo)
   #:use-module (guix git-download)
@@ -8,7 +8,7 @@
   #:use-module (guix packages)
   #:use-module ((guix licenses) #:prefix license:)
   #:use-module (gnu packages rust-sources)
-  #:export (fish-4.9.2-cargo-inputs))
+  #:export (fish-4.9.3-cargo-inputs))
 
 (define fish-registry-inputs
   (list
@@ -419,7 +419,7 @@ by fish's Cargo.lock.")
 fish's Cargo.lock.")
      (license (list license:agpl3 license:gpl2)))))
 
-(define fish-4.9.2-cargo-inputs
+(define fish-4.9.3-cargo-inputs
   (append fish-registry-inputs
           (list fish-fluent-rs-snapshot
                 fish-fluent-ftl-tools-snapshot

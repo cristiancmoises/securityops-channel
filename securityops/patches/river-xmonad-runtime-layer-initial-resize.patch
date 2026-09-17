@@ -1,0 +1,57 @@
+SPDX-License-Identifier: GPL-3.0-only
+Copyright (c) 2026 SecurityOps contributors
+
+Allow layer-shell clients to resize before attaching their first buffer.
+
+Mako can refine its requested height after the first configure.  Keep sending
+configures while the wlroots layer surface is initialized, including this
+unmapped interval.  Track actual unmap events separately because wlroots emits
+unmap before resetting initialized, including during destruction.  Clear this
+state only on a new initial commit; an unmapping commit is not initial.
+
+The private tests/layer-surface-smoke.py regression covers pre-buffer resize,
+unmap/remap, and removal of an exclusive surface's reserved area.
+
+--- a/river/LayerSurface.zig
++++ b/river/LayerSurface.zig
+@@ -33,6 +33,9 @@
+ wlr_layer_surface: *wlr.LayerSurfaceV1,
+ scene_layer_surface: *wlr.SceneLayerSurfaceV1,
+ popup_tree: *wlr.SceneTree,
++
++// An unmap event precedes wlroots resetting initialized, also during destroy.
++unmapped: bool = false,
+ 
+ destroy: wl.Listener(*wlr.LayerSurfaceV1) = wl.Listener(*wlr.LayerSurfaceV1).init(handleDestroy),
+ map: wl.Listener(void) = wl.Listener(void).init(handleMap),
+@@ -120,6 +123,8 @@
+ fn handleUnmap(listener: *wl.Listener(void)) void {
+     const layer_surface: *LayerSurface = @fieldParentPtr("unmap", listener);
+ 
++    layer_surface.unmapped = true;
++
+     log.debug("layer surface '{s}' unmapped", .{layer_surface.wlr_layer_surface.namespace});
+ 
+     {
+@@ -148,6 +153,8 @@
+     const wlr_layer_surface = layer_surface.wlr_layer_surface;
+ 
+     assert(wlr_layer_surface.output != null);
++
++    if (wlr_layer_surface.initial_commit) layer_surface.unmapped = false;
+ 
+     // If the layer was changed, move the LayerSurface to the proper tree.
+     if (wlr_layer_surface.current.committed.layer) {
+--- a/river/LayerShellOutput.zig
++++ b/river/LayerShellOutput.zig
+@@ -112,8 +112,8 @@
+             assert(node.type == .tree);
+             const node_data: *SceneNodeData = @ptrCast(@alignCast(node.data orelse continue));
+             const layer_surface = node_data.data.layer_surface;
+-            if (!layer_surface.wlr_layer_surface.surface.mapped and
+-                !layer_surface.wlr_layer_surface.initial_commit)
++            if (layer_surface.unmapped or
++                !layer_surface.wlr_layer_surface.initialized)
+             {
+                 continue;
+             }

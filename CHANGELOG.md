@@ -6,6 +6,20 @@ tag rather than SemVer of the code.
 
 ## [Unreleased]
 
+### Changed — workstation and River package refresh (2026-09-17)
+
+- Updated Fish, Tor, Tor Browser, Chrome, portable Chromium, LibreWolf,
+  MoneyPrinterTurbo and three XLibre drivers. Browser source builds are still
+  being validated; see the [refresh report](docs/refresh-2026-09-17.md).
+- Added explicit River 0.4.8 and desktop-helper packages, with current Wayland
+  dependencies. Included fixes and integration regressions for active-keyboard
+  metadata and layer-shell size negotiation before the first buffer.
+- Added PipeWire 1.6.8 and WirePlumber 0.5.17 package bindings. Their upstream
+  tests and private integration check passed; installing them does not activate
+  or replace the running audio service.
+- Updated the package inventory, usage examples and English/Portuguese
+  validation notes. Physical-session acceptance remains outside this refresh.
+
 ### Changed — Esquema and Mirim source packages (2026-09-06)
 
 - Updated Esquema to 0.3.0 with standard staged installation, installed-library

@@ -1,0 +1,19 @@
+SPDX-License-Identifier: GPL-3.0-only
+Copyright (c) 2026 SecurityOps contributors
+
+Stop after assigning a device to an existing seat.
+
+Otherwise the successful request falls through to the missing-seat log.
+
+Upstream status: not submitted.
+
+--- a/river/InputDevice.zig
++++ b/river/InputDevice.zig
+@@ -223,6 +223,7 @@
+             while (it.next()) |seat| {
+                 if (mem.orderZ(u8, args.name, seat.wlr_seat.name) == .eq) {
+                     device.assignToSeat(seat);
++                    return;
+                 }
+             }
+             log.info("client requested input device be assigned to non-existant seat '{s}'", .{args.name});
