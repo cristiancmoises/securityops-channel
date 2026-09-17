@@ -61,7 +61,9 @@ manager; this channel ships the XMonad Wayland manager through
 `(securityops packages xmonad-wayland)`, built from the signed commit of its
 public repository, and a physical River desktop running it has been in use
 since September 2026. The latest upstream XMonad core and contrib releases
-are available through `(securityops packages xmonad)`.
+are available through `(securityops packages xmonad)`. The manager also
+accepts the classic `xmonad.hs` idiom via `xmonad-wayland --recompile`,
+which makes migrating an X11 configuration to River straightforward.
 
 ## Repositories
 
