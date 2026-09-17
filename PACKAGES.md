@@ -8,7 +8,7 @@ This lists recipe versions, not a claim that every package was rebuilt or is the
 |---|---|---|
 | `apps` | `btp` | 0.7 |
 | `apps` | `evelin-bin` | 4.4.0 |
-| `apps` | `guixvis` | 0.1.0 |
+| `apps` | `guixvis` | 0.2.0 |
 | `apps` | `mirim` | 1.1.1 |
 | `apps` | `moneyprinterturbo` | 1.3.7 |
 | `apps` | `torando-gui` | 1.4.1 |
@@ -77,7 +77,7 @@ This lists recipe versions, not a claim that every package was rebuilt or is the
 | `vpn` | `mullvad-vpn-desktop` | 2026.4 |
 | `xmonad` | `ghc-xmonad-contrib` | 0.18.2 |
 | `xmonad` | `xmonad` | 0.18.1 |
-| `xmonad-wayland` | `xmonad-wayland` | 0.2.0-dev |
+| `xmonad-wayland` | `xmonad-wayland` | 0.3.0 |
 | `xlibre` | `xlibre-server` | 25.2.2 |
 
 Regenerate the inventory with:
