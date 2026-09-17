@@ -1,0 +1,54 @@
+SPDX-License-Identifier: GPL-3.0-only
+Copyright (c) 2026 SecurityOps contributors
+
+Preserve keyboard repeat/keymap metadata before the next input event.
+
+Only reselect a replacement when the old active group loses its last
+reference.  Shared active groups and inactive keyboards keep their current
+selection.  Do not dereference the old group after unref frees it.
+
+Upstream status: not submitted.
+
+--- a/river/Keyboard.zig
++++ b/river/Keyboard.zig
+@@ -138,11 +138,7 @@
+     assert(!keyboard.device.virtual);
+     keyboard.config.repeat_rate = rate;
+     keyboard.config.repeat_delay = delay;
+-    if (keyboard.group) |group| {
+-        group.unref(keyboard.pressed.keys());
+-        keyboard.group = null;
+-    }
+-    keyboard.setGroup();
++    keyboard.updateGroup();
+ }
+ 
+ pub fn setKeymap(keyboard: *Keyboard, keymap: *xkb.Keymap) void {
+@@ -152,11 +148,27 @@
+     }
+     keyboard.config.keymap.unref();
+     keyboard.config.keymap = keymap.ref();
++    keyboard.updateGroup();
++}
++
++// Preserve seat metadata when reconfiguration destroys its active group.
++// A shared group remains active for its other keyboards, and changing an
++// inactive group must not select it until it receives input.
++fn updateGroup(keyboard: *Keyboard) void {
++    const seat = keyboard.device.seat.wlr_seat;
++    const replace_active = if (keyboard.group) |group|
++        group.ref_count == 1 and seat.getKeyboard() == &group.state
++    else
++        false;
++
+     if (keyboard.group) |group| {
+         group.unref(keyboard.pressed.keys());
+         keyboard.group = null;
+     }
+     keyboard.setGroup();
++    if (replace_active) {
++        if (keyboard.group) |group| seat.setKeyboard(&group.state);
++    }
+ }
+ 
+ pub fn deviceDestroy(keyboard: *Keyboard) void {

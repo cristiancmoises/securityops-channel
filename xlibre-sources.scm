@@ -1,5 +1,5 @@
 ;;; XLibre source pins from guix-xlibre revision 09edbfa3c5c4eaafbbb1947445c219ac53c465a6.
-;;; Server pin maintained by SecurityOps; driver pins retained unchanged.
+;;; Server and driver source pins maintained by SecurityOps.
 
 (define-module
   (xlibre-sources)
@@ -208,17 +208,17 @@
 (hash-set!
   %xlibre-sources
   "xlibre-video-amdgpu"
-  (cons "25.1.1"
+  (cons "25.1.2"
         (origin
           (method git-fetch)
           (uri (git-reference
                  (url "https://github.com/X11Libre/xf86-video-amdgpu")
-                 (commit "xlibre-xf86-video-amdgpu-25.1.1")))
+                 (commit "xlibre-xf86-video-amdgpu-25.1.2")))
           (sha256
             (base32
-              "0b7vn21b8p48qmb9vz5slk7a1b2h00m94ya3qncvrrliw1l0m5y1"))
+              "1gxanj05miim1mrdplrpf6kbicsjyf839hzjl1clamcpsq0bypgz"))
           (file-name
-            (git-file-name "xlibre-video-amdgpu" "25.1.1")))))
+            (git-file-name "xlibre-video-amdgpu" "25.1.2")))))
 
 ;; this file was automatically generated
 
@@ -429,17 +429,17 @@
 (hash-set!
   %xlibre-sources
   "xlibre-video-intel"
-  (cons "25.0.1"
+  (cons "25.0.2"
         (origin
           (method git-fetch)
           (uri (git-reference
                  (url "https://github.com/X11Libre/xf86-video-intel")
-                 (commit "xlibre-xf86-video-intel-25.0.1")))
+                 (commit "xlibre-xf86-video-intel-25.0.2")))
           (sha256
             (base32
-              "0c14wkqkk611qj3l2hk9kc2l32v3wrlf7lmyndrynzfal9l5bc78"))
+              "0b8llgwl9w4j13qcwyj6zp0i2wdwzzsbrw57fzvmn55ms0l3ixf0"))
           (file-name
-            (git-file-name "xlibre-video-intel" "25.0.1")))))
+            (git-file-name "xlibre-video-intel" "25.0.2")))))
 
 ;; this file was automatically generated
 
@@ -514,17 +514,17 @@
 (hash-set!
   %xlibre-sources
   "xlibre-video-nouveau"
-  (cons "25.0.0"
+  (cons "25.0.1"
         (origin
           (method git-fetch)
           (uri (git-reference
                  (url "https://github.com/X11Libre/xf86-video-nouveau")
-                 (commit "xlibre-xf86-video-nouveau-25.0.0")))
+                 (commit "xlibre-xf86-video-nouveau-25.0.1")))
           (sha256
             (base32
-              "1gs6wxqprjy91cjz4y569snhfvv58n2744sxnnysn2r5asycnx96"))
+              "1n10pwfdf2b7in2qhk7xk6padd2mikf0blxhjr9gswm1v95c1sah"))
           (file-name
-            (git-file-name "xlibre-video-nouveau" "25.0.0")))))
+            (git-file-name "xlibre-video-nouveau" "25.0.1")))))
 
 ;; this file was automatically generated
 

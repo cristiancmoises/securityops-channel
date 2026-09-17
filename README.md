@@ -8,10 +8,10 @@ A personal GNU Guix channel for workstation applications and security tools.
 
 | Item | Status |
 |---|---|
-| Package definitions | 52 curated entries plus bundled XLibre driver exports |
+| Package definitions | 69 curated entries plus bundled XLibre driver exports |
 | Dependencies | GNU Guix and nonguix; XLibre packaging is included |
-| Latest recipe refresh | 2026-09-06 |
-| Validation | [Build results and known limitations](docs/refresh-2026-09-06.md); not every update is fully validated |
+| Latest recipe refresh | 2026-09-17 |
+| Validation | [Build results and known limitations](docs/refresh-2026-09-17.md); not every update is fully validated |
 | Authentication | Signed commits and a pinned channel introduction |
 
 ## Documentation
@@ -19,7 +19,7 @@ A personal GNU Guix channel for workstation applications and security tools.
 | Guide | Contents |
 |---|---|
 | [Package index](PACKAGES.md) | One version table, grouped by module |
-| [Refresh report](docs/refresh-2026-09-06.md) | Updated versions, validation and unfinished work |
+| [Refresh report](docs/refresh-2026-09-17.md) | Updated versions, validation and unfinished work |
 | [Usage reference](docs/usage.md) | Services, Guix System and Guix Home examples |
 | [Channel mirrors and authentication](docs/channel-authentication-fix.md) | Eight authenticated channels, integrated XLibre and root installation |
 | [Changelog](CHANGELOG.md) | Historical release notes |
@@ -53,6 +53,12 @@ guix install fish kitty zupt zupt-gui
 A package installed in the user profile does not automatically replace one in
 Guix Home or the system profile. Reconfigure the profile that owns the package.
 Adding a `(commit "...")` field pins the channel to a reproducible revision.
+
+River 0.4 and its desktop helpers are available through
+`(securityops packages river)`. The [separate-profile example](docs/usage.md#consuming-the-channel-from-etcconfigscm-and-homescm)
+also includes the updated audio packages. River 0.4 needs an external window
+manager; this refresh supplies its dependencies. The local XMonad Wayland
+manager and physical desktop acceptance are still being prepared.
 
 ## Repositories
 

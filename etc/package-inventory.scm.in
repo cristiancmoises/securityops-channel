@@ -12,5 +12,5 @@
                     name symbol (package-version package)
                     (package-home-page package)))))
       interface)))
- '(apps browsers chromium containers emacs games librewolf monitoring
-   security shells terminals tor utils video vpn xlibre))
+ '(apps audio browsers chromium containers emacs games librewolf monitoring
+   river security shells terminals tor utils video vpn xlibre))

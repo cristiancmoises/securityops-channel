@@ -8,10 +8,10 @@ Um canal pessoal do GNU Guix para aplicativos de trabalho e ferramentas de segur
 
 | Item | Status |
 |---|---|
-| Definições de pacotes | 52 entradas selecionadas, além dos drivers XLibre incluídos |
+| Definições de pacotes | 69 entradas selecionadas, além dos drivers XLibre incluídos |
 | Dependências | GNU Guix e nonguix; o empacotamento XLibre está incluído |
-| Última atualização das receitas | 2026-09-06 |
-| Validação | [Resultados e limitações](docs/refresh-2026-09-06.md); nem todas as atualizações foram totalmente validadas |
+| Última atualização das receitas | 2026-09-17 |
+| Validação | [Resultados e limitações](docs/refresh-2026-09-17.pt-BR.md); nem todas as atualizações foram totalmente validadas |
 | Autenticação | Commits assinados e introdução do canal fixada |
 
 ## Documentação
@@ -19,7 +19,7 @@ Um canal pessoal do GNU Guix para aplicativos de trabalho e ferramentas de segur
 | Guia | Conteúdo |
 |---|---|
 | [Índice de pacotes](PACKAGES.md) | Tabela única de versões, organizada por módulo |
-| [Relatório da atualização](docs/refresh-2026-09-06.md) | Versões, validação e trabalho pendente |
+| [Relatório da atualização](docs/refresh-2026-09-17.pt-BR.md) | Versões, validação e trabalho pendente |
 | [Referência de uso](docs/usage.md) | Serviços, Guix System e Guix Home |
 | [Espelhos e autenticação](docs/channel-authentication-fix.md) | Oito canais autenticados, XLibre integrado e instalação para root |
 | [Histórico](CHANGELOG.md) | Notas de alterações anteriores |
@@ -53,6 +53,13 @@ guix install fish kitty zupt zupt-gui
 Instalar no perfil do usuário não substitui automaticamente um pacote do
 Guix Home ou do sistema. Reconfigure o perfil responsável pelo pacote.
 Use `(commit "...")` para fixar uma revisão reproduzível.
+
+O River 0.4 e seus auxiliares estão em `(securityops packages river)`.
+O [exemplo de perfil separado](docs/usage.md#consuming-the-channel-from-etcconfigscm-and-homescm)
+também inclui os pacotes de áudio atualizados. O River 0.4 precisa de um
+gerenciador de janelas externo; esta revisão fornece suas dependências.
+O gerenciador local XMonad Wayland e a validação da sessão física continuam
+em preparação.
 
 ## Repositórios
 
