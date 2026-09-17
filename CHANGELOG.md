@@ -6,6 +6,16 @@ tag rather than SemVer of the code.
 
 ## [Unreleased]
 
+### Added — guixvis package explorer (2026-09-17)
+
+- Added `guixvis` 0.1.0: a first-party TUI plus local web UI for exploring
+  GNU Guix packages (fuzzy search, dependency and reverse-dependency trees,
+  force-directed graph, and `guixvis web` with clickable graph bubbles).
+  Built from source with a vendored Cargo registry (`cargo --frozen`,
+  offline), following the Mirim pattern. Build and full test suite verified
+  in an isolated derivation; installed docs include the English and
+  Portuguese READMEs and the GPL-3.0-or-later license text.
+
 ### Changed — workstation and River package refresh (2026-09-17)
 
 - Updated Fish, Tor, Tor Browser, Chrome, portable Chromium, LibreWolf,
