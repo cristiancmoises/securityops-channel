@@ -75,6 +75,9 @@ This lists recipe versions, not a claim that every package was rebuilt or is the
 | `video` | `openshot` | 4.0.0 |
 | `video` | `vlc` | 3.0.23 |
 | `vpn` | `mullvad-vpn-desktop` | 2026.4 |
+| `xmonad` | `ghc-xmonad-contrib` | 0.18.2 |
+| `xmonad` | `xmonad` | 0.18.1 |
+| `xmonad-wayland` | `xmonad-wayland` | 0.2.0-dev |
 | `xlibre` | `xlibre-server` | 25.2.2 |
 
 Regenerate the inventory with:

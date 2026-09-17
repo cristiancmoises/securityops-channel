@@ -57,9 +57,11 @@ Use `(commit "...")` para fixar uma revisão reproduzível.
 O River 0.4 e seus auxiliares estão em `(securityops packages river)`.
 O [exemplo de perfil separado](docs/usage.md#consuming-the-channel-from-etcconfigscm-and-homescm)
 também inclui os pacotes de áudio atualizados. O River 0.4 precisa de um
-gerenciador de janelas externo; esta revisão fornece suas dependências.
-O gerenciador local XMonad Wayland e a validação da sessão física continuam
-em preparação.
+gerenciador de janelas externo; este canal fornece o gerenciador XMonad
+Wayland em `(securityops packages xmonad-wayland)`, compilado a partir do
+commit assinado do repositório público, e um desktop físico com River rodando
+esse gerenciador está em uso desde setembro de 2026. As versões mais recentes
+do XMonad e do xmonad-contrib estão em `(securityops packages xmonad)`.
 
 ## Repositórios
 

@@ -57,8 +57,11 @@ Adding a `(commit "...")` field pins the channel to a reproducible revision.
 River 0.4 and its desktop helpers are available through
 `(securityops packages river)`. The [separate-profile example](docs/usage.md#consuming-the-channel-from-etcconfigscm-and-homescm)
 also includes the updated audio packages. River 0.4 needs an external window
-manager; this refresh supplies its dependencies. The local XMonad Wayland
-manager and physical desktop acceptance are still being prepared.
+manager; this channel ships the XMonad Wayland manager through
+`(securityops packages xmonad-wayland)`, built from the signed commit of its
+public repository, and a physical River desktop running it has been in use
+since September 2026. The latest upstream XMonad core and contrib releases
+are available through `(securityops packages xmonad)`.
 
 ## Repositories
 
