@@ -87,8 +87,8 @@ kitty's @code{watch} kitten.")
 ;;; kitty 0.48 (imported once, in the notify kitten); Guix does not package it,
 ;;; so define it here.  kitty builds in GOPATH mode, so only genuinely-imported
 ;;; deps need providing — the other go.mod bumps (chroma, x/sys, …) are used
-;;; from Guix's existing sources.  Kitty's go.mod now names 0.10.2, matching
-;;; the packaged dependency.
+;;; from Guix's existing sources.  Kitty's go.mod names 0.10.2; this channel
+;;; supplies the newer stable purego 0.11.0.
 (define-public go-github-com-ebitengine-purego
   (package
     (name "go-github-com-ebitengine-purego")

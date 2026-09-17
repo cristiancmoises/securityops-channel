@@ -3,29 +3,9 @@
 ;;;
 ;;; This file is part of the securityops channel.
 ;;;
-;;; ungoogled-chromium — PREBUILT binary, latest available.
-;;;
-;;; Guix builds ungoogled-chromium from a Chromium "-lite" source tarball hosted
-;;; ONLY on Google's commondatastorage GCS bucket, which 403-blocks every Tor
-;;; exit node.  guix can build *existing* versions because their source arrives
-;;; as a substitute (.tar.zst) from bordeaux.guix.gnu.org — but a brand-new
-;;; release has no substitute anywhere, so its base tarball must come straight
-;;; from Google, which is unreachable on a Tor-only host.  A from-source bump is
-;;; therefore impossible here (and would be a ~30GB-RAM, multi-hour compile on a
-;;; 15GB machine regardless).
-;;;
-;;; The ungoogled-software project publishes official, integrity-hashed PREBUILT
-;;; Linux x86_64 binaries on GitHub (Tor-reachable), tracked in the
-;;; ungoogled-chromium-binaries metadata repo under linux_portable/64bit.  The
-;;; newest prebuilt at packaging time is 151.0.7922.108-1 (published
-;;; 2026-08-08).  We wrap that tarball
-;;; with nonguix's chromium-binary-build-system (same machinery as google-chrome):
-;;; patchelf the 9 bundled ELF objects onto the Guix glibc loader + library set,
-;;; install the bundle under share/, and expose bin/chromium.  No bundled
-;;; chrome-sandbox => Chromium uses the unprivileged user-namespace sandbox.
-;;;
-;;; sha256 (base32) verified against the official upstream metadata
-;;; (3d117fc07afa7132c3675b2a1032221c969087cfbaca97c52f2481f653b3e1f1).
+;;; Official upstream portable build for x86_64 Linux.  Its release schedule
+;;; differs from the source release; the version and hash below identify the
+;;; exact published binary, without downloading code at runtime.
 
 (define-module (securityops packages chromium)
   #:use-module (guix packages)
@@ -53,16 +33,18 @@
 (define-public ungoogled-chromium-bin
   (package
     (name "ungoogled-chromium-bin")
-    (version "152.0.7977.82-1")
+    (version "153.0.8010.47-1")
     (source
      (origin
        (method url-fetch)
-       (uri (string-append
-             "https://github.com/ungoogled-software/"
+       (uri (string-append "https://github.com/ungoogled-software/"
              "ungoogled-chromium-portablelinux/releases/download/"
-             version "/ungoogled-chromium-" version "-x86_64_linux.tar.xz"))
+             version
+             "/ungoogled-chromium-"
+             version
+             "-x86_64_linux.tar.xz"))
        (sha256
-        (base32 "0iz3sp5ly6y5wfn3wzb7rrij3rpn76jmlg2m89g191qg0d74cvic"))))
+        (base32 "1s8mmq65b1xyn0i6k8ng2314phjvnkvbkcwg1rvcf05rrg2w2hf6"))))
     (build-system chromium-binary-build-system)
     (arguments
      (list
@@ -78,8 +60,7 @@
       ;; their interpreter to the Guix glibc loader and their RPATH to the
       ;; chromium-binary base inputs plus the extra inputs below.
       #:wrapper-plan
-      #~'("chrome"
-          "chrome_crashpad_handler"
+      #~'("chrome" "chrome_crashpad_handler"
           "chromedriver"
           "libEGL.so"
           "libGLESv2.so"
@@ -93,10 +74,10 @@
       #~(modify-phases %standard-phases
           (add-after 'install 'install-icon
             (lambda _
-              (let ((logo (string-append
-                           #$output "/share/ungoogled-chromium/product_logo_48.png"))
-                    (target (string-append
-                             #$output "/share/icons/hicolor/48x48/apps/chromium.png")))
+              (let ((logo (string-append #$output
+                           "/share/ungoogled-chromium/product_logo_48.png"))
+                    (target (string-append #$output
+                             "/share/icons/hicolor/48x48/apps/chromium.png")))
                 (when (file-exists? logo)
                   (mkdir-p (dirname target))
                   (copy-file logo target)))))
@@ -107,51 +88,60 @@
                 (call-with-output-file (string-append dir "/chromium.desktop")
                   (lambda (port)
                     (format port
-                            "[Desktop Entry]~%Type=Application~%Name=ungoogled-chromium~%~
+                     "[Desktop Entry]~%Type=Application~%Name=ungoogled-chromium~%~
 GenericName=Web Browser~%Exec=~a/bin/chromium %U~%Icon=chromium~%~
 Terminal=false~%Categories=Network;WebBrowser;~%~
 MimeType=text/html;x-scheme-handler/http;x-scheme-handler/https;~%~
 StartupWMClass=chromium~%"
-                            #$output))))))
-          ;; Expose bin/chromium -> the bundled binary; install-wrapper then
-          ;; wraps it with FONTCONFIG_PATH / PATH / LD_LIBRARY_PATH.
+                     #$output))))))
+          ;; Expose both commands so install-wrapper supplies their shared
+          ;; FONTCONFIG_PATH / PATH / LD_LIBRARY_PATH, including NSS.
           (add-before 'install-wrapper 'install-exe
             (lambda _
               (let ((bin (string-append #$output "/bin"))
-                    (chrome (string-append
-                             #$output "/share/ungoogled-chromium/chrome")))
+                    (chrome (string-append #$output
+                                           "/share/ungoogled-chromium/chrome"))
+                    (driver (string-append #$output
+                                           "/share/ungoogled-chromium/chromedriver")))
                 (mkdir-p bin)
-                (symlink chrome (string-append bin "/chromium"))))))))
-    (inputs
-     (list bzip2
-           curl
-           flac
-           font-liberation
-           gdk-pixbuf
-           gtk
-           harfbuzz
-           libexif
-           libglvnd
-           libpng
-           libva
-           libxscrnsaver
-           opus
-           pciutils
-           pipewire
-           qtbase-5
-           qtbase
-           snappy
-           util-linux
-           xdg-utils
-           wget))
-    (synopsis "Ungoogled Chromium web browser (prebuilt, latest)")
+                (symlink chrome
+                         (string-append bin "/chromium"))
+                (symlink driver
+                         (string-append bin "/chromedriver")))))
+          (add-after 'install-wrapper 'check-installed-binaries
+            (lambda* (#:key (tests? #t) #:allow-other-keys)
+              (when tests?
+                (invoke (string-append #$output "/bin/chromium") "--version")
+                (invoke (string-append #$output "/bin/chromedriver")
+                        "--version")))))))
+    (inputs (list bzip2
+                  curl
+                  flac
+                  font-liberation
+                  gdk-pixbuf
+                  gtk
+                  harfbuzz
+                  libexif
+                  libglvnd
+                  libpng
+                  libva
+                  libxscrnsaver
+                  opus
+                  pciutils
+                  pipewire
+                  qtbase-5
+                  qtbase
+                  snappy
+                  util-linux
+                  xdg-utils
+                  wget))
+    (synopsis "Ungoogled Chromium web browser (portable upstream build)")
     (description
      "ungoogled-chromium is Google Chromium with the Google-integration and
-privacy-affecting code removed.  This package wraps the official upstream
-prebuilt Linux x86_64 portable binary (latest available release) for the
-@code{securityops} channel; it is the newest ungoogled-chromium obtainable on a
-Tor-only host, where the from-source build's Chromium base tarball is
-unreachable (Google's GCS 403-blocks Tor exits).")
+privacy-affecting code removed.  This package adapts the upstream portable
+Linux x86_64 binary to Guix library paths.  The binary release can lag behind
+the source release.  Chromium uses its unprivileged user-namespace sandbox;
+this package does not install a setuid sandbox helper.")
     (home-page "https://github.com/ungoogled-software/ungoogled-chromium")
     (supported-systems '("x86_64-linux"))
     (license (package-license cr:ungoogled-chromium))))

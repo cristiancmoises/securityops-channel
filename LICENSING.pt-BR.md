@@ -5,6 +5,17 @@ conforme `LICENSE`, salvo quando um arquivo declara termos diferentes. Em
 especial, `vpn.scm` preserva os avisos upstream do small-guix de onde foi
 vendorizado.
 
+`securityops/packages/river.scm` adapta as receitas BSD-3-Clause do
+xmonad-wayland. O aviso original está preservado em
+[`LICENSES/xmonad-wayland-BSD3.txt`](LICENSES/xmonad-wayland-BSD3.txt).
+Essa exceção se aplica ao código das receitas; River e suas dependências
+mantêm as respectivas licenças upstream.
+Os patches do River em `securityops/patches/` seguem a licença GPL-3.0-only
+do River, conforme os avisos nos próprios arquivos.
+
+Os testes de integração em `tests/` trazem avisos BSD-3-Clause; a exceção das
+receitas não altera a licença GPL dos patches do River.
+
 Uma definição de pacote Guix não relicencia o programa empacotado. Cada
 programa mantém sua licença canônica upstream, registrada na definição e nos
 avisos instalados. A receita pública seleciona uma opção pública

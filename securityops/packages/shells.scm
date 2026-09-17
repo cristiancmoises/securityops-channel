@@ -17,14 +17,14 @@
   #:use-module (guix packages)
   #:use-module (guix utils))
 
-;;; fish — updated ahead of Guix.  Fish 4.8.1 adds and updates enough Rust
+;;; fish — updated ahead of Guix.  Fish 4.9.3 adds and updates enough Rust
 ;;; dependencies that it cannot use Guix's crate set for 4.7.1.  Its registry
 ;;; crates and Git workspace snapshots are pinned in
 ;;; (securityops packages fish-crates).
 (define-public fish
   (package
     (inherit gnu:fish)
-    (version "4.9.2")
+    (version "4.9.3")
     (source
      (origin
        (inherit (package-source gnu:fish))
@@ -32,14 +32,9 @@
              "https://github.com/fish-shell/fish-shell/releases/download/"
              version "/fish-" version ".tar.xz"))
        (sha256
-        (base32
-         "1c82vyzhr7hkxpsacfrcrglvyz8if43z58qb48mrda0prrlmgf96"))))
-    (inputs
-     (cons* gnu:fish-foreign-env
-            ncurses
-            pcre2
-            python
-            fish-4.9.2-cargo-inputs))
+        (base32 "135ry1qjikzv428i1ryn38nr3sc7smghb6gl376ds5rjywjqm690"))))
+    (inputs (cons* gnu:fish-foreign-env ncurses pcre2 python
+                   fish-4.9.3-cargo-inputs))
     (arguments
      (substitute-keyword-arguments (package-arguments gnu:fish)
        ((#:phases phases)
