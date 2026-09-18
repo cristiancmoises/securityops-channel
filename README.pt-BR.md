@@ -2,6 +2,15 @@
 
 Um canal pessoal do GNU Guix para aplicativos de trabalho e ferramentas de segurança.
 
+> Uma nota rápida sobre IA: uso revisões assistidas por IA neste canal para
+> encontrar problemas de segurança e de desempenho mais cedo, e automatizo boa
+> parte do trabalho repetitivo com um DeepSeek harness personalizado — isso me
+> poupa muitas horas. Se você prefere manter distância de qualquer coisa
+> relacionada a IA, tudo bem: apenas saiba que talvez este não seja o projeto
+> certo para você. Eu mantenho o canal no meu tempo livre, para uso próprio, e
+> você também pode usar os pacotes à vontade. Uma pequena fazenda de builds
+> minha ainda serve os binários diretamente.
+
 [English](README.md)
 
 ## Visão geral

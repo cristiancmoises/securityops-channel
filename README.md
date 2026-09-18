@@ -2,6 +2,14 @@
 
 A personal GNU Guix channel for workstation applications and security tools.
 
+> A quick note about AI: I use AI-assisted reviews in this channel to catch
+> security and performance issues earlier, and I automate much of the routine
+> work with a customized DeepSeek harness — it saves me hours. If you prefer
+> to stay away from anything AI-related, that is completely fine; just know
+> this may not be the right project for you. I maintain the channel in my
+> free time for my own use, and you are welcome to use these packages too.
+> A small build farm of mine also serves the binaries directly.
+
 [Português (Brasil)](README.pt-BR.md)
 
 ## At a glance
