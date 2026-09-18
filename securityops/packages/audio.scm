@@ -12,17 +12,17 @@
 (define-public pipewire-latest
   (package
     (inherit guix:pipewire)
-    (version "1.6.8")
+    (version "1.6.9")
     (source
      (origin
        (method git-fetch)
        (uri (git-reference
              (url "https://gitlab.freedesktop.org/pipewire/pipewire.git")
-             ;; Upstream stable tag 1.6.8, released 2026-07-09.
-             (commit "b741e0c74f5436f0c925f7741140db0efd32cf4e")))
+             ;; Upstream stable tag 1.6.9, released 2026-09-17.
+             (commit "8fa27cabdc6c0c1350c69c026af5850ef0af1e26")))
        (file-name (git-file-name "pipewire" version))
        (sha256
-        (base32 "1yc70gi4a98q7kbghp08nyp3wvlik120v2w25a14b93gpgwbl55k"))))
+        (base32 "1cj8g1qna2hjn47w3fiz9splx2rfvw5m6yg63blf4ih762mh4qk2"))))
     (arguments
      (substitute-keyword-arguments (package-arguments guix:pipewire)
        ((#:configure-flags flags
@@ -35,6 +35,8 @@
 
 (define-public wireplumber-latest
   (package
+    ;; Rebuilt and re-tested against pipewire-latest 1.6.9 on 2026-09-17;
+    ;; this pin is coupled to the pipewire-latest bump above.
     (inherit guix:wireplumber)
     (version "0.5.17")
     (source
