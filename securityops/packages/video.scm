@@ -10,12 +10,40 @@
   #:use-module (guix gexp)
   #:use-module (guix utils)
   #:use-module (guix git-download)
-  #:use-module ((gnu packages video) #:prefix gnu:))
+  #:use-module ((gnu packages video) #:prefix gnu:)
+  #:use-module ((gnu packages image-viewers) #:prefix gnu-iv:))
 
 ;;; mpv / vlc — Guix already ships the latest upstream (mpv 0.41.0, vlc 3.0.23).
 ;;; Re-exported so they install from this channel and track Guix.
 (define-public mpv gnu:mpv)
 (define-public vlc gnu:vlc)
+
+;;; yt-dlp — bumped ahead of Guix: 2026.07.04 -> 2026.08.19 (latest upstream,
+;;; released 2026-08-19).  git-fetch of the release tag; the arguments (test
+;;; deselections and the ffmpeg-location phase) are inherited unchanged.  Hash
+;;; cross-checked against the definition prepared in the owner's guix fork
+;;; checkout.
+(define-public yt-dlp
+  (package
+    (inherit gnu:yt-dlp)
+    (version "2026.08.19")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/yt-dlp/yt-dlp/")
+             (commit version)))
+       (file-name (git-file-name "yt-dlp" version))
+       (sha256
+        (base32 "1257p5r20cxdr5shsi0zi20wpn0a5qxzz1kyqjssy7p6ciw5kkh4"))))))
+
+;;; ytfzf — Guix ships the latest upstream (2.6.2); re-exported with the
+;;; channel's yt-dlp so the terminal frontend downloads with the bumped engine.
+(define-public ytfzf
+  (package
+    (inherit gnu-iv:ytfzf)
+    (inputs (modify-inputs (package-inputs gnu-iv:ytfzf)
+              (replace "yt-dlp" yt-dlp)))))
 
 ;;; openshot — bumped ahead of Guix: 3.4.0 -> 4.0.0 (latest upstream).
 ;;; git-fetch of tag v4.0.0; inherits the upstream origin (snippet preserved).

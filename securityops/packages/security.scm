@@ -217,6 +217,11 @@
 ;;; release) are inherited unchanged: that suite RUNS and PASSES against 3.1.7,
 ;;; so tests are kept.  (A future bump may need the `lynis-sdk' input re-pinned,
 ;;; as Guix's own comment notes.)
+;;; Re-verified on 2026-09-17: 3.1.7 is still the newest upstream release
+;;; (GitHub release 2026-06-25; no newer tag), the pinned hash was recomputed
+;;; byte-exact with `guix hash -rx' on a fresh tag checkout, and `guix build'
+;;; passed with the inherited lynis-sdk test suite.  No recipe change was
+;;; needed; the installed-profile state is documented in the refresh report.
 ;;; Hash: `guix hash -rx' on a checkout of the 3.1.7 tag.
 (define-public lynis
   (package

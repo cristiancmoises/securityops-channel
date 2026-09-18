@@ -15,7 +15,7 @@ This lists recipe versions, not a claim that every package was rebuilt or is the
 | `apps` | `turborec` | 3.9.1 |
 | `apps` | `zupt` | 5.2.9 |
 | `apps` | `zupt-gui` | 5.2.9 |
-| `audio` | `pipewire-latest` | 1.6.8 |
+| `audio` | `pipewire-latest` | 1.6.9 |
 | `audio` | `wireplumber-latest` | 0.5.17 |
 | `browsers` | `google-chrome-stable` | 153.0.8010.47 |
 | `browsers` | `ungoogled-chromium` | 150.0.7871.46-1 |
@@ -30,7 +30,7 @@ This lists recipe versions, not a claim that every package was rebuilt or is the
 | `river` | `foot-latest` | 1.28.0 |
 | `river` | `fuzzel-latest` | 1.15.0 |
 | `river` | `libevdev-latest` | 1.13.7 |
-| `river` | `libinput-minimal-latest` | 1.31.3 |
+| `river` | `libinput-minimal-latest` | 1.32.0 |
 | `river` | `libxkbcommon-latest` | 1.13.2 |
 | `river` | `mako-latest` | 1.11.0 |
 | `river` | `river-xmonad-runtime` | 0.4.8 |
@@ -74,11 +74,14 @@ This lists recipe versions, not a claim that every package was rebuilt or is the
 | `video` | `mpv` | 0.41.0 |
 | `video` | `openshot` | 4.0.0 |
 | `video` | `vlc` | 3.0.23 |
-| `vpn` | `mullvad-vpn-desktop` | 2026.4 |
+| `video` | `yt-dlp` | 2026.08.19 |
+| `video` | `ytfzf` | 2.6.2 |
+| `vpn` | `mullvad-vpn-desktop` | 2026.5 |
 | `xmonad` | `ghc-xmonad-contrib` | 0.18.2 |
 | `xmonad` | `xmonad` | 0.18.1 |
 | `xmonad-wayland` | `xmonad-wayland` | 0.3.0 |
 | `xlibre` | `xlibre-server` | 25.2.2 |
+| `xsearch` | `guix-xsearch` | 2.3-0.1af46e0 |
 
 Regenerate the inventory with:
 
