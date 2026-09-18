@@ -13,4 +13,4 @@
                     (package-home-page package)))))
       interface)))
  '(apps audio browsers chromium containers emacs games librewolf monitoring
-   river security shells terminals tor utils video vpn xlibre))
+   river security shells terminals tor utils video vpn xlibre xsearch))

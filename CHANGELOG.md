@@ -6,6 +6,38 @@ tag rather than SemVer of the code.
 
 ## [Unreleased]
 
+### Added — guix-xsearch extension, yt-dlp and ytfzf video tooling (2026-09-17)
+
+- Vendored the guix-xsearch extension (tag 2.3) from
+  https://codeberg.org/Baleine/guix-xsearch into a new
+  `(securityops packages xsearch)` module, so no separate channel is needed.
+  The package builds and the extension loads under the running system Guix;
+  a Xapian cache must be built with `guix xsearch --index` before searching.
+- Added yt-dlp 2026.08.19, bumped ahead of Guix's 2026.07.04, and ytfzf 2.6.2,
+  which now uses the channel's yt-dlp. Both build; the yt-dlp suite passed
+  with Guix's usual network-test exclusions.
+
+### Changed — lynis re-verification, PipeWire 1.6.9, libinput 1.32.0, Mullvad 2026.5 (2026-09-17)
+
+- lynis stays at 3.1.7, still the latest upstream release: the pinned source
+  hash was recomputed byte-exact, the build with the inherited lynis-sdk
+  suite passed again, and lynis 3.1.7 was installed in the user profile. The
+  system profile still ships Guix's 3.1.1 and precedes the user profile in
+  PATH, so the system-wide upgrade remains an owner reconfigure.
+- Updated pipewire-latest to 1.6.9 and rebuilt wireplumber-latest against it.
+- Updated libinput-minimal-latest to 1.32.0; wlroots-latest rebuilt against
+  it and the River runtime derivation still evaluates.
+- Updated mullvad-vpn-desktop to 2026.5: the source is again the GitHub
+  release asset (cdn.mullvad.net was unusable from this host), the deb
+  members were checked against the recipe phases, the icon path now uses the
+  512x512 size the 2026.5 deb actually ships, and a `guix build --check`
+  rebuild matched the first build.
+- The channel-wide release audit found no other outdated recipe. VLC stays
+  at 3.0.23 because the 3.0.24 tag has no published release artifacts, and
+  the ungoogled-chromium source package remains Guix's re-export (upstream is
+  at 153.0.8010.52-1 while the pinned Guix carries 150.0.7871.46-1); the
+  portable binary package is already current.
+
 ### Changed — guixvis 0.2.0 (2026-09-17)
 
 - Updated guixvis to 0.2.0: both the TUI and the web UI gain eight
