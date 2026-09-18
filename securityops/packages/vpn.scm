@@ -11,13 +11,21 @@
 ;;; inherited because the upstream build phases bake the package `version' into
 ;;; the .deb unpack step — an `(inherit …)' + version override would break the
 ;;; real build.  Changes vs. upstream:
-;;;   * version 2025.8 -> 2026.4, the stable release listed on Mullvad's Linux
-;;;     download page as of 2026-09-17.  Check the official stable download
-;;;     before bumping; a newer GitHub tag may be a beta.
-;;;   * source URL moved off GitHub (no longer carries desktop .debs) to
-;;;     Mullvad's official CDN, cdn.mullvad.net.
+;;;   * version 2025.8 -> 2026.5, the current non-prerelease desktop release
+;;;     (GitHub release 2026.5, published 2026-09-14; the 2026.5-beta tags are
+;;;     ignored).  Check the official stable release before bumping; a newer
+;;;     GitHub tag may be a beta.
+;;;   * source is the GitHub release asset: since 2026.5 the release again
+;;;     carries the desktop .debs (plus detached .asc signatures).  The 2026.4
+;;;     note claiming GitHub no longer carried them is outdated, and Mullvad's
+;;;     CDN (cdn.mullvad.net) was measured at ~10 KiB/s and failing from this
+;;;     host, so the asset URL moved back to GitHub.
 ;;;   * x86_64-only (this host); add the aarch64 variant + hash if needed.
-;;; Hash: `guix download .../releases/2026.4/MullvadVPN-2026.4_amd64.deb'.
+;;; Hash: `guix hash' on the 115,235,148-byte release asset; its members were
+;;; checked against the unpack/wrapper phases (data.tar.xz, control.tar.xz,
+;;; the opt/Mullvad VPN/ binaries and the usr/ tree).  The 2026.5 deb ships
+;;; icons only up to 512x512 (no 1024x1024), so the desktop icon path below
+;;; uses 512x512.
 ;;; Depends on the nonguix channel for `chromium-binary-build-system'.
 
 (define-module (securityops packages vpn)
@@ -30,7 +38,7 @@
   #:use-module (nonguix build-system chromium-binary)
   #:use-module ((guix licenses) #:prefix license:))
 
-(define %mullvad-vpn-desktop-version "2026.4")
+(define %mullvad-vpn-desktop-version "2026.5")
 
 (define-public mullvad-vpn-desktop
   (package
@@ -39,11 +47,12 @@
     (source
      (origin
        (method url-fetch)
-       (uri (string-append "https://cdn.mullvad.net/app/desktop/releases/"
-                           version "/MullvadVPN-" version "_amd64.deb"))
+       (uri (string-append "https://github.com/mullvad/mullvadvpn-app/"
+                           "releases/download/" version "/MullvadVPN-" version
+                           "_amd64.deb"))
        (file-name (string-append name "-" version "-" (%current-system) ".deb"))
        (sha256
-        (base32 "0fs5b4f8axk73a32qs3rk3gf25xpk5jjaj4d1kzhzj8xkq3mimzi"))))
+        (base32 "1az751s2wmalff8axc019xf2k70yp4mz18lc1vsrg1aqa82d0sxa"))))
     (build-system chromium-binary-build-system)
     (arguments
      (list
@@ -92,7 +101,7 @@
           (add-before 'install 'patch-assets
             (lambda _
               (let* ((bin (string-append #$output "/bin"))
-                     (icon (string-append #$output "/share/icons/hicolor/1024x1024/apps/mullvad-vpn.png"))
+                     (icon (string-append #$output "/share/icons/hicolor/512x512/apps/mullvad-vpn.png"))
                      (usr/share "./usr/share")
                      (old-exe "/opt/Mullvad VPN/mullvad-vpn")
                      (exe (string-append bin "/mullvad-vpn")))
@@ -100,6 +109,19 @@
                 (substitute* (string-append usr/share "/applications/mullvad-vpn.desktop")
                   (("^Icon=mullvad-vpn") (string-append "Icon=" icon))
                   (((string-append "^Exec=" old-exe)) (string-append "Exec=" exe))))))
+          (replace 'install-license-files
+            ;; The 2026.5 .deb ships its licenses under opt/ and has no
+            ;; usr/share/doc/copyright; install them explicitly instead of
+            ;; relying on the standard source-directory scan, which cannot
+            ;; traverse the build directory's parent in this environment.
+            (lambda _
+              (let ((doc (string-append #$output "/share/doc/"
+                                        #$name "-" #$version)))
+                (mkdir-p doc)
+                (for-each (lambda (file)
+                            (install-file file doc))
+                          '("./opt/Mullvad VPN/LICENSE.electron.txt"
+                            "./opt/Mullvad VPN/LICENSES.chromium.html")))))
           (add-before 'install-wrapper 'symlink-entrypoint
             (lambda _
               (let* ((bin (string-append #$output "/bin"))
