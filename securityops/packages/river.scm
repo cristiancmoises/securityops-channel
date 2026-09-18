@@ -96,16 +96,17 @@
 (define-public libinput-minimal-latest
   (package
     (inherit libinput-minimal)
-    (version "1.31.3")
+    ;; Upstream stable release 1.32.0, published 2026-09-17.
+    (version "1.32.0")
     (source
      (origin
        (method url-fetch)
        (uri (string-append
-             "https://gitlab.freedesktop.org/libinput/libinput/-/archive/1.31.3/"
-             "libinput-1.31.3.tar.gz"))
-       (file-name "libinput-1.31.3.tar.gz")
+             "https://gitlab.freedesktop.org/libinput/libinput/-/archive/1.32.0/"
+             "libinput-1.32.0.tar.gz"))
+       (file-name "libinput-1.32.0.tar.gz")
        (sha256
-        (base32 "0m4q993l2vl9902p57x3jvhd5jgy6my042m7q0qnc3w9y7v9nx5n"))))
+        (base32 "1m68z91fk54yqgz3mgs3raynhkk3vaf67mnc21lfp1jcjv5c3mkx"))))
     (arguments
      (substitute-keyword-arguments (package-arguments libinput-minimal)
        ((#:phases phases)
