@@ -11,6 +11,11 @@ Um canal pessoal do GNU Guix para aplicativos de trabalho e ferramentas de segur
 > você também pode usar os pacotes à vontade. Uma pequena fazenda de builds
 > minha ainda serve os binários diretamente.
 
+Um agradecimento ao projeto GNU Guix e aos seus mantenedores, e a todas as
+pessoas que escrevem e mantêm os pacotes que este canal reutiliza — das
+coleções do Guix e do nonguix a cada autor cujo software é empacotado aqui.
+Este canal simplesmente não existiria sem esse trabalho.
+
 [English](README.md)
 
 ## Visão geral

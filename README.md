@@ -10,6 +10,11 @@ A personal GNU Guix channel for workstation applications and security tools.
 > free time for my own use, and you are welcome to use these packages too.
 > A small build farm of mine also serves the binaries directly.
 
+A big thank you to the GNU Guix project and its maintainers, and to everyone
+who writes and maintains the packages this channel reuses — from the Guix and
+nonguix collections to every upstream author whose software gets packaged
+here. This channel simply wouldn't exist without that work.
+
 [Português (Brasil)](README.pt-BR.md)
 
 ## At a glance
