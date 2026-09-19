@@ -6,6 +6,19 @@ tag rather than SemVer of the code.
 
 ## [Unreleased]
 
+### Changed — guixvis 0.4.0 (2026-09-19)
+
+- Updated guixvis to 0.4.0: the terminal graph is calmer (dots instead of
+  blobs, faded edges, `e` cycles the edge modes, `l` toggles hub labels), the
+  web graph places labels with measured boxes and a halo instead of letting
+  them collide, and both frontends gained a pure-black "tron" theme.
+- The web API moved its CSP into the response middleware, caps request bodies
+  at 8 KB and gzips JSON payloads (a graph answer drops from 33 KB to 4.8 KB).
+- Release artifacts are published as `.zupt` (level 9) on every forge; the
+  channel keeps a plain `.tar.gz` source because the build daemon has to
+  unpack it without extra tools. Verified with an isolated derivation build.
+
+
 ### Changed — guixvis 0.3.0 (2026-09-19)
 
 - Updated guixvis to 0.3.0: the terminal graph now colours nodes by BFS depth
