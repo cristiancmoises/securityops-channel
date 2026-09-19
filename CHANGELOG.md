@@ -6,6 +6,14 @@ tag rather than SemVer of the code.
 
 ## [Unreleased]
 
+### Fixed — guixvis 0.4.1 (2026-09-19)
+
+- The Content-Security-Policy header now travels with every response; before
+  this, scripts, styles and the API were served without it (only the HTML
+  document carried the policy). Regression test included. Release artifacts
+  continue to be published as `.zupt` (level 9).
+
+
 ### Changed — guixvis 0.4.0 (2026-09-19)
 
 - Updated guixvis to 0.4.0: the terminal graph is calmer (dots instead of
