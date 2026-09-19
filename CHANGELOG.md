@@ -6,6 +6,20 @@ tag rather than SemVer of the code.
 
 ## [Unreleased]
 
+### Changed — guixvis 0.3.0 (2026-09-19)
+
+- Updated guixvis to 0.3.0: the terminal graph now colours nodes by BFS depth
+  and dependency kind, sizes them by fan-in/fan-out, haloes the selection and
+  carries a legend, so the picture is readable rather than decorative.
+- Startup dropped from about 126 ms to 30 ms for 32,500 packages: the cache is
+  a binary snapshot of the resolved index instead of gzipped JSON.
+- The local web UI refuses cross-site requests, validates package names and
+  sends the usual hardening headers; the embedded Guile script is now written
+  into a private 0700 directory as 0600.
+- The vendored Cargo registry is unchanged (no dependency changes); the source
+  tarball is regenerated from the v0.3.0 tag.
+
+
 ### Added — guix-xsearch extension, yt-dlp and ytfzf video tooling (2026-09-17)
 
 - Vendored the guix-xsearch extension (tag 2.3) from
