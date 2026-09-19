@@ -8,7 +8,7 @@ This lists recipe versions, not a claim that every package was rebuilt or is the
 |---|---|---|
 | `apps` | `btp` | 0.7 |
 | `apps` | `evelin-bin` | 4.4.0 |
-| `apps` | `guixvis` | 0.2.0 |
+| `apps` | `guixvis` | 0.3.0 |
 | `apps` | `mirim` | 1.1.1 |
 | `apps` | `moneyprinterturbo` | 1.3.7 |
 | `apps` | `torando-gui` | 1.4.1 |
