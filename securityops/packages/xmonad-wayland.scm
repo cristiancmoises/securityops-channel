@@ -28,10 +28,10 @@
        (method git-fetch)
        (uri (git-reference
              (url "https://codeberg.org/berkeley/xmonad-wayland")
-             (commit "46968f0544430274ccae0c637a04058a085432c9")))
+             (commit "1d2babea1321b78f5ea37af3124102ac78a0c791")))
        (file-name (git-file-name name version))
        (sha256
-        (base32 "1jjh42xmx0kigr7yfhw84cywz23xlf2nvi2svcwjgl34vv22hbzg"))))
+        (base32 "1j8hdanr80kfsbp1pdizifzx86phs0mz6ndjgkfp7ylzjh3pam7k"))))
     (build-system gnu-build-system)
     (arguments
      (list
