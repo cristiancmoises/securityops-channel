@@ -22,16 +22,16 @@
 (define-public xmonad-wayland
   (package
     (name "xmonad-wayland")
-    (version "0.4.0")
+    (version "0.4.1")
     (source
      (origin
        (method git-fetch)
        (uri (git-reference
              (url "https://codeberg.org/berkeley/xmonad-wayland")
-             (commit "829cffe6fab1b295671b4e516c9e9dd0ef72baee")))
+             (commit "c708a38ec33e7edb45eb4b8bc0ee8a00d7694a72")))
        (file-name (git-file-name name version))
        (sha256
-        (base32 "02jnsgmgpsmryigrvx681k9z0gdbzlrrcymgj5cx3azg94bm4qhh"))))
+        (base32 "1dl73ix2a81jnmsdyarx0f0jw2rdl61ixkkkzabzmvv01hbzcx0j"))))
     (build-system gnu-build-system)
     (arguments
      (list
