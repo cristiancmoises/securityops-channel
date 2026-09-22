@@ -6,6 +6,19 @@ tag rather than SemVer of the code.
 
 ## [Unreleased]
 
+### Changed — guixvis 0.5.0 (2026-09-22)
+
+- Updated guixvis to 0.5.0: query terms are AND-ed and ranked as their
+  geometric mean, name matches beat synopsis matches, exact substrings beat
+  scattered fuzzy ones, and a candidate prefilter rejects hopeless haystacks
+  before scoring (the test suite proves the result set is unchanged). The
+  empty search box browses the highest-fan-in hubs, and every result row shows
+  the license chip plus the dependency/dependent counts.
+- Release artifacts keep shipping as `.zupt` (level 9) on the forges; the
+  channel keeps a `.tar.gz` source for the build daemon. Isolated build
+  verified.
+
+
 ### Fixed — guixvis 0.4.1 (2026-09-19)
 
 - The Content-Security-Policy header now travels with every response; before
