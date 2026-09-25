@@ -6,6 +6,17 @@ tag rather than SemVer of the code.
 
 ## [Unreleased]
 
+### Changed — guixvis 0.8.0 (2026-09-25)
+
+- Updated guixvis to 0.8.0 with per-tab terminal filters, exact dependency
+  searches, quieter terminal graphs, rectangle web graphs, right-click Back
+  navigation, and the Emacs library.
+- The package now installs the Emacs library, security guide, documentation,
+  and media assets alongside the terminal and web executable.  It retains the
+  existing offline Cargo vendor and enabled build tests.
+- The channel uses a plain `.tar` source input for Guix; public release
+  downloads remain `.zupt` archives.
+
 ### Changed — guixvis 0.5.0 (2026-09-22)
 
 - Updated guixvis to 0.5.0: query terms are AND-ed and ranked as their
