@@ -779,16 +779,16 @@ multi-GB Whisper model download.")
     (license license:expat)))
 
 ;;; guixvis — first-party TUI + local web explorer for GNU Guix packages.
-;;; Pure-Rust: fuzzy search over the full package set, dependency and
-;;; reverse-dependency trees, a force-directed dependency graph, and a local
-;;; web UI (guixvis web) with clickable graph bubbles.  Its registry crates
+;;; Pure-Rust: package search with per-tab filters, exact dependency and
+;;; reverse-dependency browsing, terminal graphs, a local web UI with bubble
+;;; and rectangle views, and an Emacs library.  Its registry crates
 ;;; are vendored (cargo --frozen, no network in the build), following the
 ;;; Mirim pattern; source and vendor snapshots live under packages/sources/.
 (define-public guixvis
   (package
     (name "guixvis")
-    (version "0.5.0")
-    (source (local-file "sources/guixvis-0.5.0-src.tar.gz"))
+    (version "0.8.0")
+    (source (local-file "sources/guixvis-0.8.0-src.tar"))
     (build-system gnu-build-system)
     (arguments
      (list
@@ -818,7 +818,12 @@ multi-GB Whisper model download.")
                     (doc (string-append #$output "/share/doc/guixvis")))
                 (install-file "target/release/guixvis" bin)
                 (for-each (lambda (file) (install-file file doc))
-                          '("README.md" "README.pt-BR.md" "LICENSE"))))))))
+                          '("README.md" "README.pt-BR.md" "LICENSE"
+                            "SECURITY.md"))
+                (install-file "elisp/guixvis.el"
+                              (string-append #$output "/share/emacs/site-lisp"))
+                (copy-recursively "assets" (string-append doc "/assets"))
+                (copy-recursively "docs" (string-append doc "/docs"))))))))
     (native-inputs
      `(("rust" ,rust)
        ("rust:cargo" ,rust "cargo")
@@ -827,11 +832,11 @@ multi-GB Whisper model download.")
     (home-page "https://codeberg.org/berkeley/guixvis")
     (synopsis "Interactive package explorer and dependency visualizer for GNU Guix")
     (description
-     "guixvis indexes every GNU Guix package and exposes the set through a
-keyboard-first terminal UI and a local web application.  It fuzzy-searches
-name and synopsis, shows package details, licenses and source locations,
-browses dependency and reverse-dependency trees, and draws a force-directed
-dependency graph whose bubbles open the selected package.  The web UI
-(@command{guixvis web}) serves the same graph on 127.0.0.1 with clickable
-bubbles, deep links and browser history.")
+     "guixvis indexes GNU Guix packages for a keyboard-first terminal UI, a
+local web application, and an Emacs library.  The terminal has per-tab filters,
+exact dependency and reverse-dependency searches, and quieter dependency
+graphs.  The web UI (@command{guixvis web}) serves bubble and rectangle graph
+views on 127.0.0.1 with right-click Back navigation, deep links, and browser
+history.  The Emacs library provides terminal, browser, and native package
+search commands.")
     (license license:gpl3+)))
