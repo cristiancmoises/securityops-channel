@@ -1,0 +1,31 @@
+;;; SPDX-License-Identifier: GPL-3.0-or-later
+;;; A minimal Guix Home example that connects every packaged Web PKI manifest.
+
+(use-modules (gnu home)
+             (gnu home services)
+             (gnu services)
+             (guix gexp)
+             ((securityops packages webpki) #:prefix so:))
+
+(home-environment
+ (packages (list so:lacuna-webpki))
+ (services
+  (list
+   (simple-service
+    'lacuna-webpki-native-messaging
+    home-files-service-type
+    `((".mozilla/native-messaging-hosts/com.lacunasoftware.webpki.json"
+       ,(file-append so:lacuna-webpki
+                     "/share/lacuna-webpki/native-messaging-hosts/firefox.json"))
+      (".librewolf/native-messaging-hosts/com.lacunasoftware.webpki.json"
+       ,(file-append so:lacuna-webpki
+                     "/share/lacuna-webpki/native-messaging-hosts/firefox.json"))
+      (".config/chromium/NativeMessagingHosts/com.lacunasoftware.webpki.json"
+       ,(file-append so:lacuna-webpki
+                     "/share/lacuna-webpki/native-messaging-hosts/chromium.json"))
+      (".config/google-chrome/NativeMessagingHosts/com.lacunasoftware.webpki.json"
+       ,(file-append so:lacuna-webpki
+                     "/share/lacuna-webpki/native-messaging-hosts/chromium.json"))
+      (".config/microsoft-edge/NativeMessagingHosts/com.lacunasoftware.webpki.json"
+       ,(file-append so:lacuna-webpki
+                     "/share/lacuna-webpki/native-messaging-hosts/edge.json")))))))

@@ -6,6 +6,14 @@ tag rather than SemVer of the code.
 
 ## [Unreleased]
 
+### Added — Lacuna Web PKI native host (2026-09-27)
+
+- Added `lacuna-webpki` 2.16.0 for x86_64 Linux from the vendor's pinned RPM.
+  The Guix build adapts its executable and installs Firefox, Chromium and Edge
+  native messaging manifests. The browser extension remains a separate install.
+- Documented declarative Guix Home connections and the vendor's discontinued
+  Linux support status in English and Portuguese.
+
 ### Changed — guixvis 0.8.0 (2026-09-25)
 
 - Updated guixvis to 0.8.0 with per-tab terminal filters, exact dependency

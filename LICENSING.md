@@ -22,6 +22,11 @@ definition and installed notices. The public Guix recipe selects a
 redistributable public option; it does not put a private commercial agreement,
 license key, signing key, or customer entitlement in the Guix store.
 
+Lacuna's Web PKI RPM declares MIT in its package metadata but does not include
+a separate license text. Its self-contained .NET application bundles third
+party components whose individual notices were not separately audited here.
+The channel fetches the RPM by hash and does not vendor or relicense it.
+
 Several separately maintained, first-party Security Ops projects provide a
 public copyleft option and may provide different terms through a separately
 executed commercial agreement. In the local repositories inspected for this
