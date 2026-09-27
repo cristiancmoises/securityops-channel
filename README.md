@@ -13,7 +13,7 @@ here. This channel simply wouldn't exist without that work.
 
 | Item | Status |
 |---|---|
-| Package definitions | 77 curated entries plus bundled XLibre driver exports |
+| Package definitions | Curated entries, including Lacuna Web PKI, plus bundled XLibre driver exports |
 | Dependencies | GNU Guix and nonguix; XLibre packaging is included |
 | Latest recipe refresh | 2026-09-17 |
 | Validation | [Build results and known limitations](docs/refresh-2026-09-17.md); not every update is fully validated |
@@ -23,7 +23,8 @@ here. This channel simply wouldn't exist without that work.
 
 | Guide | Contents |
 |---|---|
-| [Package index](PACKAGES.md) | One version table, grouped by module |
+| [Package index](PACKAGES.md) | Package entries and inventory command |
+| [Lacuna Web PKI](docs/webpki.md) | Native host, browser manifests and Guix Home setup |
 | [Refresh report](docs/refresh-2026-09-17.md) | Updated versions, validation and unfinished work |
 | [Usage reference](docs/usage.md) | Services, Guix System and Guix Home examples |
 | [Channel mirrors and authentication](docs/channel-authentication-fix.md) | Eight authenticated channels, integrated XLibre and root installation |
@@ -53,6 +54,10 @@ Then update your channels and install the packages you need:
 guix pull
 guix install fish kitty zupt zupt-gui
 ```
+
+For certificate-enabled websites, this channel also provides the
+`lacuna-webpki` native host. The [Web PKI guide](docs/webpki.md) covers the
+separate browser extension and native messaging setup.
 
 A package installed in the user profile does not automatically replace one in
 Guix Home or the system profile. Reconfigure the profile that owns the package.

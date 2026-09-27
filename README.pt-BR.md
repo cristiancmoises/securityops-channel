@@ -13,7 +13,7 @@ Este canal simplesmente não existiria sem esse trabalho.
 
 | Item | Status |
 |---|---|
-| Definições de pacotes | 77 entradas selecionadas, além dos drivers XLibre incluídos |
+| Definições de pacotes | Entradas selecionadas, incluindo Lacuna Web PKI, além dos drivers XLibre incluídos |
 | Dependências | GNU Guix e nonguix; o empacotamento XLibre está incluído |
 | Última atualização das receitas | 2026-09-17 |
 | Validação | [Resultados e limitações](docs/refresh-2026-09-17.pt-BR.md); nem todas as atualizações foram totalmente validadas |
@@ -23,7 +23,8 @@ Este canal simplesmente não existiria sem esse trabalho.
 
 | Guia | Conteúdo |
 |---|---|
-| [Índice de pacotes](PACKAGES.md) | Tabela única de versões, organizada por módulo |
+| [Índice de pacotes](PACKAGES.md) | Entradas de pacotes e comando de inventário |
+| [Lacuna Web PKI](docs/webpki.pt-BR.md) | Host nativo, manifests dos navegadores e configuração do Guix Home |
 | [Relatório da atualização](docs/refresh-2026-09-17.pt-BR.md) | Versões, validação e trabalho pendente |
 | [Referência de uso](docs/usage.md) | Serviços, Guix System e Guix Home |
 | [Espelhos e autenticação](docs/channel-authentication-fix.md) | Oito canais autenticados, XLibre integrado e instalação para root |
@@ -53,6 +54,10 @@ Atualize os canais e instale os pacotes desejados:
 guix pull
 guix install fish kitty zupt zupt-gui
 ```
+
+O canal também fornece o host nativo `lacuna-webpki` para sites que usam
+certificados digitais. O [guia do Web PKI](docs/webpki.pt-BR.md) explica a
+extensão separada do navegador e a configuração de mensagens nativas.
 
 Instalar no perfil do usuário não substitui automaticamente um pacote do
 Guix Home ou do sistema. Reconfigure o perfil responsável pelo pacote.

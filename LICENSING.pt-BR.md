@@ -22,6 +22,11 @@ avisos instalados. A receita pública seleciona uma opção pública
 redistribuível; ela não coloca contrato comercial privado, chave de licença,
 chave de assinatura ou direito de cliente no store do Guix.
 
+O RPM do Web PKI da Lacuna declara MIT em seus metadados, mas não inclui um
+texto de licença separado. O aplicativo .NET autossuficiente contém componentes
+de terceiros cujos avisos individuais não foram auditados separadamente aqui.
+O canal baixa o RPM com hash fixo e não o inclui nem o relicencia.
+
 Vários projetos próprios e separados da Security Ops oferecem uma opção
 pública copyleft e podem oferecer termos diferentes por contrato comercial
 assinado separadamente. Nos repositórios locais inspecionados para esta
