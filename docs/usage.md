@@ -170,6 +170,8 @@ After pulling the channel, rebuild the configuration that owns the package:
 when you are ready to activate its changes. To use a local checkout, add
 `-L /path/to/securityops-channel` to the Guix command.
 
+For Lacuna Web PKI, see the [native host and Guix Home guide](webpki.md).
+
 ---
 
 ## Layout
@@ -179,7 +181,7 @@ when you are ready to activate its changes. To use a local checkout, add
 | `securityops/packages/` | Package modules; see the [index](../PACKAGES.md) for exports and versions |
 | `securityops/patches/` | Downstream patches with their upstream license notices |
 | `securityops/services/` | Shepherd service definitions |
-| `tests/` | Private headless integration probes for the River patches |
+| `tests/` | Integration checks for River patches and the Web PKI package |
 | `xlibre.scm`, `xlibre-sources.scm` | Bundled XLibre compatibility module and source pins |
 | `.guix-channel`, `.guix-authorizations` | Channel dependencies and authorized signing keys |
 | `etc/` | Inventory, channel configuration and maintenance tools |
