@@ -15,15 +15,15 @@ here. This channel simply wouldn't exist without that work.
 |---|---|
 | Package definitions | Curated entries, including Lacuna Web PKI, plus bundled XLibre driver exports |
 | Dependencies | GNU Guix and nonguix; XLibre packaging is included |
-| Latest recipe refresh | 2026-09-17 |
-| Validation | [Build results and known limitations](docs/refresh-2026-09-17.md); not every update is fully validated |
+| Latest recipe refresh | 2026-09-28 |
+| Validation | [Package versions and checks](PACKAGES.md); system activation requires a separate reconfiguration |
 | Authentication | Signed commits and a pinned channel introduction |
 
 ## Documentation
 
 | Guide | Contents |
 |---|---|
-| [Package index](PACKAGES.md) | Package entries and inventory command |
+| [Package index](PACKAGES.md) | NVIDIA, River, updated applications, versions and no-downgrade policy (pt-BR) |
 | [Lacuna Web PKI](docs/webpki.md) | Native host, browser manifests and Guix Home setup |
 | [Refresh report](docs/refresh-2026-09-17.md) | Updated versions, validation and unfinished work |
 | [Usage reference](docs/usage.md) | Services, Guix System and Guix Home examples |

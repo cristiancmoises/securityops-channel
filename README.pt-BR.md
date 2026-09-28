@@ -15,15 +15,15 @@ Este canal simplesmente não existiria sem esse trabalho.
 |---|---|
 | Definições de pacotes | Entradas selecionadas, incluindo Lacuna Web PKI, além dos drivers XLibre incluídos |
 | Dependências | GNU Guix e nonguix; o empacotamento XLibre está incluído |
-| Última atualização das receitas | 2026-09-17 |
-| Validação | [Resultados e limitações](docs/refresh-2026-09-17.pt-BR.md); nem todas as atualizações foram totalmente validadas |
+| Última atualização das receitas | 2026-09-28 |
+| Validação | [Pacotes, versões e verificações](PACKAGES.md); a ativação do sistema requer reconfiguração separada |
 | Autenticação | Commits assinados e introdução do canal fixada |
 
 ## Documentação
 
 | Guia | Conteúdo |
 |---|---|
-| [Índice de pacotes](PACKAGES.md) | Entradas de pacotes e comando de inventário |
+| [Índice de pacotes](PACKAGES.md) | NVIDIA, River, aplicativos atualizados, versões e política sem downgrade |
 | [Lacuna Web PKI](docs/webpki.pt-BR.md) | Host nativo, manifests dos navegadores e configuração do Guix Home |
 | [Relatório da atualização](docs/refresh-2026-09-17.pt-BR.md) | Versões, validação e trabalho pendente |
 | [Referência de uso](docs/usage.md) | Serviços, Guix System e Guix Home |
