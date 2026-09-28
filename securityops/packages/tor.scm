@@ -24,21 +24,21 @@
                 #:prefix tb:))
 
 ;;; ---------------------------------------------------------------------------
-;;; tor — bumped ahead of Guix: 0.4.9.8 -> 0.4.9.12 (latest stable upstream).
+;;; tor — bumped ahead of Guix: 0.4.9.8 -> 0.4.9.13 (stable upstream).
 ;;; Plain GNU build system; inherit everything and swap source only.
-;;; Hash: `guix download https://dist.torproject.org/tor-0.4.9.12.tar.gz'.
+;;; Hash: `guix download https://dist.torproject.org/tor-0.4.9.13.tar.gz'.
 ;;; ---------------------------------------------------------------------------
 (define-public tor
   (package
     (inherit tor:tor)
-    (version "0.4.9.12")
+    (version "0.4.9.13")
     (source
      (origin
        (method url-fetch)
        (uri (string-append "https://dist.torproject.org/tor-" version
                            ".tar.gz"))
        (sha256
-        (base32 "0nsza73dzg8g1dwi5gih9wz854pcqkbfjlyam144ivnsvk4hgly0"))))))
+        (base32 "14n7kk7661n5i4yfjxybxsb3vvwd3hvky5s1fxylmx6df8r8sx2y"))))))
 
 ;; All browser inputs below follow tbb-15.0.23-build1 (commit
 ;; 0b8cdd789f247f5062c9797b0515479eeb56bd38) of tor-browser-build.

@@ -222,7 +222,10 @@
               (lambda _
                 ;; Fixed channel build ID based on the Firefox release date.
                 (setenv "MOZ_BUILD_DATE" "20260915000000")))
-            (replace 'wrap-glxtest
+            ;; The current GNU LibreWolf recipe no longer has the historical
+            ;; `wrap-glxtest' phase.  Add our Firefox 156 gfxtest wrapper after
+            ;; installation instead of trying to replace a missing phase.
+            (add-after 'install 'wrap-gfxtest
               (lambda* (#:key inputs outputs #:allow-other-keys)
                 ;; Firefox 156 combines GL, VA-API and Vulkan probes in
                 ;; gfxtest.  These libraries are loaded with dlopen().
