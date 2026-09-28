@@ -44,6 +44,56 @@ da GPU e do suporte oficial da NVIDIA.
 | `(securityops packages emacs)` | `emacs`, `emacs-pgtk` | 31.1 | Reexportações do Guix selecionado |
 | `(securityops packages webpki)` | `lacuna-webpki` | 2.16.0 | Host nativo; [guia de configuração](docs/webpki.pt-BR.md) |
 
+## Contêineres
+
+| Módulo | Pacote | Versão verificada | Origem |
+|---|---|---|---|
+| `(securityops packages containers)` | `docker-latest` (daemon `dockerd`) | 29.8.1 | Moby, tag `docker-v29.8.1`, fonte e hash fixados |
+| `(securityops packages containers)` | `docker-cli-latest` (cliente `docker`) | 29.8.1 | Docker CLI, tag `v29.8.1`, fonte e hash fixados |
+| `(securityops packages containers)` | `podman-latest` | 6.1.2 | Podman, tag `v6.1.2`, fonte e hash fixados |
+
+As três receitas usam as fontes oficiais correspondentes aos commits das tags
+e compilam com Go 1.26. O Podman herda os auxiliares da receita Guix, inclusive
+o runtime OCI. As fontes incluem dependências Go vendorizadas; o build não
+precisa baixá-las da rede. Para avaliar as três exportações:
+
+```sh
+guix repl -L . tests/containers.scm
+```
+
+Após `guix build` do daemon, `tests/docker-runtime.sh CAMINHO-NO-STORE`
+confere se `containerd` e `runc` permanecem em seu fechamento. Os auxiliares
+herdados desta revisão do Guix são `containerd` 1.6.22 e `runc` 1.3.0;
+compilar e validar a configuração não substitui um teste real de contêiner
+com o novo daemon após a ativação do sistema.
+
+Para instalar cliente Docker e Podman no perfil de usuário, a partir da raiz
+do canal:
+
+```sh
+guix package -L . \
+  -e '(@ (securityops packages containers) docker-cli-latest)' \
+  -e '(@ (securityops packages containers) podman-latest)'
+```
+
+Para usar o novo daemon em Guix System, configure os campos `docker` e
+`docker-cli` do `docker-configuration` com os pacotes deste módulo e só então
+reconfigure o sistema:
+
+```scheme
+#:use-module ((securityops packages containers) #:prefix container:)
+;; No docker-configuration existente:
+(docker container:docker-latest)
+(docker-cli container:docker-cli-latest)
+```
+
+Instalar a CLI em um perfil de usuário altera o comando
+`docker`, mas **não** altera o daemon atendendo `/var/run/docker.sock`; confirme
+as duas versões com `docker version`. A troca do daemon deve ser feita após
+concluir reconfigurações já em curso, preservando a geração anterior para
+recuperação. O Podman rootless pode necessitar de `/etc/subuid` e `/etc/subgid`
+para imagens que usem múltiplos UIDs/GIDs.
+
 ## Atualizar sem downgrade
 
 1. Verifique a versão mais recente no projeto original e a versão efetiva do
