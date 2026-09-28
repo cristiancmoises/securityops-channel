@@ -45,9 +45,9 @@
     (inputs (modify-inputs (package-inputs gnu-iv:ytfzf)
               (replace "yt-dlp" yt-dlp)))))
 
-;;; openshot — bumped ahead of Guix: 3.4.0 -> 4.0.0 (latest upstream).
-;;; git-fetch of tag v4.0.0; inherits the upstream origin (snippet preserved).
-;;; Hash: `guix hash -rx' over `git clone -b v4.0.0 .../OpenShot/openshot-qt'.
+;;; openshot — bumped ahead of Guix: 3.4.0 -> 4.0.1 (stable upstream).
+;;; git-fetch of tag v4.0.1; inherits the upstream origin (snippet preserved).
+;;; Hash: `guix download --git --commit=v4.0.1 .../OpenShot/openshot-qt'.
 ;;;
 ;;; 3.5.1 and later restructure the test suite: Guix's inherited check phase invokes the
 ;;; removed `src/tests/query_tests.py' (now split into unittest modules such as
@@ -57,7 +57,7 @@
 (define-public openshot
   (package
     (inherit gnu:openshot)
-    (version "4.0.0")
+    (version "4.0.1")
     (source
      (origin
        (inherit (package-source gnu:openshot))
@@ -66,9 +66,9 @@
              (commit (string-append "v" version))))
        (file-name (git-file-name (package-name gnu:openshot) version))
        (sha256
-        (base32 "1ngz9v1syclwg8z8wp8i0h2pn4qvz0ligz73w40hbznpn1pk48k9"))))
+        (base32 "0d0frymfyh3nr0b32mp2cl893zs4gc422iav4ci391hia9j8rdh6"))))
     (arguments
-     ;; OpenShot 4.0.0 ships src/qt_api.py, but its setuptools layout does not
+     ;; OpenShot 4.0.1 ships src/qt_api.py, but its setuptools layout does not
      ;; install that file as a top-level Python module.  launch.py imports
      ;; `qt_api` directly, so install it beside the site packages before Guix's
      ;; Python sanity-check loads the gui_scripts entry point.
