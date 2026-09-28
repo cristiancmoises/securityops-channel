@@ -87,12 +87,12 @@ kitty's @code{watch} kitten.")
 ;;; kitty 0.48 (imported once, in the notify kitten); Guix does not package it,
 ;;; so define it here.  kitty builds in GOPATH mode, so only genuinely-imported
 ;;; deps need providing — the other go.mod bumps (chroma, x/sys, …) are used
-;;; from Guix's existing sources.  Kitty's go.mod names 0.10.2; this channel
-;;; supplies the newer stable purego 0.11.0.
+;;; from Guix's existing sources.  Kitty's go.mod names 0.11.0; this channel
+;;; supplies the newer stable purego 0.11.1.
 (define-public go-github-com-ebitengine-purego
   (package
     (name "go-github-com-ebitengine-purego")
-    (version "0.11.0")
+    (version "0.11.1")
     (source
      (origin
        (method git-fetch)
@@ -101,7 +101,7 @@ kitty's @code{watch} kitten.")
              (commit (string-append "v" version))))
        (file-name (git-file-name name version))
        (sha256
-        (base32 "0iyw55fm56klxf1z5cbjvg8x60z16n6r7vyr7li2z0r0f7p3x3l8"))))
+        (base32 "1r7ivlgwn7ikifzxbp62vzdjccvh19iyill3mzqw4dgc9b0hvg15"))))
     (build-system go-build-system)
     (arguments (list #:import-path "github.com/ebitengine/purego"
                      #:tests? #f))
@@ -114,7 +114,7 @@ loading shared libraries and dispatching into them at runtime.")
 (define-public kitty
   (package
     (inherit gnu:kitty)
-    (version "0.48.2")
+    (version "0.49.1")
     (source
      (origin
        (inherit (package-source gnu:kitty))
@@ -123,15 +123,14 @@ loading shared libraries and dispatching into them at runtime.")
              (commit (string-append "v" version))))
        (file-name (git-file-name (package-name gnu:kitty) version))
        (sha256
-        (base32 "05861h7xyksphsbnkff8jphpk7xrjpsmcqxhklzwd6yckcz1bn58"))))
+        (base32 "19sjlf44gq38r4fa8iivp2y4y494lynhm43mf1il0d7ck5yd6n31"))))
     ;; kitty's tests need a real environment the build sandbox lacks
     ;; (kitty_tests/dnd_kitten imports the display-only graphics module Guix
     ;; strips; the Go TestMachineId needs /etc/machine-id).  The release is
     ;; upstream-tested and the build itself is unaffected, so skip the suite.
     ;;
-    ;; 0.48's go.mod pins `toolchain go1.26.5', but Guix ships go-1.26.4 — so
-    ;; `go list -m' (run by kitty's setup.py) tries to DOWNLOAD that toolchain
-    ;; and fails offline.  Force the local toolchain (1.26.x is compatible).
+    ;; 0.49's go.mod requests `toolchain go1.26.6'.  Use Guix's packaged
+    ;; toolchain instead of allowing an implicit build-time download.
     (arguments
      (substitute-keyword-arguments (package-arguments gnu:kitty)
        ((#:tests? _ #f) #f)

@@ -30,11 +30,10 @@
        (uri (string-append "mirror://gnu/emacs/emacs-" version ".tar.xz"))
        (file-name (string-append "emacs-" version ".tar.xz"))
        (patches
-        (search-patches "emacs-next-disable-jit-compilation.patch"
-                        "emacs-next-exec-path.patch"
+        (search-patches "emacs-disable-jit-compilation.patch"
                         "emacs-fix-scheme-indent-function.patch"
                         "emacs-native-comp-driver-options.patch"
-                        "emacs-next-native-comp-fix-filenames.patch"
+                        "emacs-native-comp-fix-filenames.patch"
                         "emacs-native-comp-pin-packages.patch"))
        (sha256
         (base32 "11j59ybvzbkxfsm9zmhj6ixxls2424rhcw5znlr1kj40jl6pk98x"))))
@@ -49,8 +48,8 @@
               #$(this-package-native-input "libfaketime")
               "/bin/faketime -m -f '" release-date "' ./temacs"))))))))
 
-(define-public emacs
-  (latest-emacs gnu:emacs))
+;; GNU Guix now ships Emacs 31.1 directly.  Keep these public names as
+;; workstation aliases instead of rebuilding an equivalent local variant.
+(define-public emacs gnu:emacs)
 
-(define-public emacs-pgtk
-  (latest-emacs gnu:emacs-pgtk))
+(define-public emacs-pgtk gnu:emacs-pgtk)

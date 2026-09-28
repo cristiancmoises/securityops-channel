@@ -24,10 +24,19 @@
 ;;; Stable Linux release verified against Google's version-history service.
 ;;; Keep the wrapper plan aligned with the ELF files in the downloaded archive.
 (define-public google-chrome-stable
-  (let ((base (chrome:make-google-chrome "stable" "153.0.8010.47"
-               "1pjvl0wp2295n0h0plvvi466zxzknnvg92vdsk0g3qjdwpyxw9m3")))
+  (let ((base chrome:google-chrome-stable))
     (package
       (inherit base)
+      (version "154.0.8037.57-1")
+      (source
+       (origin
+         (inherit (package-source base))
+         (uri (string-append
+               "https://dl.google.com/linux/chrome/deb/pool/main/g/"
+               "google-chrome-stable/google-chrome-stable_"
+               version "_amd64.deb"))
+         (sha256
+          (base32 "0gjswra2mdbw3idgi3pa7dyjxnx025y57f2452mip1qrd9gn9h36"))))
       (arguments
        (substitute-keyword-arguments (package-arguments base)
          ((#:phases phases)
@@ -46,7 +55,9 @@
                     (substitute* "opt/google/chrome/google-chrome"
                       (("CHROME_WRAPPER")
                        "WRAPPER"))
-                    (substitute* "usr/share/gnome-control-center/default-apps/google-chrome.xml"
+                    (substitute* (string-append
+                                  "usr/share/gnome-control-center/"
+                                  "default-apps/google-chrome.xml")
                       (("/opt/google/chrome/google-chrome")
                        exe)))))))
          ((#:wrapper-plan _)
@@ -60,7 +71,6 @@
                      "liboptimization_guide_internal.so"
                      "libqt5_shim.so"
                      "libqt6_shim.so"
-                     "libsapisid.so"
                      "libvk_swiftshader.so"
                      "libvulkan.so.1"
                      "WidevineCdm/_platform_specific/linux_x64/libwidevinecdm.so")))))))))

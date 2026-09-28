@@ -20,7 +20,7 @@
 ;;; sandbox, the library set, the mesa driver) is inherited unchanged from nonguix.
 ;;;
 ;;; NOTE: home.scm installs `steam' and transforms it to the NVIDIA variant via
-;;; `replace-mesa' (-> steam-nvidia / nvda-580); that transformation is
+;;; `replace-mesa'; that transformation is
 ;;; orthogonal to this bootstrap bump.
 (define %steam-container
   ;; nonguix's stock mesa container; replace its older wrap-package below.

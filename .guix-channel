@@ -3,14 +3,14 @@
 ;;
 ;; securityops — a personal GNU Guix channel that pins the latest upstream
 ;; versions of the securityops workstation's most-used applications
-;; (alacritty, kitty, tor, torbrowser, fish, emacs, mpv, vlc, openshot,
-;; keepassxc, ueberzugpp, lf, librewolf, ungoogled-chromium, google-chrome,
-;; mullvad-vpn-desktop, steam, glances, esquema, xlibre-server).
+;; (River/Wayland, NVIDIA new-feature, alacritty, kitty, tor, torbrowser,
+;; fish, emacs, mpv, vlc, openshot, keepassxc, ueberzugpp, lf, librewolf,
+;; ungoogled-chromium, google-chrome, mullvad-vpn-desktop, steam, glances,
+;; esquema, xlibre-server).
 ;;
 ;; Depends on nonguix for google-chrome, steam, and Mullvad's
-;; `chromium-binary-build-system'.  (You already have nonguix in channels.scm,
-;; pinned at bf39542 — well after the introduction commit below, so no
-;; conflict.) XLibre server, drivers and configuration helpers are included
+;; `chromium-binary-build-system' and the NVIDIA new-feature stack.
+;; XLibre server, drivers and configuration helpers are included
 ;; directly in this channel; no separate guix-xlibre channel is needed.
 ;;
 (channel
