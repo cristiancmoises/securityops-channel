@@ -1,0 +1,19 @@
+;;; SPDX-License-Identifier: GPL-3.0-or-later
+
+(use-modules (guix packages)
+             (guix utils)
+             (securityops packages containers))
+
+(define container-module (resolve-module '(securityops packages containers)))
+
+(define (check-package symbol expected-name minimum-version)
+  (let ((pkg (module-ref container-module symbol #f)))
+    (unless (and (package? pkg)
+                 (string=? (package-name pkg) expected-name)
+                 (version>=? (package-version pkg) minimum-version))
+      (error "Missing or downgraded container package" symbol
+             minimum-version))))
+
+(check-package 'podman-latest "podman" "6.1.2")
+(check-package 'docker-latest "docker" "29.8.1")
+(check-package 'docker-cli-latest "docker-cli" "29.8.1")
