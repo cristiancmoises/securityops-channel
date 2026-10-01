@@ -27,6 +27,15 @@ texto de licença separado. O aplicativo .NET autossuficiente contém componente
 de terceiros cujos avisos individuais não foram auditados separadamente aqui.
 O canal baixa o RPM com hash fixo e não o inclui nem o relicencia.
 
+O AutoFirma é distribuído sob GPL-2.0-or-later ou EUPL-1.1. O pacote
+reutiliza a distribuição Linux oficial e preserva o JAR e os avisos de licença
+dos componentes incluídos. Essas dependências mantêm suas próprias licenças;
+a definição lista suas famílias de licenças, sem conceder novos direitos.
+A compilação do AutoFirma a partir do código-fonte exigiria empacotar
+separadamente suas dependências Maven e não está implementada nesta receita.
+O runtime privado Eclipse Temurin Java 17 preserva a licença GPL-2.0 com a
+exceção Classpath e todos os avisos legais dos componentes incluídos.
+
 Vários projetos próprios e separados da Security Ops oferecem uma opção
 pública copyleft e podem oferecer termos diferentes por contrato comercial
 assinado separadamente. Nos repositórios locais inspecionados para esta

@@ -462,7 +462,7 @@ by the XMonad Wayland nested test and does not configure a system session.")
                    license:cc-by-sa4.0))))
 
 (define channel-commit
-  "94a3d6c72c7493dd21a3b2ed10f8776bb887b857")
+  "45ac0fe3d3d67b154398f1a95843273db582884a")
 
 (define channel-wayland-source
   (origin
@@ -475,10 +475,11 @@ by the XMonad Wayland nested test and does not configure a system session.")
   (origin
     (method url-fetch)
     (uri (string-append "https://codeberg.org/Sivecano/libtributary/archive/"
-                        "b1e00ffdc1a87f6601b7913a1196c488ff39b27d.tar.gz"))
-    (file-name "libtributary-b1e00ff.tar.gz")
+                        "0.5.0.tar.gz"))
+    (file-name "libtributary-0.5.0.tar.gz")
     (sha256 (base32 "008br7rmcmv5zhiblmdjycsc9w3h6j5vxm5ch4qdj7hh7p6f7902"))))
 
+;; libtributary's 0.5.0 release still declares version 0.4.1 in its manifest.
 (define channel-zig-dependencies
   '(("wayland-source"
      "wayland-0.6.0-lQa1kqz8AQADQmdNJsNhLoNHcnEGEUjrOaPV-dtEnEmX")
@@ -488,8 +489,7 @@ by the XMonad Wayland nested test and does not configure a system session.")
 (define-public channel-river-input
   (package
     (name "channel-river-input")
-    ;; The unreleased manifest says 0.4.2; 0.4.1 is the latest release tag.
-    (version (git-version "0.4.1" "1" channel-commit))
+    (version "0.5.1")
     (source
      (origin
        (method url-fetch)
@@ -497,7 +497,7 @@ by the XMonad Wayland nested test and does not configure a system session.")
                            channel-commit ".tar.gz"))
        (file-name (string-append "channel-" channel-commit ".tar.gz"))
        (sha256
-        (base32 "1zh69wg2qgmqvmy565w5v09bw07xrzp6367qcn8dpa6i135aimpq"))))
+        (base32 "10xvy77hvy0cklrncgl5h8gs1zhi1q0ndjy24ixmj5gxkzqg9z28"))))
     (build-system zig-build-system)
     (arguments
      (list
@@ -518,11 +518,12 @@ by the XMonad Wayland nested test and does not configure a system session.")
           (add-after 'unpack 'configure-kernel-header-path
             (lambda _
               (substitute* "build.zig"
-                (("    translate_c.linkSystemLibrary")
+                (("    exe.root_module.addImport\\(\"version info\",")
                  (string-append
                   "    translate_c.addSystemIncludePath(.{ .cwd_relative = \""
                   #$(file-append linux-libre-headers "/include")
-                  "\" });\n    translate_c.linkSystemLibrary")))))
+                  "\" });
+    exe.root_module.addImport(\"version info\",")))))
           (add-after 'configure 'keep-pkg-config-include-paths
             (lambda _
               ;; Zig's C translator needs explicit system-library include flags.

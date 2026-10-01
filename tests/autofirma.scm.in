@@ -1,0 +1,113 @@
+;;; SPDX-License-Identifier: GPL-3.0-or-later
+;; Run with: guile -s tests/autofirma.scm.in /gnu/store/...-autofirma-1.9
+
+(define-module (tests autofirma)
+  #:use-module (ice-9 popen)
+  #:use-module (ice-9 textual-ports)
+  #:use-module (srfi srfi-64))
+
+(define (run-runtime-tests runtime)
+  (let* ((test-home (mkdtemp "/tmp/autofirma-runtime-check.XXXXXX"))
+         (source (string-append test-home "/SpawnTest.java")))
+    (call-with-output-file source
+      (lambda (port)
+        (display "import java.nio.charset.StandardCharsets;
+class SpawnTest {
+    public static void main(String[] args) throws Exception {
+        Process child = new ProcessBuilder(args[0], \"-c\",
+                \"printf child-process-ok\").start();
+        String text = new String(child.getInputStream().readAllBytes(),
+                StandardCharsets.UTF_8);
+        if (child.waitFor() != 0 || !text.equals(\"child-process-ok\")) {
+            throw new IllegalStateException(\"child process failed: \" + text);
+        }
+    }
+}
+" port)))
+    (test-begin "autofirma-runtime")
+    (let ((runner (test-runner-current)))
+      (test-equal "compile the child-process fixture" 0
+        (system* "javac" "--release" "17" "-d" test-home source))
+      ;; POSIX_SPAWN specifically exercises lib/jspawnhelper, not fork/vfork.
+      (test-equal "spawn a real child with the packaged Java helper" 0
+        (system* (string-append runtime "/bin/java")
+                 (string-append "-Duser.home=" test-home)
+                 "-Djdk.lang.Process.launchMechanism=POSIX_SPAWN"
+                 "-cp" test-home "SpawnTest"
+                 (search-path (string-split (getenv "PATH") #\:)
+                              "bash")))
+      (test-end "autofirma-runtime")
+      (if (zero? (test-runner-fail-count runner)) 0 1))))
+
+(define (run-tests output)
+  (let ((launcher (string-append output "/bin/autofirma"))
+        (test-home (mkdtemp "/tmp/autofirma-check.XXXXXX")))
+    (test-begin "autofirma")
+    (let ((runner (test-runner-current)))
+      (test-assert "the packaged launcher is executable"
+        (and (file-exists? launcher) (access? launcher X_OK)))
+
+      ;; This catches a wrong JAR path, missing runtime, broken class path, or
+      ;; lost argument forwarding.  Java uses no live home or preferences.
+      (when (file-exists? launcher)
+        (let* ((pipe (open-pipe* OPEN_READ "env"
+                                 (string-append
+                                  "JAVA_TOOL_OPTIONS=-Djava.awt.headless=true"
+                                  " -Duser.home=" test-home
+                                  " -Djava.util.prefs.userRoot=" test-home
+                                  " -Djava.util.prefs.systemRoot=" test-home)
+                                 launcher "-help"))
+               (help (get-string-all pipe))
+               (status (close-pipe pipe)))
+          (test-equal "command-line help exits successfully" 0 status)
+          (test-assert "the real application exposes signing commands"
+            (and (string-contains help "cosign")
+                 (string-contains help "countersign")
+                 (string-contains help "verify")
+                 (string-contains help "batchsign")))))
+
+      ;; Generate a one-use identity in the disposable directory.  Verify the
+      ;; detached signature with OpenSSL, independently of AutoFirma's code.
+      (let ((key (string-append test-home "/key.pem"))
+            (cert (string-append test-home "/cert.pem"))
+            (store (string-append test-home "/identity.p12"))
+            (data (string-append test-home "/document.txt"))
+            (signature (string-append test-home "/document.csig")))
+        (call-with-output-file data
+          (lambda (port) (display "AutoFirma package signing test\n" port)))
+        (test-equal "create an isolated signing identity" 0
+          (system* "openssl" "req" "-x509" "-newkey" "rsa:2048" "-nodes"
+                   "-keyout" key "-out" cert "-days" "1"
+                   "-subj" "/CN=AutoFirma package test"))
+        (test-equal "create the disposable PKCS12 store" 0
+          (system* "openssl" "pkcs12" "-export" "-inkey" key "-in" cert
+                   "-name" "autofirma-test" "-passout" "pass:autofirma-test"
+                   "-out" store))
+        (test-equal "sign a document using the packaged runtime" 0
+          (system* "env"
+                   (string-append
+                    "JAVA_TOOL_OPTIONS=-Djava.awt.headless=true"
+                    " -Duser.home=" test-home
+                    " -Djava.util.prefs.userRoot=" test-home
+                    " -Djava.util.prefs.systemRoot=" test-home)
+                   (string-append output "/bin/autofirmacl") "sign"
+                   "-i" data "-o" signature "-store"
+                   (string-append "pkcs12:" store)
+                   "-password" "autofirma-test" "-alias" "autofirma-test"
+                   "-format" "CAdES" "-algorithm" "SHA256withRSA"
+                   "-config" "mode=explicit"))
+        ;; -noverify skips trust-chain validation of the generated self-signed
+        ;; certificate, not the cryptographic signature or content checks.
+        (test-equal "independently verify the detached signature" 0
+          (system* "openssl" "cms" "-verify" "-inform" "DER"
+                   "-in" signature "-content" data "-noverify" "-binary"
+                   "-out" (string-append test-home "/verified.txt"))))
+      (test-end "autofirma")
+      (if (zero? (test-runner-fail-count runner)) 0 1))))
+
+;; Guix's package discovery imports .scm files.  Importing this module must not
+;; run tests or exit the Guix process.
+(when (string-suffix? "autofirma.scm.in" (car (command-line)))
+  (exit (if (string=? (cadr (command-line)) "--runtime")
+            (run-runtime-tests (caddr (command-line)))
+            (run-tests (cadr (command-line))))))
