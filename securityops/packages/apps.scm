@@ -787,8 +787,8 @@ multi-GB Whisper model download.")
 (define-public guixvis
   (package
     (name "guixvis")
-    (version "0.9.0")
-    (source (local-file "sources/guixvis-0.9.0-src.tar"))
+    (version "0.10.0")
+    (source (local-file "sources/guixvis-0.10.0-src.tar"))
     (build-system gnu-build-system)
     (arguments
      (list
@@ -822,6 +822,8 @@ multi-GB Whisper model download.")
                             "SECURITY.md"))
                 (install-file "elisp/guixvis.el"
                               (string-append #$output "/share/emacs/site-lisp"))
+                (install-file "elisp/guixvis-graph.el"
+                              (string-append #$output "/share/emacs/site-lisp"))
                 (copy-recursively "assets" (string-append doc "/assets"))
                 (copy-recursively "docs" (string-append doc "/docs"))))))))
     (native-inputs
@@ -837,6 +839,7 @@ local web application, and an Emacs library.  The terminal has per-tab filters,
 exact dependency and reverse-dependency searches, and quieter dependency
 graphs.  The web UI (@command{guixvis web}) serves bubble and rectangle graph
 views on 127.0.0.1 with right-click Back navigation, deep links, and browser
-history.  The Emacs library provides terminal, browser, and native package
-search commands.")
+history.  The Emacs libraries provide terminal and browser commands, native
+package search with exact variant selection, and keyboard-driven dependency
+and reverse-dependency graphs with local filtering and navigation history.")
     (license license:gpl3+)))
