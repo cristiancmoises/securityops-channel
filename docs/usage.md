@@ -1,19 +1,89 @@
 # Usage reference
 
-Operational examples for GNU Guix System and Guix Home. For current versions and validation, see [the package index](../PACKAGES.md) and [the refresh report](refresh-2026-09-17.md).
+Operational examples for GNU Guix System and Guix Home. For current versions
+and validation, see [the package index](../PACKAGES.md).
 
-### Services (2)
+## AutoFirma
+
+The channel provides the official stable **Linux release, 1.9**, through
+`(securityops packages autofirma)`. The 1.9.1 and 1.9.2 downloads are macOS
+releases, not Linux upgrades. See the [official downloads](https://firmaelectronica.gob.es/descargas).
+
+Installation is optional and separate from adding the channel:
+
+```sh
+guix install autofirma
+autofirma
+autofirmacl -help
+```
+
+### Runtime and certificates
+
+The recipe preserves the official signed JAR and its bundled Java libraries.
+It uses a private, Guix-linked Eclipse Temurin **17.0.20.1+1** runtime rather
+than depending on whichever Java version happens to be in your profile.
+NSS 3.129 and NSPR 4.40 reuse the channel's LibreWolf inputs; the native
+library directory also includes SQLite 3.53.4.
+
+It includes a desktop entry for `afirma://` links, but does not register it as
+your default handler. It does not run privileged installer scripts, import
+certificates or alter Firefox settings. Browser signing requires separate
+provisioning and trust of the local-service certificate; smart cards require
+a running PC/SC service.
+
+### Graphical launch and external documents
+
+The graphical launcher uses Bubblewrap to supply conventional NSS paths and
+a readable `/opt` without changing the host filesystem. It requires
+unprivileged user namespaces. This is a compatibility layout, not a security
+sandbox: your home, network and selected display, session-bus and PC/SC sockets
+remain accessible. `autofirmacl` runs directly, without this layout.
+
+Documents in your home are available by default. To select documents from
+other existing directories, explicitly share them before launching:
+
+```sh
+AUTOFIRMA_SHARED_DIRECTORIES="/mnt/documents:/media/archive" autofirma
+```
+
+Use absolute directory paths separated by colons. Broad system roots and
+invalid paths are rejected; spaces within a directory name are supported.
+
+### Verification
+
+The command-line checks sign a disposable document with a temporary PKCS12
+identity and independently verify the detached signature with OpenSSL.
+They do not use your certificates or live preferences. Two runtime checks
+exercise Java subprocess creation, and eight invalid directory shares are
+rejected. Desktop metadata and GUI startup under Xvfb have also been checked,
+including paths with spaces. Signing through the graphical interface, smart
+cards, Wayland and end-to-end browser integration remain untested.
+
+To verify the package without installing it:
+
+```sh
+guix build -L . -e '(@ (securityops packages autofirma) autofirma)'
+guile -s tests/autofirma.scm.in /gnu/store/…-autofirma-1.9
+bash tests/autofirma-gui.sh /gnu/store/…-autofirma-1.9
+```
+
+The final native-library checks used existing runtime outputs with
+`guix build --no-grafts`. Normal builds keep Guix's default grafting behavior
+and may need additional output substitutes or a builder. No grafting policy
+was disabled in the recipe.
+
+## Services
 
 Two native **GNU Shepherd** service types for `guix system reconfigure` — the
 systemd units shipped in the upstream packages are inert on Guix System, so the
 channel supplies real Shepherd services:
 
-| Service type | Module | Configuration (fields) | Purpose |
-|---|---|---|---|
-| `torando-gui-service-type` | `(securityops services torando)` | `torando-gui-configuration`: `package`, `host` (def. `127.0.0.1`), `port` (def. `8088`), `config-file`, `extra-options`, `seed-config` | Runs the Torando Control daemon (`torando-guid`) as root under Shepherd — programs netfilter, pins `resolv.conf`, manages `torrc` — and serves the token-injected UI on `http://127.0.0.1:8088/`. Auto-seeds `/etc/torando-gui/config.json` on first activation (so GUI changes persist). Requires the `networking` target; pair with `tor-service-type`. |
-| `esquema-service-type` | `(esquema esquema-service)` — shipped by the `esquema` package | `esquema-configuration` (positional): `name`, `rootfs`, `command`, `scheme-dir` | Supervises a single rootless `esquema` container as a Shepherd service (declarative `<container>`, all namespaces + seccomp + full capability drop). |
+| Service type | Module | Purpose |
+|---|---|---|
+| `torando-gui-service-type` | `(securityops services torando)` | Run Torando Control as root under Shepherd |
+| `esquema-service-type` | `(esquema esquema-service)`, included in `esquema` | Supervise one rootless container |
 
-Full `(operating-system …)` examples are below: [**torando-gui service**](#running-torando-gui-as-a-shepherd-service-guix-system) and [**esquema service**](#esquema--rootless-guile-native-container-runtime).
+Configuration and `(operating-system …)` examples follow below.
 
 ### Running torando-gui as a Shepherd service (Guix System)
 
@@ -41,8 +111,19 @@ ships a native service type in `(securityops services torando)`. Add it to your
 `guix system reconfigure`, then `herd start torando-gui` (or reboot). The daemon
 runs as root under Shepherd, logs to `/var/log/torando-gui.log`, and serves the
 token-injected UI on `http://127.0.0.1:8088/`; run the `torando-gui` launcher to
-open it. Configuration fields: `host`, `port`, `package`, `config-file`,
-`seed-config`, `extra-options`.
+open it. It manages netfilter and `resolv.conf`, requires the `networking`
+target and should be paired with `tor-service-type`.
+
+The `torando-gui-configuration` fields are:
+
+| Field | Use |
+|---|---|
+| `host` | Listen address; defaults to `127.0.0.1` |
+| `port` | Web interface port; defaults to `8088` |
+| `package` | Torando package used by the service |
+| `config-file` | Daemon configuration file |
+| `seed-config` | Initial configuration when no daemon configuration exists |
+| `extra-options` | Additional daemon arguments |
 
 Guix generates Tor's configuration in the read-only store. The Torando service seeds
 its own `/etc/torando-gui/config.json` only when that file is absent, with

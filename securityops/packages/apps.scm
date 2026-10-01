@@ -5,12 +5,11 @@
 ;;;
 ;;; First-party applications from git.securityops.com.br/cristiancmoises.
 ;;;
-;;; Each app lives in its own repo on the forge.  To keep this channel
-;;; self-contained, their sources/release artifacts are VENDORED under
-;;; packages/sources/ and referenced with `local-file' (content-addressed by
-;;; Guix at add time, so no hash field is needed) rather than fetched with a
-;;; git-fetch/url-fetch origin.  This keeps the channel buildable by the daemon
-;;; with no network access.
+;;; Each app lives in its own repository.  Most release artifacts are kept
+;;; under packages/sources/ and referenced with `local-file', which Guix
+;;; content-addresses when adding them to the store.  Turborec instead uses
+;;; its official public tag with a fixed source hash.  Once sources are
+;;; available in the store, build phases do not need network access.
 
 (define-module (securityops packages apps)
   #:use-module (guix packages)
@@ -445,7 +444,7 @@ so GUI and CLI versions can never drift apart.")
     (home-page "https://github.com/cristiancmoises/zupt")
     (license license:agpl3+)))
 
-;;; turborec — Turbo Recorder 3.9.1: a hardware-accelerated screen + audio
+;;; turborec — Turbo Recorder 3.10.1: a hardware-accelerated screen + audio
 ;;; recorder.  `turborec.py' is a pure-stdlib Python CLI with a Tkinter GUI (the
 ;;; `gui' subcommand); `turborecorder' is a Linux X11/Wayland bash launcher that
 ;;; builds a quality-first FFmpeg pipeline (NVENC > VAAPI > x264).  Built FROM
@@ -459,8 +458,16 @@ so GUI and CLI versions can never drift apart.")
 (define-public turborec
   (package
     (name "turborec")
-    (version "3.9.1")
-    (source (local-file "sources/turborec-3.9.1-src.tar.gz"))
+    (version "3.10.1")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://codeberg.org/berkeley/turborec.git")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "0m9afvj6vhibn6graj5bp40lzy16qs97jiym80is6filqya8rz3d"))))
     (build-system copy-build-system)
     (inputs
      `(("python" ,python)
@@ -495,7 +502,8 @@ so GUI and CLI versions can never drift apart.")
               (let* ((out    (assoc-ref outputs "out"))
                      (lib    (string-append out "/lib/turborec"))
                      (python (string-append (assoc-ref inputs "python") "/bin/python3"))
-                     (bash   (string-append (assoc-ref inputs "bash-minimal") "/bin/bash"))
+                     (bash   (string-append (assoc-ref inputs "bash-minimal")
+                                           "/bin/bash"))
                      ;; site-packages dir of the python `tk' output (holds _tkinter.so);
                      ;; derived so it survives a python minor-version bump.
                      (tkpath (dirname (car (find-files (assoc-ref inputs "python-tk")
@@ -540,8 +548,9 @@ exec ~a ~a/turborecorder \"$@\"\n"
                   (("^Exec=turborec")
                    (string-append "Exec=" out "/bin/turborec"))
                   (("^Icon=turborec")
-                   (string-append "Icon=" out
-                                  "/share/icons/hicolor/scalable/apps/turborec.svg")))))))))
+                   (string-append
+                    "Icon=" out
+                    "/share/icons/hicolor/scalable/apps/turborec.svg")))))))))
     (supported-systems '("x86_64-linux"))
     (synopsis "Hardware-accelerated screen and audio recorder")
     (description

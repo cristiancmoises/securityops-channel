@@ -27,6 +27,15 @@ a separate license text. Its self-contained .NET application bundles third
 party components whose individual notices were not separately audited here.
 The channel fetches the RPM by hash and does not vendor or relicense it.
 
+AutoFirma is distributed under GPL-2.0-or-later or EUPL-1.1. The package
+reuses the official Linux distribution and retains its JAR and bundled
+third-party license notices. Those dependencies keep their own licenses;
+the package definition lists their license families, not a new license grant.
+Building AutoFirma from source would require separately packaging its Maven
+dependency graph and is not implemented by this recipe.
+Its private Eclipse Temurin Java 17 runtime preserves the upstream GPL-2.0
+license with the Classpath exception and the full third-party legal notices.
+
 Several separately maintained, first-party Security Ops projects provide a
 public copyleft option and may provide different terms through a separately
 executed commercial agreement. In the local repositories inspected for this

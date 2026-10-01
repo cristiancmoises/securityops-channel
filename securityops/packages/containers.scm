@@ -21,31 +21,31 @@
 (define-public podman-latest
   (package
     (inherit upstream:podman)
-    (version "6.1.2")
+    (version "6.1.3")
     (source
      (origin
        (method url-fetch)
        (uri (string-append
              "https://codeload.github.com/podman-container-tools/podman/"
-             "tar.gz/b3f4e073dc6641ca8efc0bf261b35e35835e633d"))
-       (file-name "podman-6.1.2.tar.gz")
+             "tar.gz/85b994955e0b4e30fbce9c8351cab85676140ede"))
+       (file-name "podman-6.1.3.tar.gz")
        (sha256
-        (base32 "0mkiwl21np1qbarzpwvfal8jq00kn0mzpmjmwxkj1s2g072jkyb9"))))
+        (base32 "1blr9waq8hbzm8a11xic6daxsx4pnxqn0y9l6w2vbwwmmqz6dppy"))))
     (native-inputs (modify-inputs (package-native-inputs upstream:podman)
                      (replace "go" go-1.26)))))
 
 (define-public docker-latest
   (package
     (inherit upstream-docker:docker)
-    (version "29.8.1")
+    (version "29.8.2")
     (source
      (origin
        (method url-fetch)
        (uri (string-append "https://codeload.github.com/moby/moby/"
-                           "tar.gz/b2d20c90a74af78b3f0f967db92292e4a603c03d"))
-       (file-name "docker-29.8.1.tar.gz")
+                           "tar.gz/8af9fe3a36bab3e039862a2ab1cef1880c9b4d03"))
+       (file-name "docker-29.8.2.tar.gz")
        (sha256
-        (base32 "115bp0gpyfwfvdw4h5ljkvr7h4wn50rm040d6q6zwd74f5gpy3fh"))))
+        (base32 "14plaga75hv1wfx8var37df8g6052phjfgm1d1i6sqqlgp283xrx"))))
     (arguments
      (list
       #:phases
@@ -67,9 +67,9 @@
                       "dockerd"
                       "-ldflags"
                       (string-append
-                       "-X github.com/moby/moby/v2/dockerversion.Version=29.8.1 "
+                       "-X github.com/moby/moby/v2/dockerversion.Version=29.8.2 "
                        "-X github.com/moby/moby/v2/dockerversion.GitCommit="
-                       "b2d20c90a74af78b3f0f967db92292e4a603c03d")
+                       "8af9fe3a36bab3e039862a2ab1cef1880c9b4d03")
                       "./cmd/dockerd")))
           (replace 'check
             (lambda* (#:key tests? #:allow-other-keys)
@@ -108,15 +108,15 @@
 (define-public docker-cli-latest
   (package
     (inherit upstream-docker:docker-cli)
-    (version "29.8.1")
+    (version "29.8.2")
     (source
      (origin
        (method url-fetch)
        (uri (string-append "https://codeload.github.com/docker/cli/"
-                           "tar.gz/477f1252f2391a2b34fdce2e7bd03a0eee660005"))
-       (file-name "docker-cli-29.8.1.tar.gz")
+                           "tar.gz/7fc2dff9bceb96b266a3b2c3117c0955a0d9e616"))
+       (file-name "docker-cli-29.8.2.tar.gz")
        (sha256
-        (base32 "1y06f1sld38knc2g2pqnfsckmgpyf2q7ph0xjqiymbx5hmc162a6"))))
+        (base32 "1bd6gh2br1grczpzcvg7m9ks2vcb7j1bwmyrfk3jbbv11ybr6cyl"))))
     (arguments
      (list
       #:import-path "github.com/docker/cli"
@@ -130,7 +130,7 @@
                                      (getenv "PATH")))
               (setenv "GOTOOLCHAIN" "local")
               (setenv "GOPROXY" "off")
-              (setenv "VERSION" "29.8.1")
+              (setenv "VERSION" "29.8.2")
               (setenv "BUILDTIME" "1970-01-01T00:00:01Z")
               (setenv "GO_LINKMODE" "dynamic")
               (symlink "src/github.com/docker/cli/scripts" "./scripts")

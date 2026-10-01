@@ -1,4 +1,5 @@
 ;;; SPDX-License-Identifier: GPL-3.0-or-later
+;; Run explicitly with guix repl -L . tests/containers.scm.in.
 
 (use-modules (guix packages)
              (guix utils)
@@ -14,6 +15,6 @@
       (error "Missing or downgraded container package" symbol
              minimum-version))))
 
-(check-package 'podman-latest "podman" "6.1.2")
-(check-package 'docker-latest "docker" "29.8.1")
-(check-package 'docker-cli-latest "docker-cli" "29.8.1")
+(check-package 'podman-latest "podman" "6.1.3")
+(check-package 'docker-latest "docker" "29.8.2")
+(check-package 'docker-cli-latest "docker-cli" "29.8.2")

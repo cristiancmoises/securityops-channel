@@ -27,7 +27,7 @@
   (let ((base chrome:google-chrome-stable))
     (package
       (inherit base)
-      (version "154.0.8037.57-1")
+      (version "154.0.8037.92-1")
       (source
        (origin
          (inherit (package-source base))
@@ -36,7 +36,7 @@
                "google-chrome-stable/google-chrome-stable_"
                version "_amd64.deb"))
          (sha256
-          (base32 "0gjswra2mdbw3idgi3pa7dyjxnx025y57f2452mip1qrd9gn9h36"))))
+          (base32 "18n4cl8i75va34z8p4l111ah2b2vrkaiygx2kilg84a81angdqv9"))))
       (arguments
        (substitute-keyword-arguments (package-arguments base)
          ((#:phases phases)
