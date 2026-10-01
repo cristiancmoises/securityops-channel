@@ -13,9 +13,9 @@ Este canal simplesmente não existiria sem esse trabalho.
 
 | Item | Status |
 |---|---|
-| Definições de pacotes | Entradas selecionadas, incluindo Lacuna Web PKI, além dos drivers XLibre incluídos |
+| Definições de pacotes | Aplicativos, AutoFirma, Lacuna Web PKI e drivers XLibre incluídos |
 | Dependências | GNU Guix e nonguix; o empacotamento XLibre está incluído |
-| Última atualização das receitas | 2026-09-28 |
+| Última atualização das receitas | 2026-10-01; limitações pendentes no índice de pacotes |
 | Validação | [Pacotes, versões e verificações](PACKAGES.md); a ativação do sistema requer reconfiguração separada |
 | Autenticação | Commits assinados e introdução do canal fixada |
 
@@ -25,7 +25,8 @@ Este canal simplesmente não existiria sem esse trabalho.
 |---|---|
 | [Índice de pacotes](PACKAGES.md) | NVIDIA, River, aplicativos atualizados, versões e política sem downgrade |
 | [Lacuna Web PKI](docs/webpki.pt-BR.md) | Host nativo, manifests dos navegadores e configuração do Guix Home |
-| [Relatório da atualização](docs/refresh-2026-09-17.pt-BR.md) | Versões, validação e trabalho pendente |
+| [AutoFirma](docs/usage.md#autofirma) | Pacote Linux oficial, comandos de assinatura e limites da integração com navegadores |
+| [Validação de setembro](docs/refresh-2026-09-17.pt-BR.md) | Histórico das verificações e limitações em 17/09/2026 |
 | [Referência de uso](docs/usage.md) | Serviços, Guix System e Guix Home |
 | [Espelhos e autenticação](docs/channel-authentication-fix.md) | Oito canais autenticados, XLibre integrado e instalação para root |
 | [Histórico](CHANGELOG.md) | Notas de alterações anteriores |
@@ -58,6 +59,10 @@ guix install fish kitty zupt zupt-gui
 O canal também fornece o host nativo `lacuna-webpki` para sites que usam
 certificados digitais. O [guia do Web PKI](docs/webpki.pt-BR.md) explica a
 extensão separada do navegador e a configuração de mensagens nativas.
+
+O AutoFirma 1.9 está disponível em `(securityops packages autofirma)` e é
+opcional. Adicionar o canal não instala o aplicativo nem altera certificados.
+Consulte as [notas de uso](docs/usage.md#autofirma) antes de configurar o navegador.
 
 Instalar no perfil do usuário não substitui automaticamente um pacote do
 Guix Home ou do sistema. Reconfigure o perfil responsável pelo pacote.

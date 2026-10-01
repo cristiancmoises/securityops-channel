@@ -3,6 +3,7 @@
 
 (define-module (securityops packages audio)
   #:use-module (guix gexp)
+  #:use-module (guix download)
   #:use-module (guix git-download)
   #:use-module ((guix licenses) #:prefix license:)
   #:use-module (guix packages)
@@ -35,20 +36,18 @@
 
 (define-public wireplumber-latest
   (package
-    ;; Rebuilt and re-tested against pipewire-latest 1.6.9 on 2026-09-17;
-    ;; this pin is coupled to the pipewire-latest bump above.
+    ;; Keep the session manager on the same PipeWire API as pipewire-latest.
     (inherit guix:wireplumber)
-    (version "0.5.17")
+    (version "0.5.18")
     (source
      (origin
-       (method git-fetch)
-       (uri (git-reference
-             (url "https://gitlab.freedesktop.org/pipewire/wireplumber.git")
-             ;; Upstream stable tag 0.5.17, released 2026-09-02.
-             (commit "11e501181fb87dc8e72e55156d672109fbad2434")))
-       (file-name (git-file-name "wireplumber" version))
+       (method url-fetch)
+       (uri (string-append
+             "https://gitlab.freedesktop.org/pipewire/wireplumber/-/archive/"
+             version "/wireplumber-" version ".tar.gz"))
+       (file-name (string-append "wireplumber-" version ".tar.gz"))
        (sha256
-        (base32 "108m9wkxldvacv2y543pjk3nzlc55shlfd0zhihms1ksmq3hfl06"))))
+        (base32 "18c3sjkr5g5j0ib82690hsx59k70zkqq6g2hq60hcmrabdm352lc"))))
     (arguments
      (substitute-keyword-arguments (package-arguments guix:wireplumber)
        ((#:configure-flags flags

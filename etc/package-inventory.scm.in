@@ -3,14 +3,21 @@
 (use-modules (guix packages) (ice-9 format))
 (for-each
  (lambda (name)
-   (let ((interface (resolve-interface `(securityops packages ,name))))
+   (let ((interface (resolve-interface name)))
      (module-for-each
       (lambda (symbol binding)
         (let ((package (variable-ref binding)))
           (when (package? package)
             (format #t "~a\t~a\t~a\t~a\n"
-                    name symbol (package-version package)
+                    (if (eq? (car name) 'securityops)
+                        (caddr name)
+                        'xlibre-drivers)
+                    symbol (package-version package)
                     (package-home-page package)))))
       interface)))
- '(apps audio browsers chromium containers emacs games librewolf monitoring
-   river security shells terminals tor utils video vpn webpki xlibre xsearch))
+ (append
+  (map (lambda (name) `(securityops packages ,name))
+       '(apps audio autofirma browsers chromium containers emacs games librewolf
+         monitoring nvidia river security shells terminals tor utils video
+         vpn webpki xlibre xmonad xmonad-wayland xsearch))
+  '((xlibre))))

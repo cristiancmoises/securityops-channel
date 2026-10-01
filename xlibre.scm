@@ -1647,7 +1647,7 @@ Extra arguments are other packages to add to inputs, for convenience."
     (package
       (inherit xf86-input-wacom)
       (name "xf86-input-wacom-xlibre")
-      (version "1.2.3")
+      (version "1.2.4")
       (source
         (origin
           (method url-fetch)
@@ -1656,7 +1656,7 @@ Extra arguments are other packages to add to inputs, for convenience."
                  "xf86-input-wacom-" version "/"
                  "xf86-input-wacom-" version ".tar.bz2"))
           (sha256
-            (base32 "0imi3iraarralyw1w4c6qxw5wdrciw28zawgv60wqn6aqck5hdkh"))))
+            (base32 "038snwjzw4d617ydk3907x61x42ziqyr79hdwqa96jwrm36zrifb"))))
       (inputs
         (modify-inputs
           (package-inputs xf86-input-wacom)

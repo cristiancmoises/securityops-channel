@@ -33,7 +33,7 @@
 (define-public shader-slang-bin
   (package
     (name "shader-slang-bin")
-    (version "2026.18.3")
+    (version "2026.19")
     (source
      (origin
        (method url-fetch)
@@ -41,16 +41,16 @@
              "https://github.com/shader-slang/slang/releases/download/v"
              version "/slang-" version "-linux-x86_64-glibc-2.27.tar.gz"))
        (sha256
-        (base32 "12j6qzkqdknyf4giq78yix3d53ycgbhqvglmbbvw6gcypkv5ffrp"))))
+        (base32 "0xgyhldbfmadad8idijsq9ffd2p8qjn3f6qxvpm61vniqd0bv6aq"))))
     (build-system copy-build-system)
     (arguments
      (list
       #:install-plan
       #~'(("bin/slangc" "bin/")
-          ("lib/libslang-compiler.so.0.2026.18.3" "lib/")
-          ("lib/libslang-glsl-module-2026.18.3.so" "lib/")
-          ("lib/libslang-glslang-2026.18.3.so" "lib/")
-          ("lib/slang-standard-module-2026.18.3" "lib/")
+          ("lib/libslang-compiler.so.0.2026.19" "lib/")
+          ("lib/libslang-glsl-module-2026.19.so" "lib/")
+          ("lib/libslang-glslang-2026.19.so" "lib/")
+          ("lib/slang-standard-module-2026.19" "lib/")
           ("LICENSE" "share/doc/shader-slang/")
           ("LICENSES" "share/doc/shader-slang/")
           ("third-party-notices" "share/doc/shader-slang/"))
@@ -173,14 +173,13 @@ kitty's @code{watch} kitten.")
     (license license:bsd-3)))
 
 ;;; ---------------------------------------------------------------------------
-;;; kitty — bumped ahead of Guix: 0.46.2 -> 0.49.1 (latest upstream).
+;;; kitty — bumped ahead of Guix: 0.46.2 -> 0.49.2 (latest upstream).
 ;;;
 ;;; Inherits the upstream package and ORIGIN so the docs-build snippet and
-;;; module list are preserved verbatim; only the git tag and the content hash
-;;; change.  `version' is in scope inside `source', so the v-tag tracks it.
-;;; Hash is Guix's own git-fetch of tag v0.49.1 (authoritative — a plain
-;;; `guix hash -rx' over a working tree can differ from the git-fetch fixed
-;;; output, so always take the value Guix reports on a hash mismatch).
+;;; module list are preserved.  The recipe adds the required Go dependencies
+;;; and Slang compiler, including a store-path default for user shaders.
+;;; `version' is in scope inside `source', so the v-tag tracks it.
+;;; Hash is the recursive Guix hash of the official v0.49.2 checkout.
 ;;; ---------------------------------------------------------------------------
 ;;; ebitengine/purego — call C from Go without cgo.  A NEW direct dependency of
 ;;; kitty 0.48 (imported once, in the notify kitten); Guix does not package it,
@@ -213,7 +212,7 @@ loading shared libraries and dispatching into them at runtime.")
 (define-public kitty
   (package
     (inherit gnu:kitty)
-    (version "0.49.1")
+    (version "0.49.2")
     (source
      (origin
        (inherit (package-source gnu:kitty))
@@ -222,7 +221,7 @@ loading shared libraries and dispatching into them at runtime.")
              (commit (string-append "v" version))))
        (file-name (git-file-name (package-name gnu:kitty) version))
        (sha256
-        (base32 "19sjlf44gq38r4fa8iivp2y4y494lynhm43mf1il0d7ck5yd6n31"))))
+        (base32 "1xp9nnvpisjcm1h2m7zijrvskf9g7cv5hwrg8gxmr1qx7h3mzjqn"))))
     ;; kitty's tests need a real environment the build sandbox lacks
     ;; (kitty_tests/dnd_kitten imports the display-only graphics module Guix
     ;; strips; the Go TestMachineId needs /etc/machine-id).  The release is
@@ -235,8 +234,19 @@ loading shared libraries and dispatching into them at runtime.")
        ((#:tests? _ #f)
         #f)
        ((#:phases phases
-         '%standard-phases)
+        '%standard-phases)
         #~(modify-phases #$phases
+            (add-after 'unpack 'set-slangc-default
+              (lambda _
+                ;; Regular inputs are not added to users' PATH.  Keep the
+                ;; upstream SLANGC override, with the packaged compiler as
+                ;; the default for custom shaders.
+                (substitute* "src/github.com/kovidgoyal/kitty/kitty/constants.py"
+                  (("get\\('SLANGC', 'slangc'\\)")
+                   (string-append
+                    "get('SLANGC', '"
+                    #$(file-append shader-slang-bin "/bin/slangc")
+                    "')")))))
             (add-after 'unpack 'set-go-toolchain-local
               (lambda _
                 (setenv "GOTOOLCHAIN" "local")))))))

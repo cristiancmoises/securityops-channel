@@ -101,15 +101,15 @@
 (define firefox-l10n
   ;; Match this commit to the upstream tarball.  The hash is in
   ;; firefox-NNN/browser/locales/l10n-changesets.json (the "revision" field;
-  ;; the same value repeats for every language).  For 156.0 it is f3fd6d5d.
-  (let ((commit "f3fd6d5d457d03eb7adea53816ac30c4ff85efca"))
+  ;; the same value repeats for every language).  For 156.0.1 it is 169e5b51.
+  (let ((commit "169e5b51c9250c34217af441fc231be2ac608b9b"))
     (origin
       (method git-fetch)
       (uri (git-reference
             (url "https://github.com/mozilla-l10n/firefox-l10n.git")
             (commit commit)))
       (file-name (git-file-name "firefox-l10n" commit))
-      (sha256 (base32 "1xibwbr6nakj2vjhajkihb3nzzsq84pi9h6jjslw7xcqk1yg2bg6")))))
+      (sha256 (base32 "1h0dpn36hphrqs3nwil8yshzvdpnf7j99ka83azs15v6425w7g9i")))))
 
 (define* (make-librewolf-source #:key version firefox-hash librewolf-hash l10n)
   (let* ((ff-src (firefox-source-origin (car (string-split version #\-))
@@ -207,11 +207,11 @@
 (define-public librewolf
   (package
     (inherit lw:librewolf)
-    (version "156.0-1")
+    (version "156.0.1-1")
     (source
      (make-librewolf-source #:version version
-      #:firefox-hash "1fda8lhnpncsh78pbknzp4x6s42fcqiq21rzmamhj02i8g06h9qz"
-      #:librewolf-hash "11qpsic744q6lkl4yqxjvb592jr0c1gvds6065f9miviajabx65g"
+      #:firefox-hash "0927nqqngsi0jbw6ph5rq715dky2k1sm7bcfz6dbzgpy7rrvzc7q"
+      #:librewolf-hash "1in6zfhjbqvp8y6bvbvbszjc3psx8884d18f7fmlfg0skawfbwaw"
       #:l10n firefox-l10n))
     (arguments
      (substitute-keyword-arguments (package-arguments lw:librewolf)
@@ -221,7 +221,7 @@
             (replace 'set-build-id
               (lambda _
                 ;; Fixed channel build ID based on the Firefox release date.
-                (setenv "MOZ_BUILD_DATE" "20260915000000")))
+                (setenv "MOZ_BUILD_DATE" "20260922000000")))
             ;; The current GNU LibreWolf recipe no longer has the historical
             ;; `wrap-glxtest' phase.  Add our Firefox 156 gfxtest wrapper after
             ;; installation instead of trying to replace a missing phase.

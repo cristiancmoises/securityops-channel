@@ -10,13 +10,23 @@
   #:use-module (guix gexp)
   #:use-module (guix utils)
   #:use-module (guix git-download)
+  #:use-module (guix download)
   #:use-module ((gnu packages video) #:prefix gnu:)
   #:use-module ((gnu packages image-viewers) #:prefix gnu-iv:))
 
-;;; mpv / vlc — Guix already ships the latest upstream (mpv 0.41.0, vlc 3.0.23).
-;;; Re-exported so they install from this channel and track Guix.
+;;; mpv tracks Guix; VLC keeps the current stable 3.0 bug-fix release.
 (define-public mpv gnu:mpv)
-(define-public vlc gnu:vlc)
+(define-public vlc
+  (package
+    (inherit gnu:vlc)
+    (version "3.0.24")
+    (source
+     (origin
+       (inherit (package-source gnu:vlc))
+       (uri (string-append "https://download.videolan.org/pub/videolan/vlc/"
+                           version "/vlc-" version ".tar.xz"))
+       (sha256
+        (base32 "1psz4b6c1kxr8jv92xs02b8gc3hdwqg0xkyji6dq9mfps41vbjp7"))))))
 
 ;;; yt-dlp — bumped ahead of Guix: 2026.07.04 -> 2026.08.19 (latest upstream,
 ;;; released 2026-08-19).  git-fetch of the release tag; the arguments (test

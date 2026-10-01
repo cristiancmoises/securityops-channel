@@ -13,9 +13,9 @@ here. This channel simply wouldn't exist without that work.
 
 | Item | Status |
 |---|---|
-| Package definitions | Curated entries, including Lacuna Web PKI, plus bundled XLibre driver exports |
+| Package definitions | Workstation applications, AutoFirma, Lacuna Web PKI and bundled XLibre drivers |
 | Dependencies | GNU Guix and nonguix; XLibre packaging is included |
-| Latest recipe refresh | 2026-09-28 |
+| Latest recipe refresh | 2026-10-01; remaining limitations are listed in the package index |
 | Validation | [Package versions and checks](PACKAGES.md); system activation requires a separate reconfiguration |
 | Authentication | Signed commits and a pinned channel introduction |
 
@@ -25,7 +25,8 @@ here. This channel simply wouldn't exist without that work.
 |---|---|
 | [Package index](PACKAGES.md) | NVIDIA, River, updated applications, versions and no-downgrade policy (pt-BR) |
 | [Lacuna Web PKI](docs/webpki.md) | Native host, browser manifests and Guix Home setup |
-| [Refresh report](docs/refresh-2026-09-17.md) | Updated versions, validation and unfinished work |
+| [AutoFirma](docs/usage.md#autofirma) | Official Linux package, signing commands and browser-integration limits |
+| [September validation](docs/refresh-2026-09-17.md) | Historical checks and limitations recorded on 2026-09-17 |
 | [Usage reference](docs/usage.md) | Services, Guix System and Guix Home examples |
 | [Channel mirrors and authentication](docs/channel-authentication-fix.md) | Eight authenticated channels, integrated XLibre and root installation |
 | [Changelog](CHANGELOG.md) | Historical release notes |
@@ -58,6 +59,10 @@ guix install fish kitty zupt zupt-gui
 For certificate-enabled websites, this channel also provides the
 `lacuna-webpki` native host. The [Web PKI guide](docs/webpki.md) covers the
 separate browser extension and native messaging setup.
+
+AutoFirma 1.9 is available through `(securityops packages autofirma)`. It is
+optional: adding this channel does not install it or change certificate stores.
+See the [AutoFirma usage notes](docs/usage.md#autofirma) before browser setup.
 
 A package installed in the user profile does not automatically replace one in
 Guix Home or the system profile. Reconfigure the profile that owns the package.

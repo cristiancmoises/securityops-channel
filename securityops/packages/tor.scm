@@ -40,8 +40,8 @@
        (sha256
         (base32 "14n7kk7661n5i4yfjxybxsb3vvwd3hvky5s1fxylmx6df8r8sx2y"))))))
 
-;; All browser inputs below follow tbb-15.0.23-build1 (commit
-;; 0b8cdd789f247f5062c9797b0515479eeb56bd38) of tor-browser-build.
+;; All browser inputs below follow tbb-15.0.24-build1 (commit
+;; 166b1f8faab7e1cf7f553db8f0450d1f9bb8fdce) of tor-browser-build.
 ;; Translation commits come from projects/translation/config; Firefox locale
 ;; data is the revision in the released source's l10n-changesets.json.
 (define torbrowser-translation-base
@@ -49,18 +49,18 @@
     (method git-fetch)
     (uri (git-reference
           (url "https://gitlab.torproject.org/tpo/translation.git")
-          (commit "42c240fa39334d44b52a082ece7ea992ce4ff03c")))
+          (commit "c62d7c244409d6d6ca37cd7f4819260ffc3cf60b")))
     (file-name "translation-base-browser")
-    (sha256 (base32 "1gbn4pkmnmvw0gyvvkw0nkzypprw2zzmy4fi4pa1bdxcwqfnh6rj"))))
+    (sha256 (base32 "0gasp5gx4zc603yjhxi5rhagjq5pswvyxdgin75ax5p76bkaypcp"))))
 
 (define torbrowser-translation-specific
   (origin
     (method git-fetch)
     (uri (git-reference
           (url "https://gitlab.torproject.org/tpo/translation.git")
-          (commit "b43f67013b014d128543404f8e159dd51250da8f")))
+          (commit "8cae94965791def3a7e63a1acb9e998ce8133de9")))
     (file-name "translation-tor-browser")
-    (sha256 (base32 "0n72wvi49ljf7r5m76cf6j6m58hhnlq7ni6mhx4s0qli9a85w14a"))))
+    (sha256 (base32 "03dhx4zlawmymp3v7fv9mr9nywpryblha3iz344s7riwk7iv8ivl"))))
 
 (define torbrowser-firefox-locales
   (let ((commit "412690f1368e37f70af57eecabb93497167eb9ba"))
@@ -88,7 +88,7 @@
   (let ((base (@@ (gnu packages browser-extensions) noscript)))
     (make-icecat-extension (package
                              (inherit base)
-                             (version "13.6.33.1984")
+                             (version "13.6.35.1984")
                              (source
                               (origin
                                 (inherit (package-source base))
@@ -98,14 +98,14 @@
                                       ".xpi"))
                                 (sha256
                                  (base32
-                                  "1r5p9jd1gdf80z73b23p6wi324366rfs6wn0i1k85cmj8ld7lkhy"))))
+                                  "1fgi35401i4s87fd0h2si4g0dvmaq9v5gd7v9hakvg7y9hzji666"))))
                              ;; Bundled flextabs and he JavaScript libraries use the Expat license.
                              (license (list license:gpl3+ license:expat))))))
 
 (define-public torbrowser-assets
   (package
     (name "torbrowser-assets")
-    (version "15.0.23")
+    (version "15.0.24")
     (source
      (origin
        (method url-fetch)
@@ -113,7 +113,7 @@
              "https://archive.torproject.org/tor-package-archive/torbrowser/"
              version "/tor-browser-linux-x86_64-" version ".tar.xz"))
        (sha256
-        (base32 "0fdznhi8wmkyn73nld6s7mbq2wzcmbybgfkcp3a4vhvzbkbghqhg"))))
+        (base32 "016n0nc1vj66x236aqlx1yffs36zq2ajry343lxbbb72xfvfygmh"))))
     (build-system copy-build-system)
     (arguments
      (list
@@ -193,8 +193,8 @@ Browser bundle, matching the @code{torbrowser} version in this channel.")
                                 "vi"
                                 "zh-CN"
                                 "zh-TW")
-                    #:build-date "20260914100000"
-                    #:base-browser-version "15.0.23"))
+                    #:build-date "20260928083000"
+                    #:base-browser-version "15.0.24"))
          ;; Bind inputs before evaluating the inherited arguments.  Guix's
          ;; phases use this-package-input for Tor's geoip data and locales.
          ;; Evaluating the upstream arguments first captures the old inputs.
@@ -206,16 +206,16 @@ Browser bundle, matching the @code{torbrowser} version in this channel.")
                            (replace "tor-client" torbrowser-tor-client))))))
     (package
       (inherit base)
-      (version "15.0.23")
+      (version "15.0.24")
       (source
        (origin
          (inherit (package-source base))
          (uri (string-append
                "https://archive.torproject.org/tor-package-archive/torbrowser/"
                version
-               "/src-firefox-tor-browser-140.16.0esr-15.0-1-build2.tar.xz"))
+               "/src-firefox-tor-browser-140.17.0esr-15.0-1-build4.tar.xz"))
          (sha256
-          (base32 "0v1d9x0ibs6v5h6irig661dzn2xi30whvzw62w56686i773zjh5c"))))
+          (base32 "17qnisicbr6rvlc7kaxjjinif1jkvh8fnivj47aq36lj3jdac5y2"))))
       (arguments
        (substitute-keyword-arguments (package-arguments base)
          ((#:configure-flags flags
