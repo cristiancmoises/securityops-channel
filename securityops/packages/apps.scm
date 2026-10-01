@@ -787,8 +787,8 @@ multi-GB Whisper model download.")
 (define-public guixvis
   (package
     (name "guixvis")
-    (version "0.8.0")
-    (source (local-file "sources/guixvis-0.8.0-src.tar"))
+    (version "0.9.0")
+    (source (local-file "sources/guixvis-0.9.0-src.tar"))
     (build-system gnu-build-system)
     (arguments
      (list
