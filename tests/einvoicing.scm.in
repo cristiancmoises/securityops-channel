@@ -1,0 +1,261 @@
+;;; SPDX-License-Identifier: GPL-3.0-or-later
+;;; Installed-artifact acceptance tests; run only in an isolated Guix builder.
+
+(use-modules (ice-9 textual-ports) (ice-9 regex) (ice-9 ftw)
+             ((rnrs io ports) #:select (get-bytevector-all))
+             (rnrs bytevectors) (srfi srfi-1) (srfi srfi-64)
+             (sxml simple) (sxml xpath))
+
+(define args (cdr (command-line)))
+(define validator (string-append (car args) "/bin/kosit-validator"))
+(define xrechnung (string-append (cadr args) "/bin/xrechnung-validator"))
+(define fixtures (caddr args))
+(define output (cadddr args))
+
+;; Bound every child before executing any upstream code.  These limits are
+;; additional to the daemon's empty network namespace and read-only inputs.
+(setrlimit 'as (* 2 1024 1024 1024) (* 2 1024 1024 1024))
+(setrlimit 'nproc 256 256)
+(setrlimit 'fsize (* 64 1024 1024) (* 64 1024 1024))
+(setrlimit 'cpu 300 300)
+(setrlimit 'core 0 0)
+(for-each unsetenv (map (lambda (entry) (car (string-split entry #\=)))
+                       (environ)))
+(mkdir "home")
+(setenv "HOME" (string-append (getcwd) "/home"))
+(setenv "XDG_CACHE_HOME" (getenv "HOME"))
+(setenv "TMPDIR" (getcwd))
+(setenv "LANG" "C.UTF-8")
+(mkdir output)
+
+(define (read-text file)
+  (call-with-input-file file get-string-all))
+(define (write-text file text)
+  (call-with-output-file file (lambda (port) (display text port))))
+(define (replace-text text pattern replacement)
+  (regexp-substitute/global #f (regexp-quote pattern) text
+                            'pre replacement 'post))
+(define (run name program arguments expected)
+  (let* ((log (string-append output "/" name ".log"))
+         (status (call-with-output-file log
+                   (lambda (port)
+                     (with-output-to-port port
+                       (lambda ()
+                         (with-error-to-port port
+                           (lambda () (apply system* program arguments))))))))
+         (code (status:exit-val status)))
+    (write-text (string-append output "/" name ".exit")
+                (format #f "~a\n" code))
+    (test-equal (string-append name " exit") expected code)
+    log))
+(define (report-check name accepted?)
+  (let* ((file (string-append output "/" name "-report.xml"))
+         (tree (call-with-input-file file
+                 (lambda (port) (xml->sxml port #:namespaces
+                   '((rep . "http://www.xoev.de/de/validator/varl/1")))))))
+    (test-assert (string-append name " assessment")
+      (pair? ((sxpath (if accepted? '(// rep:assessment rep:accept)
+                                   '(// rep:assessment rep:reject))) tree)))
+    (test-assert (string-append name " full scenario")
+      (pair? ((sxpath '(// rep:scenarioMatched rep:validationStepResult)) tree)))
+    (for-each
+     (lambda (step)
+       (test-assert (string-append name " executes " step)
+         (string-contains (read-text file) (string-append "id=\"" step "\""))))
+     '("val-xsd" "val-sch.1" "val-sch.2"))
+    (unless accepted?
+      (test-assert (string-append name " rejects missing buyer reference")
+        (string-contains (read-text file) "BR-DE-15")))))
+
+(test-begin "einvoicing")
+(define runner (test-runner-current))
+(test-assert "builder cannot see the user home"
+  (not (file-exists? "/home/berkeley")))
+(test-assert "builder runs without root authority" (not (zero? (getuid))))
+(let* ((network (read-text "/proc/net/dev"))
+       (interfaces (filter-map
+                    (lambda (line)
+                      (and (string-index line #\:)
+                           (string-trim-both (car (string-split line #\:)))))
+                    (string-split network #\newline))))
+  (write-text (string-append output "/network-namespace.log") network)
+  (test-assert "builder has only isolated loopback interfaces"
+    (every (lambda (name) (string=? name "lo")) interfaces)))
+(test-assert "installed generic launcher" (access? validator X_OK))
+(test-assert "installed XRechnung launcher" (access? xrechnung X_OK))
+(when (and (access? validator X_OK) (access? xrechnung X_OK))
+  (test-assert "installed inputs are read-only"
+    (and (not (access? (car args) W_OK))
+         (not (access? (cadr args) W_OK))))
+  (let ((original (list-ref args 4))
+        (installed (string-append (car args) "/share/kosit-validator")))
+    (for-each
+     (lambda (name)
+       (test-assert (string-append "preserved distribution " name)
+         (bytevector=?
+           (call-with-input-file (string-append original "/" name) get-bytevector-all)
+           (call-with-input-file (string-append installed "/" name) get-bytevector-all))))
+     (append '("validator-1.6.3.jar" "LICENSE" "NOTICE")
+       (map (lambda (name) (string-append "libs/" name))
+         (scandir (string-append original "/libs")
+                  (lambda (name) (string-suffix? ".jar" name)))))))
+  ;; Upstream's fixtures require the same Ant substitution used by its tests.
+  ;; The actual complete rules, not processing-valid directory names, decide
+  ;; acceptance.  Negative cases change mandatory business data in full XML.
+  (for-each
+   (lambda (kind)
+     (let* ((text (replace-text
+                   (read-text (string-append fixtures "/" kind "001.xml"))
+                   "@xrechnung.spec.id@"
+                   "urn:cen.eu:en16931:2017#compliant#urn:xeinkauf.de:kosit:xrechnung_3.0"))
+            (positive (string-append kind "-valid"))
+            (negative (string-append kind "-invalid")))
+       (write-text (string-append positive ".xml") text)
+       (write-text (string-append negative ".xml")
+         (if (string=? kind "ubl")
+             (replace-text text "<cbc:BuyerReference>A test buyer reference</cbc:BuyerReference>" "")
+             (replace-text text "<ram:BuyerReference>10202</ram:BuyerReference>" "")))
+       (run positive xrechnung
+            (list "-o" output (string-append positive ".xml")) 0)
+       (report-check positive #t)
+       (run negative xrechnung
+            (list "-o" output (string-append negative ".xml")) 1)
+       (report-check negative #f)))
+   '("ubl" "cii"))
+  ;; Detached scenario files have no resources beside them.  Both named
+  ;; configurations must use the one unnamed repository's default_1 mapping.
+  (mkdir "detached")
+  (let* ((repository (string-append (cadr args) "/share/xrechnung"))
+         (scenarios (read-text (string-append repository "/scenarios.xml")))
+         (header (substring scenarios 0 (string-contains scenarios "<scenario>")))
+         (fallback (substring scenarios (string-contains scenarios "<noScenarioReport>"))))
+    (write-text "detached/scenarios.xml" scenarios)
+    (define (select-scenario name)
+      (let loop ((offset 0))
+        (let* ((start (string-contains scenarios "<scenario>" offset))
+               (end (+ (string-contains scenarios "</scenario>" start)
+                       (string-length "</scenario>")))
+               (scenario (substring scenarios start end)))
+          (if (string-contains scenario (string-append "<name>" name "</name>"))
+              (string-append header scenario fallback)
+              (loop end)))))
+    (for-each
+     (lambda (kind)
+       (write-text (string-append "detached/" kind ".xml")
+         (select-scenario (if (string=? kind "ubl")
+                              "EN16931 XRechnung (UBL Invoice)"
+                              "EN16931 XRechnung (CII)")))
+       (copy-file (string-append kind "-valid.xml")
+                  (string-append "shared-default-" kind ".xml")))
+     '("ubl" "cii"))
+    (copy-file "ubl-valid.xml" "named-default.xml")
+    (run "named-default" validator
+         (list "-s" "named=detached/scenarios.xml" "-r" repository
+               "-o" output "named-default.xml") 0)
+    (run "shared-default" validator
+         (list "-s" "ubl=detached/ubl.xml" "-s" "cii=detached/cii.xml"
+               "-r" repository "-o" output
+               "shared-default-ubl.xml" "shared-default-cii.xml") 0)
+    (for-each
+     (lambda (name)
+       (let ((report (string-append output "/" name "-report.xml")))
+         (test-assert (string-append name " report exists") (file-exists? report))
+         (when (file-exists? report) (report-check name #t))))
+     '("named-default" "shared-default-ubl" "shared-default-cii")))
+  (run "bad-argument" validator '("--nonexistent-option") 255)
+  (run "bad-argument-with-help" validator '("--help" "--nonexistent-option") 255)
+  (run "missing-value" xrechnung '("-o") 255)
+  (run "help" validator '("--help") 0)
+  (let ((log (run "version" validator '("--version") 0)))
+    (test-assert "version identifies the installed release"
+      (string-contains (read-text log) "1.6.3")))
+  (setenv "JAVA_TOOL_OPTIONS" "-XX:INVALID-INJECTED-OPTION")
+  (setenv "JDK_JAVA_OPTIONS" "-XX:INVALID-INJECTED-OPTION")
+  (setenv "_JAVA_OPTIONS" "-XX:INVALID-INJECTED-OPTION")
+  (run "java-option-injection" validator '("--version") 0)
+  (for-each unsetenv '("JAVA_TOOL_OPTIONS" "JDK_JAVA_OPTIONS" "_JAVA_OPTIONS"))
+  (run "bad-config" validator '("-s" "missing.xml" "ubl-valid.xml") 254)
+  (write-text "malformed.xml" "<Invoice>")
+  (run "malformed" xrechnung (list "-o" output "malformed.xml") 1)
+  (let* ((file (string-append output "/malformed-report.xml"))
+         (tree (call-with-input-file file
+                 (lambda (port) (xml->sxml port #:namespaces
+                   '((rep . "http://www.xoev.de/de/validator/varl/1")))))))
+    (test-assert "malformed XML assessment rejects"
+      (pair? ((sxpath '(// rep:assessment rep:reject)) tree)))
+    (test-assert "malformed XML parser diagnostic"
+      (string-contains (read-text file)
+        "XML document structures must start and end within the same entity")))
+  ;; The sentinel is disposable test data, never a host file.
+  (write-text "sentinel" "UNEXPECTED-ENTITY-CONTENT")
+  (for-each
+   (lambda (case)
+     (let* ((name (car case))
+            (payload (cadr case))
+            (file (string-append name ".xml")))
+       (write-text file payload)
+       (let ((log (run name xrechnung (list "-o" output file) 1)))
+         (test-assert (string-append name " does not disclose entity")
+           (not (string-contains (read-text log) "UNEXPECTED-ENTITY-CONTENT")))
+         (let ((report (read-text (string-append output "/" name "-report.xml"))))
+           (test-assert (string-append name " rejects DOCTYPE before resolving")
+             (string-contains report "DOCTYPE is disallowed"))
+           (test-assert (string-append name " report does not disclose entity")
+             (not (string-contains report "UNEXPECTED-ENTITY-CONTENT")))))))
+   (list
+    (list "xxe-file" (string-append "<!DOCTYPE Invoice [<!ENTITY x SYSTEM 'file://"
+          (getcwd) "/sentinel'>]><Invoice>&x;</Invoice>"))
+    (list "xxe-http" "<!DOCTYPE Invoice [<!ENTITY x SYSTEM 'http://127.0.0.1:9/sentinel'>]><Invoice>&x;</Invoice>")
+    (list "entity-expansion" "<!DOCTYPE Invoice [<!ENTITY a '1234567890'><!ENTITY b '&a;&a;&a;&a;&a;&a;&a;&a;&a;&a;'><!ENTITY c '&b;&b;&b;&b;&b;&b;&b;&b;&b;&b;'>]><Invoice>&c;</Invoice>")))
+  ;; Entire real configurations are copied into scratch by the builder.  Only
+  ;; the indicated dependency is changed to exercise STRICT_RELATIVE resolution.
+  (for-each
+   (lambda (case)
+     (let* ((name (car case))
+            (kind (cadr case))
+            (uri (caddr case))
+            (root (string-append (getcwd) "/" name)))
+       (write-text (string-append root "/resources/ubl/2.1/xsl/EN16931-UBL-validation.xsl")
+         (string-append "<xsl:stylesheet version='2.0' xmlns:xsl='http://www.w3.org/1999/XSL/Transform'><xsl:"
+                        kind " href='" uri "'/></xsl:stylesheet>"))
+       (let ((log (run name validator
+                      (list "-s" (string-append root "/scenarios.xml")
+                            "-r" root "-o" output "ubl-valid.xml") 254)))
+         (test-assert (string-append name " fails before network or file access")
+           (or (string-contains (read-text log) "not allowed")
+               (string-contains (read-text log) "not permitted")
+               (string-contains (read-text log) "outside")
+               (string-contains (read-text log) "not within the configured repository"))))))
+   (list (list "remote-include" "include" "http://127.0.0.1:9/external.xsl")
+         (list "remote-import" "import" "http://127.0.0.1:9/external.xsl")
+         (list "file-include" "include"
+               (string-append "file://" (getcwd) "/external.xsl"))))
+  (let ((java (list-ref args 5))
+        (classpath (string-append (car args)
+          "/share/kosit-validator/validator-1.6.3.jar:"
+          (car args) "/share/kosit-validator/libs/*:"
+          (getcwd) "/probe")))
+    (setenv "MALLOC_ARENA_MAX" "2")
+    (for-each
+     (lambda (case)
+       (let ((log (run (car case) java
+              (list "-Xmx512m" "-Xss512k" "-XX:+UseSerialGC"
+                    "-XX:ActiveProcessorCount=4" "-XX:CICompilerCount=2"
+                    "-XX:CompressedClassSpaceSize=64m"
+                    "-XX:ReservedCodeCacheSize=64m" "-cp" classpath
+                    "StrictLocalProbe" (cadr case)) (caddr case))))
+         (when (= (caddr case) 1)
+           (test-assert (string-append (car case) " policy refusal")
+             (string-contains (read-text log) "Only local artifacts can be resolved")))))
+     (list (list "strict-local-positive"
+                 (string-append (cadr args) "/share/xrechnung") 0)
+           (list "strict-local-remote-include"
+                 (string-append (getcwd) "/remote-include/") 1)
+           (list "strict-local-remote-import"
+                 (string-append (getcwd) "/remote-import/") 1)))))
+(test-end "einvoicing")
+(for-each
+ (lambda (file) (copy-file file (string-append output "/" file)))
+ (scandir "." (lambda (file) (or (string-suffix? ".xml" file)
+                                (string-suffix? ".xsl" file)))))
+(exit (if (zero? (test-runner-fail-count runner)) 0 1))
