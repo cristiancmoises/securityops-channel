@@ -13,9 +13,8 @@ Este canal simplesmente não existiria sem esse trabalho.
 
 | Item | Status |
 |---|---|
-| Definições de pacotes | Aplicativos, AutoFirma, Lacuna Web PKI e drivers XLibre incluídos |
+| Definições de pacotes | Ferramentas de trabalho, assinaturas digitais, bibliotecas de identidade, esquemas oficiais e drivers XLibre |
 | Dependências | GNU Guix e nonguix; o empacotamento XLibre está incluído |
-| Última atualização das receitas | 2026-10-01; limitações pendentes no índice de pacotes |
 | Validação | [Pacotes, versões e verificações](PACKAGES.md); a ativação do sistema requer reconfiguração separada |
 | Autenticação | Commits assinados e introdução do canal fixada |
 
@@ -23,7 +22,9 @@ Este canal simplesmente não existiria sem esse trabalho.
 
 | Guia | Conteúdo |
 |---|---|
-| [Índice de pacotes](PACKAGES.md) | NVIDIA, River, aplicativos atualizados, versões e política sem downgrade |
+| [Índice de pacotes](PACKAGES.md) | Pacotes por finalidade, versões verificadas e limites dos testes |
+| [Identidade e esquemas oficiais](docs/usage.md#identity-and-official-schema-data) | libdigidocpp e formatos separados de eventos e comunicação do eSocial |
+| [Documentos fiscais eletrônicos](docs/usage.md#electronic-invoicing) | KoSIT Validator e regras XRechnung fixadas para uso offline |
 | [Lacuna Web PKI](docs/webpki.pt-BR.md) | Host nativo, manifests dos navegadores e configuração do Guix Home |
 | [AutoFirma](docs/usage.md#autofirma) | Pacote Linux oficial, comandos de assinatura e limites da integração com navegadores |
 | [Validação de setembro](docs/refresh-2026-09-17.pt-BR.md) | Histórico das verificações e limitações em 17/09/2026 |

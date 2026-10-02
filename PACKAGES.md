@@ -1,9 +1,58 @@
 # Pacotes do canal
 
-Este índice registra as receitas e reexportações usadas na atualização de
-01/10/2026. As versões são as verificadas nessa data, não uma promessa de
+Este índice organiza as receitas e reexportações por finalidade. As versões
+são as verificadas nas datas indicadas, não uma promessa de
 atualização automática. O canal fixa fontes e hashes quando mantém uma receita
 própria; reexportações acompanham a revisão autenticada de seu canal de origem.
+
+## Identidade, documentos fiscais e dados oficiais
+
+Verificação de 02/10/2026. Os pacotes abaixo passaram por build, testes no
+resultado instalado e revisão independente. Adicionar o canal não os instala,
+não ativa serviços e não importa certificados.
+
+| Categoria | Pacote | Versão | Módulo |
+|---|---|---|---|
+| Identidade e assinaturas | `libdigidocpp` | 4.5.0 | `(securityops packages eid)` |
+| Documentos fiscais | `kosit-validator` | 1.6.3 | `(securityops packages einvoicing)` |
+| Documentos fiscais | `xrechnung-validator-configuration` | 2026-08-31, XRechnung 3.0.2 / CEN 1.3.16 | `(securityops packages einvoicing)` |
+| Dados governamentais | `esocial-schemas` | 1.3-20260701, S-1.3 / NT 06/2026 | `(securityops packages brazil-tax)` |
+| Dados governamentais | `esocial-communication-schemas` | 1.6 | `(securityops packages brazil-tax)` |
+
+### Verificações e limites
+
+| Pacote | Testes concluídos | Limites |
+|---|---|---|
+| libdigidocpp | 24 testes TSL, 22 casos offline com 107 asserções e 25 verificações do resultado instalado | Cartões, SiVa, OCSP/TSA ao vivo e renovação online não testados; dez casos upstream ficaram fora da seleção offline |
+| KoSIT e XRechnung | 105 verificações do resultado instalado: UBL/CII válidos e inválidos, etapas XSD/Schematron, argumentos e recusas de recursos externos | Validação offline; sem envio fiscal ou teste do modo daemon |
+| Esquemas eSocial | 441 verificações; todos os 52 XSD de eventos e 15 XSD de comunicação compilados offline; arquivos originais preservados byte a byte | Validação estrutural, sem conferir assinaturas, regras de negócio ou aceitação pelo governo |
+
+O libdigidocpp usa libxml2 2.15.4, libxslt 1.1.45 e OpenSSL 3.5.9, incluindo
+as dependências transitivas relevantes. Os testes nativos herdados passaram;
+o teste do resultado instalado confirma as bibliotecas efetivamente carregadas.
+Os auxiliares de segurança são privados a estas receitas, não uma mudança
+global no sistema.
+
+O KoSIT preserva os JARs oficiais, as licenças e os fontes correspondentes:
+é um reempacotamento binário, não uma recompilação do projeto. Um adaptador
+pequeno corrige os códigos de erro dos argumentos sem alterar os JARs. O
+pacote de configuração inclui o conjunto oficial completo de regras e relatórios;
+`xrechnung-validator` os seleciona automaticamente. O runtime Java fixado é
+17.0.20.1+1; compilador e JDK não ficam no fechamento instalado.
+
+Os dados do eSocial incluem os arquivos ZIP originais, os avisos de terceiros
+e a atribuição exigida pela licença CC-BY-ND-3.0 do site oficial. Não são
+licenciados como software livre. O suporte a CNPJ alfanumérico pertence aos
+eventos S-1.3 desta edição; o envelope de comunicação 1.6 mantém as restrições
+numéricas originais e exige validar o evento separadamente.
+
+Fontes: [libdigidocpp 4.5.0](https://github.com/open-eid/libdigidocpp/releases/tag/v4.5.0)
+e [documentação técnica do eSocial](https://www.gov.br/esocial/pt-br/documentacao-tecnica),
+[KoSIT 1.6.3](https://github.com/itplr-kosit/validator/releases/tag/v1.6.3)
+e [configuração XRechnung](https://github.com/itplr-kosit/validator-configuration-xrechnung/releases/tag/v2026-08-31).
+Consulte a [referência de uso](docs/usage.md#identity-and-official-schema-data)
+e os [comandos de validação fiscal](docs/usage.md#electronic-invoicing) para
+caminhos instalados, seleção explícita de receitas e testes reproduzíveis.
 
 ## Atualização de 01/10/2026
 
