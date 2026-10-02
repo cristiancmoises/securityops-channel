@@ -1,0 +1,27 @@
+;;; SPDX-License-Identifier: GPL-3.0-or-later
+;; Run with guix repl -L . tests/reporting.scm.in.
+(use-modules (guix packages)
+             (securityops packages reporting))
+
+(unless (and (package? arelle)
+             (string=? (package-name arelle) "arelle")
+             (string=? (package-version arelle) "2.46.0"))
+  (error "Missing or incorrect Arelle package"))
+
+(for-each (lambda (input)
+            (unless (or (package? (cadr input))
+                        (origin? (cadr input)))
+              (error "Invalid reporting input" input)))
+          (append (package-native-inputs arelle)
+                  (package-propagated-inputs arelle)))
+
+(unless (equal? '(arelle)
+                (module-map (lambda (symbol variable) symbol)
+                            (resolve-interface
+                             '(securityops packages reporting))))
+  (error "Reporting exports private dependencies"))
+
+(unless (null? (module-map (lambda (symbol variable) symbol)
+                          (resolve-interface
+                           '(securityops packages xml-security))))
+  (error "Native security dependencies are publicly exported"))

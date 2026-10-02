@@ -1,0 +1,79 @@
+(use-modules (guix packages) (guix gexp) (guix utils) (srfi srfi-13)
+             (gnu packages python) (gnu packages python-build) (gnu packages xorg)
+             (securityops packages reporting))
+
+(define safe-python
+  ((package-input-rewriting
+    (list (cons (@ (gnu packages tls) openssl)
+                (@@ (securityops packages tls-security)
+                    openssl-with-security-replacement)))) python))
+
+(define output-inputs
+  (cons arelle
+        (map cadr
+             (filter (lambda (input)
+                       (string-prefix? "python-" (package-name (cadr input))))
+                     (package-transitive-propagated-inputs arelle)))))
+
+(define site
+  (string-append "/lib/python" (version-major+minor (package-version python))
+                 "/site-packages"))
+
+(computed-file
+ "arelle-installed-check"
+ (with-imported-modules '((guix build utils))
+   #~(begin
+       (use-modules (guix build utils))
+       (let ((acceptance-output #$output))
+       (setrlimit 'as 2147483648 2147483648)
+       (setrlimit 'nproc 256 256)
+       (setrlimit 'fsize 67108864 67108864)
+       (setrlimit 'cpu 300 300)
+       (setrlimit 'core 0 0)
+       (environ '())
+       (mkdir "home" #o700)
+       (setenv "HOME" (string-append (getcwd) "/home"))
+       (setenv "XDG_CACHE_HOME" (getenv "HOME"))
+       (setenv "XDG_CONFIG_HOME" (getenv "HOME"))
+       (mkdir "tmp" #o700)
+       (setenv "TMPDIR" (string-append (getcwd) "/tmp"))
+       (setenv "LC_ALL" "C")
+       (setenv "PATH" (string-append #$safe-python "/bin:" #$xkbcomp "/bin"))
+       (setenv "OPENBLAS_NUM_THREADS" "1")
+       (setenv "OMP_NUM_THREADS" "1")
+       (setenv "GUIX_PYTHONPATH"
+               (string-join
+                (map (lambda (root) (string-append root #$site))
+                     (list #$safe-python:tk #$python-packaging #$@output-inputs)) ":"))
+       (setenv "DISPLAY" ":1")
+       (let ((pid (primitive-fork)))
+         (when (zero? pid)
+           (execl #$(file-append xorg-server-for-tests "/bin/Xvfb")
+                  "Xvfb" ":1" "-screen" "0" "800x600x24" "-nolisten" "tcp")))
+       (let loop ((remaining 50))
+         (unless (file-exists? "/tmp/.X11-unix/X1")
+           (when (zero? remaining) (error "Xvfb did not become ready"))
+           (usleep 100000)
+           (loop (- remaining 1))))
+       (invoke #$(file-append safe-python "/bin/python3")
+               #$(local-file "arelle-sanity.py")
+               (string-append #$arelle #$site))
+       (invoke #$(file-append safe-python "/bin/python3") "-c"
+               "from email.parser import BytesParser
+from importlib.metadata import distribution
+import sys, tarfile
+with tarfile.open(sys.argv[1]) as archive:
+    original = archive.extractfile('arelle_release-2.46.0/PKG-INFO').read(1048577)
+assert len(original) <= 1048576
+original = BytesParser().parsebytes(original)
+installed = distribution('arelle-release').metadata
+assert sorted(original.get_all('Requires-Dist')) == sorted(installed.get_all('Requires-Dist'))
+assert original['Requires-Python'] == installed['Requires-Python']
+print('Official Requires-Dist ranges unchanged:', len(installed.get_all('Requires-Dist')))"
+               #$(package-source arelle))
+       (invoke #$(file-append safe-python "/bin/python3")
+               #$(local-file "arelle-runtime.py")
+               #$arelle
+               #$(local-file "fixtures/arelle" #:recursive? #t))
+       (call-with-output-file acceptance-output
+         (lambda (port) (display "Arelle installed output verified\n" port)))))))
