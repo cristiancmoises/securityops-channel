@@ -34,8 +34,11 @@ verificação parcial.
 
 | Verificação | Resultado |
 |---|---|
-| AutoFirma | Build, dois testes do runtime e sete de CLI e assinatura com verificação independente pelo OpenSSL; sem instalação |
+| AutoFirma | Build com grafts padrão; JAR idêntico ao oficial |
+| Assinatura e CLI do AutoFirma | Sete testes PKCS12 e 18 verificações NSS, de ferramentas e de argumentos; assinaturas conferidas pelo OpenSSL |
+| Runtime do AutoFirma | Dois testes de compilação e subprocessos passaram |
 | Interface do AutoFirma | Janela e fontes verificadas em Xvfb; oito compartilhamentos inválidos rejeitados e caminhos com espaços aceitos |
+| NSS 3.129 | 21 grupos concluídos; 33.591 testes passaram, nenhuma falha registrada e um resultado com status desconhecido |
 | Kitty e Slang | Build e execução; descoberta do compilador e geração de SPIR-V verificadas |
 | WirePlumber | Build com PipeWire 1.6.9; 57 testes passaram, sem falhas |
 | Turborec | Build e `--version` verificadas |
@@ -59,9 +62,10 @@ de atualização; seus pins existentes foram mantidos.
 
 O AutoFirma 1.9 é a versão Linux estável; 1.9.1 e 1.9.2 são específicas para
 macOS. Usa Java 17.0.20.1+1, NSS 3.129, NSPR 4.40 e SQLite 3.53.4; não importa
-certificados nem configura navegadores. A verificação final reutilizou saídas
-existentes com `--no-grafts`; a receita mantém o comportamento normal do Guix.
-O lançador gráfico requer namespaces de usuário; cartões,
+certificados nem configura navegadores. O JAR oficial foi preservado byte a
+byte; o build e os testes finais mantiveram os grafts padrão do Guix.
+O lançador gráfico e as operações de CLI que usam NSS requerem namespaces
+de usuário. O comando padrão `certutil` está incluído; cartões,
 Wayland e integração completa com navegadores ainda não foram testados.
 Consulte as [notas de uso](docs/usage.md#autofirma) para os requisitos.
 
@@ -70,7 +74,9 @@ Consulte as [notas de uso](docs/usage.md#autofirma) para os requisitos.
 O perfil de usuário recebeu Glances 4.5.7, Kitty 0.49.2, Chrome
 154.0.8037.92-1, Chromium portátil 154.0.8037.57-1, Docker CLI 29.8.2 e
 Podman 6.1.3. Os demais pacotes e as gerações anteriores foram preservados.
-O AutoFirma não foi instalado.
+O AutoFirma 1.9 também foi instalado no perfil de usuário: os 41 pacotes
+anteriores foram mantidos, e o perfil passou a conter 42 pacotes. Os comandos
+`autofirma`, `autofirmacl` e `certutil` estão disponíveis em `~/.guix-profile/bin`.
 
 As gerações da Home e do sistema não foram ativadas nesta revisão. O fluxo
 local continua sendo `~/home.sh` para a Home e `~/up-river.sh` para o sistema.
