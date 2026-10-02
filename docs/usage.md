@@ -23,7 +23,9 @@ The recipe preserves the official signed JAR and its bundled Java libraries.
 It uses a private, Guix-linked Eclipse Temurin **17.0.20.1+1** runtime rather
 than depending on whichever Java version happens to be in your profile.
 NSS 3.129 and NSPR 4.40 reuse the channel's LibreWolf inputs; the native
-library directory also includes SQLite 3.53.4.
+library directory also includes SQLite 3.53.4. The package exposes the
+standard NSS `certutil` command and makes the matching tools available to
+AutoFirma's Java subprocesses.
 
 It includes a desktop entry for `afirma://` links, but does not register it as
 your default handler. It does not run privileged installer scripts, import
@@ -31,13 +33,15 @@ certificates or alter Firefox settings. Browser signing requires separate
 provisioning and trust of the local-service certificate; smart cards require
 a running PC/SC service.
 
-### Graphical launch and external documents
+### Launchers and external documents
 
-The graphical launcher uses Bubblewrap to supply conventional NSS paths and
-a readable `/opt` without changing the host filesystem. It requires
+The graphical launcher and command-line operations using `-store mozilla`
+or `-store auto` (the default) use Bubblewrap to supply conventional NSS paths
+and a readable `/opt` without changing the host filesystem. They require
 unprivileged user namespaces. This is a compatibility layout, not a security
 sandbox: your home, network and selected display, session-bus and PC/SC sockets
-remain accessible. `autofirmacl` runs directly, without this layout.
+remain accessible. Help, signature verification and explicitly selected
+non-NSS stores, such as `-store pkcs12:…`, run directly without this layout.
 
 Documents in your home are available by default. To select documents from
 other existing directories, explicitly share them before launching:
@@ -48,29 +52,43 @@ AUTOFIRMA_SHARED_DIRECTORIES="/mnt/documents:/media/archive" autofirma
 
 Use absolute directory paths separated by colons. Broad system roots and
 invalid paths are rejected; spaces within a directory name are supported.
+NSS-backed command-line operations preserve your working directory and
+relative document paths. Run them from your home or an explicitly shared
+directory:
+
+```sh
+cd /mnt/documents
+AUTOFIRMA_SHARED_DIRECTORIES="/mnt/documents" \
+  autofirmacl listaliases -store mozilla -xml
+```
 
 ### Verification
 
-The command-line checks sign a disposable document with a temporary PKCS12
-identity and independently verify the detached signature with OpenSSL.
-They do not use your certificates or live preferences. Two runtime checks
-exercise Java subprocess creation, and eight invalid directory shares are
-rejected. Desktop metadata and GUI startup under Xvfb have also been checked,
-including paths with spaces. Signing through the graphical interface, smart
-cards, Wayland and end-to-end browser integration remain untested.
+The command-line checks use disposable PKCS12 and NSS identities. They list
+the NSS aliases through both launchers and independently verify detached
+signatures with OpenSSL, including relative paths and a home containing
+spaces. An isolated Java test checks that AutoFirma can run `certutil` inside
+the compatibility layout. No personal certificates or live preferences are
+used. Separate tests exercise Java subprocess creation and reject eight
+invalid directory shares.
+
+Desktop metadata and GUI startup under Xvfb have also been checked. Signing
+through the graphical interface, smart cards, Wayland and end-to-end browser
+integration remain untested.
 
 To verify the package without installing it:
 
 ```sh
-guix build -L . -e '(@ (securityops packages autofirma) autofirma)'
-guile -s tests/autofirma.scm.in /gnu/store/…-autofirma-1.9
-bash tests/autofirma-gui.sh /gnu/store/…-autofirma-1.9
+output=$(guix build -L . -e '(@ (securityops packages autofirma) autofirma)')
+guile -s tests/autofirma.scm.in "$output"
+bash tests/autofirma-gui.sh "$output"
 ```
 
-The final native-library checks used existing runtime outputs with
-`guix build --no-grafts`. Normal builds keep Guix's default grafting behavior
-and may need additional output substitutes or a builder. No grafting policy
-was disabled in the recipe.
+The NSS integration test is `tests/autofirma-nss.sh`. Pass the package output
+and the matching NSS tools output as its two arguments; it also needs OpenSSL
+and Java 17's `javac` and `jar` on `PATH`. Run it outside the Guix build sandbox,
+where unprivileged user namespaces are available. Normal builds retain Guix's
+default grafting and substitute authentication.
 
 ## Services
 
