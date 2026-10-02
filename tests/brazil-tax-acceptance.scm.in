@@ -1,0 +1,36 @@
+;;; SPDX-License-Identifier: GPL-3.0-or-later
+;;; Run with: guix build -L . -f tests/brazil-tax-acceptance.scm.in
+
+(use-modules (gnu packages python) (gnu packages xml)
+             (guix gexp) (securityops packages brazil-tax))
+
+(computed-file
+ "esocial-installed-acceptance"
+ #~(begin
+     (define (run . arguments)
+       (unless (zero? (apply system* arguments))
+         (error "Installed schema acceptance failed" arguments)))
+     (for-each (lambda (item) (apply setrlimit item))
+               '((as 1073741824 1073741824) (nproc 128 128)
+                 (fsize 16777216 16777216) (cpu 120 120) (core 0 0)))
+     (let ((scratch (string-append (getcwd) "/scratch"))
+           (output #$output))
+       (mkdir scratch)
+       (environ (list (string-append "HOME=" scratch)
+                      (string-append "TMPDIR=" scratch)
+                      "LANG=C" "LC_ALL=C" "XML_CATALOG_FILES="))
+       (run #$(file-append python-minimal "/bin/python3")
+               #$(local-file "esocial-schemas.py") "events"
+               #$(file-append esocial-schemas "/share/esocial/events")
+               #$(file-append esocial-schemas "/share/esocial/events/source.zip")
+               #$(file-append libxml2 "/bin/xmllint"))
+       (run #$(file-append python-minimal "/bin/python3")
+               #$(local-file "esocial-schemas.py") "communication"
+               #$(file-append esocial-communication-schemas
+                              "/share/esocial/communication")
+               #$(file-append esocial-communication-schemas
+                              "/share/esocial/communication/source.zip")
+               #$(file-append libxml2 "/bin/xmllint"))
+       (call-with-output-file output
+         (lambda (port)
+           (display "Installed schema acceptance passed\n" port))))))
