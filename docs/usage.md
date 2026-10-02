@@ -90,6 +90,57 @@ and Java 17's `javac` and `jar` on `PATH`. Run it outside the Guix build sandbox
 where unprivileged user namespaces are available. Normal builds retain Guix's
 default grafting and substitute authentication.
 
+## Structured reporting
+
+| Package | Version | Module | Interface |
+|---|---|---|---|
+| `arelle` | 2.46.0 | `(securityops packages reporting)` | `arelle`, upstream `arelleCmdLine` and Python modules |
+
+### Offline XBRL validation
+
+Select the channel recipe explicitly when installing from a checkout:
+
+```sh
+guix install -L . -e '(@ (securityops packages reporting) arelle)'
+arelle --file instance.xbrl --validate \
+  --internetConnectivity=offline --disablePersistentConfig \
+  --plugins=inlineXbrlDocumentSet --logFile report.json
+```
+
+Provide any required taxonomy locally. Offline mode refuses missing remote
+resources rather than fetching them. Inspect the JSON log for `error` and
+`critical` entries: upstream Arelle can exit zero even for an invalid document.
+The package retains its plugins and standard-schema cache; it does not install
+SBR-NL or other national taxonomies automatically.
+
+### Verification and graphical scope
+
+The build passes 5,424 selected upstream tests, not the entire conformance
+suite. Installed acceptance validates real local XBRL, a missing-context
+negative, an explicit offline refusal, Python-library fact values, plugin/cache
+availability and the actual XML/XSLT/TLS versions. Dependency ranges and script
+entry points are checked without skipping or weakening upstream requirements.
+
+The original Linux TkTable payload is replaced by the tested, source-built
+2.12.1 widget and its required copyright notice. Private Xvfb tests cover
+graphical entry-point loading and table editing/reading on x86_64. They do not
+prove a complete graphical workflow, optional-plugin integration or live
+regulatory acceptance.
+
+From a checkout, repeat installed acceptance without installing or using your
+own display, configuration or credentials:
+
+```sh
+guix build -L . -e '(@ (securityops packages reporting) arelle)'
+guix build -L . -f tests/reporting-acceptance.scm.in --check
+```
+
+The acceptance builder uses a private display, scratch Home and an allowlisted
+environment in the network-isolated Guix sandbox. Resource limits apply before
+target imports or execution. `--check` repeats this deterministic marker-only
+build even if an earlier successful result exists; timestamped validation logs
+remain in the build output, not in the marker.
+
 ## Identity and official schema data
 
 These packages are optional. They do not activate services, import certificates

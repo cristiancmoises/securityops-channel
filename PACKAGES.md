@@ -5,6 +5,37 @@ são as verificadas nas datas indicadas, não uma promessa de
 atualização automática. O canal fixa fontes e hashes quando mantém uma receita
 própria; reexportações acompanham a revisão autenticada de seu canal de origem.
 
+## Relatórios estruturados
+
+Verificação de 02/10/2026. O Arelle valida documentos XBRL e oferece módulos
+Python para processamento de relatórios; não instala taxonomias nacionais por
+associação.
+
+| Pacote | Versão | Módulo | Interface |
+|---|---|---|---|
+| `arelle` | 2.46.0 | `(securityops packages reporting)` | `arelle`, `arelleCmdLine` e módulos Python |
+
+### Verificações e limites
+
+| Área | Verificação concluída | Limite |
+|---|---|---|
+| Núcleo | 5.424 testes upstream em 12 módulos selecionados | Não é a suíte completa de conformidade nem uma verificação de todos os plugins opcionais |
+| Resultado instalado | CLI e biblioteca com XBRL válido/inválido, recusa de taxonomia remota em modo offline, plugin e cache local | Sem serviços externos ou aceitação regulatória |
+| Interface gráfica | Carregamento do entry point e edição/leitura no TkTable nativo sob Xvfb | Evidência em x86_64, não um fluxo completo da interface gráfica |
+
+As dependências efetivamente carregadas são lxml 6.1.0, libxml2 2.15.4,
+libxslt 1.1.45 e OpenSSL 3.5.9. A verificação de metadados, faixas de versão,
+imports e entry points executa de fato; suas cinco condições de falha têm
+testes de regressão. As 33 declarações de dependência originais permanecem
+inalteradas. O TkTable é compilado de fonte oficial fixada, com seu aviso de
+copyright preservado, e
+os wrappers não incluem os caminhos de pytest/setuptools usados no build.
+
+O CLI pode terminar com código zero mesmo quando encontra erros de validação:
+confira os níveis `error` e `critical` no relatório, não apenas o código de saída.
+Fonte: [Arelle 2.46.0](https://github.com/Arelle/Arelle/releases/tag/2.46.0).
+Consulte os [comandos e testes reproduzíveis](docs/usage.md#structured-reporting).
+
 ## Identidade, documentos fiscais e dados oficiais
 
 Verificação de 02/10/2026. Os pacotes abaixo passaram por build, testes no

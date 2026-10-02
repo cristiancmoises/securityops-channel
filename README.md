@@ -23,6 +23,7 @@ here. This channel simply wouldn't exist without that work.
 | Guide | Contents |
 |---|---|
 | [Package index](PACKAGES.md) | Packages grouped by purpose, verified versions and test limits (pt-BR) |
+| [XBRL reporting](docs/usage.md#structured-reporting) | Arelle CLI/library, offline validation and graphical-test limits |
 | [Identity and official schemas](docs/usage.md#identity-and-official-schema-data) | libdigidocpp and separate eSocial event/communication formats |
 | [Electronic invoicing](docs/usage.md#electronic-invoicing) | KoSIT Validator and pinned offline XRechnung rules |
 | [Lacuna Web PKI](docs/webpki.md) | Native host, browser manifests and Guix Home setup |
