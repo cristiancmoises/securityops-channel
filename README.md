@@ -13,9 +13,8 @@ here. This channel simply wouldn't exist without that work.
 
 | Item | Status |
 |---|---|
-| Package definitions | Workstation applications, AutoFirma, Lacuna Web PKI and bundled XLibre drivers |
+| Package definitions | Workstation tools, digital signatures, identity libraries, official schema data and XLibre drivers |
 | Dependencies | GNU Guix and nonguix; XLibre packaging is included |
-| Latest recipe refresh | 2026-10-01; remaining limitations are listed in the package index |
 | Validation | [Package versions and checks](PACKAGES.md); system activation requires a separate reconfiguration |
 | Authentication | Signed commits and a pinned channel introduction |
 
@@ -23,7 +22,9 @@ here. This channel simply wouldn't exist without that work.
 
 | Guide | Contents |
 |---|---|
-| [Package index](PACKAGES.md) | NVIDIA, River, updated applications, versions and no-downgrade policy (pt-BR) |
+| [Package index](PACKAGES.md) | Packages grouped by purpose, verified versions and test limits (pt-BR) |
+| [Identity and official schemas](docs/usage.md#identity-and-official-schema-data) | libdigidocpp and separate eSocial event/communication formats |
+| [Electronic invoicing](docs/usage.md#electronic-invoicing) | KoSIT Validator and pinned offline XRechnung rules |
 | [Lacuna Web PKI](docs/webpki.md) | Native host, browser manifests and Guix Home setup |
 | [AutoFirma](docs/usage.md#autofirma) | Official Linux package, signing commands and browser-integration limits |
 | [September validation](docs/refresh-2026-09-17.md) | Historical checks and limitations recorded on 2026-09-17 |

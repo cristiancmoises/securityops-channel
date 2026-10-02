@@ -90,6 +90,129 @@ and Java 17's `javac` and `jar` on `PATH`. Run it outside the Guix build sandbox
 where unprivileged user namespaces are available. Normal builds retain Guix's
 default grafting and substitute authentication.
 
+## Identity and official schema data
+
+These packages are optional. They do not activate services, import certificates
+or change user, Home or system profiles when you add the channel.
+
+| Package | Module | Installed interface |
+|---|---|---|
+| `libdigidocpp` 4.5.0 | `(securityops packages eid)` | Native library, headers and upstream `digidoc-tool` |
+| `esocial-schemas` 1.3-20260701 | `(securityops packages brazil-tax)` | `share/esocial/events`, S-1.3 / NT 06/2026 |
+| `esocial-communication-schemas` 1.6 | `(securityops packages brazil-tax)` | `share/esocial/communication`, separate envelope/WSDL format |
+
+### Native identity library
+
+Use the channel module explicitly in a manifest to distinguish it from an older
+Guix package with the same name:
+
+```scheme
+(use-modules ((securityops packages eid) #:prefix eid:) (guix profiles))
+(packages->manifest (list eid:libdigidocpp))
+```
+
+The library supports DigiDoc/ASiC operations; it is not the DigiDoc4 desktop
+application or an all-in-one Open-EID installation. Installed acceptance checks
+create and reopen containers, validate signed local fixtures, and reject
+tampered timestamps, forged keys, ZIP truncation and unsafe paths. The actual
+loaded libxml2, libxslt and OpenSSL versions are checked after default grafting.
+Smart cards, live SiVa/OCSP/TSA, online renewal and fresh legal trust decisions
+are not covered by these offline tests.
+
+To build from a checkout and freshly check the completed, default-grafted
+library without installing:
+
+```sh
+library=$(guix build -L . -e '(@ (securityops packages eid) libdigidocpp)')
+SECURITYOPS_EID_OUTPUT="$library" guix build -L . \
+  -e '((@@ (securityops packages eid) libdigidocpp-acceptance-for)
+       (getenv "SECURITYOPS_EID_OUTPUT"))' --check
+```
+
+The explicit store path prevents a grafted or cached acceptance marker from
+standing in for execution against the completed library. `--check` repeats
+the deterministic acceptance build even when its result already exists.
+
+### eSocial schema data
+
+The event package contains 52 original XSD files effective July 1, 2026.
+Communication 1.6 contains 15 XSD files, WSDL, the official response example
+and change log. Both retain the original ZIP, attribution and embedded notices.
+All imports resolve locally; neither data package has runtime dependencies.
+
+Get the data directory without installing a parser or changing a profile:
+
+```sh
+events=$(guix build -L . -e '(@ (securityops packages brazil-tax) esocial-schemas)')
+printf '%s\n' "$events/share/esocial/events"
+guix build -L . -f tests/brazil-tax-acceptance.scm.in
+```
+
+Use an XML Schema validator with networking disabled and this directory's local
+imports. A successful XSD check is not signature verification, complete business
+validation or government acceptance. The S-1.3 event schemas support
+alphanumeric CNPJ; communication 1.6 does not gain that support by association.
+Its envelope deliberately skips embedded-event validation, so validate the event
+separately. The original data is distributed unchanged under the official site's
+CC-BY-ND-3.0 terms, with its original XMLDSig third-party notice preserved.
+
+## Electronic invoicing
+
+| Package | Version | Purpose |
+|---|---|---|
+| `kosit-validator` | 1.6.3 | Generic scenario-based XML/Schematron validator |
+| `xrechnung-validator-configuration` | 2026-08-31 | Complete offline XRechnung 3.0.2 / CEN 1.3.16 rules and convenience launcher |
+
+Both are in `(securityops packages einvoicing)`. The configuration installs
+`xrechnung-validator`, which selects its immutable `share/xrechnung/scenarios.xml`
+and repository automatically. Install it only if you want these commands:
+
+```sh
+guix install kosit-validator xrechnung-validator-configuration
+kosit-validator --version
+mkdir -p reports
+xrechnung-validator -o reports invoice.xml
+```
+
+Check both the exit code and the generated assessment report. Accepted invoices
+exit 0; rejected invoices exit 1; bad arguments exit 255; configuration errors
+exit 254. The complete installed tests exercise real UBL/CII positives and
+business-rule negatives through XSD, CEN and XRechnung Schematron stages.
+They also cover named/shared repositories, malformed XML and explicit policy
+refusal of XXE, external stylesheets and entity expansion.
+
+The original distribution JARs remain unchanged. Exact corresponding source
+and third-party notices are retained under `share/kosit-validator`; a small
+compiled entrypoint supplies correct argument-error exits and `--version`.
+The fixed Java runtime is independent of your profile's Java and the launcher
+clears JVM option/classpath injection variables. The runtime closure does not
+retain the compiler/JDK used for that entrypoint.
+
+Default resolution uses KoSIT's STRICT_RELATIVE policy and pinned local rules.
+This is not a general process sandbox or a guarantee for arbitrary custom
+repositories/direct API callers. Validation does not transmit invoices, prove
+tax acceptance or test daemon-mode service operation. No service is activated.
+
+Build the complete installed acceptance suite in a network-isolated Guix build:
+
+```sh
+guix build -L . -e '(@ (securityops packages einvoicing) kosit-validator-tests)'
+```
+
+Guix may reuse an existing successful result. For a separate execution, give
+the acceptance derivation a new name that you have not built before:
+
+```sh
+guix build -L . -e '(begin
+  (use-modules (guix gexp) (securityops packages einvoicing))
+  (computed-file "kosit-validator-local-check"
+    (computed-file-gexp kosit-validator-tests)))'
+```
+
+Keep its detailed `tests.log` and reports. Do not use `--check` as a functional
+rerun here: upstream reports include timestamps, so byte-for-byte reproducibility
+is a separate concern from validation results.
+
 ## Services
 
 Two native **GNU Shepherd** service types for `guix system reconfigure` — the
