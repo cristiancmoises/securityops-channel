@@ -148,6 +148,7 @@ Java security configuration and CA certificates are preserved.")
                              ("xdg" ,xdg-utils)
                              ("pcsc" ,pcsc-lite)
                              ("nss" ,%autofirma-nss)
+                             ("nss-tools" ,#~#$%autofirma-nss-package:bin)
                              ("fonts" ,%autofirma-fonts))))
                      read))))))
 
@@ -193,13 +194,14 @@ Java security configuration and CA certificates are preserved.")
                 (install-file "usr/lib/Autofirma/autofirma.jar"
                               (dirname jar))
                 (mkdir-p bin)
+                ;; Guix's NSS "bin" output places tools at its root rather
+                ;; than in bin/.  Expose the standard command in the profile.
+                (symlink (string-append #$%autofirma-nss-package:bin
+                                        "/certutil")
+                         (string-append bin "/certutil"))
                 (for-each (lambda (name)
-                            (let ((launcher (if (string=? name
-                                                          "autofirma-java")
-                                                (string-append #$output
-                                                               "/libexec/"
-                                                               name)
-                                                (string-append bin "/" name))))
+                            (let ((launcher (string-append #$output
+                                                           "/libexec/" name)))
                               (mkdir-p (dirname launcher))
                               (call-with-output-file launcher
                                 (lambda (port)
@@ -223,16 +225,21 @@ Java security configuration and CA certificates are preserved.")
                                           java
                                           #$(file-append pcsc-lite
                                              "/lib/libpcsclite.so.1")
-                                          (if (string=? name "autofirmacl")
-                                              "-Dafirma_debug_level=OFF "
+                                          (if (string=? name "autofirma-cli-java")
+                                              (string-append
+                                               "\"-Duser.home=$HOME\" "
+                                               "-Dafirma_debug_level=OFF ")
                                               "\"-Duser.home=$HOME\" ")
                                           jar)))
                               (chmod launcher #o755)
                               (wrap-program launcher
                                 `("PATH" prefix
-                                  (,#$(file-append xdg-utils "/bin"))))))
-                          '("autofirma-java" "autofirmacl")))
-              (let ((launcher (string-append #$output "/bin/autofirma")))
+                                  (,#$(file-append xdg-utils "/bin")
+                                   ,#$%autofirma-nss-package:bin)))))
+                          '("autofirma-java" "autofirma-cli-java")))
+              (for-each
+               (lambda (name)
+                (let ((launcher (string-append #$output "/bin/" name)))
                 (copy-file #$(local-file "aux-files/autofirma-gui.sh")
                            launcher)
                 (substitute* launcher
@@ -251,7 +258,8 @@ Java security configuration and CA certificates are preserved.")
                    #$%autofirma-fonts)
                   (("@BWRAP@")
                    #$(file-append bubblewrap "/bin/bwrap")))
-                (chmod launcher #o755))
+                (chmod launcher #o755)))
+               '("autofirma" "autofirmacl"))
               (install-file "usr/lib/Autofirma/Autofirma.png"
                             (string-append #$output
                              "/share/icons/hicolor/128x128/apps"))
@@ -323,8 +331,9 @@ certificate installation scripts, and Firefox preference overrides are not
 installed or executed.  Browser integration requires separately provisioning
 and trusting AutoFirma's local-service certificate; installing this package
 does not change any certificate store.  Smart-card access requires a running
-PC/SC service.  The GUI requires available unprivileged user namespaces and
-uses Bubblewrap only to provide compatible NSS paths and a readable
+PC/SC service.  The GUI and NSS-backed command-line operations require
+available unprivileged user namespaces and
+use Bubblewrap only to provide compatible NSS paths and a readable
 @file{/opt}, not as a security sandbox.  The real user home and selected
 display, session-bus and PC/SC sockets remain accessible.  Directories outside
 the home can be shared explicitly using the colon-separated

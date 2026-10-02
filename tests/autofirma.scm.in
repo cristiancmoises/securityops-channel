@@ -42,6 +42,7 @@ class SpawnTest {
 (define (run-tests output)
   (let ((launcher (string-append output "/bin/autofirma"))
         (test-home (mkdtemp "/tmp/autofirma-check.XXXXXX")))
+    (setenv "HOME" test-home)
     (test-begin "autofirma")
     (let ((runner (test-runner-current)))
       (test-assert "the packaged launcher is executable"
@@ -52,7 +53,9 @@ class SpawnTest {
       (when (file-exists? launcher)
         (let* ((pipe (open-pipe* OPEN_READ "env"
                                  (string-append
-                                  "JAVA_TOOL_OPTIONS=-Djava.awt.headless=true"
+                                  "JAVA_TOOL_OPTIONS="
+                                  (or (getenv "JAVA_TOOL_OPTIONS") "")
+                                  " -Djava.awt.headless=true"
                                   " -Duser.home=" test-home
                                   " -Djava.util.prefs.userRoot=" test-home
                                   " -Djava.util.prefs.systemRoot=" test-home)
@@ -86,7 +89,9 @@ class SpawnTest {
         (test-equal "sign a document using the packaged runtime" 0
           (system* "env"
                    (string-append
-                    "JAVA_TOOL_OPTIONS=-Djava.awt.headless=true"
+                    "JAVA_TOOL_OPTIONS="
+                    (or (getenv "JAVA_TOOL_OPTIONS") "")
+                    " -Djava.awt.headless=true"
                     " -Duser.home=" test-home
                     " -Djava.util.prefs.userRoot=" test-home
                     " -Djava.util.prefs.systemRoot=" test-home)
