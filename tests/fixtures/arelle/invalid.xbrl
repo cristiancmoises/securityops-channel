@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xbrli:xbrl xmlns:xbrli="http://www.xbrl.org/2003/instance"
+            xmlns:link="http://www.xbrl.org/2003/linkbase"
+            xmlns:xlink="http://www.w3.org/1999/xlink"
+            xmlns:iso4217="http://www.xbrl.org/2003/iso4217"
+            xmlns:test="https://example.invalid/arelle-test">
+  <link:schemaRef xlink:type="simple" xlink:href="taxonomy.xsd"/>
+  <xbrli:unit id="usd"><xbrli:measure>iso4217:USD</xbrli:measure></xbrli:unit>
+  <test:Revenue contextRef="missing" unitRef="usd" decimals="0">42</test:Revenue>
+</xbrli:xbrl>
