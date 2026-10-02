@@ -23,6 +23,7 @@ Este canal simplesmente não existiria sem esse trabalho.
 | Guia | Conteúdo |
 |---|---|
 | [Índice de pacotes](PACKAGES.md) | Pacotes por finalidade, versões verificadas e limites dos testes |
+| [Relatórios XBRL](docs/usage.md#structured-reporting) | CLI/biblioteca Arelle, validação offline e limites dos testes gráficos |
 | [Identidade e esquemas oficiais](docs/usage.md#identity-and-official-schema-data) | libdigidocpp e formatos separados de eventos e comunicação do eSocial |
 | [Documentos fiscais eletrônicos](docs/usage.md#electronic-invoicing) | KoSIT Validator e regras XRechnung fixadas para uso offline |
 | [Lacuna Web PKI](docs/webpki.pt-BR.md) | Host nativo, manifests dos navegadores e configuração do Guix Home |
