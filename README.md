@@ -81,6 +81,67 @@ It includes English and Brazilian Portuguese documentation under
 `share/doc/turborec`. Auto can fall back to CPU; explicitly selecting a GPU
 requires a compatible driver and an FFmpeg build with that encoder.
 
+### FFmpeg and NVIDIA encoding
+
+`(securityops packages video)` provides FFmpeg 9.0.2 and NVENC headers
+13.1.15.0. For a first installation, choose the CPU/general-purpose build
+without NVIDIA dependencies:
+
+```sh
+guix package -e '(@ (securityops packages video) ffmpeg)'
+```
+
+For NVIDIA's new-feature driver, choose the explicit NVENC/NVDEC variant.
+If `ffmpeg` is already installed in the same user profile, replace it in one
+transaction:
+
+```sh
+guix package -r ffmpeg -e '(@ (securityops packages video) ffmpeg-nvidia-new-feature)'
+```
+
+If neither variant is installed in that profile, omit the removal:
+
+```sh
+guix package -e '(@ (securityops packages video) ffmpeg-nvidia-new-feature)'
+```
+
+To switch an installed NVIDIA variant back to CPU/general-purpose:
+
+```sh
+guix package -r ffmpeg-nvidia-new-feature -e '(@ (securityops packages video) ffmpeg)'
+```
+
+Do not keep both variants in one profile: their executable and library files
+collide. Removal requires the named package to be installed. Packages in
+other profiles are unchanged. Check `ffmpeg -version` and
+`ffmpeg -hide_banner -encoders` after choosing the appropriate command.
+
+SDK 13.1 requires driver 610 or newer. The CUDA, NVENC and NVCUVID userspace
+libraries embedded in this build must also match the running kernel driver.
+This package does not install or activate a kernel module. Listing an encoder
+does not prove that hardware encoding works; test an actual encode before
+using it for recording. If Guix Home owns your `ffmpeg`, select this variant
+in `home.scm` and reconfigure that profile; check `command -v ffmpeg` to
+confirm which executable wins. Already-built applications may retain their
+own FFmpeg dependency: changing the terminal command does not replace it.
+
+An actual short encoding check, without capturing your screen or microphone:
+
+```sh
+ffmpeg -hide_banner -nostdin -f lavfi -i testsrc2=size=1280x720:rate=23 \
+  -frames:v 23 -an -c:v h264_nvenc -preset p6 -f null -
+```
+
+Validated on x86_64-linux with an RTX 4060 and driver 615.71.09: both native
+builds passed 2,895 FATE tests each, including all three Frei0r tests. Short
+synthetic H.264, HEVC and AV1 videos passed NVENC encoding, NVDEC decoding,
+4K/23 fps, YUV420 and BT.709 metadata checks in MP4/MKV/WebM. CPU H.264/AAC
+recording and complete decoding also passed. This does not establish support
+for every GPU, other architectures, or an application's separate capture
+backend; those need their own tests.
+
+Recipe regression checks: `guix repl -L . tests/ffmpeg-packages.scm`.
+
 River 0.4 and its desktop helpers are available through
 `(securityops packages river)`. The [separate-profile example](docs/usage.md#consuming-the-channel-from-etcconfigscm-and-homescm)
 also includes the updated audio packages. River 0.4 needs an external window
