@@ -81,6 +81,67 @@ O pacote inclui documentação em inglês e português do Brasil em
 `share/doc/turborec`. Auto pode usar CPU quando a GPU não funciona; selecionar
 uma GPU explicitamente exige driver compatível e FFmpeg com esse encoder.
 
+### FFmpeg e codificação NVIDIA
+
+O módulo `(securityops packages video)` oferece FFmpeg 9.0.2 e headers NVENC
+13.1.15.0. Para uma primeira instalação, escolha CPU e uso geral, sem
+dependências proprietárias NVIDIA:
+
+```sh
+guix package -e '(@ (securityops packages video) ffmpeg)'
+```
+
+Para o driver NVIDIA new-feature, escolha a variante explícita NVENC/NVDEC.
+Se `ffmpeg` já estiver instalado no mesmo perfil do usuário, substitua-o em
+uma única transação:
+
+```sh
+guix package -r ffmpeg -e '(@ (securityops packages video) ffmpeg-nvidia-new-feature)'
+```
+
+Se nenhuma das variantes estiver instalada nesse perfil, não use a remoção:
+
+```sh
+guix package -e '(@ (securityops packages video) ffmpeg-nvidia-new-feature)'
+```
+
+Para voltar da variante NVIDIA já instalada para CPU e uso geral:
+
+```sh
+guix package -r ffmpeg-nvidia-new-feature -e '(@ (securityops packages video) ffmpeg)'
+```
+
+Não mantenha ambas no mesmo perfil: os arquivos dos executáveis e bibliotecas
+entram em conflito. A remoção exige que o pacote indicado esteja instalado.
+Pacotes de outros perfis não são alterados. Confira `ffmpeg -version` e
+`ffmpeg -hide_banner -encoders` após escolher o comando adequado.
+
+O SDK 13.1 exige driver 610 ou superior. As bibliotecas CUDA, NVENC e NVCUVID
+usadas pelo pacote também precisam corresponder ao driver carregado no kernel.
+Instalar esse pacote não instala nem ativa um módulo do kernel. O encoder
+aparecer na lista não comprova funcionamento: faça uma codificação real antes
+de gravar. Se o Guix Home fornece seu `ffmpeg`, selecione a variante no
+`home.scm` e reconfigure esse perfil; confira `command -v ffmpeg` para saber
+qual executável tem prioridade. Aplicativos já compilados podem usar um FFmpeg
+próprio: trocar o comando do terminal não substitui essa dependência.
+
+Teste curto de codificação real, sem capturar sua tela ou seu microfone:
+
+```sh
+ffmpeg -hide_banner -nostdin -f lavfi -i testsrc2=size=1280x720:rate=23 \
+  -frames:v 23 -an -c:v h264_nvenc -preset p6 -f null -
+```
+
+Validado em x86_64-linux com RTX 4060 e driver 615.71.09: as duas compilações
+passaram em 2.895 testes FATE cada, incluindo os três testes Frei0r. Vídeos
+sintéticos curtos em H.264, HEVC e AV1 passaram na codificação NVENC,
+decodificação NVDEC e conferência de 4K/23 fps, YUV420 e metadados BT.709 em
+MP4/MKV/WebM. A gravação H.264/AAC por CPU e a decodificação completa também
+passaram. Isso não comprova suporte a todas as GPUs, outras arquiteturas ou
+ao backend de captura específico de um aplicativo; eles exigem testes próprios.
+
+Teste das receitas: `guix repl -L . tests/ffmpeg-packages.scm`.
+
 O River 0.4 e seus auxiliares estão em `(securityops packages river)`.
 O [exemplo de perfil separado](docs/usage.md#consuming-the-channel-from-etcconfigscm-and-homescm)
 também inclui os pacotes de áudio atualizados. O River 0.4 precisa de um
