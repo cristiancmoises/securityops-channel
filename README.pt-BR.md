@@ -70,7 +70,7 @@ Instalar no perfil do usuário não substitui automaticamente um pacote do
 Guix Home ou do sistema. Reconfigure o perfil responsável pelo pacote.
 Use `(commit "...")` para fixar uma revisão reproduzível.
 
-O TurboRec 3.10.2 está disponível em `(securityops packages apps)`:
+O TurboRec 3.10.4 está disponível em `(securityops packages apps)`:
 
 ```sh
 guix package -e '(@ (securityops packages apps) turborec)'
@@ -80,6 +80,32 @@ turborec gui
 O pacote inclui documentação em inglês e português do Brasil em
 `share/doc/turborec`. Auto pode usar CPU quando a GPU não funciona; selecionar
 uma GPU explicitamente exige driver compatível e FFmpeg com esse encoder.
+Manual Chroma começa desligado (4:2:0 automático e compatível); inglês e o
+perfil Best/Auto/23 fps/4K continuam padrão no aplicativo principal.
+Os arquivos concluídos são verificados quanto aos fluxos, duração positiva e
+primeiros quadros antes de confirmar Saved; essa checagem limitada não examina
+o arquivo inteiro. O launcher legado preserva os argumentos também no Bash 3.2.
+
+Para NVIDIA/Wayland wlroots, a variante explícita `turborec-nvidia-new-feature`
+usa wf-recorder 0.6.0/FFmpeg 8.1.3 realmente pareados e com NVENC. O restante
+do pipeline usa FFmpeg 9.0.2. Trocar o FFmpeg do terminal não muda a libavcodec
+do recorder; o FFmpeg 9 não é compatível com a ABI desse build do wf-recorder.
+Depois de atualizar o canal, escolha o comando adequado:
+
+```sh
+# Primeira instalação, sem nenhuma variante do aplicativo nesse perfil
+guix package -e '(@ (securityops packages apps) turborec-nvidia-new-feature)'
+# OU substitua o turborec genérico já instalado na mesma transação
+guix package -r turborec -e '(@ (securityops packages apps) turborec-nvidia-new-feature)'
+```
+
+Não instale ambas no mesmo perfil: elas fornecem os mesmos comandos. O pacote
+genérico continua sem dependências proprietárias NVIDIA. A variante não troca
+nem ativa o driver do kernel, não altera bibliotecas globalmente e não reinicia
+o sistema. A captura/conversão passa pela CPU e a codificação usa a GPU; não é
+um pipeline CUDA sem cópias. A checagem do perfil não certifica todos os dispositivos.
+Testes das receitas: `guix repl -L . tests/wf-recorder-packages.scm` e
+`guix repl -L . tests/turborec-backend-packages.scm`.
 
 ### FFmpeg e codificação NVIDIA
 

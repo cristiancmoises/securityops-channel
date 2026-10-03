@@ -114,6 +114,64 @@
 decoding.  Its userspace libraries must match the running NVIDIA kernel
 driver; installing it does not replace the kernel module."))))
 
+;;; wf-recorder 0.6.0 supports FFmpeg 8, not FFmpeg 9's removed AVCodec fields.
+;;; Keep this maintained compatibility release separate from the default
+;;; FFmpeg 9 packages.  The archive signature was verified against FFmpeg's
+;;; published key FCF986EA15E6E293A5644F10B4322F04D67658D8.
+(define-public ffmpeg-8-nvidia-new-feature
+  (package
+    (inherit gnu:ffmpeg)
+    (name "ffmpeg-8-nvidia-new-feature")
+    (version "8.1.3")
+    (replacement #f)
+    (source
+     (origin
+       (method url-fetch)
+       (uri (string-append "https://ffmpeg.org/releases/ffmpeg-" version
+                           ".tar.xz"))
+       (sha256
+        (base32 "18vq676kxsjx4c9123591nsgzy214zbwmn739spy7lyrjs6d4f3i"))))
+    (supported-systems
+     (package-supported-systems nong:nvidia-driver-new-feature))
+    (properties
+     (cons '(cpe-name . "ffmpeg") (package-properties gnu:ffmpeg)))
+    (inputs
+     (modify-inputs (package-inputs gnu:ffmpeg)
+       (prepend nv-codec-headers)))
+    (arguments
+     (substitute-keyword-arguments (package-arguments gnu:ffmpeg)
+       ((#:configure-flags flags)
+        #~(cons* "--enable-ffnvcodec" "--enable-cuvid" "--enable-nvenc"
+                 #$flags))))
+    (synopsis "FFmpeg 8 with NVENC/NVDEC for the NVIDIA new-feature driver")
+    (description
+     (string-append (package-description gnu:ffmpeg)
+                    "  This maintained FFmpeg 8 variant supplies the API used
+by wf-recorder 0.6.0 and enables NVIDIA hardware encoding and decoding.  Its
+userspace libraries must match the running NVIDIA kernel driver; installing
+it does not replace the kernel module."))))
+
+(define-public wf-recorder-nvidia-new-feature
+  (package
+    (inherit gnu:wf-recorder)
+    (name "wf-recorder-nvidia-new-feature")
+    (supported-systems
+     (package-supported-systems nong:nvidia-driver-new-feature))
+    (properties
+     (cons '(cpe-name . "wf-recorder")
+           (package-properties gnu:wf-recorder)))
+    (inputs
+     (modify-inputs (package-inputs gnu:wf-recorder)
+       (replace "ffmpeg" ffmpeg-8-nvidia-new-feature)))
+    (synopsis "Wayland recorder with NVENC for the NVIDIA new-feature driver")
+    (description
+     (string-append (package-description gnu:wf-recorder)
+                    "  This variant links FFmpeg 8 with NVIDIA NVENC support.
+Select an encoder with @code{-c h264_nvenc}, @code{-c hevc_nvenc}, or
+@code{-c av1_nvenc}; @code{-d} selects a VAAPI device, not an NVIDIA device.
+The running NVIDIA kernel driver must match this variant's userspace
+libraries."))))
+
 ;;; mpv tracks Guix; VLC keeps the current stable 3.0 bug-fix release.
 (define-public mpv gnu:mpv)
 (define-public vlc
