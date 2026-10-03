@@ -11,8 +11,108 @@
   #:use-module (guix utils)
   #:use-module (guix git-download)
   #:use-module (guix download)
+  #:use-module ((nongnu packages nvidia) #:prefix nong:)
   #:use-module ((gnu packages video) #:prefix gnu:)
   #:use-module ((gnu packages image-viewers) #:prefix gnu-iv:))
+
+;;; Keep the CPU build available separately: proprietary NVIDIA libraries must
+;;; never become a requirement on other hardware.  The release archive's PGP
+;;; signature was verified against FFmpeg's published release-key fingerprint.
+(define-public ffmpeg
+  (package
+    (inherit gnu:ffmpeg)
+    (version "9.0.2")
+    (replacement #f)
+    (source
+     (origin
+       (method url-fetch)
+       (uri (string-append "https://ffmpeg.org/releases/ffmpeg-" version
+                           ".tar.xz"))
+       (sha256
+        (base32 "0bh0dslibv4vhjh83vq9gcs1ggp0a50a0y1090ka0pxj7ql50f4c"))))
+    (native-inputs
+     (modify-inputs (package-native-inputs gnu:ffmpeg)
+       (prepend gnu:frei0r)))
+    (arguments
+     (substitute-keyword-arguments (package-arguments gnu:ffmpeg)
+       ((#:configure-flags flags)
+        ;; FFmpeg 9 removed libshaderc's API flag, but Vulkan still needs
+        ;; the glslc executable supplied by the inherited shaderc input.
+        ;; With plugins available for tests, also run all Frei0r FATE cases.
+        #~(begin
+            (use-modules (srfi srfi-1) (srfi srfi-13))
+            (filter-map
+             (lambda (flag)
+               (cond
+                ((string=? flag "--enable-libshaderc") #f)
+                ((string-prefix? "--ignore-tests=" flag)
+                 (let ((ignored
+                        (filter
+                         (lambda (test)
+                           (not (member test '("filter-frei0r-filter"
+                                               "filter-frei0r-filter-unaligned"))))
+                         (string-split
+                          (substring flag (string-length "--ignore-tests="))
+                          #\,))))
+                   (and (pair? ignored)
+                        (string-append "--ignore-tests="
+                                       (string-join ignored ",")))))
+                (else flag)))
+             #$flags)))
+       ((#:phases phases)
+        #~(modify-phases #$phases
+            (add-before 'check 'set-frei0r-path
+              (lambda* (#:key inputs #:allow-other-keys)
+                (setenv "FREI0R_PATH"
+                        (search-input-directory inputs "lib/frei0r-1"))))))))))
+
+;;; Nonguix's fix-paths phase binds dlopen to the selected driver.  Rebuilding
+;;; these headers with the new-feature driver prevents an older userspace
+;;; library from being embedded in FFmpeg while a newer kernel driver runs.
+;;; SDK 13.1 requires NVIDIA Linux/Windows driver 610 or newer.
+(define-public nv-codec-headers
+  (package
+    (inherit nong:nv-codec-headers)
+    (version "13.1.15.0")
+    (supported-systems
+     (package-supported-systems nong:nvidia-driver-new-feature))
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/FFmpeg/nv-codec-headers.git")
+             (commit (string-append "n" version))))
+       (file-name (git-file-name "nv-codec-headers" version))
+       (sha256
+        (base32 "11spiawjvsh6yy9nbhd2gmqcd9lmh959kg9hmplpfwkqh7mrbgra"))))
+    (inputs
+     (modify-inputs (package-inputs nong:nv-codec-headers)
+       ;; Bind dlopen directly to the driver libraries, not the nvda
+       ;; graphics union with its additional VAAPI integration.
+       (replace "nvidia-driver" nong:nvidia-driver-new-feature)))))
+
+(define-public ffmpeg-nvidia-new-feature
+  (package
+    (inherit ffmpeg)
+    (name "ffmpeg-nvidia-new-feature")
+    (supported-systems
+     (package-supported-systems nong:nvidia-driver-new-feature))
+    (properties
+     (cons '(cpe-name . "ffmpeg") (package-properties ffmpeg)))
+    (inputs
+     (modify-inputs (package-inputs ffmpeg)
+       (prepend nv-codec-headers)))
+    (arguments
+     (substitute-keyword-arguments (package-arguments ffmpeg)
+       ((#:configure-flags flags)
+        #~(cons* "--enable-ffnvcodec" "--enable-cuvid" "--enable-nvenc"
+                 #$flags))))
+    (synopsis "FFmpeg with NVENC/NVDEC for the NVIDIA new-feature driver")
+    (description
+     (string-append (package-description ffmpeg)
+                    "  This variant enables NVIDIA hardware encoding and
+decoding.  Its userspace libraries must match the running NVIDIA kernel
+driver; installing it does not replace the kernel module."))))
 
 ;;; mpv tracks Guix; VLC keeps the current stable 3.0 bug-fix release.
 (define-public mpv gnu:mpv)

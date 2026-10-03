@@ -210,6 +210,9 @@ da GPU e do suporte oficial da NVIDIA.
 | `(securityops packages shells)` | `fish` | 4.9.3 | Receita do canal; build passou |
 | `(securityops packages monitoring)` | `glances` | 4.5.7 | Receita do canal |
 | `(securityops packages video)` | `openshot` | 4.0.1 | Receita do canal; build passou |
+| `(securityops packages video)` | `ffmpeg` | 9.0.2 | CPU/uso geral; fonte PGP verificada; build, FATE e H.264/AAC validados em x86_64-linux |
+| `(securityops packages video)` | `ffmpeg-nvidia-new-feature` | 9.0.2 | Build/FATE e NVENC/NVDEC H.264/HEVC/AV1 em 4K/23 fps validados com RTX 4060/driver 615.71.09; o driver deve corresponder ao kernel |
+| `(securityops packages video)` | `nv-codec-headers` | 13.1.15.0 | Build validado; SDK 13.1 exige driver 610 ou superior; caminhos ajustados pelo Nonguix |
 | `(securityops packages terminals)` | `kitty` | 0.49.2 | Receita do canal; build e execução de `kitty --version` passaram |
 | `(securityops packages terminals)` | `shader-slang-bin` | 2026.19 | Dependência da compilação de shaders do Kitty; binário oficial com hash fixado |
 | `(securityops packages terminals)` | `go-github-com-ebitengine-purego` | 0.11.1 | Dependência Go do Kitty |

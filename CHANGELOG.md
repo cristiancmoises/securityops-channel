@@ -6,6 +6,23 @@ tag rather than SemVer of the code.
 
 ## [Unreleased]
 
+### Added — FFmpeg 9.0.2 and NVENC headers 13.1.15.0 (2026-10-03)
+
+- Added a general-purpose FFmpeg build and a separate NVIDIA new-feature
+  variant with NVENC/NVDEC enabled. The updated headers bind runtime libraries
+  to the selected driver, not an older userspace stack.
+- Removed the obsolete FFmpeg 9 libshaderc configure flag while retaining the
+  shader compiler needed for Vulkan. Kept FATE enabled and supplied the optional
+  Frei0r plugins at build time to run all three Frei0r tests, including the new
+  source-filter test, instead of retaining the inherited Frei0r exclusions.
+- Added recipe regression tests and English/pt-BR installation notes. Installing
+  these packages does not change or activate the kernel driver.
+- Validated both native builds and 2,895 FATE tests per variant on x86_64-linux.
+  Short synthetic NVENC/NVDEC H.264, HEVC and AV1 checks passed at 4K/23 fps
+  on RTX 4060/driver 615.71.09, along with CPU H.264/AAC and color metadata
+  checks. Other GPUs, architectures and application capture backends are not
+  covered by this validation.
+
 ### Changed — TurboRec 3.10.2 (2026-10-02)
 
 - Updated the pinned public source to 3.10.2, with profile-aware GPU checks,
