@@ -1,6 +1,8 @@
 # Guile / Guix build artifacts
 *.go
 /.guile
+# Local isolated development workspaces
+/.worktrees/
 # Editor / OS cruft
 *~
 \#*\#
