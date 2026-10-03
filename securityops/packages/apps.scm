@@ -444,21 +444,22 @@ so GUI and CLI versions can never drift apart.")
     (home-page "https://github.com/cristiancmoises/zupt")
     (license license:agpl3+)))
 
-;;; turborec — Turbo Recorder 3.10.1: a hardware-accelerated screen + audio
+;;; turborec — Turbo Recorder 3.10.2: a hardware-accelerated screen + audio
 ;;; recorder.  `turborec.py' is a pure-stdlib Python CLI with a Tkinter GUI (the
 ;;; `gui' subcommand); `turborecorder' is a Linux X11/Wayland bash launcher that
 ;;; builds a quality-first FFmpeg pipeline (NVENC > VAAPI > x264).  Built FROM
 ;;; SOURCE with copy-build-system (no compile): the two scripts install under
 ;;; lib/, and
-;;; self-contained `#!/bin/sh' shims in bin/ pin the store python3/bash and
+;;; self-contained shims in bin/ pin the store shell/python3/bash and
 ;;; prepend the store bins of the tools they exec (ffmpeg, pactl, xrandr,
 ;;; xdpyinfo, lspci).  The Tkinter GUI gets the python `tk' output (which carries
 ;;; `_tkinter.so') on PYTHONPATH.  nvidia-smi (optional HW probe) is left to PATH
-;;; if present — turborec degrades gracefully to VAAPI/x264 without it.
+;;; if present — Auto can fall back to software; an explicit GPU request fails
+;;; with an actionable error when its selected encoder cannot start.
 (define-public turborec
   (package
     (name "turborec")
-    (version "3.10.1")
+    (version "3.10.2")
     (source
      (origin
        (method git-fetch)
@@ -467,90 +468,129 @@ so GUI and CLI versions can never drift apart.")
              (commit (string-append "v" version))))
        (file-name (git-file-name name version))
        (sha256
-        (base32 "0m9afvj6vhibn6graj5bp40lzy16qs97jiym80is6filqya8rz3d"))))
+        (base32 "1x86g1czm5b041phw773bxcqln1b02z0xf902n9cb92z9v6kcln0"))))
     (build-system copy-build-system)
-    (inputs
-     `(("python" ,python)
-       ("python-tk" ,python "tk")             ;_tkinter for `turborec gui'
-       ("ffmpeg" ,ffmpeg)
-       ("pulseaudio" ,pulseaudio)             ;pactl
-       ("xrandr" ,xrandr)
-       ("xdpyinfo" ,xdpyinfo)
-       ("pciutils" ,pciutils)                 ;lspci
-       ("wf-recorder" ,wf-recorder)           ;Wayland (wlroots) screen capture
-       ("wlr-randr" ,wlr-randr)               ;Wayland output enumeration
-       ("sway" ,sway)                         ;swaymsg
-       ("wmctrl" ,wmctrl)                     ;X11 window capture
-       ("bash-minimal" ,bash-minimal)))
+    (inputs `(("python" ,python)
+              ("python:tk" ,python "tk") ;_tkinter for `turborec gui'
+              ("ffmpeg" ,ffmpeg)
+              ("pulseaudio" ,pulseaudio) ;pactl
+              ("xrandr" ,xrandr)
+              ("xdpyinfo" ,xdpyinfo)
+              ("pciutils" ,pciutils) ;lspci
+              ("wf-recorder" ,wf-recorder) ;Wayland (wlroots) screen capture
+              ("wlr-randr" ,wlr-randr) ;Wayland output enumeration
+              ("sway" ,sway) ;swaymsg
+              ("wmctrl" ,wmctrl) ;X11 window capture
+              ("bash-minimal" ,bash-minimal)))
     (arguments
      (list
       #:install-plan
-      #~'(("turborec.py"   "lib/turborec/turborec.py")
+      #~'(("turborec.py" "lib/turborec/turborec.py")
           ("turborecorder" "lib/turborec/turborecorder")
           ("packaging/turborec.desktop" "share/applications/turborec.desktop")
           ("packaging/turborec.svg"
            "share/icons/hicolor/scalable/apps/turborec.svg")
-          ("README.md"    "share/doc/turborec/README.md")
+          ("README.md" "share/doc/turborec/README.md")
           ("CHANGELOG.md" "share/doc/turborec/CHANGELOG.md")
-          ("LICENSE"      "share/doc/turborec/LICENSE"))
+          ("SECURITY.md" "share/doc/turborec/SECURITY.md")
+          ("docs/TUTORIAL.md" "share/doc/turborec/docs/TUTORIAL.md")
+          ("docs/README.pt-BR.md" "share/doc/turborec/docs/README.pt-BR.md")
+          ("docs/turborec-gui.png" "share/doc/turborec/docs/turborec-gui.png")
+          ("LICENSE" "share/doc/turborec/LICENSE"))
       #:phases
       #~(modify-phases %standard-phases
-          (delete 'strip)                       ;pure Python + bash, no ELF
+          (delete 'strip) ;pure Python + bash, no ELF
           (delete 'validate-runpath)
+          (add-after 'unpack 'check
+            (lambda* (#:key inputs tests? #:allow-other-keys)
+              (when tests?
+                (let ((tkpath (dirname (car (find-files (assoc-ref inputs
+                                                         "python:tk")
+                                                        "^_tkinter.*\\.so$")))))
+                  (setenv "GUIX_PYTHONPATH" tkpath)
+                  (invoke "python3" "-m" "py_compile" "turborec.py")
+                  (invoke "python3"
+                          "-m"
+                          "unittest"
+                          "discover"
+                          "-s"
+                          "tests"
+                          "-v")
+                  (invoke "python3" "-c"
+                          "import _tkinter, tkinter; tkinter.Tcl()")
+                  (invoke "bash" "-n" "turborecorder")))))
           (add-after 'install 'wrap
             (lambda* (#:key inputs outputs #:allow-other-keys)
-              (let* ((out    (assoc-ref outputs "out"))
-                     (lib    (string-append out "/lib/turborec"))
-                     (python (string-append (assoc-ref inputs "python") "/bin/python3"))
-                     (bash   (string-append (assoc-ref inputs "bash-minimal")
-                                           "/bin/bash"))
+              (let* ((out (assoc-ref outputs "out"))
+                     (lib (string-append out "/lib/turborec"))
+                     (python (string-append (assoc-ref inputs "python")
+                                            "/bin/python3"))
+                     (bash (string-append (assoc-ref inputs "bash-minimal")
+                                          "/bin/bash"))
                      ;; site-packages dir of the python `tk' output (holds _tkinter.so);
                      ;; derived so it survives a python minor-version bump.
-                     (tkpath (dirname (car (find-files (assoc-ref inputs "python-tk")
+                     (tkpath (dirname (car (find-files (assoc-ref inputs
+                                                                  "python:tk")
                                                        "^_tkinter.*\\.so$"))))
-                     (path   (string-join
-                              (map (lambda (in.sub)
-                                     (string-append (assoc-ref inputs (car in.sub))
-                                                    (cdr in.sub)))
-                                   '(("python"      . "/bin")
-                                     ("ffmpeg"      . "/bin")
-                                     ("pulseaudio"  . "/bin")
-                                     ("xrandr"      . "/bin")
-                                     ("xdpyinfo"    . "/bin")
-                                     ("wf-recorder" . "/bin")
-                                     ("wlr-randr"   . "/bin")
-                                     ("sway"        . "/bin")
-                                     ("wmctrl"      . "/bin")
-                                     ("pciutils"    . "/sbin")
-                                     ("pciutils"    . "/bin")))
-                              ":")))
+                     (path (string-join (map (lambda (in.sub)
+                                               (string-append (assoc-ref
+                                                               inputs
+                                                               (car in.sub))
+                                                              (cdr in.sub)))
+                                             '(("python" . "/bin")
+                                               ("ffmpeg" . "/bin")
+                                               ("pulseaudio" . "/bin")
+                                               ("xrandr" . "/bin")
+                                               ("xdpyinfo" . "/bin")
+                                               ("wf-recorder" . "/bin")
+                                               ("wlr-randr" . "/bin")
+                                               ("sway" . "/bin")
+                                               ("wmctrl" . "/bin")
+                                               ("pciutils" . "/sbin")
+                                               ("pciutils" . "/bin"))) ":")))
                 (mkdir-p (string-append out "/bin"))
                 (let ((p (string-append out "/bin/turborec")))
                   (call-with-output-file p
                     (lambda (port)
-                      (format port "#!/bin/sh
+                      (format port
+                       "#!/bin/sh
 # Generated by the securityops channel: self-contained launcher.
 export PATH=\"~a${PATH:+:$PATH}\"
 export PYTHONPATH=\"~a${PYTHONPATH:+:$PYTHONPATH}\"
-exec ~a ~a/turborec.py \"$@\"\n"
-                              path tkpath python lib)))
-                  (chmod p #o755))
+exec ~a ~a/turborec.py \"$@\"
+"
+                       path
+                       tkpath
+                       python
+                       lib)))
+                  (chmod p #o755)
+                  (patch-shebang p))
                 (let ((p (string-append out "/bin/turborecorder")))
                   (call-with-output-file p
                     (lambda (port)
-                      (format port "#!/bin/sh
+                      (format port
+                       "#!/bin/sh
 # Generated by the securityops channel: self-contained launcher.
 export PATH=\"~a${PATH:+:$PATH}\"
-exec ~a ~a/turborecorder \"$@\"\n"
-                              path bash lib)))
-                  (chmod p #o755))
-                (substitute* (string-append out "/share/applications/turborec.desktop")
+exec ~a ~a/turborecorder \"$@\"
+"
+                       path bash lib)))
+                  (chmod p #o755)
+                  (patch-shebang p))
+                (substitute* (string-append out
+                              "/share/applications/turborec.desktop")
                   (("^Exec=turborec")
                    (string-append "Exec=" out "/bin/turborec"))
                   (("^Icon=turborec")
-                   (string-append
-                    "Icon=" out
-                    "/share/icons/hicolor/scalable/apps/turborec.svg")))))))))
+                   (string-append "Icon=" out
+                    "/share/icons/hicolor/scalable/apps/turborec.svg"))))))
+          (add-after 'wrap 'check-installed-commands
+            (lambda* (#:key outputs tests? #:allow-other-keys)
+              (when tests?
+                (let ((bin (string-append (assoc-ref outputs "out") "/bin/")))
+                  (invoke (string-append bin "turborec") "--version")
+                  (invoke (string-append bin "turborec") "--help")
+                  (invoke (string-append bin "turborecorder") "-h"))))))))
     (supported-systems '("x86_64-linux"))
     (synopsis "Hardware-accelerated screen and audio recorder")
     (description

@@ -70,6 +70,17 @@ A package installed in the user profile does not automatically replace one in
 Guix Home or the system profile. Reconfigure the profile that owns the package.
 Adding a `(commit "...")` field pins the channel to a reproducible revision.
 
+TurboRec 3.10.2 is available through `(securityops packages apps)`:
+
+```sh
+guix package -e '(@ (securityops packages apps) turborec)'
+turborec gui
+```
+
+It includes English and Brazilian Portuguese documentation under
+`share/doc/turborec`. Auto can fall back to CPU; explicitly selecting a GPU
+requires a compatible driver and an FFmpeg build with that encoder.
+
 River 0.4 and its desktop helpers are available through
 `(securityops packages river)`. The [separate-profile example](docs/usage.md#consuming-the-channel-from-etcconfigscm-and-homescm)
 also includes the updated audio packages. River 0.4 needs an external window

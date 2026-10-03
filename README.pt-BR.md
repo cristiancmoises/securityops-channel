@@ -70,6 +70,17 @@ Instalar no perfil do usuário não substitui automaticamente um pacote do
 Guix Home ou do sistema. Reconfigure o perfil responsável pelo pacote.
 Use `(commit "...")` para fixar uma revisão reproduzível.
 
+O TurboRec 3.10.2 está disponível em `(securityops packages apps)`:
+
+```sh
+guix package -e '(@ (securityops packages apps) turborec)'
+turborec gui
+```
+
+O pacote inclui documentação em inglês e português do Brasil em
+`share/doc/turborec`. Auto pode usar CPU quando a GPU não funciona; selecionar
+uma GPU explicitamente exige driver compatível e FFmpeg com esse encoder.
+
 O River 0.4 e seus auxiliares estão em `(securityops packages river)`.
 O [exemplo de perfil separado](docs/usage.md#consuming-the-channel-from-etcconfigscm-and-homescm)
 também inclui os pacotes de áudio atualizados. O River 0.4 precisa de um
