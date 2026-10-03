@@ -5,6 +5,18 @@ são as verificadas nas datas indicadas, não uma promessa de
 atualização automática. O canal fixa fontes e hashes quando mantém uma receita
 própria; reexportações acompanham a revisão autenticada de seu canal de origem.
 
+## TurboRec 3.10.2
+
+Atualização de 02/10/2026 em `(securityops packages apps)`, com fonte pública
+fixada na [tag v3.10.2](https://codeberg.org/berkeley/turborec/src/tag/v3.10.2)
+e hash verificado pelo Guix. O pacote instala os guias em inglês/pt-BR e
+verifica os dois comandos instalados. A suíte upstream executou 186 testes,
+com 13 skips condicionais ou de plataforma, sem falhas.
+
+Não houve captura física de tela, áudio ou câmera nesta validação do canal.
+O modo Auto pode recorrer à CPU; selecionar GPU explicitamente exige encoder
+disponível no FFmpeg e driver compatível. O pacote não altera drivers.
+
 ## Relatórios estruturados
 
 Verificação de 02/10/2026. O Arelle valida documentos XBRL e oferece módulos
