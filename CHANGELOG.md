@@ -6,6 +6,14 @@ tag rather than SemVer of the code.
 
 ## [Unreleased]
 
+### Changed — TurboRec 3.10.2 (2026-10-02)
+
+- Updated the pinned public source to 3.10.2, with profile-aware GPU checks,
+  visible startup errors and recording-finalization safeguards.
+- Included the existing English/pt-BR guides and screenshot. Enabled upstream
+  tests and installed-command checks, and pinned the generated launcher
+  interpreters to the Guix store instead of relying on `/bin/sh`.
+
 ### Added — Lacuna Web PKI native host (2026-09-27)
 
 - Added `lacuna-webpki` 2.16.0 for x86_64 Linux from the vendor's pinned RPM.
