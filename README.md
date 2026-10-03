@@ -70,7 +70,7 @@ A package installed in the user profile does not automatically replace one in
 Guix Home or the system profile. Reconfigure the profile that owns the package.
 Adding a `(commit "...")` field pins the channel to a reproducible revision.
 
-TurboRec 3.10.2 is available through `(securityops packages apps)`:
+TurboRec 3.10.4 is available through `(securityops packages apps)`:
 
 ```sh
 guix package -e '(@ (securityops packages apps) turborec)'
@@ -80,6 +80,32 @@ turborec gui
 It includes English and Brazilian Portuguese documentation under
 `share/doc/turborec`. Auto can fall back to CPU; explicitly selecting a GPU
 requires a compatible driver and an FFmpeg build with that encoder.
+Manual Chroma is off by default (compatible automatic 4:2:0); English,
+Best/Auto/23 fps/4K remain the main application's defaults.
+Completed files are checked for streams, positive duration and initial frames
+before confirming Saved; this bounded check is not a whole-file scan. The
+legacy launcher also preserves argument boundaries on Bash 3.2.
+
+For NVIDIA/wlroots Wayland, the explicit `turborec-nvidia-new-feature` variant
+uses a matched NVENC-capable wf-recorder 0.6.0/FFmpeg 8.1.3 pair. The rest of
+its pipeline uses FFmpeg 9.0.2. Installing a different terminal FFmpeg cannot
+replace the recorder's libavcodec dependency; FFmpeg 9 is not ABI-compatible
+with this wf-recorder build. After updating the channel, choose one command:
+
+```sh
+# First installation, when neither app variant is installed in this profile
+guix package -e '(@ (securityops packages apps) turborec-nvidia-new-feature)'
+# OR replace an already installed generic turborec in the same transaction
+guix package -r turborec -e '(@ (securityops packages apps) turborec-nvidia-new-feature)'
+```
+
+Do not install both app variants in one profile: they provide the same commands.
+The generic app remains free of proprietary NVIDIA dependencies. The variant
+does not change or activate a kernel driver, globally override library paths,
+or reboot. GPU encoding uses CPU-resident capture/conversion frames, not a
+zero-copy CUDA pipeline; its full-profile check is not device certification.
+Recipe checks: `guix repl -L . tests/wf-recorder-packages.scm` and
+`guix repl -L . tests/turborec-backend-packages.scm`.
 
 ### FFmpeg and NVIDIA encoding
 
