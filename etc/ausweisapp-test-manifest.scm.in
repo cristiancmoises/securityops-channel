@@ -1,0 +1,6 @@
+(use-modules (guix profiles) (securityops packages ausweisapp)
+             (gnu packages python) (gnu packages python-web)
+             (gnu packages xorg) (gnu packages imagemagick) (gnu packages fonts))
+(packages->manifest
+  (list ausweisapp python python-websockets xorg-server xwininfo
+        imagemagick font-dejavu))

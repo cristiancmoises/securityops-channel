@@ -74,6 +74,12 @@ The included OpenSSL source keeps Apache-2.0 terms; clearing transformations on
 the archival-only origin does not remove patches from the actual crypto input.
 These preserved sources and notices are not a blanket legal certification.
 
+AusweisApp retains EUPL-1.2. Its native Qt libraries retain their inherited
+LGPL-2.1/LGPL-3 notices and original license files. The pinned upstream fixes
+and two Qt patch files do not place Qt under the channel recipe's GPL license.
+This package is compiled from source; its packaging does not grant rights
+over identity data or certify a card, provider or qualified authentication flow.
+
 AutoFirma is distributed under GPL-2.0-or-later or EUPL-1.1. The package
 reuses the official Linux distribution and retains its JAR and bundled
 third-party license notices. Those dependencies keep their own licenses;
