@@ -1,0 +1,19 @@
+DC voltage divider acceptance
+V1 in 0 0
+R1 in out 1k
+R2 out 0 1k
+.control
+set wr_singlescale
+dc V1 0 10 1
+let maxerr = vecmax(abs(v(out) - v(in)/2))
+if length(v(out)) <> 11
+  quit 1
+end
+if maxerr > 1e-9
+  quit 1
+end
+wrdata ngspice-divider.dat v(in) v(out)
+echo SECURITYOPS_DIVIDER_PASS
+quit 0
+.endc
+.end
