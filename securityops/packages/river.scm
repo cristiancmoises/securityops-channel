@@ -81,15 +81,15 @@
 (define-public libevdev-latest
   (package
     (inherit libevdev)
-    (version "1.13.7")
+    (version "1.14.0")
     (source
      (origin
        (method url-fetch)
        (uri
-        "https://www.freedesktop.org/software/libevdev/libevdev-1.13.7.tar.xz")
-       (file-name "libevdev-1.13.7.tar.xz")
+        "https://www.freedesktop.org/software/libevdev/libevdev-1.14.0.tar.xz")
+       (file-name "libevdev-1.14.0.tar.xz")
        (sha256
-        (base32 "19mzc3h6kq166vv46bg8y4xpv38rmqxl6mnk5axib3qhf54q5bqc"))))
+        (base32 "0ckk000p2f9msmjjh38nl8aadjvsdilsv2w4hdcncj06273nc2as"))))
     (native-inputs (modify-inputs (package-native-inputs libevdev)
                      (prepend check)))))
 
@@ -145,6 +145,13 @@
 (define-public xwayland-latest
   (package
     (inherit xorg-server-xwayland)
+    (version "24.1.14")
+    (source
+     (origin
+       (inherit (package-source xorg-server-xwayland))
+       (uri "https://www.x.org/releases/individual/xserver/xwayland-24.1.14.tar.xz")
+       (sha256
+        (base32 "12h74j15l8ln8pw5wd30axlk0h99bcs8dn1qc6ws96c2cy6vkdjf"))))
     (home-page "https://www.x.org/")
     (inputs (modify-inputs (package-inputs xorg-server-xwayland)
               (replace "wayland" wayland-latest)
