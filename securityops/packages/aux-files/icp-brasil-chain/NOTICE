@@ -1,0 +1,48 @@
+ICP-Brasil Certificate Authority Data
+
+Source and attribution
+
+Instituto Nacional de Tecnologia da Informacao (ITI), Brazil.
+Original "Cadeia Vigente" certificate-authority archive, dated 26 August 2026.
+The repository page was updated on 27 August 2026:
+https://www.gov.br/iti/pt-br/assuntos/repositorio/certificados-das-acs-da-icp-brasil-arquivo-unico-compactado
+
+Original archive:
+https://acraiz.icpbrasil.gov.br/credenciadas/CertificadosAC-ICP-Brasil/ACcompactado.zip
+
+Original archive SHA-256:
+d7f977c68fed76090dc58c32684716f4a8863bb94cb2d9fd663328c01eeaaf7d
+
+Official archive SHA-512:
+4585a99955607525e475cf22138302fe8ddce6ca8f0926cd1f01809f007d4bcddff5c1070369d29b1de99c0d2eb058ce0deb856bae0189469ba37e09a59d7985
+
+Preservation and terms
+
+All 180 certificate files are unchanged, including their original names,
+PEM content and newline conventions. The manifest and directory arrangement
+describe the original collection; they do not modify any certificate.
+
+The ITI repository page publishes its content under Creative Commons
+Attribution-NoDerivs 3.0 Unported (CC-BY-ND 3.0):
+https://creativecommons.org/licenses/by-nd/3.0/
+
+Distribution does not imply ITI affiliation or endorsement. The channel
+packaging code has its own license, separate from these public data.
+
+Opt-in reference data, not a trust store
+
+The certificates directory contains 179 CA certificate files: 175 RSA
+and four Ed448 certificates. The reference-ed521 directory contains the
+unchanged ICP-Brasilv7.crt certificate with Ed521 algorithm identifier
+1.3.6.1.4.1.44588.2.1. OpenSSL cannot verify this private algorithm;
+the file is kept solely as historical algorithm/reference data.
+
+No combined CA bundle, trust registration, search path, profile hook or
+activation program is supplied. Intermediate CA certificates must not be
+promoted to trust anchors merely because this collection includes them.
+
+This dated snapshot does not establish current certificate validity,
+cryptographic chain verification, revocation status, permitted purposes or
+legal acceptance. Obtain current issuer certificates and revocation data
+and select an appropriate application policy independently. This package
+does not include end-user keys, a signing application or a CRL/OCSP service.
