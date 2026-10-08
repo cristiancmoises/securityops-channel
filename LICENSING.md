@@ -46,6 +46,17 @@ Google Chrome package as an external runtime dependency.
 The new fixtures use their individual notices or the channel's default license,
 not the River-specific exception above.
 
+Wazuh's C/C++ core and private CPython interpreter are compiled from source,
+but upstream dependency libraries and Python wheels remain pinned binaries.
+Indexer, dashboard, Filebeat, Java and Node adapt official binary distributions.
+The packages retain their original notices and source directions, including
+MITRE data terms; the recipes' license fields summarize multiple component
+licenses, not one common grant. The exact corresponding-source mapping for
+every bundled component has not been established. Before distributing binary
+substitutes, verify and fulfill each applicable source, build-instruction and
+notice obligation. Publication of these recipes is not authorization or
+certification for distributing the resulting binaries.
+
 AutoFirma is distributed under GPL-2.0-or-later or EUPL-1.1. The package
 reuses the official Linux distribution and retains its JAR and bundled
 third-party license notices. Those dependencies keep their own licenses;

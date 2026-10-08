@@ -46,6 +46,17 @@ licenciado separadamente, como dependência externa de execução.
 Os novos testes seguem seus avisos individuais ou a licença padrão do canal,
 não a exceção específica dos testes River.
 
+O núcleo C/C++ do Wazuh e o interpretador CPython privado são compilados de
+fonte, mas bibliotecas de dependências e wheels Python upstream continuam
+binários fixados. Indexer, dashboard, Filebeat, Java e Node adaptam distribuições
+binárias oficiais. Os pacotes preservam avisos originais e indicações de fonte,
+inclusive os termos dos dados MITRE; os campos de licença resumem os termos
+de vários componentes, não uma concessão única. O vínculo exato com os fontes
+correspondentes de todos os componentes embutidos não foi estabelecido.
+Antes de distribuir substitutos binários, confira e cumpra cada obrigação
+aplicável de fonte, instruções de build e avisos. Publicar estas receitas não
+autoriza nem certifica a distribuição dos binários resultantes.
+
 O AutoFirma é distribuído sob GPL-2.0-or-later ou EUPL-1.1. O pacote
 reutiliza a distribuição Linux oficial e preserva o JAR e os avisos de licença
 dos componentes incluídos. Essas dependências mantêm suas próprias licenças;

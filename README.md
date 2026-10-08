@@ -26,6 +26,7 @@ here. This channel simply wouldn't exist without that work.
 | [Electronics](docs/usage.md#electronics) | ngspice simulation and Arduino IDE toolchains |
 | [Remote desktop](docs/usage.md#remote-desktop) | RustDesk client and self-hosted rendezvous/relay servers |
 | [Monitoring](docs/usage.md#monitoring) | Zabbix server, collectors, frontend, JMX and PDF reports |
+| [Wazuh](docs/usage.md#wazuh) | Endpoint, manager, indexer, dashboard, alert forwarding and explicit TLS/state setup |
 | [XBRL reporting](docs/usage.md#structured-reporting) | Arelle CLI/library, offline validation and graphical-test limits |
 | [Identity and official schemas](docs/usage.md#identity-and-official-schema-data) | DigiDoc4, Belgian eID, signature libraries and eSocial formats |
 | [ICP-Brasil data](docs/usage.md#icp-brasil-root-data) | Explicit-purpose roots, original CA collection, Ed521 limits and no automatic trust |
