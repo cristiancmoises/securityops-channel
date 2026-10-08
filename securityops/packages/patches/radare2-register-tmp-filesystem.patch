@@ -1,0 +1,15 @@
+Register the already compiled in-memory tmp filesystem in the Meson build.
+Without this entry, r_fs_new cannot find it and the existing core_task
+mount/output regression fails.  No sandbox checks are changed.
+
+--- a/libr/meson.build
++++ b/libr/meson.build
+@@ -15,7 +15,7 @@
+ bin_ldr_plugins = [ 'ldr_linux' ]
+ bin_xtr_plugins = []
+ io_plugins = [ 'malloc', 'cyclic', 'xattr', 'fd', 'tap', 'default', 'null', 'rbuf', 'r2pipe' ]
+-fs_plugins = [ 'r2', 'posix', 'io', 'ubifs', 'bfs', 'fatmacho', 'sep64' ]
++fs_plugins = [ 'r2', 'posix', 'io', 'tmp', 'ubifs', 'bfs', 'fatmacho', 'sep64' ]
+ 
+ if get_option('use_zip')
+   io_plugins += [ 'zip' ]

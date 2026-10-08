@@ -1,0 +1,120 @@
+Use the Guix sdb library and executable without fetching a Meson subproject.
+
+Rebased for radare2 6.2.4 from the Guix patch by
+bdunahu <bdunahu@operationnull.com>.  Retain default_library_type, which
+the current build also uses for its combined-library option.
+
+--- a/libr/anal/d/meson.build
++++ b/libr/anal/d/meson.build
+@@ -121,7 +121,7 @@
+     output: fcnsign_sdb_files,
+     command: [sdb_exe, '-r', meson.current_source_dir()],
+     env: sdb_env,
+-    depends: host_machine.system() == 'uefi' ? [windows_type_file] : [sdb_exe, windows_type_file],
++    depends: [windows_type_file],
+     build_by_default: true,
+     install: true,
+     install_dir: join_paths(r2_sdb, 'fcnsign')
+--- a/libr/asm/d/meson.build
++++ b/libr/asm/d/meson.build
+@@ -63,7 +63,6 @@
+     output: opcodes_sdb_files,
+     command: [sdb_exe, '-r', meson.current_source_dir()],
+     env: sdb_env,
+-    depends: sdb_exe,
+     build_by_default: true,
+     install: true,
+     install_dir: join_paths(r2_sdb, 'opcodes')
+--- a/libr/bin/d/dll/meson.build
++++ b/libr/bin/d/dll/meson.build
+@@ -170,7 +170,6 @@
+     output: dll_sdb_files,
+     command: [sdb_exe, '-r', meson.current_source_dir()],
+     env: sdb_env,
+-    depends: sdb_exe,
+     build_by_default: true,
+     install: true,
+     install_dir: join_paths(r2_sdb, join_paths('format', 'dll'))
+--- a/libr/bin/d/meson.build
++++ b/libr/bin/d/meson.build
+@@ -27,7 +27,6 @@
+     output: format_sdb_files,
+     command: [sdb_exe, '-r', meson.current_source_dir()],
+     env: format_sdb_env,
+-    depends: sdb_exe,
+     build_by_default: true,
+     install: true,
+     install_dir: join_paths(r2_sdb, join_paths('format'))
+--- a/libr/fs/d/meson.build
++++ b/libr/fs/d/meson.build
+@@ -21,7 +21,6 @@
+     output: fs_sdb_files,
+     command: [sdb_exe, '-r', meson.current_source_dir()],
+     env: sdb_env,
+-    depends: sdb_exe,
+     build_by_default: true,
+     install: true,
+     install_dir: join_paths(r2_sdb, 'fs')
+--- a/libr/syscall/d/meson.build
++++ b/libr/syscall/d/meson.build
+@@ -44,7 +44,6 @@
+     output: syscall_sdb_files,
+     command: [sdb_exe, '-r', '-r', meson.current_source_dir()],
+     env: sdb_env,
+-    depends: sdb_exe,
+     build_by_default: true,
+     install: true,
+     install_dir: join_paths(r2_sdb, 'syscall')
+--- a/meson.build
++++ b/meson.build
+@@ -568,21 +568,10 @@
+-libsdb_sp = subproject('sdb')
+-libsdb_static = libsdb_sp.get_variable('libsdb_static')
+ default_library_type = get_option('default_library')
+-if host_machine.system() == 'uefi'
+-  libsdb_dynamic = libsdb_static
+-elif default_library_type != 'static'
+-  libsdb_dynamic = libsdb_sp.get_variable('libsdb').get_shared_lib()
+-endif
+-libsdb_includes = libsdb_sp.get_variable('sdb_inc')
+-libsdb_version = libsdb_sp.get_variable('sdb_version')
++libsdb_includes = []
++libsdb_version = 'provided by Guix'
+ 
+-sdb_dep = declare_dependency(
+-  link_whole: libsdb_static,
+-  include_directories: libsdb_includes
+-)
++sdb_dep = dependency('sdb', required: true)
++sdb_exe = find_program('sdb', required: true).full_path()
+ 
+-sdb_exe = libsdb_sp.get_variable('sdb_exe')
+-
+ if host_machine.system() == 'windows'
+ copyinout = [
+ 	'powershell', '-Command',
+@@ -608,15 +597,6 @@
+     lib_extension = '.dll'
+ endif
+ 
+-if host_machine.system() == 'uefi' or default_library_type != 'static'
+-  libsdb_install = custom_target('libr2sdb',
+-    input : libsdb_dynamic,
+-    output : 'libsdb' + lib_extension,
+-    command : copyinout,
+-    install : true,
+-    install_dir : get_option('libdir'))
+-endif
+-
+ sdb_gen_cmd_cgen = [ sdb_exe, '-t', '-C', '-o', '@OUTPUT@', '@INPUT@' ]
+ sdb_gen_cmd = [ sdb_exe, '@OUTPUT@', '==', '@INPUT@' ]
+ 
+@@ -630,7 +610,7 @@
+ spp_inc = [platform_inc, include_directories(join_paths('shlr','spp'))]
+ 
+ libr2spp = static_library('r2spp', spp_files,
+-  link_with: [ libsdb_static ], # libsdb_static,
++  dependencies: [ sdb_dep ],
+   include_directories: [ libsdb_includes, spp_inc ],
+   c_args: ['-DHAVE_R_UTIL', '-DUSE_R2=1'],
+   implicit_include_directories: false
