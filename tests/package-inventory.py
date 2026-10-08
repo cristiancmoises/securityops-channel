@@ -6,13 +6,13 @@ Run from the checkout: python3 tests/package-inventory.py
 import subprocess
 
 expected = {
-    ("apps", "zupt", "5.2.9"),
-    ("apps", "zupt-gui", "5.2.9"),
-    ("apps", "evelin-bin", "4.4.0"),
-    ("apps", "turborec", "3.10.4"),
-    ("apps", "turborec-nvidia-new-feature", "3.10.4"),
-    ("apps", "mirim", "1.1.1"),
-    ("apps", "btp", "0.7"),
+    ("applications", "zupt", "5.2.9"),
+    ("applications", "zupt-gui", "5.2.9"),
+    ("applications", "evelin-bin", "4.4.0"),
+    ("applications", "turborec", "3.10.4"),
+    ("applications", "turborec-nvidia-new-feature", "3.10.4"),
+    ("applications", "mirim", "1.1.1"),
+    ("applications", "btp", "0.7"),
     ("wazuh", "wazuh-agent", "4.14.8"),
     ("wazuh", "wazuh-manager", "4.14.8"),
     ("wazuh-search", "wazuh-indexer", "4.14.8-1"),

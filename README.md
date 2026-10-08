@@ -77,10 +77,22 @@ A package installed in the user profile does not automatically replace one in
 Guix Home or the system profile. Reconfigure the profile that owns the package.
 Adding a `(commit "...")` field pins the channel to a reproducible revision.
 
-TurboRec 3.10.4 is available through `(securityops packages apps)`:
+### Application module and package discovery
+
+The application collection is now `(securityops packages applications)`.
+Existing manifests importing `(securityops packages apps)` remain compatible:
+the old module re-exports the same bindings, without creating duplicate packages.
+Package names such as `zupt`, `evelin-bin` and `turborec` are unchanged.
+
+Guix discovery loads the canonical module first. Each Toys instance must still
+index the updated channel; the old module name was not an indexing exclusion.
+See the [project inventory](PACKAGES.md#projetos-securityops-e-catálogo-de-pesquisa)
+for versions, checks and catalog limits.
+
+TurboRec 3.10.4 is available through `(securityops packages applications)`:
 
 ```sh
-guix package -e '(@ (securityops packages apps) turborec)'
+guix package -e '(@ (securityops packages applications) turborec)'
 turborec gui
 ```
 
@@ -101,9 +113,9 @@ with this wf-recorder build. After updating the channel, choose one command:
 
 ```sh
 # First installation, when neither app variant is installed in this profile
-guix package -e '(@ (securityops packages apps) turborec-nvidia-new-feature)'
+guix package -e '(@ (securityops packages applications) turborec-nvidia-new-feature)'
 # OR replace an already installed generic turborec in the same transaction
-guix package -r turborec -e '(@ (securityops packages apps) turborec-nvidia-new-feature)'
+guix package -r turborec -e '(@ (securityops packages applications) turborec-nvidia-new-feature)'
 ```
 
 Do not install both app variants in one profile: they provide the same commands.
