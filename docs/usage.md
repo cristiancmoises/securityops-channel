@@ -440,6 +440,7 @@ or change user, Home or system profiles when you add the channel.
 | `libdigidocpp` 4.5.1 | `(securityops packages eid)` | Native library, headers and upstream `digidoc-tool` |
 | `digidoc4` 4.11.1 | `(securityops packages digidoc4)` | Native Qt desktop, `qdigidoc4`, desktop entry and signed bootstrap |
 | `eid-mw` 5.1.31 | `(securityops packages belgian-eid)` | Belgian eID GTK3 viewer and `lib/libbeidpkcs11.so` |
+| `ausweisapp` 2.6.0 | `(securityops packages ausweisapp)` | Native `AusweisApp` desktop and loopback SDK |
 | `openpace` 1.1.4 | `(securityops packages openpace)` | Native `libeac.so.3`, C headers, `libeac.pc` and CVC tools |
 | `icp-brasil-roots` 2026.10.05 | `(securityops packages icp-brasil)` | Explicit-purpose PEM bundles and original public root data |
 | `esocial-schemas` 1.3-20260701 | `(securityops packages brazil-tax)` | `share/esocial/events`, S-1.3 / NT 06/2026 |
@@ -543,6 +544,94 @@ online update success were not tested. Those workflows require supported
 hardware and a separately configured PC/SC service.
 
 Source: [official Linux tag](https://github.com/Fedict/eid-mw/tree/v5.1.31).
+
+### AusweisApp desktop and local SDK
+
+Select the channel package explicitly from a checkout, rather than an older
+Guix recipe with the same name:
+
+```sh
+guix build -L . -e '(@ (securityops packages ausweisapp) ausweisapp)'
+guix package -L . -e '(@ (securityops packages ausweisapp) ausweisapp)'
+AusweisApp
+```
+
+The application is compiled from the official 2.6.0 source. Its private Qt
+6.9.2 family includes pinned upstream fixes; QML is rebuilt against the matching
+SVG-private headers, while the inherited Qt checks and exclusions are retained.
+Live process maps confirm the exact Qtbase, SVG and QML outputs. Matching
+version numbers alone are not an ABI guarantee, and this recipe does not
+upgrade Qt globally or certify that every Qt vulnerability has been addressed.
+
+The normal SVG default is `NoOption`, not `AssumeTrustedSource`. Upstream's
+explicit `QT_SVG_DEFAULT_OPTIONS` override still exists; the installed fixture
+clears it to check the ordinary default, not to claim an unchangeable policy.
+Adding this package does not start PC/SC, register trust anchors or configure
+a reader. Real card operations require supported hardware and a separately
+configured PC/SC service.
+
+#### Checks and boundaries
+
+| Check | Result | Boundary |
+|---|---|---|
+| Optimized native build | Four QML checks passed | Separate from the Debug suite |
+| Native Debug suite | 368 of 370 passed | Broadcast/provider checks failed in the builder environment; the original failure is retained |
+| Controlled full Debug replay | All 370 CTest entries passed; 6,571 internal cases passed | Same 300 executables and original commands; 35 original conditional skips remain |
+| Installed application | Desktop inspected; local SDK, invalid inputs and Origin refusal passed | No real card, PIN or production authentication |
+| Bundled images | 135 common/desktop images reached `Image.Ready` with positive dimensions: 94 SVG and 41 PNG | Not a pixel-perfect or complete composite-image check |
+
+The controlled replay used a non-root guest with IPv4/IPv6 and access restricted
+to the official test provider, without changing TLS or CVC checks. It is not an
+error-free native Debug build, universal ABI proof or a hardware certification.
+The detailed QML test log retains 86 logger-connection warnings, identical to
+the earlier test baseline: its runner does not initialize the logger before
+creating the models. The application initializes it before its controller;
+these warnings were absent from the checked installed SDK/desktop logs.
+Passing CTest therefore does not mean warning-free fixtures or complete coverage
+of live log/notification updates inside those fixtures.
+The stable desktop also preloads an invisible beta watermark. Its embedded SVG
+background is refused by the SVG protection, despite both original files being
+packaged. The normal stable setup screen was inspected; the beta watermark is
+not certified intact. The protection is not bypassed to hide this limitation.
+The first QML build wrapper timed out; the subsequent completion succeeded,
+and both original receipts were preserved.
+
+Metadata checks are available from the checkout:
+
+```sh
+guix repl -q -L . tests/ausweisapp-packages.scm
+python3 -B tests/package-inventory.py
+```
+
+Reproduce the installed SDK and stable desktop checks using the seven-package
+test manifest. This requires the completed output and may realize uncached
+build inputs; it does not install packages into your profile or start PC/SC.
+The reference lookup below is read-only. Each selected Qt path must exist as
+one directory, so missing or ambiguous results stop the check.
+
+```sh
+ausweisapp_store=$(guix build -L . -e '(@ (securityops packages ausweisapp) ausweisapp)')
+ausweisapp_refs=$(guix gc --references "$ausweisapp_store")
+ausweisapp_qtbase=$(printf '%s\n' "$ausweisapp_refs" | sed -n '/-qtbase-6\.9\.2$/p')
+ausweisapp_qtsvg=$(printf '%s\n' "$ausweisapp_refs" | sed -n '/-qtsvg-6\.9\.2$/p')
+ausweisapp_qml=$(printf '%s\n' "$ausweisapp_refs" | sed -n '/-qtdeclarative-6\.9\.2$/p')
+test -d "$ausweisapp_qtbase" && test -d "$ausweisapp_qtsvg" && test -d "$ausweisapp_qml" || exit 1
+ausweisapp_state=$(mktemp -d -t ausweisapp-test.XXXXXX)
+guix shell -L . -m etc/ausweisapp-test-manifest.scm.in \
+  --container --user=ausweis-fixture --no-cwd \
+  --share="$ausweisapp_state=/state" \
+  --expose="$PWD/tests/ausweisapp-runtime.py=/fixture.py" -- \
+  python3 -B /fixture.py "$ausweisapp_store" /state \
+  --qtbase "$ausweisapp_qtbase" --qtsvg "$ausweisapp_qtsvg" \
+  --qtdeclarative "$ausweisapp_qml"
+```
+
+The container has loopback only. Its private state retains the screenshot,
+application logs and loaded-library evidence; inspect the screenshot as well
+as the exit status. The fixture exercises normal SDK commands and refuses
+invalid input and an unauthorized Origin, without cards or remote providers.
+
+Source: [official AusweisApp 2.6.0 release](https://github.com/Governikus/AusweisApp/releases/tag/2.6.0).
 
 ### OpenPACE native EAC library
 

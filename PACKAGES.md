@@ -184,6 +184,7 @@ não ativa serviços e não importa certificados.
 | Identidade e assinaturas | `libdigidocpp` | 4.5.1 | `(securityops packages eid)` |
 | Identidade e assinaturas | `digidoc4` | 4.11.1 | `(securityops packages digidoc4)` |
 | Identidade e cartões | `eid-mw` | 5.1.31 | `(securityops packages belgian-eid)` |
+| Identidade alemã e SDK local | `ausweisapp` | 2.6.0 | `(securityops packages ausweisapp)` |
 | Biblioteca EAC e certificados CVC | `openpace` | 1.1.4 | `(securityops packages openpace)` |
 | Dados de PKI | `icp-brasil-roots` | 2026.10.05, registro oficial | `(securityops packages icp-brasil)` |
 | Dados de ACs | `icp-brasil-ca-data` | 2026.08.26, arquivo oficial | `(securityops packages icp-brasil-chain)` |
@@ -200,6 +201,7 @@ não ativa serviços e não importa certificados.
 | libdigidocpp | 24 testes TSL, 23 casos offline com 111 asserções e 25 verificações do resultado instalado | Cartões, SiVa, OCSP/TSA ao vivo e renovação online não testados; dez casos upstream ficaram fora da seleção offline |
 | DigiDoc4 | Build nativo, assinatura ECC do bootstrap, rejeição real de cache adulterado, abertura gráfica de ASiC-E sem assinatura e recusa de documento inválido; imagens inspecionadas e bibliotecas carregadas conferidas | Sem cartões, assinatura qualificada, SiVa, OCSP/TSA ou renovação online de listas nacionais; não é a suíte Open-EID completa |
 | Belgium eID | Build nativo com 15 testes upstream; funções e ciclo de vida PKCS#11 reais, slots vazios, visualizador GTK3 e versão 5.1.31 exibida e inspecionada | 27 skips upstream de hardware/interface preservados; sem leitor, cartão, PIN, assinatura, registro em navegador ou serviço PC/SC no host |
+| AusweisApp | Build otimizado nativo, quatro testes QML, SDK/GUI instalados e 135 imagens comuns/de desktop; repetição isolada dos 370 testes Debug com bibliotecas carregadas conferidas | 35 skips condicionais originais preservados; o check Debug no builder teve duas falhas ambientais; sem cartão, PIN, autenticação real ou certificação universal da ABI Qt |
 | OpenPACE | Build nativo e testes originais `eactest`/três cadeias CVC; ELF, bibliotecas carregadas, compilação de consumidor e ciclo de vida com busca CVCA em container offline | Sem cartão, PIN, serviço PC/SC ou interoperabilidade de hardware; busca de certificado de exemplo não comprova confiança nem validação de cadeia |
 | Raízes ICP-Brasil | Oito arquivos originais e fingerprints conferidos; sete raízes com assinatura, validade e recusa de adulteração no OpenSSL; três bundles carregados em teste isolado | v7/Ed521 apenas como referência, fora dos bundles; sem cadeia intermediária completa, revogação online, assinatura de documentos ou importação global |
 | Coleção de ACs ICP-Brasil | SHA-512 oficial do ZIP, 180 PEM originais byte a byte, fingerprints DER, restrições de AC e teste sem privilégios em container offline | Dados de referência, não confiança; sem validação de cadeia, validade atual ou revogação; v7/Ed521 separado e sem assinatura verificada |
@@ -229,6 +231,35 @@ no diálogo About. GTK3, os testes nativos e a licença LGPL-3.0-or-later são
 preservados; OpenSSL 3.5.9 e libxml2 2.15.4 foram conferidos no processo instalado.
 Adicionar o pacote não inicia PC/SC nem registra automaticamente seu provedor
 PKCS#11 em aplicativos.
+
+O AusweisApp 2.6.0 fornece o aplicativo Qt e o SDK local. Qtbase, SVG e QML
+mantêm a família 6.9.2, com correções upstream fixadas; QML foi recompilado
+contra os novos headers privados do SVG. Os testes verificam os caminhos das
+bibliotecas realmente carregadas, não apenas seus números de versão. Essas
+dependências são privadas à receita, sem atualização global do Qt.
+
+O build otimizado passou seus quatro testes QML. O build Debug original rodou
+370 testes e apresentou duas falhas ambientais; a repetição controlada de todos
+os 370, com os mesmos executáveis e uma conexão restrita ao provedor de testes
+oficial, passou. Os resultados internos preservam 35 skips condicionais upstream.
+A interface instalada, o SDK local e o carregamento de 135 imagens comuns/de
+desktop também foram verificados; a captura da interface foi inspecionada.
+`Image.Ready` e dimensões positivas não provam fidelidade de imagens compostas.
+O desktop estável pré-carrega um marcador beta invisível; seu fundo SVG embutido
+é recusado pela proteção, embora ambos os arquivos originais estejam incluídos.
+O marcador beta não está certificado como íntegro. Isso não cobre cartões,
+PINs, autenticação de produção nem serviços externos reais.
+O log detalhado dos fixtures QML mantém 86 avisos de conexão do logger, idênticos
+ao baseline anterior: o runner não o inicializa antes dos modelos. O aplicativo
+o inicializa antes do controller, e os avisos não aparecem nos logs SDK/desktop
+verificados. CTest aprovado não equivale a fixtures sem avisos nem comprova as
+atualizações de log/notificação ausentes desse ambiente de teste.
+
+A opção SVG padrão usa `NoOption` em vez de tratar entradas como confiáveis.
+O override explícito `QT_SVG_DEFAULT_OPTIONS` continua disponível upstream;
+não se trata de uma política global inalterável. A receita não ativa PC/SC.
+Fonte: [AusweisApp 2.6.0](https://github.com/Governikus/AusweisApp/releases/tag/2.6.0).
+Consulte os [comandos e limites do AusweisApp](docs/usage.md#ausweisapp-desktop-and-local-sdk).
 
 O OpenPACE fornece a biblioteca C `libeac.so.3`, headers, metadados `pkg-config`
 e ferramentas CVC. O OpenSSL 3.5.9 é propagado para os programas consumidores;
