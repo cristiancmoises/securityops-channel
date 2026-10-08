@@ -320,6 +320,8 @@ or change user, Home or system profiles when you add the channel.
 | Package | Module | Installed interface |
 |---|---|---|
 | `libdigidocpp` 4.5.1 | `(securityops packages eid)` | Native library, headers and upstream `digidoc-tool` |
+| `digidoc4` 4.11.1 | `(securityops packages digidoc4)` | Native Qt desktop, `qdigidoc4`, desktop entry and signed bootstrap |
+| `eid-mw` 5.1.31 | `(securityops packages belgian-eid)` | Belgian eID GTK3 viewer and `lib/libbeidpkcs11.so` |
 | `esocial-schemas` 1.3-20260701 | `(securityops packages brazil-tax)` | `share/esocial/events`, S-1.3 / NT 06/2026 |
 | `esocial-communication-schemas` 1.6 | `(securityops packages brazil-tax)` | `share/esocial/communication`, separate envelope/WSDL format |
 
@@ -354,6 +356,73 @@ SECURITYOPS_EID_OUTPUT="$library" guix build -L . \
 The explicit store path prevents a grafted or cached acceptance marker from
 standing in for execution against the completed library. `--check` repeats
 the deterministic acceptance build even when its result already exists.
+
+### DigiDoc4 desktop
+
+Install the desktop separately from the library:
+
+```sh
+guix install digidoc4
+qdigidoc4
+```
+
+The native Qt application includes libdigidocpp 4.5.1 and libcdoc. Its own XML
+input is aligned with the signature library: libxml2 2.15.4, libxslt 1.1.45 and
+OpenSSL 3.5.9 are checked in the running process after default grafting. The
+signed public configuration bootstrap has serial 212; invalid cached payloads
+are rejected and replaced. TLS errors are not ignored.
+
+The embedded EU list was issued on 24 September 2026 and has its next update
+on 17 March 2027. There is no newly bundled Estonian country list. Country
+trust lists retain upstream's signed online update flow, so first-use signature
+validation can require internet access. The application does not import its
+bootstrap or Mozilla certificate data into the system trust store. A running
+PC/SC service and supported reader are required for card operations.
+
+The desktop was tested in an unprivileged, loopback-only container with Xvfb:
+an unsigned ASiC-E with a proper manifest displayed its payload and missing
+signatures; malformed input displayed an error. Both screenshots were inspected.
+Live cards, qualified signatures, SiVa/OCSP/TSA, online country-list updates and
+a live negative-TLS endpoint were not tested. This package is not the complete
+Open-EID browser/driver suite.
+
+Reproduce the graphical checks from a checkout without installing or activating
+services. The private directory retains screenshots and application logs:
+
+```sh
+securityops_digidoc4=$(guix build -L . -e '(@ (securityops packages digidoc4) digidoc4)')
+securityops_digidoc4_state=$(mktemp -d -t digidoc4-test.XXXXXX)
+guix shell -L . -m etc/digidoc4-test-manifest.scm.in --container --no-cwd \
+  --share="$securityops_digidoc4_state=/state" --expose="$PWD/tests=/tests" \
+  --expose="$securityops_digidoc4" -- \
+  python3 -B /tests/digidoc4-runtime.py "$securityops_digidoc4" /state
+```
+
+### Belgian eID
+
+Select the channel recipe explicitly from a checkout:
+
+```sh
+guix shell -L . -e '(@ (securityops packages belgian-eid) eid-mw)' -- eid-viewer
+```
+
+Version 5.1.31 is the verified official Linux source release; the separate
+5.1.34 Windows installers are not used. The package preserves upstream GTK3,
+the PC/SC reader contract and LGPL-3.0-or-later notices. Its PKCS#11 provider is
+`lib/libbeidpkcs11.so` under the package output. Applications must select that
+provider explicitly; adding the package neither registers it in browsers nor
+starts PC/SC.
+
+The native check phase passed 15 tests with 27 unchanged upstream skips.
+An unprivileged, loopback-only container exercised the installed PKCS#11
+function table, initialization/finalization, invalid arguments and empty slots.
+The viewer and its About dialog were inspected, including the displayed
+5.1.31 version and the loaded OpenSSL 3.5.9/libxml2 2.15.4/GTK3 libraries.
+Card readers, real cards, PIN operations, signatures, browser integration and
+online update success were not tested. Those workflows require supported
+hardware and a separately configured PC/SC service.
+
+Source: [official Linux tag](https://github.com/Fedict/eid-mw/tree/v5.1.31).
 
 ### eSocial schema data
 
