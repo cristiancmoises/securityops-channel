@@ -440,6 +440,7 @@ or change user, Home or system profiles when you add the channel.
 | `libdigidocpp` 4.5.1 | `(securityops packages eid)` | Native library, headers and upstream `digidoc-tool` |
 | `digidoc4` 4.11.1 | `(securityops packages digidoc4)` | Native Qt desktop, `qdigidoc4`, desktop entry and signed bootstrap |
 | `eid-mw` 5.1.31 | `(securityops packages belgian-eid)` | Belgian eID GTK3 viewer and `lib/libbeidpkcs11.so` |
+| `openpace` 1.1.4 | `(securityops packages openpace)` | Native `libeac.so.3`, C headers, `libeac.pc` and CVC tools |
 | `icp-brasil-roots` 2026.10.05 | `(securityops packages icp-brasil)` | Explicit-purpose PEM bundles and original public root data |
 | `esocial-schemas` 1.3-20260701 | `(securityops packages brazil-tax)` | `share/esocial/events`, S-1.3 / NT 06/2026 |
 | `esocial-communication-schemas` 1.6 | `(securityops packages brazil-tax)` | `share/esocial/communication`, separate envelope/WSDL format |
@@ -542,6 +543,67 @@ online update success were not tested. Those workflows require supported
 hardware and a separately configured PC/SC service.
 
 Source: [official Linux tag](https://github.com/Fedict/eid-mw/tree/v5.1.31).
+
+### OpenPACE native EAC library
+
+OpenPACE provides the native C library for PACE, terminal authentication and
+chip authentication, plus `eactest`, `cvc-create`, `cvc-print` and the upstream
+example executable. Optional language bindings are not selected. This is an
+independent library package, not the Autenticação.gov desktop or a card service.
+
+Build or install the channel recipe explicitly from a checkout:
+
+```sh
+guix build -L . -e '(@ (securityops packages openpace) openpace)'
+guix package -L . -e '(@ (securityops packages openpace) openpace)'
+```
+
+OpenSSL 3.5.9 is a propagated development dependency: a consumer selecting
+OpenPACE can resolve `pkg-config --cflags --libs libeac` without adding a second
+crypto package. The native build preserves upstream `make check`, including
+`eactest` and all three CVC utility terminal chains. Separate unprivileged,
+offline checks confirmed the installed SONAME, actual loaded library paths,
+context lifecycle and ordinary downstream compilation/linking.
+
+| Path under the package output | Purpose |
+|---|---|
+| `lib/libeac.so.3`, `include/eac`, `lib/pkgconfig/libeac.pc` | Native C interface and development metadata |
+| `share/openpace/trust/cvc`, `share/openpace/trust/x509` | Empty immutable compiled defaults; not a usable issuer trust store |
+| `share/openpace/examples` | Four unchanged upstream certificate examples, separate from trust |
+| `share/openpace/source` | Original OpenPACE/OpenSSL archives and effective Guix-patched OpenSSL source |
+| `share/doc/openpace/license-source/eac.h` | Original linking permissions and corresponding-source clauses |
+
+Applications must explicitly select their operator-managed certificate roots
+and validation policy. The installed test's positive CVCA lookup uses a private
+copy of an original example; lookup alone is not signature, chain, expiry or
+legal-trust validation. Nothing is imported into host trust stores. Real cards,
+readers, PINs, providers and hardware interoperability were not tested.
+Upstream `eactest --version` still prints its historical 0.6 tool identifier;
+the library's pinned source and `pkg-config` metadata report 1.1.4.
+
+Reproduce the installed consumer check without changing a host profile:
+
+```sh
+openpace_store=$(guix build -L . -e '(@ (securityops packages openpace) openpace)')
+guix shell -L . -e '(@ (securityops packages openpace) openpace)' \
+  gcc-toolchain pkg-config python --container --user=openpace-fixture \
+  --no-cwd --expose="$PWD/tests/openpace-runtime.py=/fixture.py" \
+  --expose="$PWD/tests/fixtures/openpace-lifecycle.c=/probe.c" -- \
+  python3 -B /fixture.py "$openpace_store" --consumer --probe /probe.c
+```
+
+The container selects OpenPACE and generic development tools only; OpenSSL
+arrives through propagation. Use the complete `gcc-toolchain` without adding
+a standalone `binutils`: a profile conflict can replace Guix's linker wrapper
+and omit runtime search paths. The toolchain already supplies `readelf`.
+The check requires a non-root UID and an isolated
+network namespace, preserves exact source/example hashes and default trust,
+and rejects development paths outside that profile. It does not contact an
+identity provider or activate PC/SC. Metadata checks are available separately:
+
+```sh
+guix repl -L . tests/openpace-packages.scm
+```
 
 ### ICP-Brasil root data
 
