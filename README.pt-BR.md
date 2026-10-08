@@ -13,7 +13,7 @@ Este canal simplesmente não existiria sem esse trabalho.
 
 | Item | Status |
 |---|---|
-| Definições de pacotes | Ferramentas de trabalho, assinaturas digitais, bibliotecas de identidade, esquemas oficiais e drivers XLibre |
+| Definições de pacotes | Ferramentas de trabalho, eletrônica, acesso remoto, monitoramento, identidade digital e drivers XLibre |
 | Dependências | GNU Guix e nonguix; o empacotamento XLibre está incluído |
 | Validação | [Pacotes, versões e verificações](PACKAGES.md); a ativação do sistema requer reconfiguração separada |
 | Autenticação | Commits assinados e introdução do canal fixada |
@@ -23,6 +23,9 @@ Este canal simplesmente não existiria sem esse trabalho.
 | Guia | Conteúdo |
 |---|---|
 | [Índice de pacotes](PACKAGES.md) | Pacotes por finalidade, versões verificadas e limites dos testes |
+| [Eletrônica](docs/usage.md#electronics) | Simulação com ngspice e toolchains do Arduino IDE |
+| [Acesso remoto](docs/usage.md#remote-desktop) | Cliente RustDesk e servidores de rendezvous/relay próprios |
+| [Monitoramento](docs/usage.md#monitoring) | Servidor Zabbix, coletores, interface web, JMX e relatórios PDF |
 | [Relatórios XBRL](docs/usage.md#structured-reporting) | CLI/biblioteca Arelle, validação offline e limites dos testes gráficos |
 | [Identidade e esquemas oficiais](docs/usage.md#identity-and-official-schema-data) | libdigidocpp e formatos separados de eventos e comunicação do eSocial |
 | [Documentos fiscais eletrônicos](docs/usage.md#electronic-invoicing) | KoSIT Validator e regras XRechnung fixadas para uso offline |

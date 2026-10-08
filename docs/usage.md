@@ -3,6 +3,177 @@
 Operational examples for GNU Guix System and Guix Home. For current versions
 and validation, see [the package index](../PACKAGES.md).
 
+## Electronics
+
+| Package | Version | Module | Interface |
+|---|---|---|---|
+| `ngspice`, `libngspice` | 47 | `(securityops packages electronics)` | Netlist simulator and shared C API |
+| `arduino-ide` | 2.3.10 | `(securityops packages arduino)` | Desktop IDE and bundled `arduino-ide-cli` |
+
+### Circuit simulation
+
+Select the channel recipe explicitly from a checkout:
+
+```sh
+guix package -L . -e '(@ (securityops packages electronics) ngspice)'
+ngspice -b circuit.cir
+```
+
+The simulator is an alternative circuit engine, not an LTspice-compatible
+schematic editor. Supply a netlist or use a separately configured schematic
+frontend. The CLI and library use the same release. Native builds test an
+installed-header C program, a DC divider, an analytic RC transient, and an
+upstream stop/resume regression. The checker also rejects interpreter errors
+even when ngspice prints a success marker and exits zero.
+
+Recipe checks: `guix repl -L . tests/ngspice-packages.scm`.
+
+### Arduino IDE
+
+```sh
+guix package -L . -e '(@ (securityops packages arduino) arduino-ide)'
+arduino-ide
+arduino-ide-cli version
+```
+
+The x86_64-linux launcher provides an FHS environment for the official bundle
+and the toolchains later downloaded by Board Manager. It requires a running
+Guix daemon and unprivileged user namespaces. Your home, working directory,
+display, network and selected device sockets are shared; this is compatibility
+layout, not security isolation. Board packages and libraries are separate
+downloads. Host serial permissions and access to hardware remain administrative
+tasks; serial devices connected after launch may require restarting the IDE.
+
+The upstream bundle contains unsupported Electron 30.1.2/Chromium 124, and
+Theia disables its renderer sandbox. No global `--no-sandbox` switch is added,
+but that does not repair upstream renderer isolation. Cortex-Debug includes
+a legacy serial-console module whose runtime compatibility is unverified.
+Do not interpret the latest IDE release as a security-supported runtime.
+
+Verification covers the editor displaying Blink under Xvfb and a real Uno
+compilation after downloading AVR 1.8.8. It does not cover upload, debugging
+or physical-device hotplug. Repeat the compile in disposable state, without
+a board or changes to your Arduino configuration:
+
+```sh
+output=$(guix build -L . -e '(@ (securityops packages arduino) arduino-ide)')
+sh tests/arduino-runtime.sh "$output"
+```
+
+The test downloads toolchains and prints the retained state directory; use
+an adequately sized `TMPDIR`. Metadata: `guix repl -L . tests/arduino-packages.scm`.
+The graphical fixture needs Node 22+ and `xvfb-run` with the package closure.
+
+## Remote desktop
+
+Both packages are in `(securityops packages remote-desktop)`. Their releases
+are independent: client 1.4.9 and Server OSS 1.1.16.
+
+```sh
+guix package -L . -e '(@ (securityops packages remote-desktop) rustdesk)'
+guix package -L . -e '(@ (securityops packages remote-desktop) rustdesk-server)'
+rustdesk --version
+hbbs --help
+hbbr --help
+```
+
+`rustdesk-server` includes rendezvous server `hbbs`, relay server `hbbr` and
+`rustdesk-utils`. Installing them does not start listeners, create production
+keys, install a privileged service or grant remote access. Configure persistent
+state, server keys, authenticated clients, firewall rules and service accounts
+separately before exposing a deployment.
+
+The packages adapt official binaries, preserve matching source checkouts with
+submodules, and retain upstream notices. Client ELF paths and subprocess tools
+are scoped to the application; no global library paths or PAM configuration
+are changed. See [licensing boundaries](../LICENSING.md) before distributing
+binary substitutes.
+
+Tests cover client startup under a private Xvfb, server TCP/WebSocket readiness
+and actual peer registration in a private `hbbs` database while `hbbr` runs.
+They do not demonstrate an authenticated desktop session, relayed screen data,
+remote input, audio or Wayland capture. The runtime fixture refuses ordinary
+host execution: use a Guix container whose only network interface is loopback
+and whose profile contains the complete tested packages and test tools.
+
+Metadata: `guix repl -L . tests/rustdesk-packages.scm`.
+Runtime modes are documented by `python3 tests/rustdesk-runtime-test.py --help`.
+
+## Monitoring
+
+The Zabbix 7.4.15 components share one verified source release in
+`(securityops packages zabbix)`.
+
+| Package | Provided component |
+|---|---|
+| `zabbix-agentd`, `zabbix-agent2` | Classic and Go collectors |
+| `zabbix-server` | PostgreSQL server; separate `front-end` and `schema` outputs |
+| `zabbix-proxy` | SQLite proxy and its `schema` output |
+| `zabbix-java-gateway` | Java/JMX collector with a foreground launcher |
+| `zabbix-web-service` | Scheduled PDF report renderer with pinned Chrome |
+| `zabbix-get`, `zabbix-sender`, `zabbix-js` | Query, submission and local JavaScript commands |
+
+```sh
+guix package -L . -e '(@ (securityops packages zabbix) zabbix-agent2)'
+guix build -L . -e '(@ (securityops packages zabbix) zabbix-server)'
+```
+
+The build command returns the server, `front-end` and `schema` store paths.
+For all components, frontend, schemas, PostgreSQL and PHP, use the dedicated
+manifest in a separate profile so your existing default profile is unchanged:
+
+```sh
+mkdir -p "$HOME/.guix-extra-profiles/zabbix"
+guix package -L . -p "$HOME/.guix-extra-profiles/zabbix/profile" \
+  -m etc/zabbix-manifest.scm.in
+```
+
+The PDF service and therefore this complete manifest require x86_64-linux,
+matching the supported Chrome archive.
+
+The frontend is installed at `share/zabbix/php`; its immutable maintenance
+template remains available before setup. The administrator-managed database
+configuration is `/etc/zabbix/zabbix.conf.php`, and certificate configuration
+is `/etc/zabbix/certs`. Package installation does not initialize databases or
+enable a web server, collector, monitoring target or production credentials.
+Provision TLS, least-privilege accounts, persistent state and an appropriate
+PHP/web-server deployment separately.
+
+Native builds and temporary loopback tests cover both collectors, PostgreSQL
+schema initialization, server startup, SQLite proxy initialization and PHP 8.4/8.5
+setup rendering. The tests do not constitute a complete production deployment
+or a metrics-to-dashboard acceptance test. Metadata:
+`guix repl -L . tests/zabbix-packages.scm`.
+
+### Java and scheduled reports
+
+The gateway installs `zabbix-java-gateway` for foreground service supervision,
+along with the upstream example settings and startup scripts. Configure
+`zabbix.*` JVM properties through `JAVA_TOOL_OPTIONS`. The runtime is Guix's
+OpenJDK 25.0.2; the five bundled Android JSON, Logback, SLF4J and dnsjava JARs
+retain their own licenses. They are upstream binaries, not locally rebuilt
+dependencies. Java version updates and production JMX authentication/TLS need
+their own review.
+
+The web service installs `zabbix_web_service`; explicitly supply its configuration
+with `-c`. It uses the channel's Chrome release for PDF rendering. Run it under
+an unprivileged dedicated account. Set `AllowedIP`, certificate-based TLS,
+the server's `WebServiceURL` and report writers, and the frontend URL before
+enabling scheduled reports. The upstream listener has no `ListenIP` setting;
+restrict its network exposure with a firewall or isolated network namespace.
+Do not expose it as an unauthenticated public rendering endpoint. See the
+[upstream report setup](https://www.zabbix.com/documentation/7.4/en/manual/config/reports).
+
+Isolated tests perform real Java/JMX queries, verify peer/path rejection,
+generate a PDF from a local dashboard fixture and check its extracted text.
+They do not prove production TLS, arbitrary dashboards or scheduled e-mail
+delivery. The extra fixture rejects ordinary host execution:
+`python3 tests/zabbix-extra-runtime.py --help`.
+
+A runnable Wazuh stack is not published by this channel. Native mutable-state
+integration, Java/Node/Python closures, Filebeat forwarding and authenticated
+manager/indexer/dashboard acceptance remain prerequisites.
+
 ## AutoFirma
 
 The channel provides the official stable **Linux release, 1.9**, through
@@ -148,7 +319,7 @@ or change user, Home or system profiles when you add the channel.
 
 | Package | Module | Installed interface |
 |---|---|---|
-| `libdigidocpp` 4.5.0 | `(securityops packages eid)` | Native library, headers and upstream `digidoc-tool` |
+| `libdigidocpp` 4.5.1 | `(securityops packages eid)` | Native library, headers and upstream `digidoc-tool` |
 | `esocial-schemas` 1.3-20260701 | `(securityops packages brazil-tax)` | `share/esocial/events`, S-1.3 / NT 06/2026 |
 | `esocial-communication-schemas` 1.6 | `(securityops packages brazil-tax)` | `share/esocial/communication`, separate envelope/WSDL format |
 

@@ -13,7 +13,7 @@ their respective upstream licenses.
 The River patches under `securityops/patches/` follow River's GPL-3.0-only
 license; their notices are recorded in the patch files.
 
-The integration fixtures under `tests/` carry BSD-3-Clause notices; the recipe
+The River integration fixtures under `tests/` carry BSD-3-Clause notices; the recipe
 exception above does not change the GPL license of the River patches.
 
 A Guix package definition does not relicense the program it packages. Each
@@ -26,6 +26,25 @@ Lacuna's Web PKI RPM declares MIT in its package metadata but does not include
 a separate license text. Its self-contained .NET application bundles third
 party components whose individual notices were not separately audited here.
 The channel fetches the RPM by hash and does not vendor or relicense it.
+
+Arduino IDE and RustDesk retain the upstream copyleft licenses and bundled
+third-party notices. Their recipes adapt official binaries; they do not rebuild
+the applications. Arduino installs source directions and its license text;
+RustDesk includes matching recursive source checkouts and dated packaging-change
+notices. This does not establish that every embedded dependency's Corresponding
+Source has been collected. Before distributing binary substitutes, review and
+satisfy the applicable source-availability and notice requirements, including
+required dependency sources and build instructions. Publishing these recipes
+is not a blanket certification of binary-distribution compliance.
+
+ngspice retains its inherited upstream license families; Zabbix retains AGPLv3.
+Zabbix Java Gateway preserves five bundled upstream dependency JARs under
+their respective Apache, MIT, BSD and Logback dual-license terms. These are
+binary dependencies; publishing the recipe does not certify their complete
+source-availability compliance. The PDF service uses a separately licensed
+Google Chrome package as an external runtime dependency.
+The new fixtures use their individual notices or the channel's default license,
+not the River-specific exception above.
 
 AutoFirma is distributed under GPL-2.0-or-later or EUPL-1.1. The package
 reuses the official Linux distribution and retains its JAR and bundled

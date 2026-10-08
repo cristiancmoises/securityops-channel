@@ -13,7 +13,7 @@ here. This channel simply wouldn't exist without that work.
 
 | Item | Status |
 |---|---|
-| Package definitions | Workstation tools, digital signatures, identity libraries, official schema data and XLibre drivers |
+| Package definitions | Workstation tools, electronics, remote desktop, monitoring, digital identity and XLibre drivers |
 | Dependencies | GNU Guix and nonguix; XLibre packaging is included |
 | Validation | [Package versions and checks](PACKAGES.md); system activation requires a separate reconfiguration |
 | Authentication | Signed commits and a pinned channel introduction |
@@ -23,6 +23,9 @@ here. This channel simply wouldn't exist without that work.
 | Guide | Contents |
 |---|---|
 | [Package index](PACKAGES.md) | Packages grouped by purpose, verified versions and test limits (pt-BR) |
+| [Electronics](docs/usage.md#electronics) | ngspice simulation and Arduino IDE toolchains |
+| [Remote desktop](docs/usage.md#remote-desktop) | RustDesk client and self-hosted rendezvous/relay servers |
+| [Monitoring](docs/usage.md#monitoring) | Zabbix server, collectors, frontend, JMX and PDF reports |
 | [XBRL reporting](docs/usage.md#structured-reporting) | Arelle CLI/library, offline validation and graphical-test limits |
 | [Identity and official schemas](docs/usage.md#identity-and-official-schema-data) | libdigidocpp and separate eSocial event/communication formats |
 | [Electronic invoicing](docs/usage.md#electronic-invoicing) | KoSIT Validator and pinned offline XRechnung rules |
