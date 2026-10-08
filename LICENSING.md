@@ -66,6 +66,14 @@ separate test output retains JUnit EPL-1.0 and Hamcrest BSD notices. These
 technical inventories and byte pins are not signer authentication or a blanket
 legal certification. The package adapts published artifacts, not a Maven rebuild.
 
+OpenPACE retains GPL-3.0-or-later and the exact section-7 OpenSSL/OpenSC linking
+permissions and corresponding-source clauses from its original header. Its output
+includes the original OpenPACE archive, the official OpenSSL 3.5.9 gzip archive
+and the effective Guix-patched OpenSSL source as a separate Zstandard archive.
+The included OpenSSL source keeps Apache-2.0 terms; clearing transformations on
+the archival-only origin does not remove patches from the actual crypto input.
+These preserved sources and notices are not a blanket legal certification.
+
 AutoFirma is distributed under GPL-2.0-or-later or EUPL-1.1. The package
 reuses the official Linux distribution and retains its JAR and bundled
 third-party license notices. Those dependencies keep their own licenses;

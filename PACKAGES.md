@@ -184,6 +184,7 @@ não ativa serviços e não importa certificados.
 | Identidade e assinaturas | `libdigidocpp` | 4.5.1 | `(securityops packages eid)` |
 | Identidade e assinaturas | `digidoc4` | 4.11.1 | `(securityops packages digidoc4)` |
 | Identidade e cartões | `eid-mw` | 5.1.31 | `(securityops packages belgian-eid)` |
+| Biblioteca EAC e certificados CVC | `openpace` | 1.1.4 | `(securityops packages openpace)` |
 | Dados de PKI | `icp-brasil-roots` | 2026.10.05, registro oficial | `(securityops packages icp-brasil)` |
 | Dados de ACs | `icp-brasil-ca-data` | 2026.08.26, arquivo oficial | `(securityops packages icp-brasil-chain)` |
 | Validação XML | `phive` | 12.2.0 | `(securityops packages phive)` |
@@ -199,6 +200,7 @@ não ativa serviços e não importa certificados.
 | libdigidocpp | 24 testes TSL, 23 casos offline com 111 asserções e 25 verificações do resultado instalado | Cartões, SiVa, OCSP/TSA ao vivo e renovação online não testados; dez casos upstream ficaram fora da seleção offline |
 | DigiDoc4 | Build nativo, assinatura ECC do bootstrap, rejeição real de cache adulterado, abertura gráfica de ASiC-E sem assinatura e recusa de documento inválido; imagens inspecionadas e bibliotecas carregadas conferidas | Sem cartões, assinatura qualificada, SiVa, OCSP/TSA ou renovação online de listas nacionais; não é a suíte Open-EID completa |
 | Belgium eID | Build nativo com 15 testes upstream; funções e ciclo de vida PKCS#11 reais, slots vazios, visualizador GTK3 e versão 5.1.31 exibida e inspecionada | 27 skips upstream de hardware/interface preservados; sem leitor, cartão, PIN, assinatura, registro em navegador ou serviço PC/SC no host |
+| OpenPACE | Build nativo e testes originais `eactest`/três cadeias CVC; ELF, bibliotecas carregadas, compilação de consumidor e ciclo de vida com busca CVCA em container offline | Sem cartão, PIN, serviço PC/SC ou interoperabilidade de hardware; busca de certificado de exemplo não comprova confiança nem validação de cadeia |
 | Raízes ICP-Brasil | Oito arquivos originais e fingerprints conferidos; sete raízes com assinatura, validade e recusa de adulteração no OpenSSL; três bundles carregados em teste isolado | v7/Ed521 apenas como referência, fora dos bundles; sem cadeia intermediária completa, revogação online, assinatura de documentos ou importação global |
 | Coleção de ACs ICP-Brasil | SHA-512 oficial do ZIP, 180 PEM originais byte a byte, fingerprints DER, restrições de AC e teste sem privilégios em container offline | Dados de referência, não confiança; sem validação de cadeia, validade atual ou revogação; v7/Ed521 separado e sem assinatura verificada |
 | PHIVE Java | JARs, fontes, POMs e avisos originais conferidos; testes upstream selecionados de XSD, Schematron, VES/JAXB, repositório e resultados XML/JSON/HTML em container offline | Biblioteca, sem CLI; não inclui regras fiscais nacionais; políticas de recursos externos foram configuradas nos testes, não impostas globalmente |
@@ -227,6 +229,21 @@ no diálogo About. GTK3, os testes nativos e a licença LGPL-3.0-or-later são
 preservados; OpenSSL 3.5.9 e libxml2 2.15.4 foram conferidos no processo instalado.
 Adicionar o pacote não inicia PC/SC nem registra automaticamente seu provedor
 PKCS#11 em aplicativos.
+
+O OpenPACE fornece a biblioteca C `libeac.so.3`, headers, metadados `pkg-config`
+e ferramentas CVC. O OpenSSL 3.5.9 é propagado para os programas consumidores;
+um perfil contendo apenas OpenPACE e ferramentas genéricas compilou, vinculou
+e executou a verificação instalada sem selecionar OpenSSL à parte. As fontes
+originais do OpenPACE/OpenSSL e a fonte efetiva do OpenSSL com os patches do Guix
+são preservadas, junto das permissões de ligação originais.
+
+As raízes padrão CVC/X.509 ficam vazias e imutáveis. Os quatro certificados
+originais de exemplo ficam separados, sem importação global; aplicações precisam
+selecionar suas próprias raízes e políticas. O teste de busca usou uma cópia
+privada de um exemplo, não uma identidade ou AC de produção. A receita não inclui
+bindings de outras linguagens nem o aplicativo Autenticação.gov.
+Fonte: [OpenPACE 1.1.4](https://github.com/frankmorgner/openpace/releases/tag/1.1.4).
+Consulte os [comandos e limites do OpenPACE](docs/usage.md#openpace-native-eac-library).
 
 As raízes ICP-Brasil preservam os arquivos públicos do ITI byte a byte e a
 atribuição CC-BY-ND-3.0 do registro oficial. Os bundles utilizáveis separam cinco
