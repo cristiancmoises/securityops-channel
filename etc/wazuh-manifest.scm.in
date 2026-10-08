@@ -1,0 +1,10 @@
+;;; SPDX-License-Identifier: GPL-3.0-or-later
+;;; Server stack selection; installing it does not initialize or start services.
+;;; Install wazuh-agent in a separate endpoint profile, not alongside manager.
+(use-modules (guix profiles)
+             ((securityops packages wazuh) #:prefix core:)
+             ((securityops packages wazuh-search) #:prefix search:))
+
+(packages->manifest
+ (list core:wazuh-manager search:wazuh-indexer
+       search:wazuh-dashboard search:wazuh-filebeat))

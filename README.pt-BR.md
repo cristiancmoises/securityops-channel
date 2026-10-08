@@ -26,6 +26,7 @@ Este canal simplesmente não existiria sem esse trabalho.
 | [Eletrônica](docs/usage.md#electronics) | Simulação com ngspice e toolchains do Arduino IDE |
 | [Acesso remoto](docs/usage.md#remote-desktop) | Cliente RustDesk e servidores de rendezvous/relay próprios |
 | [Monitoramento](docs/usage.md#monitoring) | Servidor Zabbix, coletores, interface web, JMX e relatórios PDF |
+| [Wazuh](docs/usage.md#wazuh) | Endpoint, manager, indexer, dashboard, envio de alertas e configuração explícita de TLS/estado |
 | [Relatórios XBRL](docs/usage.md#structured-reporting) | CLI/biblioteca Arelle, validação offline e limites dos testes gráficos |
 | [Identidade e esquemas oficiais](docs/usage.md#identity-and-official-schema-data) | DigiDoc4, eID belga, bibliotecas de assinatura e formatos do eSocial |
 | [Dados ICP-Brasil](docs/usage.md#icp-brasil-root-data) | Raízes por finalidade, coleção original de ACs, limite Ed521 e nenhuma importação automática |
