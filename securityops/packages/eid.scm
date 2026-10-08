@@ -35,7 +35,7 @@
 (define-public libdigidocpp
   (package
     (inherit guix:libdigidocpp)
-    (version "4.5.0")
+    (version "4.5.1")
     (source
      (origin
        (inherit (package-source guix:libdigidocpp))
@@ -44,7 +44,7 @@
              (commit (string-append "v" version))))
        (file-name (git-file-name "libdigidocpp" version))
        (sha256
-        (base32 "0w4vhdmj8sim3lv58nnxhaajv3m4v9ky5lw1x84zvvy6bmh9247x"))))
+        (base32 "1v5sxk9dcjsgra5q7y0bw8xsf4w6kr2bnvfvzqvyg2g5191qjg9d"))))
     (arguments
      (list
       #:cmake cmake-minimal
