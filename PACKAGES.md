@@ -186,6 +186,7 @@ não ativa serviços e não importa certificados.
 | Identidade e cartões | `eid-mw` | 5.1.31 | `(securityops packages belgian-eid)` |
 | Dados de PKI | `icp-brasil-roots` | 2026.10.05, registro oficial | `(securityops packages icp-brasil)` |
 | Dados de ACs | `icp-brasil-ca-data` | 2026.08.26, arquivo oficial | `(securityops packages icp-brasil-chain)` |
+| Validação XML | `phive` | 12.2.0 | `(securityops packages phive)` |
 | Documentos fiscais | `kosit-validator` | 1.6.3 | `(securityops packages einvoicing)` |
 | Documentos fiscais | `xrechnung-validator-configuration` | 2026-08-31, XRechnung 3.0.2 / CEN 1.3.16 | `(securityops packages einvoicing)` |
 | Dados governamentais | `esocial-schemas` | 1.3-20260701, S-1.3 / NT 06/2026 | `(securityops packages brazil-tax)` |
@@ -200,6 +201,7 @@ não ativa serviços e não importa certificados.
 | Belgium eID | Build nativo com 15 testes upstream; funções e ciclo de vida PKCS#11 reais, slots vazios, visualizador GTK3 e versão 5.1.31 exibida e inspecionada | 27 skips upstream de hardware/interface preservados; sem leitor, cartão, PIN, assinatura, registro em navegador ou serviço PC/SC no host |
 | Raízes ICP-Brasil | Oito arquivos originais e fingerprints conferidos; sete raízes com assinatura, validade e recusa de adulteração no OpenSSL; três bundles carregados em teste isolado | v7/Ed521 apenas como referência, fora dos bundles; sem cadeia intermediária completa, revogação online, assinatura de documentos ou importação global |
 | Coleção de ACs ICP-Brasil | SHA-512 oficial do ZIP, 180 PEM originais byte a byte, fingerprints DER, restrições de AC e teste sem privilégios em container offline | Dados de referência, não confiança; sem validação de cadeia, validade atual ou revogação; v7/Ed521 separado e sem assinatura verificada |
+| PHIVE Java | JARs, fontes, POMs e avisos originais conferidos; testes upstream selecionados de XSD, Schematron, VES/JAXB, repositório e resultados XML/JSON/HTML em container offline | Biblioteca, sem CLI; não inclui regras fiscais nacionais; políticas de recursos externos foram configuradas nos testes, não impostas globalmente |
 | KoSIT e XRechnung | 105 verificações do resultado instalado: UBL/CII válidos e inválidos, etapas XSD/Schematron, argumentos e recusas de recursos externos | Validação offline; sem envio fiscal ou teste do modo daemon |
 | Esquemas eSocial | 441 verificações; todos os 52 XSD de eventos e 15 XSD de comunicação compilados offline; arquivos originais preservados byte a byte | Validação estrutural, sem conferir assinaturas, regras de negócio ou aceitação pelo governo |
 
@@ -271,6 +273,27 @@ e [configuração XRechnung](https://github.com/itplr-kosit/validator-configurat
 Consulte a [referência de uso](docs/usage.md#identity-and-official-schema-data)
 e os [comandos de validação fiscal](docs/usage.md#electronic-invoicing) para
 caminhos instalados, seleção explícita de receitas e testes reproduzíveis.
+
+### PHIVE — validação XML em Java
+
+O [PHIVE 12.2.0](https://github.com/phax/phive/releases/tag/phive-parent-pom-12.2.0)
+reúne os oito módulos do framework e 42 dependências de execução, incluindo o
+provedor JAXB de referência. Os 50 JARs permanecem separados e byte a byte
+originais, com seus POMs, fontes e avisos. Saxon HE 12.10, JAXB 4.0.9 e o
+runtime privado Temurin 17.0.20.1+1 são fixados para esta combinação.
+
+| Saída | Conteúdo | Uso |
+|---|---|---|
+| `phive:out` | Bibliotecas, classpath, runtime e fontes/avisos | Integração em aplicações Java |
+| `phive:tests` | Cinco bibliotecas auxiliares de teste | Verificação explícita; não é propagada para aplicações |
+
+A receita adapta os artefatos publicados; não recompila o framework com Maven.
+Foram executados 63 casos upstream selecionados, com fontes e asserções
+inalteradas, incluindo sete exemplos VES originais. Os testes compilam apenas
+esses casos e um auxiliar local com Java 17; não equivalem à suíte upstream
+completa. As regras nacionais, taxonomias e conjuntos fiscais são pacotes
+separados; exemplos VES não equivalem a regras fiscais atuais. Consulte os
+[comandos e limites de uso](docs/usage.md#xml-validation-with-phive).
 
 ## Histórico — revisão de 01/10/2026
 

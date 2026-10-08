@@ -57,6 +57,16 @@ Antes de distribuir substitutos binários, confira e cumpra cada obrigação
 aplicável de fonte, instruções de build e avisos. Publicar estas receitas não
 autoriza nem certifica a distribuição dos binários resultantes.
 
+O PHIVE preserva os oito JARs originais do framework, as dependências,
+código-fonte publicado, POMs e avisos. A licença Apache-2.0 do framework não relicencia
+Saxon (MPL-2.0), JAXB/activation (EDL-1.0), SchXslt ou outras dependências.
+Os dados XML/DTD originais do XMLresolver mantêm o aviso específico W3C Software
+and Document. Suplementos exatos de fonte e avisos ficam em `share/phive`; a saída
+separada de testes preserva os termos EPL-1.0 do JUnit e BSD do Hamcrest.
+Esse inventário técnico e os hashes não autenticam assinantes nem certificam
+integralmente obrigações legais. O pacote adapta artefatos publicados, sem
+recompilar o framework com Maven.
+
 O AutoFirma é distribuído sob GPL-2.0-or-later ou EUPL-1.1. O pacote
 reutiliza a distribuição Linux oficial e preserva o JAR e os avisos de licença
 dos componentes incluídos. Essas dependências mantêm suas próprias licenças;
