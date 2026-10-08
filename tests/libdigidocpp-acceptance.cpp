@@ -43,7 +43,7 @@ int main(int argc, char **argv) {
     try {
         Conf::init(new FixtureConf(fixtures));
         initialize("guix-installed-acceptance");
-        require(version().starts_with("4.5.0"), "installed version");
+        require(version().starts_with("4.5.1"), "installed version");
         const auto xmlVersion = static_cast<const char **>(dlsym(RTLD_DEFAULT, "xmlParserVersion"));
         const auto xsltVersion = static_cast<const int *>(dlsym(RTLD_DEFAULT, "xsltLibxsltVersion"));
         const auto sslVersion = reinterpret_cast<const char *(*)(int)>(
