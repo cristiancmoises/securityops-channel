@@ -1,0 +1,15 @@
+;;; SPDX-License-Identifier: GPL-3.0-or-later
+;;; Complete component selection; installing it does not activate services.
+(use-modules (guix profiles)
+             ((securityops packages zabbix) #:prefix z:)
+             (gnu packages databases)
+             (gnu packages php))
+
+(packages->manifest
+ (list z:zabbix-agentd z:zabbix-agent2 z:zabbix-server z:zabbix-proxy
+       z:zabbix-java-gateway z:zabbix-web-service
+       z:zabbix-get z:zabbix-sender z:zabbix-js
+       (list z:zabbix-server "front-end")
+       (list z:zabbix-server "schema")
+       (list z:zabbix-proxy "schema")
+       postgresql php))
