@@ -27,7 +27,7 @@ Este canal simplesmente não existiria sem esse trabalho.
 | [Acesso remoto](docs/usage.md#remote-desktop) | Cliente RustDesk e servidores de rendezvous/relay próprios |
 | [Monitoramento](docs/usage.md#monitoring) | Servidor Zabbix, coletores, interface web, JMX e relatórios PDF |
 | [Relatórios XBRL](docs/usage.md#structured-reporting) | CLI/biblioteca Arelle, validação offline e limites dos testes gráficos |
-| [Identidade e esquemas oficiais](docs/usage.md#identity-and-official-schema-data) | libdigidocpp e formatos separados de eventos e comunicação do eSocial |
+| [Identidade e esquemas oficiais](docs/usage.md#identity-and-official-schema-data) | DigiDoc4, eID belga, bibliotecas de assinatura e formatos do eSocial |
 | [Documentos fiscais eletrônicos](docs/usage.md#electronic-invoicing) | KoSIT Validator e regras XRechnung fixadas para uso offline |
 | [Lacuna Web PKI](docs/webpki.pt-BR.md) | Host nativo, manifests dos navegadores e configuração do Guix Home |
 | [AutoFirma](docs/usage.md#autofirma) | Pacote Linux oficial, comandos de assinatura e limites da integração com navegadores |

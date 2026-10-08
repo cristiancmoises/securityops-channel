@@ -27,7 +27,7 @@ here. This channel simply wouldn't exist without that work.
 | [Remote desktop](docs/usage.md#remote-desktop) | RustDesk client and self-hosted rendezvous/relay servers |
 | [Monitoring](docs/usage.md#monitoring) | Zabbix server, collectors, frontend, JMX and PDF reports |
 | [XBRL reporting](docs/usage.md#structured-reporting) | Arelle CLI/library, offline validation and graphical-test limits |
-| [Identity and official schemas](docs/usage.md#identity-and-official-schema-data) | libdigidocpp and separate eSocial event/communication formats |
+| [Identity and official schemas](docs/usage.md#identity-and-official-schema-data) | DigiDoc4, Belgian eID, signature libraries and eSocial formats |
 | [Electronic invoicing](docs/usage.md#electronic-invoicing) | KoSIT Validator and pinned offline XRechnung rules |
 | [Lacuna Web PKI](docs/webpki.md) | Native host, browser manifests and Guix Home setup |
 | [AutoFirma](docs/usage.md#autofirma) | Official Linux package, signing commands and browser-integration limits |

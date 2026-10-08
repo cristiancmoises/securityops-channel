@@ -52,7 +52,7 @@ Wazuh ainda não está disponível como stack executável neste canal. Agente,
 manager, indexer, dashboard e envio de alertas por Filebeat precisam de
 integração e validação conjunta; não há receita parcial anunciada como pronta.
 
-## Atualizações verificadas em 07/10/2026
+## Atualizações verificadas em 07–08/10/2026
 
 | Pacote | Versão do canal | Fonte |
 |---|---|---|
@@ -61,14 +61,35 @@ integração e validação conjunta; não há receita parcial anunciada como pro
 | Tor | 0.4.9.14 | [Distribuições oficiais](https://dist.torproject.org/) |
 | sdb e radare2 | 2.5.8 e 6.2.4 | [sdb](https://github.com/radareorg/sdb/releases/tag/2.5.8), [radare2](https://github.com/radareorg/radare2/releases/tag/6.2.4) |
 | libdigidocpp | 4.5.1 | [Release oficial](https://github.com/open-eid/libdigidocpp/releases/tag/v4.5.1) |
+| DigiDoc4 | 4.11.1 | [Release oficial](https://github.com/open-eid/DigiDoc4-Client/releases/tag/v4.11.1) |
+| Belgium eID | 5.1.31, fonte Linux | [Tag oficial](https://github.com/Fedict/eid-mw/tree/v5.1.31) |
+| LibreWolf | 157.0-1 | [Distribuição Linux](https://librewolf.net/installation/linux/) |
+| NVIDIA new-feature | 615.78.08 | [Distribuição oficial](https://download.nvidia.com/XFree86/Linux-x86_64/615.78.08/) |
 | libevdev e Xwayland | 1.14.0 e 24.1.14 | [libevdev](https://www.freedesktop.org/software/libevdev/), [Xwayland](https://www.x.org/releases/individual/xserver/) |
 
 Os navegadores passaram em renderização, JavaScript, canvas e verificação de
 namespaces/seccomp em estado privado, com grafts padrão do Guix. Essa seleção
-não significa que todo o catálogo esteja na última versão global: LibreWolf,
-Chromium compilado de fonte, NVIDIA e MoneyPrinterTurbo ainda precisam de
-atualizações separadas e validação. Pins de ABI e dependências não devem ser
+não significa que todo o catálogo esteja na última versão global: Chromium
+compilado de fonte e MoneyPrinterTurbo ainda precisam de atualizações separadas
+e validação. Pins de ABI e dependências não devem ser
 trocados apenas por existir uma versão numericamente maior.
+
+### LibreWolf e compatibilidade com AutoFirma
+
+O LibreWolf reutiliza o motor compilado de fonte e autenticado do Guix,
+preservando suas preferências de privacidade e sandbox. A adaptação do canal
+mantém NSS 3.129/NSPR 4.40 e corrige as dependências do probe gráfico. JavaScript,
+canvas, imagem renderizada, probe Mesa e processos Web Content com seccomp e
+`NoNewPrivs` foram verificados em estado privado. A versão de fonte 157.0.1-1
+não foi anunciada aqui como uma distribuição binária já disponível.
+
+A seleção nativa STANDARD do NSS executou 21 suítes: 33.591 verificações passaram,
+sem falhas, cores ou erros ASan/UBSan. O relatório preserva um resultado UNKNOWN
+para `mozpkix_gtest`, listado pelo harness mas não produzido pelo Makefile GNU;
+libpkix, pkits e mpi_tests não pertencem a essa seleção. A criação de um token
+SQL e uma assinatura RSA por SunPKCS11, verificada independentemente, confirmaram
+a integração do runtime Java do AutoFirma com esse NSS. Isso não testa cartões
+reais nem o serviço de assinatura de um navegador.
 
 ## Verificação anterior — TurboRec 3.10.2
 
@@ -117,13 +138,15 @@ Consulte os [comandos e testes reproduzíveis](docs/usage.md#structured-reportin
 
 ## Identidade, documentos fiscais e dados oficiais
 
-Verificações de 02/10/2026 e 07/10/2026. Os pacotes abaixo passaram por build, testes no
+Verificações de 02/10/2026 a 08/10/2026. Os pacotes abaixo passaram por build, testes no
 resultado instalado e revisão independente. Adicionar o canal não os instala,
 não ativa serviços e não importa certificados.
 
 | Categoria | Pacote | Versão | Módulo |
 |---|---|---|---|
 | Identidade e assinaturas | `libdigidocpp` | 4.5.1 | `(securityops packages eid)` |
+| Identidade e assinaturas | `digidoc4` | 4.11.1 | `(securityops packages digidoc4)` |
+| Identidade e cartões | `eid-mw` | 5.1.31 | `(securityops packages belgian-eid)` |
 | Documentos fiscais | `kosit-validator` | 1.6.3 | `(securityops packages einvoicing)` |
 | Documentos fiscais | `xrechnung-validator-configuration` | 2026-08-31, XRechnung 3.0.2 / CEN 1.3.16 | `(securityops packages einvoicing)` |
 | Dados governamentais | `esocial-schemas` | 1.3-20260701, S-1.3 / NT 06/2026 | `(securityops packages brazil-tax)` |
@@ -134,6 +157,8 @@ não ativa serviços e não importa certificados.
 | Pacote | Testes concluídos | Limites |
 |---|---|---|
 | libdigidocpp | 24 testes TSL, 23 casos offline com 111 asserções e 25 verificações do resultado instalado | Cartões, SiVa, OCSP/TSA ao vivo e renovação online não testados; dez casos upstream ficaram fora da seleção offline |
+| DigiDoc4 | Build nativo, assinatura ECC do bootstrap, rejeição real de cache adulterado, abertura gráfica de ASiC-E sem assinatura e recusa de documento inválido; imagens inspecionadas e bibliotecas carregadas conferidas | Sem cartões, assinatura qualificada, SiVa, OCSP/TSA ou renovação online de listas nacionais; não é a suíte Open-EID completa |
+| Belgium eID | Build nativo com 15 testes upstream; funções e ciclo de vida PKCS#11 reais, slots vazios, visualizador GTK3 e versão 5.1.31 exibida e inspecionada | 27 skips upstream de hardware/interface preservados; sem leitor, cartão, PIN, assinatura, registro em navegador ou serviço PC/SC no host |
 | KoSIT e XRechnung | 105 verificações do resultado instalado: UBL/CII válidos e inválidos, etapas XSD/Schematron, argumentos e recusas de recursos externos | Validação offline; sem envio fiscal ou teste do modo daemon |
 | Esquemas eSocial | 441 verificações; todos os 52 XSD de eventos e 15 XSD de comunicação compilados offline; arquivos originais preservados byte a byte | Validação estrutural, sem conferir assinaturas, regras de negócio ou aceitação pelo governo |
 
@@ -142,6 +167,23 @@ as dependências transitivas relevantes. Os testes nativos herdados passaram;
 o teste do resultado instalado confirma as bibliotecas efetivamente carregadas.
 Os auxiliares de segurança são privados a estas receitas, não uma mudança
 global no sistema.
+
+O DigiDoc4 usa a mesma biblioteca de assinatura e a mesma ABI XML, inclusive no
+libcdoc interno. O bootstrap público de configuração tem serial 212 e assinatura
+ECC verificada; erros TLS continuam sendo rejeitados. A lista europeia de
+24/09/2026, com próxima atualização em 17/03/2027, substitui os dados expirados
+da receita anterior. Listas nacionais continuam usando o fluxo assinado de
+atualização online; não há uma lista estoniana recente embutida. A primeira
+validação de assinaturas pode exigir internet. Nenhum certificado é importado
+para a confiança global do sistema.
+
+O Belgium eID usa a última tag oficial de fonte Linux verificada, 5.1.31;
+a edição 5.1.34 é uma distribuição Windows, não uma atualização desta receita.
+A versão é gravada pelo mecanismo `.version` previsto pelo upstream, inclusive
+no diálogo About. GTK3, os testes nativos e a licença LGPL-3.0-or-later são
+preservados; OpenSSL 3.5.9 e libxml2 2.15.4 foram conferidos no processo instalado.
+Adicionar o pacote não inicia PC/SC nem registra automaticamente seu provedor
+PKCS#11 em aplicativos.
 
 O KoSIT preserva os JARs oficiais, as licenças e os fontes correspondentes:
 é um reempacotamento binário, não uma recompilação do projeto. Um adaptador
@@ -156,7 +198,8 @@ licenciados como software livre. O suporte a CNPJ alfanumérico pertence aos
 eventos S-1.3 desta edição; o envelope de comunicação 1.6 mantém as restrições
 numéricas originais e exige validar o evento separadamente.
 
-Fontes: [libdigidocpp 4.5.1](https://github.com/open-eid/libdigidocpp/releases/tag/v4.5.1)
+Fontes: [DigiDoc4 4.11.1](https://github.com/open-eid/DigiDoc4-Client/releases/tag/v4.11.1),
+[libdigidocpp 4.5.1](https://github.com/open-eid/libdigidocpp/releases/tag/v4.5.1)
 e [documentação técnica do eSocial](https://www.gov.br/esocial/pt-br/documentacao-tecnica),
 [KoSIT 1.6.3](https://github.com/itplr-kosit/validator/releases/tag/v1.6.3)
 e [configuração XRechnung](https://github.com/itplr-kosit/validator-configuration-xrechnung/releases/tag/v2026-08-31).
@@ -164,7 +207,7 @@ Consulte a [referência de uso](docs/usage.md#identity-and-official-schema-data)
 e os [comandos de validação fiscal](docs/usage.md#electronic-invoicing) para
 caminhos instalados, seleção explícita de receitas e testes reproduzíveis.
 
-## Atualização de 01/10/2026
+## Histórico — revisão de 01/10/2026
 
 | Pacote | Receita anterior | Receita atual | Origem |
 |---|---|---|---|
@@ -249,9 +292,9 @@ qualquer versão local mais nova que a receita pública.
 
 | Módulo | Pacotes | Versão verificada | Origem |
 |---|---|---|---|
-| `(securityops packages nvidia)` | `nvidia-driver-new-feature`, `nvidia-firmware-new-feature`, `nvidia-module-new-feature` | 615.71.09 | Reexportações do nonguix; o módulo foi compilado para o kernel 7.2.8 |
-| `(securityops packages nvidia)` | `nvda-new-feature` | 615.71 | Integração gráfica nonguix para o driver 615.71.09 |
-| `(securityops packages nvidia)` | `steam-nvidia-new-feature` | Bootstrap Steam 1.0.0.87 | Cliente do canal; stack NVIDIA 615.71.09 preservado. O Steam atualiza seu cliente em execução separadamente |
+| `(securityops packages nvidia)` | `nvidia-driver-new-feature`, `nvidia-firmware-new-feature`, `nvidia-module-new-feature` | 615.78.08 | Fontes oficiais fixadas; helpers nonguix; módulo compilado para Linux-libre 7.2.8 |
+| `(securityops packages nvidia)` | `nvda-new-feature` | 615.78.08 | União gráfica com o mesmo driver, firmware e caminhos ICD |
+| `(securityops packages nvidia)` | `steam-nvidia-new-feature` | Bootstrap Steam 1.0.0.87 | Cliente do canal e stack 615.78.08; contêiner Steam completo não testado nesta revisão |
 | `(securityops packages river)` | `river-xmonad-runtime` | 0.4.8 | Receita do canal |
 | `(securityops packages river)` | `wayland-latest`, `wayland-protocols-latest` | 1.26.0, 1.49 | Receitas do canal |
 | `(securityops packages river)` | `libevdev-latest`, `libinput-minimal-latest`, `libxkbcommon-latest` | 1.14.0, 1.32.0, 1.13.2 | Receitas do canal |
@@ -266,19 +309,30 @@ versões efetivas. O driver NVIDIA não adiciona DLSS
 5 ao Red Dead Redemption 2; a disponibilidade desse recurso depende do jogo,
 da GPU e do suporte oficial da NVIDIA.
 
+Driver, firmware, cinco módulos e união gráfica passaram em build nativo
+x86_64, com versão, vermagic, ELF e caminhos ICD conferidos. As variantes
+FFmpeg 9.0.2/8.1.3, wf-recorder 0.6.0 e TurboRec 3.10.4 usam o mesmo driver:
+FATE, codificação/decodificação CPU H.264/AAC e loaders NVENC foram verificados.
+O teste anterior com RTX 4060/615.71.09 não certifica o driver 615.78.08.
+Esta revisão não carregou módulos, não ativou a GPU e não testou captura,
+CUDA/NVENC/VAAPI em hardware. A arquitetura aarch64 teve hashes oficiais
+conferidos, mas não execução nativa. A ABI exigida `libcrypto.so.1.1` mantém
+OpenSSL 1.1.1w, fora de suporte público; não se afirma que todo o fechamento
+proprietário esteja atualizado ou certificado em segurança.
+
 ## Aplicativos atualizados
 
 | Módulo | Pacote | Versão verificada | Observação |
 |---|---|---|---|
 | `(securityops packages browsers)` | `google-chrome-stable` | 155.0.8059.39-1 | Receita binária do canal; renderização e sandbox verificados |
 | `(securityops packages chromium)` | `ungoogled-chromium-bin` | 154.0.8037.97-1 | Build portátil oficial; renderização, driver e sandbox verificados |
-| `(securityops packages browsers)` | `librewolf` | 156.0.1-1 | Reexportação da receita `(securityops packages librewolf)`; build completo não executado nesta revisão |
+| `(securityops packages browsers)` | `librewolf` | 157.0-1 | Motor nativo Guix com adaptação de NSS e probe gráfico; renderização e sandbox verificados |
 | `(securityops packages tor)` | `tor` | 0.4.9.14 | Receita do canal; build e testes passaram |
 | `(securityops packages shells)` | `fish` | 4.9.3 | Receita do canal; build passou |
 | `(securityops packages monitoring)` | `glances` | 4.5.7 | Receita do canal |
 | `(securityops packages video)` | `openshot` | 4.0.1 | Receita do canal; build passou |
 | `(securityops packages video)` | `ffmpeg` | 9.0.2 | CPU/uso geral; fonte PGP verificada; build, FATE e H.264/AAC validados em x86_64-linux |
-| `(securityops packages video)` | `ffmpeg-nvidia-new-feature` | 9.0.2 | Build/FATE e NVENC/NVDEC H.264/HEVC/AV1 em 4K/23 fps validados com RTX 4060/driver 615.71.09; o driver deve corresponder ao kernel |
+| `(securityops packages video)` | `ffmpeg-nvidia-new-feature` | 9.0.2 | Build/FATE, H.264/AAC CPU e loaders do driver 615.78.08 verificados; aceleração em hardware não testada nesta revisão |
 | `(securityops packages video)` | `nv-codec-headers` | 13.1.15.0 | Build validado; SDK 13.1 exige driver 610 ou superior; caminhos ajustados pelo Nonguix |
 | `(securityops packages terminals)` | `kitty` | 0.49.2 | Receita do canal; build e execução de `kitty --version` passaram |
 | `(securityops packages terminals)` | `shader-slang-bin` | 2026.19 | Dependência da compilação de shaders do Kitty; binário oficial com hash fixado |
@@ -353,6 +407,6 @@ para imagens que usem múltiplos UIDs/GIDs.
 
 O inventário completo de exportações pode ser obtido com
 `guix repl -L . etc/package-inventory.scm.in` em um checkout com os canais
-dependentes disponíveis. A compilação do kernel e do módulo NVIDIA 615.71.09
+dependentes disponíveis. A compilação do kernel e do módulo NVIDIA 615.78.08
 para 7.2.8 foi validada; isso não significa que a geração do sistema já tenha
 sido ativada ou que o driver carregado tenha mudado.
