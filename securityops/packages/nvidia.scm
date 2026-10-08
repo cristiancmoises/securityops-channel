@@ -1,20 +1,66 @@
 ;;; SPDX-License-Identifier: GPL-3.0-or-later
 ;;; Copyright © 2026 Cristian Cezar Moisés <ethicalhacker@riseup.net>
 ;;;
-;;; Re-export the matching Nonguix new-feature driver stack.  Keeping these
-;;; as aliases avoids maintaining a second, potentially mismatched driver.
+;;; Refresh the matching new-feature stack using Nonguix's extraction,
+;;; integration and library-union helpers.  This does not activate a driver.
 
 (define-module (securityops packages nvidia)
   #:use-module (guix packages)
   #:use-module (nonguix multiarch-container)
+  #:use-module (nonguix utils)
   #:use-module ((nongnu packages game-client) #:prefix client:)
   #:use-module ((nongnu packages nvidia) #:prefix nong:)
   #:use-module ((securityops packages games) #:prefix channel:))
 
-(define-public nvidia-driver-new-feature nong:nvidia-driver-new-feature)
-(define-public nvidia-firmware-new-feature nong:nvidia-firmware-new-feature)
-(define-public nvidia-module-new-feature nong:nvidia-module-new-feature)
-(define-public nvda-new-feature nong:nvda-new-feature)
+(define %nvidia-version "615.78.08")
+
+(define %nvidia-sources
+  `(("x86_64-linux"
+     . ,((@@ (nongnu packages nvidia) make-nvidia-source)
+         %nvidia-version "x86_64"
+         (base32 "1zkzs219fn946pg2v3b9fv76wa6bwdxsy02k3047lxpfqbfnsgry")))
+    ("aarch64-linux"
+     . ,((@@ (nongnu packages nvidia) make-nvidia-source)
+         %nvidia-version "aarch64"
+         (base32 "0dvs8jpr9a5anwgna3c2qwvvxr2zwcph3zgh66h827hqa09h2xjh")))))
+
+(define-public nvidia-driver-new-feature
+  (binary-package-from-sources
+   %nvidia-sources
+   (package
+     (inherit nong:nvidia-driver-new-feature)
+     ;; Restore the base unpack phase before mapping new sources.  The mapped
+     ;; inherited phase captures the previous installer and ignores #:source.
+     (arguments
+      ((@@ (nongnu packages nvidia) %nvidia-driver-arguments-595))))))
+
+(define-public nvidia-firmware-new-feature
+  (binary-package-from-sources
+   %nvidia-sources
+   (package
+     (inherit nong:nvidia-firmware-new-feature)
+     (version %nvidia-version)
+     (arguments
+      ((@@ (nongnu packages nvidia) %nvidia-firmware-arguments)
+       %nvidia-version)))))
+
+(define-public nvidia-module-new-feature
+  (binary-package-from-sources
+   %nvidia-sources
+   (package
+     (inherit nong:nvidia-module-new-feature)
+     (arguments
+      ((@@ (nongnu packages nvidia) %nvidia-module-arguments))))))
+
+(define-public nvda-new-feature
+  (package
+    (inherit
+     (hidden-package
+      ((@@ (nongnu packages nvidia) make-nvda) nvidia-driver-new-feature)))
+    ;; The upstream helper pads/truncates to Mesa's version width.  Keep the
+    ;; complete driver release so the public stack cannot conceal a mismatch.
+    (version %nvidia-version)
+    (location (package-location nvidia-driver-new-feature))))
 (define-public steam-nvidia-new-feature
   (let* ((client (lookup-package-input channel:steam "wrap-package"))
          (container

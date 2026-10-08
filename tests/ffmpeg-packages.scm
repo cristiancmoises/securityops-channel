@@ -5,7 +5,7 @@
              (srfi srfi-1) (srfi srfi-64)
              ((securityops packages video) #:prefix video:)
              ((gnu packages video) #:prefix gnu-video:)
-             ((nongnu packages nvidia) #:prefix nvidia:))
+             ((securityops packages nvidia) #:prefix nvidia:))
 
 (define (run-tests)
   (test-begin "ffmpeg-packages")
