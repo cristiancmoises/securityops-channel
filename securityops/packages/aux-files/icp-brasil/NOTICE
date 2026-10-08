@@ -1,0 +1,30 @@
+ICP-Brasil public root certificates
+
+Publisher: Instituto Nacional de Tecnologia da Informacao (ITI), Brazil.
+Official registry snapshot: 5 October 2026.
+Registry: https://www.gov.br/iti/pt-br/assuntos/repositorio/repositorio-ac-raiz
+Original files: https://acraiz.icpbrasil.gov.br/credenciadas/RAIZ/ICP-BrasilvN.crt
+
+The registry publishes its content under Creative Commons
+Attribution-NoDerivs 3.0 Unported (CC-BY-ND 3.0):
+https://creativecommons.org/licenses/by-nd/3.0/
+
+The original public certificate files are retained without alteration.
+Bundles concatenate those files for explicit application-level selection.
+No endorsement, affiliation, automatic trust or legal acceptance is implied.
+
+OpenSSL does not support v7's Ed521 algorithm (OID1.3.6.1.4.1.44588.2.1).
+Its original file is retained only under reference-ed521, not in any bundle.
+The other seven roots have native OpenSSL self-signature and validity checks.
+No v7 self-signature or Ed521 identification workflow is certified here.
+Algorithm/fingerprint reference: ITI WebTrust report, Appendix A (2019):
+https://www.gov.br/iti/pt-br/assuntos/comite-gestor/iti_2019_-_webtrust_for_ca_report_consolidado.pdf
+
+Included versions: v4, v5, v6, v7, v10, v11, v12, v13.
+Registry purposes: v10 TLS; v11 code signing; other included roots general
+ICP-Brasil certificates. An application still needs its own document policy.
+Excluded expired versions: v0, v1, v2.
+Excluded revoked versions: v3, v8, v9.
+
+This is a dated root dataset, not the complete CA chain archive, a CRL cache
+or an online verification service. Installation changes no certificate store.
