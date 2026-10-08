@@ -30,7 +30,7 @@ here. This channel simply wouldn't exist without that work.
 | [XBRL reporting](docs/usage.md#structured-reporting) | Arelle CLI/library, offline validation and graphical-test limits |
 | [Identity and official schemas](docs/usage.md#identity-and-official-schema-data) | DigiDoc4, Belgian eID, signature libraries and eSocial formats |
 | [ICP-Brasil data](docs/usage.md#icp-brasil-root-data) | Explicit-purpose roots, original CA collection, Ed521 limits and no automatic trust |
-| [Electronic invoicing](docs/usage.md#electronic-invoicing) | KoSIT Validator and pinned offline XRechnung rules |
+| [XML validation and electronic invoicing](docs/usage.md#xml-validation-with-phive) | PHIVE Java libraries, KoSIT Validator and pinned offline XRechnung rules |
 | [Lacuna Web PKI](docs/webpki.md) | Native host, browser manifests and Guix Home setup |
 | [AutoFirma](docs/usage.md#autofirma) | Official Linux package, signing commands and browser-integration limits |
 | [September validation](docs/refresh-2026-09-17.md) | Historical checks and limitations recorded on 2026-09-17 |

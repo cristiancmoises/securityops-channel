@@ -30,7 +30,7 @@ Este canal simplesmente não existiria sem esse trabalho.
 | [Relatórios XBRL](docs/usage.md#structured-reporting) | CLI/biblioteca Arelle, validação offline e limites dos testes gráficos |
 | [Identidade e esquemas oficiais](docs/usage.md#identity-and-official-schema-data) | DigiDoc4, eID belga, bibliotecas de assinatura e formatos do eSocial |
 | [Dados ICP-Brasil](docs/usage.md#icp-brasil-root-data) | Raízes por finalidade, coleção original de ACs, limite Ed521 e nenhuma importação automática |
-| [Documentos fiscais eletrônicos](docs/usage.md#electronic-invoicing) | KoSIT Validator e regras XRechnung fixadas para uso offline |
+| [Validação XML e documentos fiscais](docs/usage.md#xml-validation-with-phive) | Bibliotecas PHIVE Java, KoSIT Validator e regras XRechnung fixadas para uso offline |
 | [Lacuna Web PKI](docs/webpki.pt-BR.md) | Host nativo, manifests dos navegadores e configuração do Guix Home |
 | [AutoFirma](docs/usage.md#autofirma) | Pacote Linux oficial, comandos de assinatura e limites da integração com navegadores |
 | [Validação de setembro](docs/refresh-2026-09-17.pt-BR.md) | Histórico das verificações e limitações em 17/09/2026 |

@@ -1,4 +1,4 @@
-"""Check accepted Wazuh and ICP-Brasil entries in the actual channel inventory.
+"""Check accepted monitoring, PKI and XML validation entries in the inventory.
 
 Run from the checkout: python3 tests/package-inventory.py
 """
@@ -13,6 +13,7 @@ expected = {
     ("wazuh-search", "wazuh-filebeat", "7.10.2-2"),
     ("icp-brasil", "icp-brasil-roots", "2026.10.05"),
     ("icp-brasil-chain", "icp-brasil-ca-data", "2026.08.26"),
+    ("phive", "phive", "12.2.0"),
 }
 result = subprocess.run(
     ["guix", "repl", "-q", "-L", ".", "etc/package-inventory.scm.in"],
@@ -34,4 +35,4 @@ assert len(selected) == len(expected) and set(selected) == expected, (
     "Missing or duplicate accepted package inventory rows",
     sorted(expected - set(selected)),
 )
-print("PASS: all seven accepted Wazuh/ICP-Brasil package entries are reported once")
+print("PASS: all eight accepted monitoring/PKI/XML entries are reported once")
