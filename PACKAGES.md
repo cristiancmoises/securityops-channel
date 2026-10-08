@@ -5,6 +5,29 @@ são as verificadas nas datas indicadas, não uma promessa de
 atualização automática. O canal fixa fontes e hashes quando mantém uma receita
 própria; reexportações acompanham a revisão autenticada de seu canal de origem.
 
+## Projetos SecurityOps e catálogo de pesquisa
+
+Exportações conferidas em 08/10/2026 no módulo `(securityops packages apps)`.
+Esta conferência valida o inventário; não é uma nova compilação de cada programa.
+
+| Projeto | Nome no Guix | Versão no canal |
+|---|---|---|
+| Zupt | `zupt`, `zupt-gui` | 5.2.9 |
+| Evelin | `evelin-bin` | 4.4.0 |
+| TurboRec | `turborec`, `turborec-nvidia-new-feature` | 3.10.4 |
+| Mirim | `mirim` | 1.1.1 |
+| BTP | `btp` | 0.7 |
+
+Pesquise os projetos em [toys.securityops.co](https://toys.securityops.co) e
+selecione o canal `securityops`. A pesquisa por `evelin` encontra `evelin-bin`;
+use o nome completo para instalar com `guix install evelin-bin`.
+
+Cada instância do Toys mantém seu próprio catálogo. A página de canais informa
+a revisão indexada; uma exportação correta no Git não garante atualização
+imediata de [toys.whereis.social](https://toys.whereis.social) ou de outros
+índices independentes. O teste `python3 tests/package-inventory.py` verifica
+estes sete nomes, versões e ausência de duplicatas no inventário do canal.
+
 ## Eletrônica, acesso remoto e monitoramento
 
 Verificação de 07/10/2026. Instalar um pacote não ativa serviços nem configura
