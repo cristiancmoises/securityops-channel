@@ -86,13 +86,13 @@
         (base32 "13l0kfi97mmiizk0j68wyfmwrr9hiz48s4rxc8crjd1zv75lg0z9"))))))
 
 ;;; Reverse engineering / firmware / forensics.
-;; radare2 6.2.0 needs the system-Zydis option and a current sdb.  Guix has
-;; Zydis/Zycore, but its sdb 2.4.2 lacks sdb_rename; package current sdb 2.5.0
+;; radare2 needs the system-Zydis option and a current sdb.  Guix has
+;; Zydis/Zycore, but its older sdb lacks sdb_rename; package current sdb
 ;; and keep Guix's patches that force offline system sdb/QuickJS builds.
 (define-public sdb
   (package
     (inherit db:sdb)
-    (version "2.5.2")
+    (version "2.5.8")
     (source
      (origin
        (inherit (package-source db:sdb))
@@ -101,12 +101,12 @@
              (commit version)))
        (file-name (git-file-name "sdb" version))
        (sha256
-        (base32 "19305r481nfhyy6pixgxhpw0wsv5s4h42z7pdvgdyhbcbimnm5x9"))))))
+        (base32 "1kda7kfyx2180g7641krij3h4q2xywmvdjjzjdq6zgxdy86caf2s"))))))
 
 (define-public radare2
   (package
     (inherit eng:radare2)
-    (version "6.2.2")
+    (version "6.2.4")
     (source
      (origin
        (inherit (package-source eng:radare2))
@@ -114,8 +114,17 @@
              (url "https://github.com/radareorg/radare2")
              (commit version)))
        (file-name (git-file-name "radare2" version))
+       (patches
+        (append
+         (map (lambda (patch)
+                (if (string=? (basename patch)
+                              "radare2-fix-meson-build-to-use-sys-sdb.patch")
+                    (local-file "patches/radare2-system-sdb-6.2.4.patch")
+                    patch))
+              (origin-patches (package-source eng:radare2)))
+         (list (local-file "patches/radare2-register-tmp-filesystem.patch"))))
        (sha256
-        (base32 "129fys295677w3nxwirc3qgqvm97y6bc94s1wv8yw1kpg4slk17x"))))
+        (base32 "1jdg8njx5a1ba0gmzk2fr78f8akj6bjsjvzalpwqc44vaw1s9380"))))
     (arguments
      (substitute-keyword-arguments (package-arguments eng:radare2)
        ((#:configure-flags flags #~'())
@@ -132,13 +141,39 @@
                    (string-append
                     "r_config_set_b (core->config, \"anal.esil\", false);\n"
                     "r_anal_cc_set (core->anal, \"rax amd64(rdi, rsi, rdx, rcx, r8, r9, stack)\");\n"
-                    "r_anal_set_cc_default (core->anal, \"amd64\");")))))))))
+                    "r_anal_set_cc_default (core->anal, \"amd64\");")))))
+            (add-before 'build 'use-build-tree-sandbox-test-library
+              (lambda _
+                ;; The sandbox dlopen test runs before installation.  Use the
+                ;; real build-tree library, preserving every allow/deny check.
+                (substitute* "../source/test/unit/test_util.c"
+                  (("R2_LIBDIR")
+                   (format #f "~s" (string-append (getcwd) "/libr/util"))))))
+            (add-after 'install 'check-installed-tmp-filesystem
+              (lambda* (#:key tests? #:allow-other-keys)
+                (when tests?
+                  (use-modules (ice-9 textual-ports) (srfi srfi-13))
+                  (call-with-output-file "radare2-installed-check.log"
+                    (lambda (port)
+                      (parameterize ((current-output-port port)
+                                     (current-error-port port))
+                        (invoke (string-append #$output "/bin/r2")
+                                "-q" "-e" "scr.color=0" "-c"
+                                (string-append
+                                 "m /tmp tmp;mw /tmp/fixture guix-tmp-fixture;"
+                                 "mc /tmp/fixture;q")
+                                "malloc://1"))))
+                  (let ((result (call-with-input-file "radare2-installed-check.log"
+                                  get-string-all)))
+                    (display result)
+                    (unless (string=? (string-trim-both result) "guix-tmp-fixture")
+                      (error "Installed tmp filesystem round trip failed"))))))))))
     (inputs
      (modify-inputs (package-inputs eng:radare2)
        (replace "sdb" sdb)
        (append eng:zydis eng:zycore)))
     ;; Guix exposes sdb to consumers through radare2's propagated inputs, not
-    ;; regular inputs.  Keep that public dependency on the channel's 2.5.0
+    ;; regular inputs.  Keep that public dependency on the channel's current
     ;; package as well, otherwise a profile containing both packages conflicts
     ;; with the inherited 2.4.6 copy.
     (propagated-inputs
