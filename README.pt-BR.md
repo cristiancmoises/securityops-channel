@@ -23,6 +23,7 @@ Este canal simplesmente não existiria sem esse trabalho.
 | Guia | Conteúdo |
 |---|---|
 | [Índice de pacotes](PACKAGES.md) | Pacotes por finalidade, versões verificadas e limites dos testes |
+| [WhatsAppel](docs/usage.md#whatsappel-emacs-workspace-and-guile-bridge) | Cliente Emacs, bridge Guile e backend configurado separadamente |
 | [Eletrônica](docs/usage.md#electronics) | Simulação com ngspice e toolchains do Arduino IDE |
 | [Acesso remoto](docs/usage.md#remote-desktop) | Cliente RustDesk e servidores de rendezvous/relay próprios |
 | [Monitoramento](docs/usage.md#monitoring) | Servidor Zabbix, coletores, interface web, JMX e relatórios PDF |
@@ -77,7 +78,7 @@ Instalar no perfil do usuário não substitui automaticamente um pacote do
 Guix Home ou do sistema. Reconfigure o perfil responsável pelo pacote.
 Use `(commit "...")` para fixar uma revisão reproduzível.
 
-### Módulo de aplicativos e descoberta de pacotes
+## Aplicativos
 
 A coleção de aplicativos passa a usar `(securityops packages applications)`.
 Manifests que importam `(securityops packages apps)` continuam compatíveis:
@@ -88,6 +89,24 @@ A descoberta do Guix carrega o módulo canônico primeiro. Cada instância do To
 ainda precisa indexar o canal atualizado; o nome antigo não era um filtro de
 exclusão. Consulte o [inventário dos projetos](PACKAGES.md#projetos-securityops-e-catálogo-de-pesquisa)
 para versões, verificações e limites do catálogo.
+
+### WhatsAppel
+
+O WhatsAppel 3.3.1 está disponível como `whatsappel`, em
+`(securityops packages whatsappel)` e na coleção de aplicativos:
+
+```sh
+guix install whatsappel
+whatsappel --help
+```
+
+O pacote inclui o cliente Emacs, workers Python e `whatsappel-bridge`.
+Usa o Emacs selecionado e a configuração existente; a instalação não inicia
+serviços nem vincula contas. Configure o wuzapi separadamente. O helper Rust
+opcional `pqenv` e o player externo mpv não estão incluídos. Consulte os
+[comandos e limites de validação](docs/usage.md#whatsappel-emacs-workspace-and-guile-bridge).
+
+### TurboRec
 
 O TurboRec 3.10.4 está disponível em `(securityops packages applications)`:
 
