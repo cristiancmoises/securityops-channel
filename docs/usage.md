@@ -170,9 +170,127 @@ They do not prove production TLS, arbitrary dashboards or scheduled e-mail
 delivery. The extra fixture rejects ordinary host execution:
 `python3 tests/zabbix-extra-runtime.py --help`.
 
-A runnable Wazuh stack is not published by this channel. Native mutable-state
-integration, Java/Node/Python closures, Filebeat forwarding and authenticated
-manager/indexer/dashboard acceptance remain prerequisites.
+## Wazuh
+
+The channel packages Wazuh 4.14.8, matching indexer/dashboard 4.14.8-1 and
+the compatible Filebeat 7.10.2-2 distribution for x86_64-linux.
+
+| Role | Module export | Installed command |
+|---|---|---|
+| Endpoint | `(securityops packages wazuh)` → `wazuh-agent` | `wazuh-agentd`, `wazuh-control` and endpoint tools |
+| Manager | `(securityops packages wazuh)` → `wazuh-manager` | Native core tools, `wazuh-apid` and `wazuh-control` |
+| Indexer | `(securityops packages wazuh-search)` → `wazuh-indexer` | `wazuh-indexer`, `wazuh-indexer-securityadmin` |
+| Dashboard | `(securityops packages wazuh-search)` → `wazuh-dashboard` | `wazuh-dashboard` |
+| Alert forwarding | `(securityops packages wazuh-search)` → `wazuh-filebeat` | `wazuh-filebeat`; package name `filebeat` |
+
+### Separate installation profiles
+
+From a channel checkout, select all four server packages without replacing
+your default profile:
+
+```sh
+mkdir -p "$HOME/.guix-extra-profiles/wazuh-server"
+guix package -L . -p "$HOME/.guix-extra-profiles/wazuh-server/profile" \
+  -m etc/wazuh-manifest.scm.in
+```
+
+On an endpoint, use a separate profile:
+
+```sh
+mkdir -p "$HOME/.guix-extra-profiles/wazuh-endpoint"
+guix package -L . -p "$HOME/.guix-extra-profiles/wazuh-endpoint/profile" \
+  -e '(@ (securityops packages wazuh) wazuh-agent)'
+```
+
+Do not install the endpoint package alongside the manager in one profile:
+their commands and libraries overlap. Installation does not initialize
+mutable state, register accounts or certificates, start listeners or create
+a Guix System service. The complete server manifest was actually installed
+with default Guix grafts and without a collision override.
+
+### Core state and API initialization
+
+Native tools and the private Python framework use an explicit absolute
+`WAZUH_HOME`. Provision the appropriate immutable `share/wazuh` templates,
+configuration, keys, databases, queues and service-account permissions before
+starting processes. Keep binaries/libraries in the Guix store; writable data
+must live outside it. Preserve upstream privilege separation and chroot
+requirements; changing the environment variable alone is not a deployment.
+
+The supplied and canonical state path and its ancestors must be safely owned
+and not group/world-writable. Root-owned sticky ancestors such as `/tmp` are
+allowed, but the selected state itself cannot be writable by others. Root-run
+executable aliases also require root-owned, non-writable ancestry.
+`wazuh-control` accepts only ASCII letters, digits, `/`, `_`, `.` and `-` in
+both the supplied and canonical state path. Native tools' path handling is
+not a reason to bypass that control-script restriction.
+
+The first manager API startup requires an explicitly provisioned regular,
+private `api/configuration/security/initial-users.yaml` under `WAZUH_HOME`.
+Retain the reserved `wazuh` and `wazuh-wui` accounts with independently chosen
+passwords of at least 16 characters and an explicit boolean `allow_run_as`
+policy; own the file as root or the API account and use mode 0600. Existing
+RBAC databases keep their authentication policies. No public example password
+is activated as a first-boot default. Provision HTTPS and private key ownership
+for the account the API actually runs under.
+
+### Search state, credentials and TLS
+
+Each search launcher requires its own existing `WAZUH_SEARCH_STATE` directory,
+owned by its service account with mode 0700, containing `config`, `data` and
+`logs`. Configuration/state must remain beneath that directory and have safe
+ownership; credential-bearing files must be private. Indexer and dashboard
+must run under non-root accounts.
+
+| Component | Required configuration |
+|---|---|
+| Indexer | `config/opensearch.yml`, TLS/hostname verification, enabled security plugin and private `config/opensearch-security/internal_users.yml`; no demo initialization |
+| Dashboard | Private `config/opensearch_dashboards.yml`, HTTPS, explicit indexer credentials/full peer verification; private `data/wazuh/config/wazuh.yml` and `config/manager-ca.pem` for the manager API |
+| Filebeat | Private `config/filebeat.yml`, HTTPS indexer credentials/full peer verification and a private byte-identical copy of the installed `module/wazuh` |
+
+The dashboard manager client validates the selected CA and does not forward
+authenticated requests through redirects. Ambient Node TLS bypass/startup
+options are removed. Filebeat retains its native default-deny seccomp filter
+and `NoNewPrivs`; only its private libc's compatible thread-creation path and
+process-local `rseq=0` are selected. No global libc or kernel policy changes.
+Even `--version` through these launchers requires explicit state/configuration.
+
+### Validation boundaries
+
+The installed stack passed an isolated QEMU guest test using an already-synced
+default group, actual endpoint/manager processes, encrypted event transport,
+native rule/CDB/MITRE processing, authenticated syscollector queries, real
+Filebeat forwarding and authenticated indexer/dashboard/manager requests.
+Invalid state metadata, credentials, JWTs and CAs were rejected. The endpoint
+control socket was present with active response disabled; no response actions
+or changed-configuration lifecycle reload were tested.
+
+Cluster operation, cloud integrations, live vulnerability feeds, inventory
+export directly to the indexer and production SSO/TLS remain outside this test.
+The optional OpenSCAP helper is unavailable. Diagnostic logs are retained,
+including the VM initrd fallback and the unprovisioned inventory/indexer path;
+passing the tested flow does not mean the logs contain no warnings.
+
+The C/C++ core and CPython are native builds, but upstream dependency libraries
+and Python wheels remain pinned binaries. Search components and Java/Node
+adapt official distributions. CPython 3.10.22 and Node 18.20.8 are upstream EOL;
+Java 21.0.12.1 and Filebeat 7.10.2 are compatibility pins, not claims that every
+dependency is globally latest. Review those limits before a production
+deployment and the [licensing scope](../LICENSING.md) before binary distribution.
+
+Non-privileged metadata and inventory checks from the checkout:
+
+```sh
+guix repl -L . tests/wazuh-packages.scm
+guix repl -L . tests/wazuh-manifest.scm
+python3 tests/package-inventory.py
+```
+
+The runtime fixtures deliberately refuse ordinary host execution.
+`tests/wazuh-core-runtime.py` requires a disposable QEMU guest with loopback
+only and a dedicated Wazuh account; the search/TLS fixtures require a private
+loopback-only environment and an unprivileged account. They are acceptance
+tools, not production provisioning scripts.
 
 ## AutoFirma
 

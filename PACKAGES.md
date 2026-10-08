@@ -48,9 +48,46 @@ Arduino IDE, o cliente RustDesk e o serviço PDF Zabbix estão limitados
 a x86_64-linux. Consulte os [limites de licenciamento](LICENSING.pt-BR.md) e
 os [comandos de uso](docs/usage.md#electronics).
 
-Wazuh ainda não está disponível como stack executável neste canal. Agente,
-manager, indexer, dashboard e envio de alertas por Filebeat precisam de
-integração e validação conjunta; não há receita parcial anunciada como pronta.
+## Segurança e monitoramento — Wazuh
+
+Verificação de 08/10/2026 em x86_64-linux. Os cinco componentes têm receitas
+próprias; o perfil do servidor contém quatro pacotes e o endpoint usa um perfil
+separado. Instalar não cria estado, contas, certificados ou serviços.
+
+| Função | Pacote | Versão | Módulo |
+|---|---|---|---|
+| Endpoint | `wazuh-agent` | 4.14.8 | `(securityops packages wazuh)` |
+| Processamento e API | `wazuh-manager` | 4.14.8 | `(securityops packages wazuh)` |
+| Indexação e consulta | `wazuh-indexer` | 4.14.8-1 | `(securityops packages wazuh-search)` |
+| Interface web | `wazuh-dashboard` | 4.14.8-1 | `(securityops packages wazuh-search)` |
+| Envio compatível de alertas | `wazuh-filebeat`, pacote `filebeat` | 7.10.2-2 | `(securityops packages wazuh-search)` |
+
+### Verificações concluídas
+
+| Área | Evidência | Limite |
+|---|---|---|
+| Núcleo e estado | Builds nativos, regras e listas CDB originais, dados MITRE, recusa real de estado/aliases inseguros e separação de privilégios preservada | OpenSCAP opcional indisponível; testes de metadata não substituem revisão de uma implantação |
+| Fluxo integrado | Evento sintético do endpoint por transporte cifrado, alerta real, módulo Filebeat correspondente, indexer autenticado e rota Wazuh do dashboard para a API real | VM sem rede externa, contas/TLS privados e configuração compartilhada previamente sincronizada; sem reload de configuração alterada |
+| Autenticação e TLS | Recusa de senha/JWT inválidos, CA não confiável e acesso sem credenciais; cliente do manager sem encaminhar redirecionamentos | Sem SSO, cluster, CA ou contas de produção |
+| Perfil do servidor | Instalação real dos quatro outputs finais, 83 links corretos e inventários de comandos sem colisões | Endpoint e manager não devem ocupar o mesmo perfil |
+| Inventário local | Syscollector nativo consultado pela API autenticada | Sem validar sua exportação direta ao indexer, feeds de vulnerabilidades, integrações cloud ou ações de resposta |
+
+O núcleo C/C++ e CPython são compilados de fonte; bibliotecas upstream e
+wheels Python permanecem binários fixados. Indexer, dashboard, Filebeat e os
+runtimes Java/Node adaptam distribuições oficiais. As versões internas
+compatíveis são CPython 3.10.22, Java 21.0.12.1 e Node 18.20.8; Python 3.10 e
+Node 18 estão fora de suporte upstream. Filebeat 7.10.2 é o pin de compatibilidade,
+não a última versão global. Não interprete o release recente do Wazuh como
+garantia de atualização de todas as dependências ou certificação de produção.
+
+O teste integrado conserva os diagnósticos do ambiente: o initrd da VM usou
+fallback de inicialização e o caminho de inventário para o indexer não foi
+provisionado. O sucesso refere-se às assertions e aos fluxos acima, não a logs
+sem avisos. Antes de expor um servidor, configure estado, keystore, contas,
+TLS, retenção e firewall e valide os recursos necessários nesse ambiente.
+Consulte o [uso e os limites](docs/usage.md#wazuh), o
+[release oficial](https://documentation.wazuh.com/current/release-notes/release-4-14-8.html)
+e o [escopo de licenciamento](LICENSING.pt-BR.md).
 
 ## Atualizações verificadas em 07–08/10/2026
 
