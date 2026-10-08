@@ -14,6 +14,7 @@ expected = {
     ("icp-brasil", "icp-brasil-roots", "2026.10.05"),
     ("icp-brasil-chain", "icp-brasil-ca-data", "2026.08.26"),
     ("phive", "phive", "12.2.0"),
+    ("openpace", "openpace", "1.1.4"),
 }
 result = subprocess.run(
     ["guix", "repl", "-q", "-L", ".", "etc/package-inventory.scm.in"],
@@ -35,4 +36,4 @@ assert len(selected) == len(expected) and set(selected) == expected, (
     "Missing or duplicate accepted package inventory rows",
     sorted(expected - set(selected)),
 )
-print("PASS: all eight accepted monitoring/PKI/XML entries are reported once")
+print("PASS: all nine accepted monitoring/PKI/XML entries are reported once")

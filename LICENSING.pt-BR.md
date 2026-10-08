@@ -67,6 +67,14 @@ Esse inventário técnico e os hashes não autenticam assinantes nem certificam
 integralmente obrigações legais. O pacote adapta artefatos publicados, sem
 recompilar o framework com Maven.
 
+O OpenPACE mantém GPL-3.0-or-later e o texto original das permissões de ligação
+com OpenSSL/OpenSC da seção 7, incluindo as cláusulas de fonte correspondente.
+A saída preserva o arquivo original do OpenPACE, o gzip oficial do OpenSSL 3.5.9
+e a fonte efetiva do OpenSSL com os patches do Guix em um arquivo Zstandard separado.
+O fonte do OpenSSL mantém seus termos Apache-2.0; a origem sem transformações serve
+apenas para preservar o arquivo original e não remove patches do input criptográfico.
+A preservação desses fontes e avisos não certifica integralmente obrigações legais.
+
 O AutoFirma é distribuído sob GPL-2.0-or-later ou EUPL-1.1. O pacote
 reutiliza a distribuição Linux oficial e preserva o JAR e os avisos de licença
 dos componentes incluídos. Essas dependências mantêm suas próprias licenças;

@@ -29,6 +29,7 @@ Este canal simplesmente não existiria sem esse trabalho.
 | [Wazuh](docs/usage.md#wazuh) | Endpoint, manager, indexer, dashboard, envio de alertas e configuração explícita de TLS/estado |
 | [Relatórios XBRL](docs/usage.md#structured-reporting) | CLI/biblioteca Arelle, validação offline e limites dos testes gráficos |
 | [Identidade e esquemas oficiais](docs/usage.md#identity-and-official-schema-data) | DigiDoc4, eID belga, bibliotecas de assinatura e formatos do eSocial |
+| [OpenPACE](docs/usage.md#openpace-native-eac-library) | Biblioteca EAC nativa, ferramentas CVC e confiança selecionada explicitamente |
 | [Dados ICP-Brasil](docs/usage.md#icp-brasil-root-data) | Raízes por finalidade, coleção original de ACs, limite Ed521 e nenhuma importação automática |
 | [Validação XML e documentos fiscais](docs/usage.md#xml-validation-with-phive) | Bibliotecas PHIVE Java, KoSIT Validator e regras XRechnung fixadas para uso offline |
 | [Lacuna Web PKI](docs/webpki.pt-BR.md) | Host nativo, manifests dos navegadores e configuração do Guix Home |
