@@ -5,7 +5,72 @@ são as verificadas nas datas indicadas, não uma promessa de
 atualização automática. O canal fixa fontes e hashes quando mantém uma receita
 própria; reexportações acompanham a revisão autenticada de seu canal de origem.
 
-## TurboRec 3.10.2
+## Eletrônica, acesso remoto e monitoramento
+
+Verificação de 07/10/2026. Instalar um pacote não ativa serviços nem configura
+dispositivos e autenticação automaticamente.
+
+| Categoria | Pacote | Versão | Módulo |
+|---|---|---|---|
+| Simulação de circuitos | `ngspice`, `libngspice` | 47 | `(securityops packages electronics)` |
+| Desenvolvimento embarcado | `arduino-ide` | 2.3.10 | `(securityops packages arduino)` |
+| Acesso remoto | `rustdesk` | 1.4.9 | `(securityops packages remote-desktop)` |
+| Servidores de acesso remoto | `rustdesk-server`: `hbbs`, `hbbr`, `rustdesk-utils` | 1.1.16 | `(securityops packages remote-desktop)` |
+| Coletores de monitoramento | `zabbix-agentd`, `zabbix-agent2` | 7.4.15 | `(securityops packages zabbix)` |
+| Servidor e proxy de monitoramento | `zabbix-server`, `zabbix-proxy` | 7.4.15 | `(securityops packages zabbix)` |
+| Integração Java/JMX | `zabbix-java-gateway` | 7.4.15 | `(securityops packages zabbix)` |
+| Relatórios PDF agendados | `zabbix-web-service` | 7.4.15 | `(securityops packages zabbix)` |
+| Comandos de monitoramento | `zabbix-get`, `zabbix-sender`, `zabbix-js` | 7.4.15 | `(securityops packages zabbix)` |
+
+### Verificações e limites
+
+| Componente | Verificação concluída | Limite |
+|---|---|---|
+| ngspice | Build nativo, API C instalada, divisor DC, resposta RC analítica e regressão upstream stop/resume | Netlists; sem editor de esquemas nem validação de todos os modelos |
+| Arduino IDE | Editor sob Xvfb, Board Manager AVR 1.8.8 e compilação real de Blink para Uno | Sem upload, depuração ou hotplug em placa física |
+| RustDesk | Build, caminhos de 13 objetos ELF, interface sob Xvfb e registro em `hbbs` privado com `hbbr` em execução | Sem comprovar sessão autenticada, tráfego pelo relay, captura ou entrada remota |
+| Zabbix | Builds nativos, testes Go, consultas nos dois coletores, PostgreSQL, proxy SQLite e configuração PHP 8.4/8.5 | Sem deploy de produção ou fluxo completo de métricas pela interface web |
+| Java Gateway | Protocolo Zabbix, versão e consulta JMX a um processo Java descartável | Não valida servidores JMX de terceiros nem autenticação/TLS de produção |
+| Serviço web | Recusa de IP e URL inválidos; PDF real pelo Chrome e conferência do texto extraído | Dashboard de teste local; sem envio agendado de e-mail ou infraestrutura externa |
+
+O Arduino IDE preserva Electron 30.1.2/Chromium 124 do upstream, fora de
+suporte de segurança. A Theia desativa o sandbox do renderer; o container FHS
+fornece compatibilidade, não isolamento de segurança. A extensão Cortex-Debug
+inclui um módulo serial antigo cuja compatibilidade não foi validada. Não
+trate este pacote como um runtime de segurança atualizado.
+
+Arduino IDE e RustDesk usam as distribuições binárias oficiais; ngspice e
+os componentes Zabbix são compilados de fonte. O Java Gateway preserva cinco
+JARs de dependências binárias upstream e usa o OpenJDK 25.0.2 do Guix; isso não
+afirma que cada dependência esteja na última versão global. O serviço de
+relatórios usa o Chrome fixado pelo canal e deve executar sem privilégios.
+Arduino IDE, o cliente RustDesk e o serviço PDF Zabbix estão limitados
+a x86_64-linux. Consulte os [limites de licenciamento](LICENSING.pt-BR.md) e
+os [comandos de uso](docs/usage.md#electronics).
+
+Wazuh ainda não está disponível como stack executável neste canal. Agente,
+manager, indexer, dashboard e envio de alertas por Filebeat precisam de
+integração e validação conjunta; não há receita parcial anunciada como pronta.
+
+## Atualizações verificadas em 07/10/2026
+
+| Pacote | Versão do canal | Fonte |
+|---|---|---|
+| Google Chrome | 155.0.8059.39-1 | [Repositório oficial](https://dl.google.com/linux/chrome/deb/dists/stable/main/binary-amd64/Packages.gz) |
+| Chromium portátil | 154.0.8037.97-1 | [Release oficial](https://github.com/ungoogled-software/ungoogled-chromium-portablelinux/releases/tag/154.0.8037.97-1) |
+| Tor | 0.4.9.14 | [Distribuições oficiais](https://dist.torproject.org/) |
+| sdb e radare2 | 2.5.8 e 6.2.4 | [sdb](https://github.com/radareorg/sdb/releases/tag/2.5.8), [radare2](https://github.com/radareorg/radare2/releases/tag/6.2.4) |
+| libdigidocpp | 4.5.1 | [Release oficial](https://github.com/open-eid/libdigidocpp/releases/tag/v4.5.1) |
+| libevdev e Xwayland | 1.14.0 e 24.1.14 | [libevdev](https://www.freedesktop.org/software/libevdev/), [Xwayland](https://www.x.org/releases/individual/xserver/) |
+
+Os navegadores passaram em renderização, JavaScript, canvas e verificação de
+namespaces/seccomp em estado privado, com grafts padrão do Guix. Essa seleção
+não significa que todo o catálogo esteja na última versão global: LibreWolf,
+Chromium compilado de fonte, NVIDIA e MoneyPrinterTurbo ainda precisam de
+atualizações separadas e validação. Pins de ABI e dependências não devem ser
+trocados apenas por existir uma versão numericamente maior.
+
+## Verificação anterior — TurboRec 3.10.2
 
 Atualização de 02/10/2026 em `(securityops packages apps)`, com fonte pública
 fixada na [tag v3.10.2](https://codeberg.org/berkeley/turborec/src/tag/v3.10.2)
@@ -19,7 +84,7 @@ disponível no FFmpeg e driver compatível. O pacote não altera drivers.
 
 ## Relatórios estruturados
 
-Verificação de 02/10/2026. O Arelle valida documentos XBRL e oferece módulos
+Verificação de 07/10/2026. O Arelle valida documentos XBRL e oferece módulos
 Python para processamento de relatórios; não instala taxonomias nacionais por
 associação.
 
@@ -35,13 +100,15 @@ associação.
 | Resultado instalado | CLI e biblioteca com XBRL válido/inválido, recusa de taxonomia remota em modo offline, plugin e cache local | Sem serviços externos ou aceitação regulatória |
 | Interface gráfica | Carregamento do entry point e edição/leitura no TkTable nativo sob Xvfb | Evidência em x86_64, não um fluxo completo da interface gráfica |
 
-As dependências efetivamente carregadas são lxml 6.1.0, libxml2 2.15.4,
+As dependências efetivamente carregadas são lxml 6.1.3, libxml2 2.15.4,
 libxslt 1.1.45 e OpenSSL 3.5.9. A verificação de metadados, faixas de versão,
 imports e entry points executa de fato; suas cinco condições de falha têm
 testes de regressão. As 33 declarações de dependência originais permanecem
 inalteradas. O TkTable é compilado de fonte oficial fixada, com seu aviso de
 copyright preservado, e
 os wrappers não incluem os caminhos de pytest/setuptools usados no build.
+As dependências privadas vcs-versioning 2.6.0 e filelock 4.0.12 passaram nos
+testes nativos; hatchling 1.32.4 satisfaz o backend exigido pelo filelock.
 
 O CLI pode terminar com código zero mesmo quando encontra erros de validação:
 confira os níveis `error` e `critical` no relatório, não apenas o código de saída.
@@ -50,13 +117,13 @@ Consulte os [comandos e testes reproduzíveis](docs/usage.md#structured-reportin
 
 ## Identidade, documentos fiscais e dados oficiais
 
-Verificação de 02/10/2026. Os pacotes abaixo passaram por build, testes no
+Verificações de 02/10/2026 e 07/10/2026. Os pacotes abaixo passaram por build, testes no
 resultado instalado e revisão independente. Adicionar o canal não os instala,
 não ativa serviços e não importa certificados.
 
 | Categoria | Pacote | Versão | Módulo |
 |---|---|---|---|
-| Identidade e assinaturas | `libdigidocpp` | 4.5.0 | `(securityops packages eid)` |
+| Identidade e assinaturas | `libdigidocpp` | 4.5.1 | `(securityops packages eid)` |
 | Documentos fiscais | `kosit-validator` | 1.6.3 | `(securityops packages einvoicing)` |
 | Documentos fiscais | `xrechnung-validator-configuration` | 2026-08-31, XRechnung 3.0.2 / CEN 1.3.16 | `(securityops packages einvoicing)` |
 | Dados governamentais | `esocial-schemas` | 1.3-20260701, S-1.3 / NT 06/2026 | `(securityops packages brazil-tax)` |
@@ -66,7 +133,7 @@ não ativa serviços e não importa certificados.
 
 | Pacote | Testes concluídos | Limites |
 |---|---|---|
-| libdigidocpp | 24 testes TSL, 22 casos offline com 107 asserções e 25 verificações do resultado instalado | Cartões, SiVa, OCSP/TSA ao vivo e renovação online não testados; dez casos upstream ficaram fora da seleção offline |
+| libdigidocpp | 24 testes TSL, 23 casos offline com 111 asserções e 25 verificações do resultado instalado | Cartões, SiVa, OCSP/TSA ao vivo e renovação online não testados; dez casos upstream ficaram fora da seleção offline |
 | KoSIT e XRechnung | 105 verificações do resultado instalado: UBL/CII válidos e inválidos, etapas XSD/Schematron, argumentos e recusas de recursos externos | Validação offline; sem envio fiscal ou teste do modo daemon |
 | Esquemas eSocial | 441 verificações; todos os 52 XSD de eventos e 15 XSD de comunicação compilados offline; arquivos originais preservados byte a byte | Validação estrutural, sem conferir assinaturas, regras de negócio ou aceitação pelo governo |
 
@@ -89,7 +156,7 @@ licenciados como software livre. O suporte a CNPJ alfanumérico pertence aos
 eventos S-1.3 desta edição; o envelope de comunicação 1.6 mantém as restrições
 numéricas originais e exige validar o evento separadamente.
 
-Fontes: [libdigidocpp 4.5.0](https://github.com/open-eid/libdigidocpp/releases/tag/v4.5.0)
+Fontes: [libdigidocpp 4.5.1](https://github.com/open-eid/libdigidocpp/releases/tag/v4.5.1)
 e [documentação técnica do eSocial](https://www.gov.br/esocial/pt-br/documentacao-tecnica),
 [KoSIT 1.6.3](https://github.com/itplr-kosit/validator/releases/tag/v1.6.3)
 e [configuração XRechnung](https://github.com/itplr-kosit/validator-configuration-xrechnung/releases/tag/v2026-08-31).
@@ -187,16 +254,15 @@ qualquer versão local mais nova que a receita pública.
 | `(securityops packages nvidia)` | `steam-nvidia-new-feature` | Bootstrap Steam 1.0.0.87 | Cliente do canal; stack NVIDIA 615.71.09 preservado. O Steam atualiza seu cliente em execução separadamente |
 | `(securityops packages river)` | `river-xmonad-runtime` | 0.4.8 | Receita do canal |
 | `(securityops packages river)` | `wayland-latest`, `wayland-protocols-latest` | 1.26.0, 1.49 | Receitas do canal |
-| `(securityops packages river)` | `libevdev-latest`, `libinput-minimal-latest`, `libxkbcommon-latest` | 1.13.7, 1.32.0, 1.13.2 | Receitas do canal |
+| `(securityops packages river)` | `libevdev-latest`, `libinput-minimal-latest`, `libxkbcommon-latest` | 1.14.0, 1.32.0, 1.13.2 | Receitas do canal |
 | `(securityops packages river)` | `foot-latest`, `fuzzel-latest`, `mako-latest`, `swaybg-latest` | 1.28.0, 1.15.0, 1.11.0, 1.2.2 | Receitas do canal |
 | `(securityops packages river)` | `swaylock-latest`, `wlr-randr-latest` | 1.8.6, 0.5.0 | Receitas do canal |
 | `(securityops packages river)` | `channel-river-input` | 0.5.1 | Receita do canal |
-| `(securityops packages river)` | `xwayland-latest`, `wlroots-latest` | 24.1.13, 0.20.2 | Versões herdadas da revisão Guix selecionada |
+| `(securityops packages river)` | `xwayland-latest`, `wlroots-latest` | 24.1.14, 0.20.2 | Xwayland fixado no canal; wlroots herdado da revisão Guix |
 
-`xwayland-latest` e `wlroots-latest` também são exportados pelo módulo River,
-mas herdam a versão do Guix selecionado; os números da tabela são os desta
-revisão. Consulte `guix show` após cada `guix pull` para saber suas versões
-efetivas. O driver NVIDIA não adiciona DLSS
+`wlroots-latest` herda a versão do Guix selecionado; Xwayland tem fonte e hash
+fixados no canal. Consulte `guix show` após cada `guix pull` para conferir as
+versões efetivas. O driver NVIDIA não adiciona DLSS
 5 ao Red Dead Redemption 2; a disponibilidade desse recurso depende do jogo,
 da GPU e do suporte oficial da NVIDIA.
 
@@ -204,9 +270,10 @@ da GPU e do suporte oficial da NVIDIA.
 
 | Módulo | Pacote | Versão verificada | Observação |
 |---|---|---|---|
-| `(securityops packages browsers)` | `google-chrome-stable` | 154.0.8037.92-1 | Receita binária do canal |
+| `(securityops packages browsers)` | `google-chrome-stable` | 155.0.8059.39-1 | Receita binária do canal; renderização e sandbox verificados |
+| `(securityops packages chromium)` | `ungoogled-chromium-bin` | 154.0.8037.97-1 | Build portátil oficial; renderização, driver e sandbox verificados |
 | `(securityops packages browsers)` | `librewolf` | 156.0.1-1 | Reexportação da receita `(securityops packages librewolf)`; build completo não executado nesta revisão |
-| `(securityops packages tor)` | `tor` | 0.4.9.13 | Receita do canal; build e testes passaram |
+| `(securityops packages tor)` | `tor` | 0.4.9.14 | Receita do canal; build e testes passaram |
 | `(securityops packages shells)` | `fish` | 4.9.3 | Receita do canal; build passou |
 | `(securityops packages monitoring)` | `glances` | 4.5.7 | Receita do canal |
 | `(securityops packages video)` | `openshot` | 4.0.1 | Receita do canal; build passou |
