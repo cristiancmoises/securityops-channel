@@ -75,6 +75,12 @@ O fonte do OpenSSL mantém seus termos Apache-2.0; a origem sem transformações
 apenas para preservar o arquivo original e não remove patches do input criptográfico.
 A preservação desses fontes e avisos não certifica integralmente obrigações legais.
 
+O AusweisApp mantém EUPL-1.2. As bibliotecas Qt nativas preservam os avisos
+LGPL-2.1/LGPL-3 herdados e seus arquivos de licença originais. As correções
+upstream fixadas e os dois patches Qt não colocam o Qt sob a GPL da receita.
+O pacote é compilado de fonte; seu empacotamento não concede direitos sobre
+dados de identidade nem certifica cartão, provedor ou autenticação qualificada.
+
 O AutoFirma é distribuído sob GPL-2.0-or-later ou EUPL-1.1. O pacote
 reutiliza a distribuição Linux oficial e preserva o JAR e os avisos de licença
 dos componentes incluídos. Essas dependências mantêm suas próprias licenças;
