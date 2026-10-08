@@ -1,0 +1,20 @@
+RC transient analytic acceptance
+V1 in 0 5
+R1 in out 1k
+C1 out 0 1u IC=0
+.control
+set wr_singlescale
+tran 1u 5m 0 1u uic
+let expected = 5 * (1 - exp(-time/0.001))
+let maxerr = vecmax(abs(v(out) - expected))
+if maxerr > 1e-4
+  quit 1
+end
+if length(v(out)) < 5000
+  quit 1
+end
+wrdata ngspice-rc.dat v(out)
+echo SECURITYOPS_RC_PASS
+quit 0
+.endc
+.end

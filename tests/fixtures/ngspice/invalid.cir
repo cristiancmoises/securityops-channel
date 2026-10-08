@@ -1,0 +1,10 @@
+Missing analysis must not pass acceptance
+V1 in 0 5
+R1 in out 1k
+R2 out 0 1k
+.control
+wrdata ngspice-invalid.dat v(out)
+echo SECURITYOPS_INVALID_PASS
+quit 0
+.endc
+.end
