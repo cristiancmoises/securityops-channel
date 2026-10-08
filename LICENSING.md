@@ -57,6 +57,15 @@ substitutes, verify and fulfill each applicable source, build-instruction and
 notice obligation. Publication of these recipes is not authorization or
 certification for distributing the resulting binaries.
 
+PHIVE preserves the original eight framework JARs, dependency JARs, published
+sources, POMs and notices. Its Apache-2.0 framework does not relicense Saxon
+(MPL-2.0), JAXB/activation (EDL-1.0), SchXslt and other dependencies. XMLresolver's
+original XML/DTD data retains its distinct W3C Software and Document notice.
+Exact full-source/legal supplements are installed under `share/phive`; the
+separate test output retains JUnit EPL-1.0 and Hamcrest BSD notices. These
+technical inventories and byte pins are not signer authentication or a blanket
+legal certification. The package adapts published artifacts, not a Maven rebuild.
+
 AutoFirma is distributed under GPL-2.0-or-later or EUPL-1.1. The package
 reuses the official Linux distribution and retains its JAR and bundled
 third-party license notices. Those dependencies keep their own licenses;

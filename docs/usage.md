@@ -656,6 +656,65 @@ Its envelope deliberately skips embedded-event validation, so validate the event
 separately. The original data is distributed unchanged under the official site's
 CC-BY-ND-3.0 terms, with its original XMLDSig third-party notice preserved.
 
+## XML validation with PHIVE
+
+`phive` 12.2.0, in `(securityops packages phive)`, is the Java XML/Schematron
+validation framework, not the unrelated PHP tool. It includes all eight
+framework modules and 42 runtime dependencies, including the reference JAXB
+provider. The original 50 JARs remain separate; there is no invented PHIVE CLI,
+shaded JAR or national fiscal-rule bundle.
+
+Use the explicit module expression from the checkout. Building produces both
+declared outputs; installing this expression adds only the normal `out` library:
+
+```sh
+guix build -L . -e '(@ (securityops packages phive) phive)'
+guix package -L . -e '(@ (securityops packages phive) phive)'
+```
+
+For your own Java application, obtain the explicit classpath and selected
+runtime from the installed package. The filter selects the normal output from
+the two build results. Run these commands from the checkout:
+
+```sh
+phive_store=$(guix build -L . -e '(@ (securityops packages phive) phive)' |
+  sed -n '/-phive-12\.2\.0$/p')
+IFS= read -r phive_classpath < "$phive_store/share/phive/classpath"
+IFS= read -r phive_java < "$phive_store/share/phive/java"
+```
+
+Pass `"$phive_classpath"` to your Java compiler's `-cp` option and combine it
+with your application's classes when invoking `"$phive_java"`. The selected
+runtime is Temurin 17.0.20.1+1; this is a compatible fixed runtime, not a claim
+that every dependency is the latest global release. Neither file configures
+your shell or changes JVM policies automatically.
+
+| Installed path | Content |
+|---|---|
+| `share/phive/lib` | Original runtime JARs, including JAXB services |
+| `share/phive/maven` | Exact artifact POMs; not a complete Maven bootstrap repository |
+| `share/phive/source` | Published sources and full-source/legal supplements |
+| `share/phive/notices` | Original embedded and supplemental notices |
+| `share/phive/artifacts.tsv` | Artifact coordinates and JAR/POM/source hashes |
+
+The separate `phive:tests` output contains five test-only libraries and its own
+classpath. It is not propagated into the normal runtime. The packaging adapts
+published artifacts rather than rebuilding PHIVE or its dependency graph with
+Maven. Original selected upstream tests are compiled separately with `--release
+17`, then run against the installed JARs in an unprivileged offline container.
+The 63 selected unchanged upstream cases exercise XSD/Schematron positives and
+negatives, seven original nonempty VES examples, JAXB, local repository storage
+and its CSV index, XML sources and XML/JSON/HTML results. This is not the entire
+upstream test suite.
+
+Use trusted VES definitions and configure XML parser/resource-resolver policies
+in your application. The acceptance fixture checks explicit schema/stylesheet
+resource refusals and matching owned-file positives; this does not establish
+secure defaults for arbitrary callers or a process sandbox. No documents are
+submitted to tax authorities, and no current Peppol, XRechnung or SBR-NL rules
+are supplied by association. Preserved source hashes do not authenticate JAR
+signers or certify all redistribution obligations.
+
 ## Electronic invoicing
 
 | Package | Version | Purpose |
