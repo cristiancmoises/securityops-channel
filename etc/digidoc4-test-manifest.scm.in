@@ -1,0 +1,8 @@
+;;; SPDX-License-Identifier: GPL-3.0-or-later
+;;; Run the graphical fixture in a private, networkless Guix container.
+(use-modules (guix profiles) (securityops packages digidoc4)
+             (gnu packages python) (gnu packages xorg) (gnu packages xdisorg)
+             (gnu packages imagemagick) (gnu packages fonts))
+(packages->manifest
+  (list digidoc4 python xorg-server xdotool xwininfo imagemagick font-dejavu
+        (@@ (securityops packages tls-security) openssl-security)))
