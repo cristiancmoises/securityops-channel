@@ -148,6 +148,7 @@ não ativa serviços e não importa certificados.
 | Identidade e assinaturas | `digidoc4` | 4.11.1 | `(securityops packages digidoc4)` |
 | Identidade e cartões | `eid-mw` | 5.1.31 | `(securityops packages belgian-eid)` |
 | Dados de PKI | `icp-brasil-roots` | 2026.10.05, registro oficial | `(securityops packages icp-brasil)` |
+| Dados de ACs | `icp-brasil-ca-data` | 2026.08.26, arquivo oficial | `(securityops packages icp-brasil-chain)` |
 | Documentos fiscais | `kosit-validator` | 1.6.3 | `(securityops packages einvoicing)` |
 | Documentos fiscais | `xrechnung-validator-configuration` | 2026-08-31, XRechnung 3.0.2 / CEN 1.3.16 | `(securityops packages einvoicing)` |
 | Dados governamentais | `esocial-schemas` | 1.3-20260701, S-1.3 / NT 06/2026 | `(securityops packages brazil-tax)` |
@@ -161,6 +162,7 @@ não ativa serviços e não importa certificados.
 | DigiDoc4 | Build nativo, assinatura ECC do bootstrap, rejeição real de cache adulterado, abertura gráfica de ASiC-E sem assinatura e recusa de documento inválido; imagens inspecionadas e bibliotecas carregadas conferidas | Sem cartões, assinatura qualificada, SiVa, OCSP/TSA ou renovação online de listas nacionais; não é a suíte Open-EID completa |
 | Belgium eID | Build nativo com 15 testes upstream; funções e ciclo de vida PKCS#11 reais, slots vazios, visualizador GTK3 e versão 5.1.31 exibida e inspecionada | 27 skips upstream de hardware/interface preservados; sem leitor, cartão, PIN, assinatura, registro em navegador ou serviço PC/SC no host |
 | Raízes ICP-Brasil | Oito arquivos originais e fingerprints conferidos; sete raízes com assinatura, validade e recusa de adulteração no OpenSSL; três bundles carregados em teste isolado | v7/Ed521 apenas como referência, fora dos bundles; sem cadeia intermediária completa, revogação online, assinatura de documentos ou importação global |
+| Coleção de ACs ICP-Brasil | SHA-512 oficial do ZIP, 180 PEM originais byte a byte, fingerprints DER, restrições de AC e teste sem privilégios em container offline | Dados de referência, não confiança; sem validação de cadeia, validade atual ou revogação; v7/Ed521 separado e sem assinatura verificada |
 | KoSIT e XRechnung | 105 verificações do resultado instalado: UBL/CII válidos e inválidos, etapas XSD/Schematron, argumentos e recusas de recursos externos | Validação offline; sem envio fiscal ou teste do modo daemon |
 | Esquemas eSocial | 441 verificações; todos os 52 XSD de eventos e 15 XSD de comunicação compilados offline; arquivos originais preservados byte a byte | Validação estrutural, sem conferir assinaturas, regras de negócio ou aceitação pelo governo |
 
@@ -198,6 +200,18 @@ a cadeia completa de ACs nem a consulta de revogação necessária ao aplicativo
 Fontes: [registro AC-Raiz do ITI](https://www.gov.br/iti/pt-br/assuntos/repositorio/repositorio-ac-raiz)
 e [algoritmos/fingerprints no relatório WebTrust, apêndice A](https://www.gov.br/iti/pt-br/assuntos/comite-gestor/iti_2019_-_webtrust_for_ca_report_consolidado.pdf).
 Consulte os [caminhos e testes reproduzíveis](docs/usage.md#icp-brasil-root-data).
+
+O `icp-brasil-ca-data` é separado do pacote de raízes. Ele preserva os 180
+certificados do arquivo «Cadeia Vigente» publicado pelo ITI em 26/08/2026,
+inclusive os finais de linha originais. Há 179 arquivos de ACs RSA/Ed448 e
+uma referência Ed521. O pacote instala somente dados e inventário em `share`;
+não fornece um bundle combinado nem promove certificados intermediários a
+âncoras de confiança. A coleção é uma fotografia datada, não uma garantia de
+que cada certificado continue válido ou de que ela cubra todas as raízes do
+registro mais recente. As aplicações precisam selecionar políticas, emissores
+atuais e dados de revogação próprios.
+Fonte: [arquivo oficial de ACs do ITI](https://www.gov.br/iti/pt-br/assuntos/repositorio/certificados-das-acs-da-icp-brasil-arquivo-unico-compactado).
+Consulte a [coleção de ACs e seus testes](docs/usage.md#icp-brasil-ca-collection).
 
 O KoSIT preserva os JARs oficiais, as licenças e os fontes correspondentes:
 é um reempacotamento binário, não uma recompilação do projeto. Um adaptador

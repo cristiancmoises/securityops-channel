@@ -1,0 +1,2 @@
+# Preserve original PEM bytes, including vendor CRLF and final-newline choices.
+*.crt -text -diff

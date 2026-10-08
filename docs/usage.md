@@ -470,6 +470,51 @@ CC-BY-ND-3.0 terms; no endorsement or affiliation is implied.
 Sources: [ITI root registry](https://www.gov.br/iti/pt-br/assuntos/repositorio/repositorio-ac-raiz),
 [WebTrust algorithm/fingerprint reference, Appendix A](https://www.gov.br/iti/pt-br/assuntos/comite-gestor/iti_2019_-_webtrust_for_ca_report_consolidado.pdf).
 
+### ICP-Brasil CA collection
+
+`icp-brasil-ca-data` preserves the 180 original PEM files in the ITI
+«Cadeia Vigente» archive dated August 26, 2026. This is a separate, opt-in
+data package, not a trust store or signing client. It retains every filename
+and original byte, including CRLF files and the file without a final newline.
+
+| Path under `share/icp-brasil-ca-data` | Content |
+|---|---|
+| `certificates/` | 179 original CA files: 175 RSA and four Ed448 |
+| `reference-ed521/ICP-Brasilv7.crt` | Unchanged unsupported Ed521 reference; never a usable trust bundle |
+| `manifest.json` | Original-file hashes, DER fingerprints, algorithms and source provenance |
+| `SHA256SUMS`, `NOTICE` | Integrity inventory, attribution, official archive SHA-512 and redistribution terms |
+
+No combined bundle, trust activation, CA environment variable or profile hook
+is installed. Do not turn intermediate CA files into trust anchors merely
+because they appear in this archive. This dated collection is not identical
+to the later root registry: choose appropriate roots and issuer certificates
+for the application, and obtain current revocation information separately.
+
+Build and inspect the data without installing it:
+
+```sh
+securityops_icp_ca=$(guix build -L . -e '(@ (securityops packages icp-brasil-chain) icp-brasil-ca-data)')
+printf '%s\n' "$securityops_icp_ca/share/icp-brasil-ca-data/manifest.json"
+guix repl -L . -- tests/icp-brasil-chain-packages.scm
+guix shell -L . python bash-minimal \
+  -e '(@@ (securityops packages tls-security) openssl-security)' \
+  --container --pure --no-cwd \
+  --expose="$PWD/tests=/tests" --expose="$securityops_icp_ca" -- \
+  sh -c 'python3 -B /tests/icp-brasil-chain-runtime.py "$1" "$(command -v openssl)" --isolated' \
+  sh "$securityops_icp_ca"
+```
+
+Native and installed tests check exact original bytes, DER fingerprints,
+CA constraints, algorithm separation and the data-only layout. The isolated
+test runs without privileges and with loopback-only networking. The original
+ZIP was independently checked against ITI's published SHA-512; supplying it
+to the runtime test with `--source-archive` also checks every original file.
+These checks do not claim cryptographic chain verification, present validity,
+revocation status, permitted purposes or legal acceptance. Original data
+retain the registry's CC-BY-ND-3.0 attribution; no affiliation is implied.
+
+Source: [ITI CA archive and snapshot date](https://www.gov.br/iti/pt-br/assuntos/repositorio/certificados-das-acs-da-icp-brasil-arquivo-unico-compactado).
+
 ### eSocial schema data
 
 The event package contains 52 original XSD files effective July 1, 2026.
