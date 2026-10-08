@@ -57,13 +57,13 @@
 (define python-vcs-versioning-for-arelle
   (package
     (name "python-vcs-versioning")
-    (version "2.5.0")
+    (version "2.6.0")
     (source
      (origin
        (method url-fetch)
        (uri (pypi-uri "vcs_versioning" version))
        (sha256
-        (base32 "0mfs8859s9wq9fzm3n7n21yj9gx62pgx3mhrs8aff3zq65p7jslm"))))
+        (base32 "03yn2qjhs5jxdx99w3pnaz0swrlw9k1k2v3gzaibrn72i291bs92"))))
     (build-system pyproject-build-system)
     (native-inputs
      (list python-setuptools-for-arelle python-pytest python-pytest-timeout
@@ -116,16 +116,39 @@ control metadata and distribution archives.")
               (setenv "HOME" (getcwd))
               (setenv "PYTHONPATH" (getenv "GUIX_PYTHONPATH")))))))))
 
+(define python-hatchling-for-arelle
+  (package
+    (inherit python-hatchling)
+    (version "1.32.4")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "hatchling" version))
+       (sha256
+        (base32 "01sz6w6rf3k9g5mzv3vzy25qgfa3ihvz1w2fmcm4s1ac2irqyin4"))))
+    (propagated-inputs
+     (modify-inputs (package-propagated-inputs python-hatchling)
+       (append python-tomlkit)))
+    (arguments
+     (substitute-keyword-arguments (package-arguments python-hatchling)
+       ((#:phases phases #~%standard-phases)
+        #~(modify-phases #$phases
+            (add-before 'unpack 'bound-build-resources
+              #$(%bounded-build-environment))))))))
+
 (define python-filelock-for-arelle
   (package
     (inherit python-filelock-next)
-    (version "3.20.3")
+    (version "4.0.12")
     (source
      (origin
        (method url-fetch)
        (uri (pypi-uri "filelock" version))
        (sha256
-        (base32 "1q9l126pfh8kdx0czc0v34q7qv4kd7wg1xzcy37n3v672plpxi8q"))))
+        (base32 "031v60sc94nvk3g90qm3xzp5mil8l0r07awz565q34f7g8d72hng"))))
+    (native-inputs
+     (modify-inputs (package-native-inputs python-filelock-next)
+       (replace "python-hatchling" python-hatchling-for-arelle)))
     (arguments
      (substitute-keyword-arguments (package-arguments python-filelock-next)
        ((#:phases phases #~%standard-phases)
@@ -142,13 +165,13 @@ control metadata and distribution archives.")
 (define python-lxml-for-arelle
   (package
     (inherit python-lxml)
-    (version "6.1.0")
+    (version "6.1.3")
     (source
      (origin
        (method url-fetch)
        (uri (pypi-uri "lxml" version))
        (sha256
-        (base32 "04rv08h0c9aqd39b71lh675wghkniylykhqrm44mg5n41207vmdz"))))
+        (base32 "08fxv750ffvh4p5g2xghw169ncxjwgm9sz9g7dpm64fmvna2s8j5"))))
     (native-inputs
      (modify-inputs (package-native-inputs python-lxml)
        (append python-cython)))
