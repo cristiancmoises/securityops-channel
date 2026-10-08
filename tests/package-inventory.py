@@ -13,6 +13,7 @@ expected = {
     ("applications", "turborec-nvidia-new-feature", "3.10.4"),
     ("applications", "mirim", "1.1.1"),
     ("applications", "btp", "0.7"),
+    ("applications", "whatsappel", "3.3.1"),
     ("wazuh", "wazuh-agent", "4.14.8"),
     ("wazuh", "wazuh-manager", "4.14.8"),
     ("wazuh-search", "wazuh-indexer", "4.14.8-1"),

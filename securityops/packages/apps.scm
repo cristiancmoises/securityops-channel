@@ -7,4 +7,5 @@
 (define-module (securityops packages apps)
   #:use-module (securityops packages applications)
   #:re-export (evelin-bin btp mirim torando-gui zupt zupt-gui
-               turborec turborec-nvidia-new-feature moneyprinterturbo guixvis))
+               turborec turborec-nvidia-new-feature moneyprinterturbo guixvis
+               whatsappel))

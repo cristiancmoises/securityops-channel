@@ -17,6 +17,7 @@ Esta conferência valida o inventário; não é uma nova compilação de cada pr
 | TurboRec | `turborec`, `turborec-nvidia-new-feature` | 3.10.4 |
 | Mirim | `mirim` | 1.1.1 |
 | BTP | `btp` | 0.7 |
+| WhatsAppel | `whatsappel` | 3.3.1 |
 
 Pesquise os projetos em [toys.securityops.co](https://toys.securityops.co) e
 selecione o canal `securityops`. A pesquisa por `evelin` encontra `evelin-bin`;
@@ -26,7 +27,7 @@ Cada instância do Toys mantém seu próprio catálogo. A página de canais info
 a revisão indexada; uma exportação correta no Git não garante atualização
 imediata de [toys.whereis.social](https://toys.whereis.social) ou de outros
 índices independentes. O teste `python3 tests/package-inventory.py` verifica
-estes sete nomes, versões e ausência de duplicatas no inventário do canal.
+estes oito nomes, versões e ausência de duplicatas no inventário do canal.
 
 ### Compatibilidade do módulo
 
@@ -34,12 +35,36 @@ estes sete nomes, versões e ausência de duplicatas no inventário do canal.
 pacotes. O módulo antigo permanece como reexportação dos mesmos bindings para
 preservar manifests existentes. O teste
 `guix repl -q -L . tests/securityops-tools-packages.scm` executa a descoberta
-real do Guix e confirma que os dez pacotes originais aparecem uma única vez,
-atribuídos ao novo módulo, mantendo os objetos e versões dos imports antigos.
+real do Guix e confirma que os dez pacotes originais e o WhatsAppel aparecem
+uma única vez, atribuídos ao novo módulo, mantendo os objetos e versões dos
+imports antigos.
 
 O Toys não exclui módulos chamados `apps`. Esta migração organiza a interface
 do canal; sem os logs de uma instância externa, não estabelece a causa de uma
 indexação incompleta nem substitui a reindexação pelo responsável pelo serviço.
+
+### WhatsAppel: cliente e bridge
+
+O pacote `whatsappel` também é exportado pelo módulo independente
+`(securityops packages whatsappel)`, sem depender dos módulos de vídeo/NVIDIA
+do canal. A fonte pública 3.3.1 está fixada no commit
+`25e0edd285058842022cec20729ac53fd9eed964`, com hash verificado pelo Guix.
+
+| Área | Verificação | Limite |
+|---|---|---|
+| Cliente Emacs | 297 testes ERT e compilação dos cinco módulos Lisp | Emacs 31.1; sem certificação das versões antigas ou nova inspeção gráfica |
+| Bridge Guile | 125 verificações upstream | Fixtures privadas, sem conta ou provedor real |
+| Workers e integração | 626 testes Python, sem skips, e sintaxe Fish | Não comprova entrega a destinatários reais |
+| Resultado instalado | Cliente compilado, Python/FFmpeg fixados, launcher, bridge e resposta JSON para entrada inválida do worker de envio | Não vincula contas, ativa serviços ou altera configuração do usuário |
+
+Os testes usam um diretório `HOME` temporário no build. A instalação não copia
+configuração privada para o store. O wuzapi continua externo; o helper opcional
+Rust `pqenv` e o player mpv não estão incluídos. Consulte o
+[uso do WhatsAppel](docs/usage.md#whatsappel-emacs-workspace-and-guile-bridge).
+
+A receita corrige o tratamento de uma exceção de validação do worker de envio:
+uma entrada sem URL válida retorna erro estruturado, sem traceback ou envio.
+O teste do resultado instalado mantém esse caso de regressão.
 
 ## Eletrônica, acesso remoto e monitoramento
 
