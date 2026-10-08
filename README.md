@@ -28,7 +28,7 @@ here. This channel simply wouldn't exist without that work.
 | [Monitoring](docs/usage.md#monitoring) | Zabbix server, collectors, frontend, JMX and PDF reports |
 | [XBRL reporting](docs/usage.md#structured-reporting) | Arelle CLI/library, offline validation and graphical-test limits |
 | [Identity and official schemas](docs/usage.md#identity-and-official-schema-data) | DigiDoc4, Belgian eID, signature libraries and eSocial formats |
-| [ICP-Brasil root data](docs/usage.md#icp-brasil-root-data) | Explicit-purpose certificate bundles, Ed521 reference limits and no automatic trust |
+| [ICP-Brasil data](docs/usage.md#icp-brasil-root-data) | Explicit-purpose roots, original CA collection, Ed521 limits and no automatic trust |
 | [Electronic invoicing](docs/usage.md#electronic-invoicing) | KoSIT Validator and pinned offline XRechnung rules |
 | [Lacuna Web PKI](docs/webpki.md) | Native host, browser manifests and Guix Home setup |
 | [AutoFirma](docs/usage.md#autofirma) | Official Linux package, signing commands and browser-integration limits |
