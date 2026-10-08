@@ -77,10 +77,22 @@ Instalar no perfil do usuário não substitui automaticamente um pacote do
 Guix Home ou do sistema. Reconfigure o perfil responsável pelo pacote.
 Use `(commit "...")` para fixar uma revisão reproduzível.
 
-O TurboRec 3.10.4 está disponível em `(securityops packages apps)`:
+### Módulo de aplicativos e descoberta de pacotes
+
+A coleção de aplicativos passa a usar `(securityops packages applications)`.
+Manifests que importam `(securityops packages apps)` continuam compatíveis:
+o módulo antigo reexporta os mesmos bindings, sem criar pacotes duplicados.
+Os nomes `zupt`, `evelin-bin`, `turborec` e dos demais pacotes não mudaram.
+
+A descoberta do Guix carrega o módulo canônico primeiro. Cada instância do Toys
+ainda precisa indexar o canal atualizado; o nome antigo não era um filtro de
+exclusão. Consulte o [inventário dos projetos](PACKAGES.md#projetos-securityops-e-catálogo-de-pesquisa)
+para versões, verificações e limites do catálogo.
+
+O TurboRec 3.10.4 está disponível em `(securityops packages applications)`:
 
 ```sh
-guix package -e '(@ (securityops packages apps) turborec)'
+guix package -e '(@ (securityops packages applications) turborec)'
 turborec gui
 ```
 
@@ -101,9 +113,9 @@ Depois de atualizar o canal, escolha o comando adequado:
 
 ```sh
 # Primeira instalação, sem nenhuma variante do aplicativo nesse perfil
-guix package -e '(@ (securityops packages apps) turborec-nvidia-new-feature)'
+guix package -e '(@ (securityops packages applications) turborec-nvidia-new-feature)'
 # OU substitua o turborec genérico já instalado na mesma transação
-guix package -r turborec -e '(@ (securityops packages apps) turborec-nvidia-new-feature)'
+guix package -r turborec -e '(@ (securityops packages applications) turborec-nvidia-new-feature)'
 ```
 
 Não instale ambas no mesmo perfil: elas fornecem os mesmos comandos. O pacote

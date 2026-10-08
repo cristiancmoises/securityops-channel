@@ -7,7 +7,7 @@ própria; reexportações acompanham a revisão autenticada de seu canal de orig
 
 ## Projetos SecurityOps e catálogo de pesquisa
 
-Exportações conferidas em 08/10/2026 no módulo `(securityops packages apps)`.
+Exportações conferidas em 08/10/2026 no módulo `(securityops packages applications)`.
 Esta conferência valida o inventário; não é uma nova compilação de cada programa.
 
 | Projeto | Nome no Guix | Versão no canal |
@@ -27,6 +27,19 @@ a revisão indexada; uma exportação correta no Git não garante atualização
 imediata de [toys.whereis.social](https://toys.whereis.social) ou de outros
 índices independentes. O teste `python3 tests/package-inventory.py` verifica
 estes sete nomes, versões e ausência de duplicatas no inventário do canal.
+
+### Compatibilidade do módulo
+
+`applications` substitui o nome genérico `apps`, sem renomear os executáveis ou
+pacotes. O módulo antigo permanece como reexportação dos mesmos bindings para
+preservar manifests existentes. O teste
+`guix repl -q -L . tests/securityops-tools-packages.scm` executa a descoberta
+real do Guix e confirma que os dez pacotes originais aparecem uma única vez,
+atribuídos ao novo módulo, mantendo os objetos e versões dos imports antigos.
+
+O Toys não exclui módulos chamados `apps`. Esta migração organiza a interface
+do canal; sem os logs de uma instância externa, não estabelece a causa de uma
+indexação incompleta nem substitui a reindexação pelo responsável pelo serviço.
 
 ## Eletrônica, acesso remoto e monitoramento
 

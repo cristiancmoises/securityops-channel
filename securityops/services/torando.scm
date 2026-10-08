@@ -28,7 +28,7 @@
   #:use-module (gnu services shepherd)
   #:use-module (guix gexp)
   #:use-module (guix records)
-  #:use-module (securityops packages apps)        ;torando-gui
+  #:use-module (securityops packages applications) ;torando-gui
   #:export (torando-gui-configuration
             torando-gui-configuration?
             torando-gui-configuration-package

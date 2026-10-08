@@ -5,13 +5,13 @@
              (guix build copy-build-system) (guix build utils) (guix build syscalls)
              (ice-9 popen) (ice-9 textual-ports)
              (srfi srfi-1) (srfi srfi-64)
-             ((securityops packages apps) #:prefix apps:)
+             ((securityops packages applications) #:prefix apps:)
              ((securityops packages video) #:prefix video:)
              ((securityops packages nvidia) #:prefix nvidia:))
 
 (define (run-tests)
   (define variant
-    (module-ref (resolve-interface '(securityops packages apps))
+    (module-ref (resolve-interface '(securityops packages applications))
                 'turborec-nvidia-new-feature #f))
   (define (wrapper-output package paired?)
     (let* ((directory (mkdtemp! (string-copy "/tmp/turborec-wrapper-XXXXXX")))
