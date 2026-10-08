@@ -1,4 +1,4 @@
-"""Check accepted monitoring, PKI and XML validation entries in the inventory.
+"""Check accepted applications, monitoring, PKI and XML inventory entries.
 
 Run from the checkout: python3 tests/package-inventory.py
 """
@@ -6,6 +6,13 @@ Run from the checkout: python3 tests/package-inventory.py
 import subprocess
 
 expected = {
+    ("apps", "zupt", "5.2.9"),
+    ("apps", "zupt-gui", "5.2.9"),
+    ("apps", "evelin-bin", "4.4.0"),
+    ("apps", "turborec", "3.10.4"),
+    ("apps", "turborec-nvidia-new-feature", "3.10.4"),
+    ("apps", "mirim", "1.1.1"),
+    ("apps", "btp", "0.7"),
     ("wazuh", "wazuh-agent", "4.14.8"),
     ("wazuh", "wazuh-manager", "4.14.8"),
     ("wazuh-search", "wazuh-indexer", "4.14.8-1"),
@@ -31,10 +38,12 @@ rows = [tuple(line.split("\t")) for line in result.stdout.splitlines() if "\t" i
 selected = [
     row[:3]
     for row in rows
-    if len(row) == 4 and row[0] in {item[0] for item in expected}
+    if len(row) == 4 and row[:2] in {item[:2] for item in expected}
 ]
 assert len(selected) == len(expected) and set(selected) == expected, (
     "Missing or duplicate accepted package inventory rows",
     sorted(expected - set(selected)),
 )
-print("PASS: all ten accepted monitoring/identity/PKI/XML entries are reported once")
+print(
+    f"PASS: all {len(expected)} accepted application/monitoring/PKI/XML entries appear once"
+)
