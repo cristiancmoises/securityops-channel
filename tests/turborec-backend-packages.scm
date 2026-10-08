@@ -7,7 +7,7 @@
              (srfi srfi-1) (srfi srfi-64)
              ((securityops packages apps) #:prefix apps:)
              ((securityops packages video) #:prefix video:)
-             ((nongnu packages nvidia) #:prefix nvidia:))
+             ((securityops packages nvidia) #:prefix nvidia:))
 
 (define (run-tests)
   (define variant
@@ -72,6 +72,22 @@
                           "nv-codec-headers")))
               (package-transitive-inputs apps:turborec))))
   (test-assert "optional NVIDIA app is public" (package? variant))
+  (test-eq "codec loader uses the channel's matched driver"
+    nvidia:nvidia-driver-new-feature
+    (lookup-package-input video:nv-codec-headers "nvidia-driver"))
+  (for-each
+   (lambda (consumer)
+     (let* ((backend (if (string=? "wf-recorder-nvidia-new-feature"
+                                   (package-name consumer))
+                         (lookup-package-input consumer "ffmpeg")
+                         consumer))
+            (headers (lookup-package-input backend "nv-codec-headers")))
+       (test-eq (string-append "matched NVIDIA loader in "
+                               (package-name consumer))
+         nvidia:nvidia-driver-new-feature
+         (lookup-package-input headers "nvidia-driver"))))
+   (list video:ffmpeg-nvidia-new-feature video:ffmpeg-8-nvidia-new-feature
+         video:wf-recorder-nvidia-new-feature))
   (for-each unsetenv '("TURBOREC_WF_RECORDER" "TURBOREC_WF_FFMPEG"))
   (test-equal "generic launchers do not pin a proprietary backend"
     '("unset\nunset\n" "unset\nunset\n")

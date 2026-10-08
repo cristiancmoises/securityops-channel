@@ -12,6 +12,7 @@
   #:use-module (guix git-download)
   #:use-module (guix download)
   #:use-module ((nongnu packages nvidia) #:prefix nong:)
+  #:use-module ((securityops packages nvidia) #:prefix channel-nvidia:)
   #:use-module ((gnu packages video) #:prefix gnu:)
   #:use-module ((gnu packages image-viewers) #:prefix gnu-iv:))
 
@@ -75,7 +76,7 @@
     (inherit nong:nv-codec-headers)
     (version "13.1.15.0")
     (supported-systems
-     (package-supported-systems nong:nvidia-driver-new-feature))
+     (package-supported-systems channel-nvidia:nvidia-driver-new-feature))
     (source
      (origin
        (method git-fetch)
@@ -89,14 +90,14 @@
      (modify-inputs (package-inputs nong:nv-codec-headers)
        ;; Bind dlopen directly to the driver libraries, not the nvda
        ;; graphics union with its additional VAAPI integration.
-       (replace "nvidia-driver" nong:nvidia-driver-new-feature)))))
+       (replace "nvidia-driver" channel-nvidia:nvidia-driver-new-feature)))))
 
 (define-public ffmpeg-nvidia-new-feature
   (package
     (inherit ffmpeg)
     (name "ffmpeg-nvidia-new-feature")
     (supported-systems
-     (package-supported-systems nong:nvidia-driver-new-feature))
+     (package-supported-systems channel-nvidia:nvidia-driver-new-feature))
     (properties
      (cons '(cpe-name . "ffmpeg") (package-properties ffmpeg)))
     (inputs
@@ -132,7 +133,7 @@ driver; installing it does not replace the kernel module."))))
        (sha256
         (base32 "18vq676kxsjx4c9123591nsgzy214zbwmn739spy7lyrjs6d4f3i"))))
     (supported-systems
-     (package-supported-systems nong:nvidia-driver-new-feature))
+     (package-supported-systems channel-nvidia:nvidia-driver-new-feature))
     (properties
      (cons '(cpe-name . "ffmpeg") (package-properties gnu:ffmpeg)))
     (inputs
@@ -156,7 +157,7 @@ it does not replace the kernel module."))))
     (inherit gnu:wf-recorder)
     (name "wf-recorder-nvidia-new-feature")
     (supported-systems
-     (package-supported-systems nong:nvidia-driver-new-feature))
+     (package-supported-systems channel-nvidia:nvidia-driver-new-feature))
     (properties
      (cons '(cpe-name . "wf-recorder")
            (package-properties gnu:wf-recorder)))
