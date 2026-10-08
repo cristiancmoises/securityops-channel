@@ -322,6 +322,7 @@ or change user, Home or system profiles when you add the channel.
 | `libdigidocpp` 4.5.1 | `(securityops packages eid)` | Native library, headers and upstream `digidoc-tool` |
 | `digidoc4` 4.11.1 | `(securityops packages digidoc4)` | Native Qt desktop, `qdigidoc4`, desktop entry and signed bootstrap |
 | `eid-mw` 5.1.31 | `(securityops packages belgian-eid)` | Belgian eID GTK3 viewer and `lib/libbeidpkcs11.so` |
+| `icp-brasil-roots` 2026.10.05 | `(securityops packages icp-brasil)` | Explicit-purpose PEM bundles and original public root data |
 | `esocial-schemas` 1.3-20260701 | `(securityops packages brazil-tax)` | `share/esocial/events`, S-1.3 / NT 06/2026 |
 | `esocial-communication-schemas` 1.6 | `(securityops packages brazil-tax)` | `share/esocial/communication`, separate envelope/WSDL format |
 
@@ -423,6 +424,51 @@ online update success were not tested. Those workflows require supported
 hardware and a separately configured PC/SC service.
 
 Source: [official Linux tag](https://github.com/Fedict/eid-mw/tree/v5.1.31).
+
+### ICP-Brasil root data
+
+The package preserves the eight active public roots listed in the ITI registry
+snapshot of October 5, 2026. It does not install intermediates, CRLs, signing
+applications or an Ed521 implementation. Installation never registers trust or
+changes browser, Java, Home or system certificate stores.
+
+| Path under `share/icp-brasil` | Content |
+|---|---|
+| `document-signing.pem` | General roots v4, v5, v6, v12 and v13 for explicit application policy selection |
+| `tls.pem` | TLS root v10 only |
+| `code-signing.pem` | Code-signing root v11 only |
+| `roots/` | Seven original OpenSSL-compatible certificate files and attribution |
+| `reference-ed521/ICP-Brasilv7.crt` | Original v7, reference-only; not included in any usable bundle |
+
+OpenSSL cannot verify v7's Ed521 algorithm. Its exact certificate fingerprint
+is retained and checked, but its self-signature is not claimed as verified.
+Do not concatenate this reference file into the provided OpenSSL bundles.
+Expired roots v0/v1/v2 and revoked roots v3/v8/v9 are excluded. Bundle separation
+is a packaging aid, not a substitute for certificate policy, current chains,
+revocation checks or the legal requirements of a document workflow.
+
+Get the data without changing any profile:
+
+```sh
+securityops_icp=$(guix build -L . -e '(@ (securityops packages icp-brasil) icp-brasil-roots)')
+printf '%s\n' "$securityops_icp/share/icp-brasil/document-signing.pem"
+guix repl -L . -- tests/icp-brasil-packages.scm
+guix shell python openssl bash-minimal --container --pure --no-cwd \
+  --expose="$PWD/tests=/tests" --expose="$securityops_icp" -- \
+  sh -c 'python3 -B /tests/icp-brasil-runtime.py "$1" "$(command -v openssl)"' \
+  sh "$securityops_icp"
+```
+
+Native checks verify the seven supported self-signatures at the registry date.
+Installed checks verify original bytes and DER fingerprints, current validity,
+refusal of modified signatures and invalid dates, exact purpose selections and
+the actual CA loader. The v7 test requires native verification to refuse its
+unsupported algorithm. These tests do not sign a document or import roots.
+Original public files and ITI attribution are retained under the registry's
+CC-BY-ND-3.0 terms; no endorsement or affiliation is implied.
+
+Sources: [ITI root registry](https://www.gov.br/iti/pt-br/assuntos/repositorio/repositorio-ac-raiz),
+[WebTrust algorithm/fingerprint reference, Appendix A](https://www.gov.br/iti/pt-br/assuntos/comite-gestor/iti_2019_-_webtrust_for_ca_report_consolidado.pdf).
 
 ### eSocial schema data
 

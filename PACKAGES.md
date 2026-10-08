@@ -147,6 +147,7 @@ não ativa serviços e não importa certificados.
 | Identidade e assinaturas | `libdigidocpp` | 4.5.1 | `(securityops packages eid)` |
 | Identidade e assinaturas | `digidoc4` | 4.11.1 | `(securityops packages digidoc4)` |
 | Identidade e cartões | `eid-mw` | 5.1.31 | `(securityops packages belgian-eid)` |
+| Dados de PKI | `icp-brasil-roots` | 2026.10.05, registro oficial | `(securityops packages icp-brasil)` |
 | Documentos fiscais | `kosit-validator` | 1.6.3 | `(securityops packages einvoicing)` |
 | Documentos fiscais | `xrechnung-validator-configuration` | 2026-08-31, XRechnung 3.0.2 / CEN 1.3.16 | `(securityops packages einvoicing)` |
 | Dados governamentais | `esocial-schemas` | 1.3-20260701, S-1.3 / NT 06/2026 | `(securityops packages brazil-tax)` |
@@ -159,6 +160,7 @@ não ativa serviços e não importa certificados.
 | libdigidocpp | 24 testes TSL, 23 casos offline com 111 asserções e 25 verificações do resultado instalado | Cartões, SiVa, OCSP/TSA ao vivo e renovação online não testados; dez casos upstream ficaram fora da seleção offline |
 | DigiDoc4 | Build nativo, assinatura ECC do bootstrap, rejeição real de cache adulterado, abertura gráfica de ASiC-E sem assinatura e recusa de documento inválido; imagens inspecionadas e bibliotecas carregadas conferidas | Sem cartões, assinatura qualificada, SiVa, OCSP/TSA ou renovação online de listas nacionais; não é a suíte Open-EID completa |
 | Belgium eID | Build nativo com 15 testes upstream; funções e ciclo de vida PKCS#11 reais, slots vazios, visualizador GTK3 e versão 5.1.31 exibida e inspecionada | 27 skips upstream de hardware/interface preservados; sem leitor, cartão, PIN, assinatura, registro em navegador ou serviço PC/SC no host |
+| Raízes ICP-Brasil | Oito arquivos originais e fingerprints conferidos; sete raízes com assinatura, validade e recusa de adulteração no OpenSSL; três bundles carregados em teste isolado | v7/Ed521 apenas como referência, fora dos bundles; sem cadeia intermediária completa, revogação online, assinatura de documentos ou importação global |
 | KoSIT e XRechnung | 105 verificações do resultado instalado: UBL/CII válidos e inválidos, etapas XSD/Schematron, argumentos e recusas de recursos externos | Validação offline; sem envio fiscal ou teste do modo daemon |
 | Esquemas eSocial | 441 verificações; todos os 52 XSD de eventos e 15 XSD de comunicação compilados offline; arquivos originais preservados byte a byte | Validação estrutural, sem conferir assinaturas, regras de negócio ou aceitação pelo governo |
 
@@ -184,6 +186,18 @@ no diálogo About. GTK3, os testes nativos e a licença LGPL-3.0-or-later são
 preservados; OpenSSL 3.5.9 e libxml2 2.15.4 foram conferidos no processo instalado.
 Adicionar o pacote não inicia PC/SC nem registra automaticamente seu provedor
 PKCS#11 em aplicativos.
+
+As raízes ICP-Brasil preservam os arquivos públicos do ITI byte a byte e a
+atribuição CC-BY-ND-3.0 do registro oficial. Os bundles utilizáveis separam cinco
+raízes gerais para seleção de política de documentos (v4, v5, v6, v12 e v13),
+TLS (v10) e assinatura de código (v11). A v7 usa Ed521, não suportado pelo
+OpenSSL verificado: seu arquivo fica apenas em `reference-ed521`, sem alegação
+de assinatura validada. Raízes expiradas ou revogadas não são incluídas.
+Nenhum bundle é registrado como confiança do sistema. O pacote não substitui
+a cadeia completa de ACs nem a consulta de revogação necessária ao aplicativo.
+Fontes: [registro AC-Raiz do ITI](https://www.gov.br/iti/pt-br/assuntos/repositorio/repositorio-ac-raiz)
+e [algoritmos/fingerprints no relatório WebTrust, apêndice A](https://www.gov.br/iti/pt-br/assuntos/comite-gestor/iti_2019_-_webtrust_for_ca_report_consolidado.pdf).
+Consulte os [caminhos e testes reproduzíveis](docs/usage.md#icp-brasil-root-data).
 
 O KoSIT preserva os JARs oficiais, as licenças e os fontes correspondentes:
 é um reempacotamento binário, não uma recompilação do projeto. Um adaptador
