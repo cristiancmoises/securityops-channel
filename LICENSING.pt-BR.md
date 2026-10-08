@@ -22,6 +22,11 @@ avisos instalados. A receita pública seleciona uma opção pública
 redistribuível; ela não coloca contrato comercial privado, chave de licença,
 chave de assinatura ou direito de cliente no store do Guix.
 
+O WhatsAppel 3.3.1 mantém AGPL-3.0-only e o arquivo original de licença. O
+pacote compila o cliente Emacs e inclui o bridge Guile e os workers Python de
+fonte pública fixada. wuzapi, mpv e o helper Rust opcional `pqenv` não estão
+incluídos; suas instalações separadas preservam os próprios termos.
+
 O RPM do Web PKI da Lacuna declara MIT em seus metadados, mas não inclui um
 texto de licença separado. O aplicativo .NET autossuficiente contém componentes
 de terceiros cujos avisos individuais não foram auditados separadamente aqui.

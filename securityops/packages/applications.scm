@@ -18,6 +18,7 @@
   #:use-module (guix utils)                      ;cc-for-target (zupt)
   #:use-module (guix build-system copy)
   #:use-module (guix build-system gnu)           ;zupt CLI (Makefile)
+  #:use-module (securityops packages whatsappel)
   #:use-module (gnu packages rust)               ;mirim source build
   #:use-module (gnu packages base)               ;glibc
   #:use-module (gnu packages gcc)                ;gcc:lib (libgcc_s)
@@ -57,7 +58,8 @@
   #:use-module ((gnu packages pcre)       #:select (pcre2))
   #:use-module ((gnu packages markup)     #:select (md4c))
   #:use-module ((gnu packages crypto)     #:select (libb2))
-  #:use-module ((guix licenses) #:prefix license:))
+  #:use-module ((guix licenses) #:prefix license:)
+  #:re-export (whatsappel))
 
 ;; Leaf runtime libraries PySide6's Qt6 (Core/Gui/Widgets) links but does NOT
 ;; carry in its RUNPATH. The zupt-gui launcher puts these on LD_LIBRARY_PATH;

@@ -22,6 +22,11 @@ definition and installed notices. The public Guix recipe selects a
 redistributable public option; it does not put a private commercial agreement,
 license key, signing key, or customer entitlement in the Guix store.
 
+WhatsAppel 3.3.1 retains AGPL-3.0-only and its original license file. The
+package builds the Emacs client and includes the Guile bridge and Python
+workers from pinned public source. wuzapi, mpv and the optional Rust `pqenv`
+helper are not included; their separate installation retains their own terms.
+
 Lacuna's Web PKI RPM declares MIT in its package metadata but does not include
 a separate license text. Its self-contained .NET application bundles third
 party components whose individual notices were not separately audited here.

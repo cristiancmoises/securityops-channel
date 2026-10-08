@@ -14,7 +14,8 @@
     (turborec "turborec" "3.10.4")
     (turborec-nvidia-new-feature "turborec-nvidia-new-feature" "3.10.4")
     (moneyprinterturbo "moneyprinterturbo" "1.3.7")
-    (guixvis "guixvis" "0.10.0")))
+    (guixvis "guixvis" "0.10.0")
+    (whatsappel "whatsappel" "3.3.1")))
 
 (define (run-tests)
   (define root

@@ -3,6 +3,53 @@
 Operational examples for GNU Guix System and Guix Home. For current versions
 and validation, see [the package index](../PACKAGES.md).
 
+## WhatsAppel: Emacs workspace and Guile bridge
+
+The `whatsappel` package provides the 3.3.1 Emacs client, Python workers and
+Guile bridge. Its independent module is `(securityops packages whatsappel)`;
+`(securityops packages applications)` re-exports the same package binding.
+
+```sh
+guix package -L . -e '(@ (securityops packages whatsappel) whatsappel)'
+whatsappel --help
+```
+
+Run `whatsappel` to launch your selected graphical Emacs with the existing
+init. In an already running Emacs, use `M-x whatsapp`, or load
+`(require 'whatsapp)` before using its `whatsappel` alias. The five Lisp
+modules and their worker scripts remain together in the installed directory;
+there is no dependency on an editable source checkout.
+
+Configure bridge access in your existing Emacs init or protected runtime
+environment. `whatsappel-bridge` requires bridge and wuzapi credentials in
+its environment; it does not read or copy your source checkout's `.env`.
+Installation does not start listeners, pair accounts, register callbacks,
+send messages, change Guix Home, or replace your existing service.
+Keep the bridge on loopback unless a separate authenticated deployment has
+been configured. wuzapi remains a separately configured backend.
+
+The package pins its Python and FFmpeg paths and provides Guile JSON/TLS and
+SQLite to the bridge. External playback needs mpv separately. The optional
+Rust `pqenv` helper is not included: do not expect post-quantum envelope
+operations without separately installing and configuring that helper.
+
+Build checks run `make check-client check-bridge check-python` in private
+state, followed by installed-client, launcher and bridge-load checks.
+The recipe also corrects a missing validation-exception handler in the send
+worker. An invalid bridge URL returns a structured JSON error without a
+traceback or a send attempt; an installed-worker regression checks this case.
+Recipe and migration checks:
+
+```sh
+guix repl -q -L . tests/whatsappel-packages.scm
+guix repl -q -L . tests/securityops-tools-packages.scm
+python3 tests/package-inventory.py
+```
+
+Validation uses Emacs 31.1 and synthetic local fixtures, not live account
+pairing, recipient delivery or graphical/media device certification.
+The upstream minimum Emacs 28.1 was not independently tested here.
+
 ## Electronics
 
 | Package | Version | Module | Interface |
