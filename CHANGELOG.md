@@ -6,6 +6,41 @@ tag rather than SemVer of the code.
 
 ## [Unreleased]
 
+### Added — electronics, remote desktop and monitoring (2026-10-07)
+
+- ngspice and libngspice 47 with matched inputs and installed numerical/API
+  checks, including a negative for zero-exit interpreter errors.
+- Arduino IDE 2.3.10 with an FHS toolchain runtime; editor and Uno Blink
+  compilation checked. Unsupported upstream Electron and renderer-isolation
+  limitations remain documented; hardware workflows are not certified.
+- RustDesk client 1.4.9 and Server OSS 1.1.16, including hbbs, hbbr and
+  rustdesk-utils. Private GUI, server readiness and rendezvous registration
+  checks do not imply a complete authenticated desktop-session test.
+- Zabbix 7.4.15 collectors, PostgreSQL server, SQLite proxy, command tools,
+  PHP frontend, schemas, Java Gateway and scheduled PDF report service.
+  Verify synthetic JMX queries, real PDF rendering and local JavaScript;
+  include a complete-component manifest for a separately selected profile;
+  keep the maintenance template available before
+  database setup; only administrator-managed configuration points to /etc.
+
+### Changed — verified package refresh (2026-10-07)
+
+- Chrome 155.0.8059.39-1 and portable Chromium 154.0.8037.97-1; final default
+  grafts, rendering, JavaScript and namespace/seccomp checks passed.
+- Tor 0.4.9.14, sdb 2.5.8 and radare2 6.2.4. Rebase the system-sdb patch,
+  register the missing tmp filesystem and correct the build-library test
+  fixture without changing sandbox assertions.
+- libdigidocpp 4.5.1, libevdev 1.14.0 and Xwayland 24.1.14 with native tests;
+  preserve the private XML/XSLT/TLS security dependency graph.
+- Arelle's private vcs-versioning 2.6.0, filelock 4.0.12, lxml 6.1.3 and
+  hatchling 1.32.4; preserve upstream requirements and installed acceptance.
+- Organize the existing guides by purpose and document validation limits.
+  No profiles, production services, certificates or system drivers changed.
+
+Wazuh is not yet a runnable channel package. Full-stack native integration
+and authenticated alert forwarding remain outstanding; incomplete definitions
+are not included in this release.
+
 ### Added — FFmpeg 9.0.2 and NVENC headers 13.1.15.0 (2026-10-03)
 
 - Added a general-purpose FFmpeg build and a separate NVIDIA new-feature

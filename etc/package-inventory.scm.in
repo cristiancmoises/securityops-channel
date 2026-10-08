@@ -17,8 +17,9 @@
       interface)))
  (append
   (map (lambda (name) `(securityops packages ,name))
-       '(apps audio autofirma brazil-tax browsers chromium containers eid
-         einvoicing emacs games librewolf monitoring nvidia reporting river security
+       '(apps arduino audio autofirma brazil-tax browsers chromium containers eid
+         einvoicing electronics emacs games librewolf monitoring nvidia
+         remote-desktop reporting river security zabbix
          shells terminals tor utils video vpn webpki xlibre xmonad
          xmonad-wayland xsearch))
   '((xlibre))))

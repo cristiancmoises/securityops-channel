@@ -13,7 +13,7 @@ mantêm as respectivas licenças upstream.
 Os patches do River em `securityops/patches/` seguem a licença GPL-3.0-only
 do River, conforme os avisos nos próprios arquivos.
 
-Os testes de integração em `tests/` trazem avisos BSD-3-Clause; a exceção das
+Os testes de integração do River em `tests/` trazem avisos BSD-3-Clause; a exceção das
 receitas não altera a licença GPL dos patches do River.
 
 Uma definição de pacote Guix não relicencia o programa empacotado. Cada
@@ -26,6 +26,25 @@ O RPM do Web PKI da Lacuna declara MIT em seus metadados, mas não inclui um
 texto de licença separado. O aplicativo .NET autossuficiente contém componentes
 de terceiros cujos avisos individuais não foram auditados separadamente aqui.
 O canal baixa o RPM com hash fixo e não o inclui nem o relicencia.
+
+Arduino IDE e RustDesk preservam as licenças copyleft upstream e os avisos de
+terceiros incluídos. As receitas adaptam binários oficiais, sem recompilar os
+aplicativos. Arduino instala a licença e indicações de fonte; RustDesk inclui
+checkouts recursivos correspondentes e avisos datados das mudanças de
+empacotamento. Isso não comprova que os fontes correspondentes de todas as
+dependências embutidas foram reunidos. Antes de distribuir substitutos binários,
+confira e cumpra as exigências de disponibilidade de fonte e avisos, incluindo
+dependências necessárias e instruções de build. Publicar receitas não certifica
+automaticamente a conformidade da distribuição binária.
+
+ngspice mantém as famílias de licenças upstream herdadas; Zabbix mantém AGPLv3.
+O Java Gateway preserva cinco JARs de dependências upstream com as respectivas
+licenças Apache, MIT, BSD e os termos duplos do Logback. São dependências
+binárias; publicar a receita não certifica o cumprimento integral das exigências
+de disponibilidade dos fontes. O serviço PDF usa o pacote Google Chrome,
+licenciado separadamente, como dependência externa de execução.
+Os novos testes seguem seus avisos individuais ou a licença padrão do canal,
+não a exceção específica dos testes River.
 
 O AutoFirma é distribuído sob GPL-2.0-or-later ou EUPL-1.1. O pacote
 reutiliza a distribuição Linux oficial e preserva o JAR e os avisos de licença
