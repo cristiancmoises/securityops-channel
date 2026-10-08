@@ -8,6 +8,18 @@
              (string=? (package-version arelle) "2.46.0"))
   (error "Missing or incorrect Arelle package"))
 
+(for-each
+ (lambda (entry)
+   (let ((dependency (module-ref (resolve-module '(securityops packages reporting))
+                                 (car entry))))
+     (unless (string=? (package-version dependency) (cdr entry))
+       (error "Incorrect private reporting dependency" (car entry)
+              (package-version dependency)))))
+ '((python-vcs-versioning-for-arelle . "2.6.0")
+   (python-hatchling-for-arelle . "1.32.4")
+   (python-filelock-for-arelle . "4.0.12")
+   (python-lxml-for-arelle . "6.1.3")))
+
 (for-each (lambda (input)
             (unless (or (package? (cadr input))
                         (origin? (cadr input)))
