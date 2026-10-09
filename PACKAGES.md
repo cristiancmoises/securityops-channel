@@ -7,45 +7,60 @@ própria; reexportações acompanham a revisão autenticada de seu canal de orig
 
 ## Projetos SecurityOps e catálogo de pesquisa
 
-Exportações conferidas em 08/10/2026 no módulo `(securityops packages applications)`.
-Esta conferência valida o inventário; não é uma nova compilação de cada programa.
+As receitas atuais têm definições próprias nos módulos abaixo. A conferência
+de exportações registrada em 08/10/2026 validou o inventário anterior; não foi
+uma nova compilação de cada programa. A separação por projeto preserva os
+nomes e as versões dos pacotes.
 
-| Projeto | Nome no Guix | Versão no canal |
-|---|---|---|
-| Zupt | `zupt`, `zupt-gui` | 5.2.9 |
-| Evelin | `evelin-bin` | 4.4.0 |
-| TurboRec | `turborec`, `turborec-nvidia-new-feature` | 3.10.4 |
-| Mirim | `mirim` | 1.1.1 |
-| BTP | `btp` | 0.7 |
-| WhatsAppel | `whatsappel` | 3.3.1 |
+| Projeto ou variante | Nome no Guix | Versão no canal | Módulo da definição |
+|---|---|---|---|
+| Evelin | `evelin-bin` | 4.4.0 | `(securityops packages evelin)` |
+| BTP | `btp` | 0.7 | `(securityops packages btp)` |
+| Mirim | `mirim` | 1.1.1 | `(securityops packages mirim)` |
+| Torando GUI | `torando-gui` | 1.4.1 | `(securityops packages torando-gui)` |
+| Zupt CLI | `zupt` | 5.2.9 | `(securityops packages zupt)` |
+| Zupt GUI | `zupt-gui` | 5.2.9 | `(securityops packages zupt)` |
+| TurboRec | `turborec` | 3.10.4 | `(securityops packages turborec)` |
+| TurboRec NVIDIA new-feature | `turborec-nvidia-new-feature` | 3.10.4 | `(securityops packages turborec)` |
+| GuixVis | `guixvis` | 0.10.0 | `(securityops packages guixvis)` |
+| MoneyPrinterTurbo (projeto de terceiros) | `moneyprinterturbo` | 1.3.7 | `(securityops packages moneyprinterturbo)` |
+| Esquema | `esquema` | 0.3.0 | `(securityops packages esquema)` |
+| WhatsAppel | `whatsappel` | 3.3.1 | `(securityops packages whatsappel)` |
+| XMonad Wayland | `xmonad-wayland` | 0.5.0 | `(securityops packages xmonad-wayland)` |
 
 Pesquise os projetos em [toys.securityops.co](https://toys.securityops.co) e
 selecione o canal `securityops`. A pesquisa por `evelin` encontra `evelin-bin`;
 use o nome completo para instalar com `guix install evelin-bin`.
 
-Cada instância do Toys mantém seu próprio catálogo. A página de canais informa
-a revisão indexada; uma exportação correta no Git não garante atualização
-imediata de [toys.whereis.social](https://toys.whereis.social) ou de outros
-índices independentes. O teste `python3 tests/package-inventory.py` verifica
-estes oito nomes, versões e ausência de duplicatas no inventário do canal.
+Cada projeto pode atualizar sua receita, fonte fixada e dependências de forma
+independente. Depois de publicar a revisão do canal, a instância Toys mantida
+pelo projeto precisa atualizar seu catálogo e validar o novo commit e os
+módulos/arquivos de definição. A página de canais informa a revisão indexada;
+uma exportação correta no Git não garante atualização imediata de
+[toys.whereis.social](https://toys.whereis.social), cujo ciclo é externo ao
+projeto. O teste `python3 tests/package-inventory.py` verifica os 13 nomes e
+variantes acima, suas versões e a ausência de duplicatas, além dos demais
+pacotes registrados no inventário.
 
 ### Compatibilidade do módulo
 
-`applications` substitui o nome genérico `apps`, sem renomear os executáveis ou
-pacotes. O módulo antigo permanece como reexportação dos mesmos bindings para
-preservar manifests existentes. O teste
-`guix repl -q -L . tests/securityops-tools-packages.scm` executa a descoberta
-real do Guix e confirma que os dez pacotes originais e o WhatsAppel aparecem
-uma única vez, atribuídos ao novo módulo, mantendo os objetos e versões dos
-imports antigos.
+`(securityops packages applications)` e `(securityops packages apps)` são
+módulos de compatibilidade que reexportam os mesmos bindings das receitas por
+projeto. `(securityops packages containers)` preserva a reexportação do
+Esquema. Manifests antigos continuam usando os mesmos pacotes e versões.
+O teste `guix repl -q -L . tests/securityops-tools-packages.scm` verifica os
+arquivos reais das definições, a identidade das variáveis de compatibilidade
+e uma única ocorrência de cada pacote na descoberta do Guix.
 
-O Toys não exclui módulos chamados `apps`. Esta migração organiza a interface
-do canal; sem os logs de uma instância externa, não estabelece a causa de uma
-indexação incompleta nem substitui a reindexação pelo responsável pelo serviço.
+O Toys aceita vários pacotes em um módulo. Sua descoberta pode visitar uma
+reexportação antes da definição; por isso, a separação das receitas e os testes
+locais não substituem a validação dos módulos e links exibidos no catálogo
+após a reindexação. Sem os logs de uma instância externa, também não
+estabelecem a causa de uma indexação incompleta.
 
 ### WhatsAppel: cliente e bridge
 
-O pacote `whatsappel` também é exportado pelo módulo independente
+O pacote `whatsappel` é definido no módulo independente
 `(securityops packages whatsappel)`, sem depender dos módulos de vídeo/NVIDIA
 do canal. A fonte pública 3.3.1 está fixada no commit
 `25e0edd285058842022cec20729ac53fd9eed964`, com hash verificado pelo Guix.

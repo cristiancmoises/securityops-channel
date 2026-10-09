@@ -65,7 +65,7 @@ declare -A CHECK_FILE=(
   [steam]="games.scm"
   [ungoogled-chromium-bin]="chromium.scm"
   [xlibre-server]="xlibre.scm (requires guix-xlibre)"
-  [esquema]="containers.scm (re-vendor source)"
+  [esquema]="esquema.scm (re-vendor source)"
 )
 # First-party apps (forge / github) -> "host:repo" ; checked via tags.
 declare -A FORGE_APP=(
@@ -76,17 +76,21 @@ declare -A FORGE_APP=(
   [zupt]=github:cristiancmoises/zupt
   [zupt-gui]=github:cristiancmoises/zupt
   [turborec]=codeberg:berkeley/turborec
+  [guixvis]=codeberg:berkeley/guixvis
+  [whatsappel]=securityops-co:whatsappel
   [moneyprinterturbo]=github:harry0703/MoneyPrinterTurbo
 )
 declare -A FORGE_FILE=(
-  [evelin-bin]="apps.scm (re-vendor source)"
-  [btp]="apps.scm (re-vendor source)"
-  [mirim]="apps.scm (re-vendor source)"
-  [torando-gui]="apps.scm (re-vendor source)"
-  [zupt]="apps.scm (re-vendor source)"
-  [zupt-gui]="apps.scm (re-vendor source)"
-  [turborec]="apps.scm (re-vendor source)"
-  [moneyprinterturbo]="apps.scm (re-vendor source)"
+  [evelin-bin]="evelin.scm (re-vendor source)"
+  [btp]="btp.scm (re-vendor source)"
+  [mirim]="mirim.scm (re-vendor source)"
+  [torando-gui]="torando-gui.scm (re-vendor source)"
+  [zupt]="zupt.scm (re-vendor source)"
+  [zupt-gui]="zupt.scm (re-vendor source)"
+  [turborec]="turborec.scm"
+  [guixvis]="guixvis.scm (re-vendor source)"
+  [whatsappel]="whatsappel.scm"
+  [moneyprinterturbo]="moneyprinterturbo.scm"
 )
 
 # ---- helpers -----------------------------------------------------------------
