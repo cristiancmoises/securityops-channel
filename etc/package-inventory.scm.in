@@ -1,25 +1,28 @@
 ;;; SPDX-License-Identifier: GPL-3.0-or-later
 ;; Run with guix repl -L . etc/package-inventory.scm.in.
-(use-modules (guix packages) (ice-9 format))
-(for-each
- (lambda (name)
-   (let ((interface (resolve-interface name)))
-     (module-for-each
-      (lambda (symbol binding)
-        (let ((package (variable-ref binding)))
-          (when (package? package)
-            (format #t "~a\t~a\t~a\t~a\n"
-                    (if (eq? (car name) 'securityops)
-                        (caddr name)
-                        'xlibre-drivers)
-                    symbol (package-version package)
-                    (package-home-page package)))))
-      interface)))
- (append
-  (map (lambda (name) `(securityops packages ,name))
-       '(applications arduino audio ausweisapp autofirma belgian-eid brazil-tax browsers chromium containers digidoc4 eid
+(use-modules (guix discovery) (guix packages) (ice-9 format))
+(fold-module-public-variables*
+ (lambda (module symbol binding result)
+   (let ((package (variable-ref binding))
+         (name (module-name module)))
+     (when (package? package)
+       (format #t "~a\t~a\t~a\t~a\n"
+               (if (eq? (car name) 'securityops)
+                   (caddr name)
+                   'xlibre-drivers)
+               symbol (package-version package)
+               (package-home-page package))))
+   result)
+ #f
+ (map resolve-interface
+  (append
+   (map (lambda (name) `(securityops packages ,name))
+       ;; Project owners precede compatibility reexports such as containers.
+       '(btp esquema evelin guixvis mirim moneyprinterturbo torando-gui turborec
+         whatsappel zupt
+         arduino audio ausweisapp autofirma belgian-eid brazil-tax browsers chromium containers digidoc4 eid
          einvoicing electronics emacs games icp-brasil icp-brasil-chain librewolf monitoring nvidia openpace
          phive remote-desktop reporting river security zabbix
          shells terminals tor utils video vpn wazuh wazuh-search webpki xlibre xmonad
          xmonad-wayland xsearch))
-  '((xlibre))))
+   '((xlibre)))))

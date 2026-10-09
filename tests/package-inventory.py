@@ -6,14 +6,19 @@ Run from the checkout: python3 tests/package-inventory.py
 import subprocess
 
 expected = {
-    ("applications", "zupt", "5.2.9"),
-    ("applications", "zupt-gui", "5.2.9"),
-    ("applications", "evelin-bin", "4.4.0"),
-    ("applications", "turborec", "3.10.4"),
-    ("applications", "turborec-nvidia-new-feature", "3.10.4"),
-    ("applications", "mirim", "1.1.1"),
-    ("applications", "btp", "0.7"),
-    ("applications", "whatsappel", "3.3.1"),
+    ("zupt", "zupt", "5.2.9"),
+    ("zupt", "zupt-gui", "5.2.9"),
+    ("evelin", "evelin-bin", "4.4.0"),
+    ("turborec", "turborec", "3.10.4"),
+    ("turborec", "turborec-nvidia-new-feature", "3.10.4"),
+    ("mirim", "mirim", "1.1.1"),
+    ("btp", "btp", "0.7"),
+    ("whatsappel", "whatsappel", "3.3.1"),
+    ("torando-gui", "torando-gui", "1.4.1"),
+    ("moneyprinterturbo", "moneyprinterturbo", "1.3.7"),
+    ("guixvis", "guixvis", "0.10.0"),
+    ("esquema", "esquema", "0.3.0"),
+    ("xmonad-wayland", "xmonad-wayland", "0.5.0"),
     ("wazuh", "wazuh-agent", "4.14.8"),
     ("wazuh", "wazuh-manager", "4.14.8"),
     ("wazuh-search", "wazuh-indexer", "4.14.8-1"),
@@ -39,7 +44,7 @@ rows = [tuple(line.split("\t")) for line in result.stdout.splitlines() if "\t" i
 selected = [
     row[:3]
     for row in rows
-    if len(row) == 4 and row[:2] in {item[:2] for item in expected}
+    if len(row) == 4 and row[1] in {item[1] for item in expected}
 ]
 assert len(selected) == len(expected) and set(selected) == expected, (
     "Missing or duplicate accepted package inventory rows",
