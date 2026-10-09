@@ -9,17 +9,15 @@
   #:use-module (guix gexp)
   #:use-module (guix packages)
   #:use-module (guix utils)
-  #:use-module ((securityops packages librewolf) #:prefix slw:)
-  #:use-module ((securityops packages chromium) #:prefix scr:)
+  #:use-module (securityops packages librewolf)
+  #:use-module (securityops packages chromium)
   #:use-module ((gnu packages chromium) #:prefix cr:)
-  #:use-module ((nongnu packages chrome) #:prefix chrome:))
-
-(define-public librewolf slw:librewolf)
+  #:use-module ((nongnu packages chrome) #:prefix chrome:)
+  #:re-export (librewolf ungoogled-chromium-bin))
 
 ;;; The source-built variant follows Guix; the portable upstream build has an
 ;;; independent release schedule and is maintained in the chromium module.
 (define-public ungoogled-chromium cr:ungoogled-chromium)
-(define-public ungoogled-chromium-bin scr:ungoogled-chromium-bin)
 
 ;;; Stable Linux release verified against Google's version-history service.
 ;;; Keep the wrapper plan aligned with the ELF files in the downloaded archive.

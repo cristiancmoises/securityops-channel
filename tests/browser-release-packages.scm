@@ -1,12 +1,14 @@
 ;;; SPDX-License-Identifier: GPL-3.0-or-later
 ;;; Run: guix repl -L . tests/browser-release-packages.scm
 (define-module (tests browser-release-packages))
-(use-modules (guix packages) (srfi srfi-64)
+(use-modules (guix discovery) (guix packages) (srfi srfi-1) (srfi srfi-64)
              ((securityops packages browsers) #:prefix b:)
              ((securityops packages chromium) #:prefix c:)
              ((gnu packages chromium) #:prefix upstream:))
 
 (define (run-tests)
+  (define root
+    (canonicalize-path (string-append (dirname (car (command-line))) "/..")))
   (test-begin "browser-release-packages")
   (test-equal "Chrome stable release" "155.0.8059.39-1"
     (package-version b:google-chrome-stable))
@@ -22,6 +24,38 @@
     upstream:ungoogled-chromium b:ungoogled-chromium)
   (test-eq "portable browser public alias"
     c:ungoogled-chromium-bin b:ungoogled-chromium-bin)
+  (for-each
+   (lambda (entry)
+     (let* ((owner (resolve-interface `(securityops packages ,(car entry))))
+            (symbol (cadr entry))
+            (browsers (resolve-interface '(securityops packages browsers))))
+       (test-eq (string-append (symbol->string symbol)
+                              " browser export retains its original variable")
+         (module-variable owner symbol) (module-variable browsers symbol))))
+   '((librewolf librewolf) (chromium ungoogled-chromium-bin)))
+  (let* ((load-errors '())
+         (modules
+          (scheme-modules root "securityops/packages"
+                          #:warn (lambda (file module args)
+                                   (set! load-errors
+                                         (cons (list file module args)
+                                               load-errors)))))
+         (names '("librewolf" "ungoogled-chromium-bin"))
+         (rows
+          (fold-module-public-variables*
+           (lambda (module symbol variable result)
+             (if (and (variable-bound? variable)
+                      (package? (variable-ref variable))
+                      (member (package-name (variable-ref variable)) names))
+                 (cons (package-name (variable-ref variable)) result)
+                 result))
+           '() modules)))
+    (test-equal "browser catalog modules load for Guix discovery" '() load-errors)
+    (for-each
+     (lambda (name)
+       (test-equal (string-append name " has one Guix discovery row")
+         1 (count (lambda (row) (string=? name row)) rows)))
+     names))
   (for-each
    (lambda (package)
      (test-equal "portable archive architecture" '("x86_64-linux")
