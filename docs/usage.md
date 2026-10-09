@@ -3,6 +3,12 @@
 Operational examples for GNU Guix System and Guix Home. For current versions
 and validation, see [the package index](../PACKAGES.md).
 
+Import each project's recipe module directly; the
+[project inventory](../PACKAGES.md#projetos-securityops-e-catálogo-de-pesquisa)
+maps package names to modules. `(securityops packages applications)` and
+`(securityops packages apps)` remain compatibility re-exports; Esquema's old
+`(securityops packages containers)` import also remains available.
+
 ## WhatsAppel: Emacs workspace and Guile bridge
 
 The `whatsappel` package provides the 3.3.1 Emacs client, Python workers and
@@ -1038,7 +1044,7 @@ not a validation of DNS routing, firewall rules or the killswitch on a machine.
 
 ### Esquema — rootless Guile-native container runtime
 
-`esquema` (new module `(securityops packages containers)`) is a first-party,
+`esquema`, defined in `(securityops packages esquema)`, is a first-party,
 security-first container runtime built natively in Scheme. A small C core
 (`libesquema.so`, seccomp-BPF via libseccomp) performs the whole isolation
 sequence in async-signal-safe code between `fork` and `execve`: user + mount +
@@ -1050,8 +1056,9 @@ injection, and best-effort cgroup v2 limits — stronger isolation than a plain
 `guix shell` while staying daemon-free and rootless (~13 ms startup).
 
 ```sh
-guix pull                 # or: -L ~/securityops-channel for the working tree
-guix install esquema
+guix pull
+guix package -e '(@ (securityops packages esquema) esquema)'
+# From a checkout, add -L . to the guix package command.
 ```
 
 ```scheme
@@ -1070,7 +1077,7 @@ a Guix System service, use the bundled service type:
 
 ```scheme
 (use-modules (esquema esquema-service)
-             (securityops packages containers))   ; for the esquema package binding
+             (securityops packages esquema))   ; for the esquema package binding
 ;; esquema-configuration is a plain SRFI-9 record — POSITIONAL args, in order:
 ;; name, rootfs, command, scheme-dir.
 (service esquema-service-type

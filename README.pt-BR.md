@@ -80,15 +80,21 @@ Use `(commit "...")` para fixar uma revisão reproduzível.
 
 ## Aplicativos
 
-A coleção de aplicativos passa a usar `(securityops packages applications)`.
-Manifests que importam `(securityops packages apps)` continuam compatíveis:
-o módulo antigo reexporta os mesmos bindings, sem criar pacotes duplicados.
-Os nomes `zupt`, `evelin-bin`, `turborec` e dos demais pacotes não mudaram.
+As receitas dos aplicativos ficam em módulos com o nome de cada projeto, como
+`(securityops packages zupt)` e `(securityops packages turborec)`. Cada receita
+pode atualizar sua própria fonte, versão e dependências. Manifests existentes
+podem continuar importando `(securityops packages applications)` ou
+`(securityops packages apps)`: ambos reexportam os mesmos bindings dos pacotes.
+`(securityops packages containers)` também preserva sua exportação do Esquema.
+Os nomes e as versões não mudaram; o nome do Evelin no Guix é `evelin-bin`.
 
-A descoberta do Guix carrega o módulo canônico primeiro. Cada instância do Toys
-ainda precisa indexar o canal atualizado; o nome antigo não era um filtro de
-exclusão. Consulte o [inventário dos projetos](PACKAGES.md#projetos-securityops-e-catálogo-de-pesquisa)
-para versões, verificações e limites do catálogo.
+Depois de publicar uma revisão do canal, atualize a
+[instância Toys mantida pelo projeto](https://toys.securityops.co) e confira
+o commit indexado e os módulos/arquivos dos pacotes no catálogo. Cada instância
+tem seu próprio ciclo de atualização; [toys.whereis.social](https://toys.whereis.social)
+é um serviço externo e não há garantia de atualização imediata. Consulte o
+[inventário dos projetos](PACKAGES.md#projetos-securityops-e-catálogo-de-pesquisa)
+para módulos, versões, verificações e limites do catálogo.
 
 ### WhatsAppel
 
@@ -108,10 +114,10 @@ opcional `pqenv` e o player externo mpv não estão incluídos. Consulte os
 
 ### TurboRec
 
-O TurboRec 3.10.4 está disponível em `(securityops packages applications)`:
+O TurboRec 3.10.4 está disponível em `(securityops packages turborec)`:
 
 ```sh
-guix package -e '(@ (securityops packages applications) turborec)'
+guix package -e '(@ (securityops packages turborec) turborec)'
 turborec gui
 ```
 
@@ -132,9 +138,9 @@ Depois de atualizar o canal, escolha o comando adequado:
 
 ```sh
 # Primeira instalação, sem nenhuma variante do aplicativo nesse perfil
-guix package -e '(@ (securityops packages applications) turborec-nvidia-new-feature)'
+guix package -e '(@ (securityops packages turborec) turborec-nvidia-new-feature)'
 # OU substitua o turborec genérico já instalado na mesma transação
-guix package -r turborec -e '(@ (securityops packages applications) turborec-nvidia-new-feature)'
+guix package -r turborec -e '(@ (securityops packages turborec) turborec-nvidia-new-feature)'
 ```
 
 Não instale ambas no mesmo perfil: elas fornecem os mesmos comandos. O pacote

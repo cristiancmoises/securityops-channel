@@ -80,15 +80,21 @@ Adding a `(commit "...")` field pins the channel to a reproducible revision.
 
 ## Applications
 
-The application collection is now `(securityops packages applications)`.
-Existing manifests importing `(securityops packages apps)` remain compatible:
-the old module re-exports the same bindings, without creating duplicate packages.
-Package names such as `zupt`, `evelin-bin` and `turborec` are unchanged.
+Application recipes live in modules named for their projects, such as
+`(securityops packages zupt)` and `(securityops packages turborec)`. Each recipe
+can refresh its own source, version and dependencies. Existing manifests can
+keep importing `(securityops packages applications)` or `(securityops packages apps)`:
+both re-export the same package bindings. `(securityops packages containers)`
+also preserves its Esquema export. Package names and versions are unchanged;
+Evelin's Guix package name is `evelin-bin`.
 
-Guix discovery loads the canonical module first. Each Toys instance must still
-index the updated channel; the old module name was not an indexing exclusion.
-See the [project inventory](PACKAGES.md#projetos-securityops-e-catálogo-de-pesquisa)
-for versions, checks and catalog limits.
+After publishing a channel revision, refresh the owned
+[Toys instance](https://toys.securityops.co) and check its indexed commit and
+package module/file metadata. Each instance has its own refresh cycle;
+[toys.whereis.social](https://toys.whereis.social) is operated externally and
+cannot be promised an immediate update. See the
+[project inventory](PACKAGES.md#projetos-securityops-e-catálogo-de-pesquisa)
+for the module mapping, versions, checks and catalog limits.
 
 ### WhatsAppel
 
@@ -108,10 +114,10 @@ Rust `pqenv` helper and external mpv playback are not bundled. See the
 
 ### TurboRec
 
-TurboRec 3.10.4 is available through `(securityops packages applications)`:
+TurboRec 3.10.4 is available through `(securityops packages turborec)`:
 
 ```sh
-guix package -e '(@ (securityops packages applications) turborec)'
+guix package -e '(@ (securityops packages turborec) turborec)'
 turborec gui
 ```
 
@@ -132,9 +138,9 @@ with this wf-recorder build. After updating the channel, choose one command:
 
 ```sh
 # First installation, when neither app variant is installed in this profile
-guix package -e '(@ (securityops packages applications) turborec-nvidia-new-feature)'
+guix package -e '(@ (securityops packages turborec) turborec-nvidia-new-feature)'
 # OR replace an already installed generic turborec in the same transaction
-guix package -r turborec -e '(@ (securityops packages applications) turborec-nvidia-new-feature)'
+guix package -r turborec -e '(@ (securityops packages turborec) turborec-nvidia-new-feature)'
 ```
 
 Do not install both app variants in one profile: they provide the same commands.
