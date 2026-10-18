@@ -1,0 +1,24 @@
+[Unit]
+Description=Security Ops private Cuirass web interface
+Requires=postgresql@17-main.service
+After=postgresql@17-main.service
+StartLimitIntervalSec=300
+StartLimitBurst=5
+
+[Service]
+Type=simple
+User=cuirass
+Group=cuirass
+WorkingDirectory=/var/lib/cuirass
+Environment=HOME=/var/lib/cuirass
+Environment=LC_ALL=C
+StateDirectory=cuirass
+UMask=0077
+NoNewPrivileges=yes
+ExecStartPre=/usr/bin/pg_isready -q -d cuirass
+ExecStart=/var/guix/profiles/build-farm/bin/cuirass web --database=dbname=cuirass --listen=127.0.0.1 --port=8081
+Restart=on-failure
+RestartSec=30s
+
+[Install]
+WantedBy=multi-user.target

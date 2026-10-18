@@ -1,0 +1,11 @@
+[Unit]
+Description=Daily renewal check for the SecurityOps farm-site TLS certificate
+
+[Timer]
+OnCalendar=*-*-* 03:30:00 UTC
+RandomizedDelaySec=15min
+Persistent=true
+Unit=farm-cert-renew.service
+
+[Install]
+WantedBy=timers.target

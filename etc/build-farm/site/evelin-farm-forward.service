@@ -1,0 +1,16 @@
+[Unit]
+Description=SecurityOps farm-site Evelin and Docker bridge
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+EnvironmentFile=/etc/securityops/farm.env
+ExecStart=/usr/local/sbin/evelin-farm-forward
+Restart=always
+RestartSec=5
+KillMode=control-group
+NoNewPrivileges=true
+
+[Install]
+WantedBy=multi-user.target

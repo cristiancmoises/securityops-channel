@@ -7,12 +7,11 @@
   #:use-module (guix gexp)
   #:use-module (gnu packages golang)
   #:use-module ((gnu packages containers) #:prefix upstream:)
-  #:use-module ((gnu packages docker) #:prefix upstream-docker:)
   #:use-module (securityops packages esquema)
   #:re-export (esquema))
 
 (define %docker-runtime-labels
-  (map car (package-inputs upstream-docker:docker)))
+  (map car (package-inputs upstream:docker)))
 
 (define-public podman-latest
   (package
@@ -32,7 +31,7 @@
 
 (define-public docker-latest
   (package
-    (inherit upstream-docker:docker)
+    (inherit upstream:docker)
     (version "29.8.2")
     (source
      (origin
@@ -98,12 +97,12 @@
                   `("PATH" prefix
                     ,paths))))))))
     (native-inputs (modify-inputs (package-native-inputs
-                                   upstream-docker:docker)
+                                   upstream:docker)
                      (replace "go" go-1.26)))))
 
 (define-public docker-cli-latest
   (package
-    (inherit upstream-docker:docker-cli)
+    (inherit upstream:docker-cli)
     (version "29.8.2")
     (source
      (origin
@@ -154,5 +153,5 @@
                 (install-file "build/docker"
                               (string-append out "/bin"))))))))
     (native-inputs (modify-inputs (package-native-inputs
-                                   upstream-docker:docker-cli)
+                                   upstream:docker-cli)
                      (replace "go" go-1.26)))))

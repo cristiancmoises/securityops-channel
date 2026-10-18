@@ -1,0 +1,44 @@
+;;; Emit the channel's exported package identities for Cuirass reconciliation.
+;;; Run at the exact checkout recorded by the Cuirass evaluation:
+;;; guix repl -q -L . etc/build-farm/package-inventory
+(use-modules (guix discovery)
+             (guix packages)
+             (ice-9 format)
+             (srfi srfi-1))
+
+(define (module-owner module)
+  (let ((name (module-name module)))
+    (if (eq? (car name) 'securityops)
+        (symbol->string (caddr name))
+        "xlibre")))
+
+(define modules
+  (append
+   (all-modules
+    (list (cons (getcwd) "securityops/packages"))
+    #:warn (lambda (file name args)
+             (error "cannot load channel package module" file name args)))
+   (list (resolve-interface '(xlibre)))))
+
+(define rows
+  (fold-module-public-variables*
+   (lambda (module symbol binding result)
+     (let ((value (variable-ref binding)))
+       (if (package? value)
+           (cons (list (module-owner module)
+                       (symbol->string symbol)
+                       (package-name value)
+                       (package-version value)
+                       (or (package-home-page value) "-"))
+                 result)
+           result)))
+   '()
+   modules))
+
+(for-each
+ (lambda (row)
+   (format #t "~{~a~^\t~}~%" row))
+ (sort rows
+       (lambda (left right)
+         (string<? (string-append (list-ref left 2) "@" (list-ref left 3))
+                   (string-append (list-ref right 2) "@" (list-ref right 3))))))

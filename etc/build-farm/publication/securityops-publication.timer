@@ -1,0 +1,11 @@
+[Unit]
+Description=Check reviewed SecurityOps Guix closures for publication
+
+[Timer]
+OnBootSec=30min
+OnUnitInactiveSec=1h
+Persistent=false
+Unit=securityops-publication.service
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,14 @@
+;; Executable test script: not a Guix channel module.
+;; The channel profile compiles Scheme files as modules; this workstation
+;; configuration must also remain usable as a Guix offload file.
+(use-modules (guix scripts offload))
+
+(resolve-interface '(etc build-farm offload machines-ct126))
+
+(let ((machines (primitive-load
+                 (string-append (getcwd)
+                                "/etc/build-farm/offload/machines-ct126.scm"))))
+  (unless (and (list? machines)
+               (= (length machines) 1)
+               (build-machine? (car machines)))
+    (error "offload configuration must return one build machine")))

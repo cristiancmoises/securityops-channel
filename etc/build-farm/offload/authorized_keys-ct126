@@ -1,0 +1,1 @@
+from="REPLACE_WITH_PRIVATE_SOURCE_PATTERN",restrict ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIJ6T1CUdNvQmyowhHRdk1msrYhEg/JsprDs7q0yqvYw9 guix-offload-predator-helios-to-ct126

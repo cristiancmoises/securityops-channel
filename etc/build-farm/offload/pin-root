@@ -1,0 +1,34 @@
+;;; Register only verified System/Home outputs as CT126 GC roots.
+(use-modules (guix store)
+             (ice-9 match)
+             (srfi srfi-13))
+
+(define root-directory "/var/lib/guix-offload/gcroots")
+
+(define (pin-root source path)
+  (unless (member source '("system" "home"))
+    (error "source must be system or home"))
+  (unless (valid-path-syntax? path)
+    (error "invalid store output path"))
+  (with-store store
+    (unless (valid-path? store path)
+      (error "store output is not valid"))
+    (unless (file-is-directory? root-directory)
+      (error "farm GC root directory is unavailable"))
+    (let* ((root (string-append root-directory "/" source "-"
+                                (store-path-hash-part path)))
+           (existing (false-if-exception (readlink root))))
+      (cond ((not existing) (symlink path root))
+            ((not (string=? existing path))
+             (error "existing farm GC root points elsewhere")))
+      (add-indirect-root store root)
+      (display root)
+      (newline))))
+
+(when (and (pair? (command-line))
+           (or (string-suffix? "/pin-root" (car (command-line)))
+               (string-suffix? "/securityops-farm-pin-root"
+                               (car (command-line)))))
+  (match (command-line)
+    ((_ source path) (pin-root source path))
+    (_ (error "usage: pin-root system|home STORE-OUTPUT"))))

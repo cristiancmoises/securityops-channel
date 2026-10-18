@@ -1,0 +1,23 @@
+[Unit]
+Description=Regenerate the public SecurityOps build-farm status site
+After=postgresql.service network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=farm_site
+Group=farm_site
+WorkingDirectory=/opt/farm-site
+ExecStart=/usr/bin/python3 /opt/farm-site/generate.py --output-dir /srv/farm-site/public
+TimeoutStartSec=180
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadOnlyPaths=/var/lib/farm-site/inventory
+ReadWritePaths=/srv/farm-site/public
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+CapabilityBoundingSet=
+
+[Install]
+WantedBy=multi-user.target

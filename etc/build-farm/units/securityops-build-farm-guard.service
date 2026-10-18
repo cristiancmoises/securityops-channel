@@ -1,0 +1,9 @@
+[Unit]
+Description=Pause private Guix build farm on Proxmox resource pressure
+After=pve-cluster.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/libexec/securityops-build-farm-guard
+TimeoutStartSec=90
+NoNewPrivileges=yes

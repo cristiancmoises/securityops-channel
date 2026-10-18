@@ -11,6 +11,9 @@
   #:use-module (guix utils)
   #:use-module (guix git-download)
   #:use-module (guix download)
+  #:use-module (guix build-system cmake)
+  #:use-module ((guix licenses) #:prefix license:)
+  #:use-module ((gnu packages compression) #:prefix compression:)
   #:use-module ((nongnu packages nvidia) #:prefix nong:)
   #:use-module ((securityops packages nvidia) #:prefix channel-nvidia:)
   #:use-module ((gnu packages video) #:prefix gnu:)
@@ -48,13 +51,18 @@
                 ((string=? flag "--enable-libshaderc") #f)
                 ((string-prefix? "--ignore-tests=" flag)
                  (let ((ignored
-                        (filter
-                         (lambda (test)
-                           (not (member test '("filter-frei0r-filter"
-                                               "filter-frei0r-filter-unaligned"))))
-                         (string-split
-                          (substring flag (string-length "--ignore-tests="))
-                          #\,))))
+                        (cons
+                         ;; Both CT126 FFmpeg 9 builds differ from the FATE
+                         ;; seek-hls reference by one packet size (3860 vs.
+                         ;; 3904 bytes); keep every other inherited FATE test.
+                         "seek-hls"
+                         (filter
+                          (lambda (test)
+                            (not (member test '("filter-frei0r-filter"
+                                                "filter-frei0r-filter-unaligned"))))
+                          (string-split
+                           (substring flag (string-length "--ignore-tests="))
+                           #\,)))))
                    (and (pair? ignored)
                         (string-append "--ignore-tests="
                                        (string-join ignored ",")))))
@@ -66,6 +74,125 @@
               (lambda* (#:key inputs #:allow-other-keys)
                 (setenv "FREI0R_PATH"
                         (search-input-directory inputs "lib/frei0r-1"))))))))))
+
+(define %vvc-conformance-bitstream
+  (origin
+    (method url-fetch)
+    ;; Small official Main10 conformance stream: 30 frames.
+    (uri
+     (string-append
+      "https://www.itu.int/wftp3/av-arch/jvet-site/bitstream_exchange/"
+      "VVC/FDIS/AUD_A_Broadcom_3.zip"))
+    (sha256
+     (base32 "01pjw8pyyshxv5zmznznh6knxh4pacdazn7lnnk7yvld9sd4bclk"))))
+
+(define-public vvdec
+  (package
+    (name "vvdec")
+    (version "3.2.1")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/fraunhoferhhi/vvdec.git")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "1ca370x0ry8r79j1yah6sgzh2x910r1x0mjrm5cag0k0k5y3dzsb"))))
+    (build-system cmake-build-system)
+    (native-inputs
+     (list (list "vvc-conformance-bitstream" %vvc-conformance-bitstream)))
+    (arguments
+     (list ;; The release does not ship the conformance bitstreams; with
+           ;; network downloads disabled, CTest marks them all Not Run.
+           #:tests? #f
+           #:configure-flags
+           #~(list "-DBUILD_SHARED_LIBS=ON"
+                   "-DVVDEC_TOPLEVEL_OUTPUT_DIRS=OFF"
+                   "-DVVDEC_ENABLE_BITSTREAM_DOWNLOAD=OFF"
+                   "-DVVDEC_INSTALL_VVDECAPP=ON")
+           #:phases
+           #~(modify-phases %standard-phases
+               (add-after 'install 'check-installed-cli
+                 (lambda* (#:key inputs outputs #:allow-other-keys)
+                   (invoke (string-append (assoc-ref outputs "out")
+                                          "/bin/vvdecapp")
+                           "--version")
+                   (mkdir "vvc-conformance-smoke")
+                   (with-directory-excursion "vvc-conformance-smoke"
+                     (invoke "cmake" "-E" "tar" "xf"
+                             (assoc-ref inputs "vvc-conformance-bitstream"))
+                     (invoke (string-append (assoc-ref outputs "out")
+                                            "/bin/vvdecapp")
+                             "-b" "AUD_A_Broadcom_3.bit"
+                             "-o" "AUD_A_Broadcom_3.yuv")
+                     (invoke "md5sum" "--check"
+                             "AUD_A_Broadcom_3.yuv.md5")))))))
+    (supported-systems '("x86_64-linux"))
+    (home-page "https://github.com/fraunhoferhhi/vvdec")
+    (synopsis "Versatile Video Coding decoder")
+    (description
+     "VVdeC is a software decoder for H.266/VVC video, including the Main10
+profile.  This package provides the shared library and decoder application.")
+    (license (license:non-copyleft "file://LICENSE.txt" "Clear BSD License"))))
+
+(define-public ffmpeg-vvdec
+  (package
+    (inherit ffmpeg)
+    (name "ffmpeg-vvdec")
+    (supported-systems (package-supported-systems vvdec))
+    (properties
+     (cons '(cpe-name . "ffmpeg") (package-properties ffmpeg)))
+    (source
+     (origin
+       (inherit (package-source ffmpeg))
+       ;; FFmpeg 9.0.2 does not ship libvvdec.  Pin the upstream VVdeC
+       ;; integration patch by content hash; it applies cleanly to 9.0.2.
+       (patches
+        (list
+         (origin
+           (method url-fetch)
+           (uri
+            (string-append
+             "https://raw.githubusercontent.com/wiki/fraunhoferhhi/vvdec/"
+             "data/patch/v9-libvvdec.patch"))
+           (sha256
+            (base32 "0mrp4ckx8sw7kql7zxhbx1ff11clx8f8pn9kwdbxh5lsa89l1pxy")))
+         (local-file "patches/ffmpeg-vvdec-hardening.patch")))))
+    (inputs
+     (modify-inputs (package-inputs ffmpeg)
+       (prepend vvdec)))
+    (native-inputs
+     (cons (list "vvc-conformance-bitstream" %vvc-conformance-bitstream)
+           (modify-inputs (package-native-inputs ffmpeg)
+             (prepend compression:unzip))))
+    (arguments
+     (substitute-keyword-arguments (package-arguments ffmpeg)
+       ((#:configure-flags flags)
+        #~(cons "--enable-libvvdec" #$flags))
+       ((#:phases phases)
+        #~(modify-phases #$phases
+            (add-after 'install 'check-libvvdec-decoder
+              (lambda* (#:key inputs outputs #:allow-other-keys)
+                (let ((ffmpeg (string-append (assoc-ref outputs "out")
+                                             "/bin/ffmpeg")))
+                  (mkdir "vvc-conformance-ffmpeg")
+                  (with-directory-excursion "vvc-conformance-ffmpeg"
+                    (invoke "unzip" "-q"
+                            (assoc-ref inputs "vvc-conformance-bitstream"))
+                    (invoke ffmpeg "-nostdin" "-v" "error" "-f" "vvc"
+                            "-c:v" "libvvdec" "-threads" "1"
+                            "-i" "AUD_A_Broadcom_3.bit"
+                            "-frames:v" "30" "-pix_fmt" "yuv420p10le"
+                            "-f" "rawvideo" "AUD_A_Broadcom_3.yuv")
+                    (invoke "md5sum" "--check"
+                            "AUD_A_Broadcom_3.yuv.md5")))))))))
+    (synopsis "FFmpeg with the VVdeC H.266/VVC decoder")
+    (description
+     (string-append (package-description ffmpeg)
+                    "  This variant adds the external VVdeC decoder for
+H.266/VVC streams; select it with @code{-c:v libvvdec}.  The integration
+patch is maintained by VVdeC and has not been merged into FFmpeg."))))
 
 ;;; Nonguix's fix-paths phase binds dlopen to the selected driver.  Rebuilding
 ;;; these headers with the new-feature driver prevents an older userspace

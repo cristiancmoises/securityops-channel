@@ -1,0 +1,8 @@
+;;; Executable test script: not a Guix channel module.
+;;; The channel checkout must expose its Cuirass module at the module path.
+(use-modules (securityops build-farm ci))
+
+(unless (procedure? cuirass-jobs)
+  (error "securityops Cuirass jobs are unavailable from the channel"))
+
+(display "PASS: channel checkout exposes the Cuirass module\n")
