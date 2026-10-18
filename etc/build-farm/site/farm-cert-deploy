@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+lineage=/etc/letsencrypt/live/securityops-farm
+destination=/DATA/npm-v5-cutover-20260830-231620/data/custom_ssl/securityops-farm
+
+# Certbot runs every deploy hook for every renewed certificate.
+if [[ -n ${RENEWED_LINEAGE:-} && ${RENEWED_LINEAGE} != "${lineage}" ]]; then
+  exit 0
+fi
+
+install -d -m 0700 "${destination}"
+install -m 0644 "${lineage}/fullchain.pem" "${destination}/fullchain.pem"
+install -m 0600 "${lineage}/privkey.pem" "${destination}/privkey.pem"
+
+docker exec npm-attachment nginx -t
+docker exec npm-attachment nginx -s reload

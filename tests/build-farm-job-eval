@@ -1,0 +1,13 @@
+;;; Executable test script: not a Guix channel module.
+;;; Evaluate derivations, without building outputs, for every local export.
+(use-modules (securityops build-farm ci)
+             (guix store)
+             (ice-9 format))
+
+(let ((expected (length (channel-package-rows))))
+  (with-store store
+    (let ((jobs (cuirass-jobs store '((systems . ("x86_64-linux"))))))
+      (format #t "derivation_jobs=~a exported_packages=~a~%"
+              (length jobs) expected)
+      (unless (= (length jobs) expected)
+        (error "not every exported package produced a derivation job")))))

@@ -1,0 +1,41 @@
+<!-- Copy into the private state directory and replace the example identity.
+     Store no passwords here: provision etc/authd.pass privately at runtime. -->
+<ossec_config>
+  <client>
+    <server>
+      <address>manager.example.invalid</address>
+      <port>1514</port>
+      <protocol>tcp</protocol>
+    </server>
+    <crypto_method>aes</crypto_method>
+    <enrollment>
+      <!-- Enroll explicitly as root with agent-auth before starting. -->
+      <enabled>no</enabled>
+      <port>1515</port>
+      <agent_name>guix-endpoint</agent_name>
+      <server_ca_path>etc/manager-ca.pem</server_ca_path>
+      <authorization_pass_path>etc/authd.pass</authorization_pass_path>
+    </enrollment>
+  </client>
+  <active-response><disabled>yes</disabled></active-response>
+  <wodle name="syscollector">
+    <disabled>no</disabled>
+    <interval>1h</interval>
+    <scan_on_start>yes</scan_on_start>
+    <hardware>yes</hardware>
+    <os>yes</os>
+    <network>yes</network>
+    <packages>yes</packages>
+    <ports all="no">yes</ports>
+    <processes>no</processes>
+    <browser_extensions>no</browser_extensions>
+    <users>no</users>
+    <groups>no</groups>
+    <services>no</services>
+  </wodle>
+  <!-- The service's filtered collector replaces the unfiltered upstream wodle. -->
+  <wodle name="docker-listener"><disabled>yes</disabled></wodle>
+  <sca><enabled>no</enabled></sca>
+  <syscheck><disabled>yes</disabled></syscheck>
+  <rootcheck><disabled>yes</disabled></rootcheck>
+</ossec_config>

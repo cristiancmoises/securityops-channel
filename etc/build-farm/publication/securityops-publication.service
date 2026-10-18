@@ -1,0 +1,12 @@
+[Unit]
+Description=Publish reviewed SecurityOps Guix closures from CT126 to CT116
+After=pve-cluster.service network-online.target
+Wants=network-online.target
+ConditionPathExists=/etc/securityops-build-farm/publication-enabled
+
+[Service]
+Type=oneshot
+User=root
+WorkingDirectory=/opt/farm-publication
+ExecStart=/usr/bin/python3 /opt/farm-publication/publication/publish.py --apply --limit 3
+TimeoutStartSec=4h

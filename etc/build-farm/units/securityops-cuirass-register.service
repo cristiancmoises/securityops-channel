@@ -1,0 +1,32 @@
+[Unit]
+Description=Security Ops private Cuirass registration and builds
+Requires=postgresql@17-main.service guix-daemon.service
+After=postgresql@17-main.service guix-daemon.service network-online.target
+Wants=network-online.target
+StartLimitIntervalSec=300
+StartLimitBurst=5
+
+[Service]
+Type=simple
+User=cuirass
+Group=cuirass
+WorkingDirectory=/var/lib/cuirass
+Environment=HOME=/var/lib/cuirass
+Environment=LC_ALL=C
+Environment=GUILE_LOAD_PATH=/etc/cuirass/modules
+CacheDirectory=cuirass
+StateDirectory=cuirass
+LogsDirectory=cuirass
+LogsDirectoryMode=0700
+RuntimeDirectory=cuirass
+RuntimeDirectoryMode=0700
+UMask=0077
+NoNewPrivileges=yes
+ExecStartPre=/usr/bin/pg_isready -q -d cuirass
+ExecStartPre=/usr/bin/test -r /etc/cuirass/modules/securityops/build-farm/ci.scm
+ExecStart=/var/guix/profiles/build-farm/bin/cuirass register --specifications=/etc/cuirass/securityops-specifications.scm --database=dbname=cuirass --cache-directory=/var/cache/cuirass --interval=300 --parallel-evaluations=1 --threads=3 --ttl=30d
+Restart=on-failure
+RestartSec=30s
+
+[Install]
+WantedBy=multi-user.target

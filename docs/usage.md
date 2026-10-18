@@ -263,6 +263,78 @@ with default Guix grafts and without a collision override.
 
 ### Core state and API initialization
 
+On Guix System, `(securityops services wazuh)` provides
+`wazuh-agent-service-type`. Add `(service wazuh-agent-service-type)` to the
+operating system's services, or use `(wazuh-agent-configuration
+(docker-monitoring? #t))` for filtered local Docker events. The service
+creates the dedicated `wazuh` account and `/var/lib/wazuh-agent`, preserves
+existing mutable configuration and keys, and mounts `/gnu/store` read-only
+inside the agent chroot. Configuration, enrollment password and CA must be
+provisioned at runtime, outside the store. `etc/wazuh-agent-ossec.conf.example`
+is a conservative starting point: replace the example manager and identity,
+install it as `etc/ossec.conf` under the state directory, and supply private
+`etc/authd.pass` plus the verified `etc/manager-ca.pem`. These files must be
+root-owned and readable only by root/the `wazuh` group (0640).
+
+Enroll once as root before starting the service, for example
+`env WAZUH_HOME=/var/lib/wazuh-agent /absolute/wazuh-package/bin/agent-auth
+-m manager.example.invalid -p 1515 -A guix-endpoint
+-v /var/lib/wazuh-agent/etc/manager-ca.pem`. The existing `agent-auth` reads
+`etc/authd.pass` under `WAZUH_HOME`; never pass the password with `-P`.
+Keep automatic enrollment disabled. Upstream auto-enrollment replaces
+`etc/client.keys` after dropping privileges and therefore requires a writable
+`etc` directory; this service keeps that directory root-owned to protect
+local configuration. Explicit root enrollment performs that atomic update
+without granting the daemon permission to replace configuration files.
+
+The service supervises all five native foreground daemons together.
+`herd stop wazuh-agent` stops the group and `herd restart wazuh-agent` reloads
+configuration for the entire group. Use Shepherd for lifecycle operations;
+do not run `wazuh-control start/restart` concurrently. A failed core process
+stops its siblings before Shepherd restarts the service. Docker connection
+failures retry separately, leaving the endpoint transport running.
+
+New state disables manager-supplied configuration and remote commands in
+`etc/local_internal_options.conf`; existing operator settings are preserved.
+The example disables active response, arbitrary command collection, SCA,
+rootcheck and file scanning. Add reviewed local monitoring policies explicitly.
+The Docker collector reads the local Unix socket and allows only bounded
+event time, type, known action, ID, name and image fields. It discards arbitrary
+labels and excludes command-bearing `exec_*` action strings. Docker access is
+root-equivalent; no TCP Docker endpoint or container inspection is used.
+Messages identify `source=securityops-docker-safe`, `integration=docker` and
+lower-case nested fields such as `docker.action`.
+
+For an additive installation without rebuilding/upgrading the operating system,
+`guix build -L . -f etc/wazuh-agent-service-files.scm` builds an immutable
+bundle containing `activate` and `shepherd.scm`; building does not activate it.
+After verifying or creating the dedicated system account/group, run `activate`
+as root, provision the runtime files and enroll as above, then load `shepherd.scm` with
+`herd load root /absolute/store/bundle/shepherd.scm` and start `wazuh-agent`.
+Retain the bundle with a GC root. This dynamically loaded service lasts until
+reboot; add the declarative service to the system configuration for persistence.
+The bundle enables the filtered Docker collector. To roll back, stop the
+agent, stop `file-system-/var/lib/wazuh-agent/gnu/store`, and unload those two
+services; retain private state and enrollment keys for recovery. Never remove
+the state tree while its bind mount is active.
+
+Guix package inventory and vulnerability matching are not complete merely
+because syscollector is enabled: upstream package inventory targets conventional
+distribution package databases. Evaluate Guix profiles with Guix's own package
+and advisory tooling as a separate evidence source; an empty Wazuh finding set
+does not establish that Guix packages are unaffected.
+
+Host-safe checks are `guix repl -L . tests/wazuh-services.scm`,
+`python3 tests/wazuh-agent-supervisor.py`, and
+`python3 tests/wazuh-docker-events.py`. These use synthetic children and never
+start the real agent on the operator host. Privileged chroot, enrollment and
+live delivery still require isolated runtime validation.
+The store-activation regression test runs in a private user/mount namespace:
+`unshare --user --map-root-user --mount --fork guix repl -L .
+tests/wazuh-store-activation.scm "$(readlink /proc/self/ns/mnt)"`.
+It verifies repeat activation with the actual read-only store bind and rejects
+writable or substituted mounts without activating the agent on the host.
+
 Native tools and the private Python framework use an explicit absolute
 `WAZUH_HOME`. Provision the appropriate immutable `share/wazuh` templates,
 configuration, keys, databases, queues and service-account permissions before

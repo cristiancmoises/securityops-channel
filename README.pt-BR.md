@@ -186,6 +186,8 @@ entram em conflito. A remoção exige que o pacote indicado esteja instalado.
 Pacotes de outros perfis não são alterados. Confira `ffmpeg -version` e
 `ffmpeg -hide_banner -encoders` após escolher o comando adequado.
 
+
+
 O SDK 13.1 exige driver 610 ou superior. As bibliotecas CUDA, NVENC e NVCUVID
 usadas pelo pacote também precisam corresponder ao driver carregado no kernel.
 Instalar esse pacote não instala nem ativa um módulo do kernel. O encoder

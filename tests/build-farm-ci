@@ -1,0 +1,23 @@
+;;; Executable test script: not a Guix channel module.
+;;; Validate export-based job enumeration without starting a build.
+(use-modules (securityops build-farm ci)
+             (srfi srfi-1))
+
+(define rows (channel-package-rows))
+(define exports
+  (map (lambda (row)
+         (string-append (car row) "." (cadr row)))
+       rows))
+(define steam-rows
+  (filter (lambda (row)
+            (and (string=? (list-ref row 2) "steam")
+                 (string=? (list-ref row 3) "1.0.0.87")))
+          rows))
+
+(unless (>= (length rows) 180)
+  (error "farm omitted channel packages" (length rows)))
+(unless (= (length exports) (length (delete-duplicates exports)))
+  (error "farm generated duplicate exported-symbol identities"))
+(unless (= (length steam-rows) 2)
+  (error "farm omitted one of the Steam variants" steam-rows))
+(display "PASS: export-based farm job enumeration includes both Steam variants\n")

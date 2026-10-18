@@ -1,0 +1,68 @@
+;; This executable script is extensionless so Guix does not compile it as a module.
+;; Only authenticated channel heads are evaluated.  The private builder keeps
+;; all outputs; publication to CT116 is a separate reviewed operation.
+(use-modules (cuirass specification)
+             (guix channels)
+             (guix openpgp))
+
+(define (signed-channel name url introduction signer)
+  (channel
+   (name name)
+   (url url)
+   (branch "main")
+   (introduction
+    (make-channel-introduction
+     introduction
+     (openpgp-fingerprint signer)))))
+
+(define securityops
+  (signed-channel
+   'securityops
+   "https://git.securityops.com.br/cristiancmoises/securityops-channel.git"
+   "fd052724729a7a130f33f3013eaf35b563944e36"
+   "0CFA 43B9 AA96 42EA AF2B E983 C4C6 61C9 ECFB 46E8"))
+
+;; Keep the Guix base stable while SecurityOps polls for channel changes.
+;; A moving Guix head can change every target store path before its builds
+;; finish; advance this commit only after reviewing the previous evaluation.
+(define guix-baseline
+  (channel
+   (inherit %default-guix-channel)
+   (commit "99c84619b4b7aae9f250c65c89b31c817789e44d")))
+
+(define gocix
+  (signed-channel
+   'gocix
+   "https://git.securityops.com.br/cristiancmoises/gocix.git"
+   "cdb78996334c4f63304ecce224e95bb96bfd4c7d"
+   "8D10 60B9 6BB8 292E 829B 7249 AED4 1CC1 93B7 01E2"))
+
+(define sops-guix
+  (signed-channel
+   'sops-guix
+   "https://git.securityops.com.br/cristiancmoises/sops-guix.git"
+   "0bbaf1fdd25266c7df790f65640aaa01e6d2dbc9"
+   "8D10 60B9 6BB8 292E 829B 7249 AED4 1CC1 93B7 01E2"))
+
+(list
+ (specification
+  (name "securityops")
+  (build '(custom (securityops build-farm ci)))
+  (channels (list securityops guix-baseline))
+  (systems '("x86_64-linux"))
+  (priority 0)
+  (period 300))
+ (specification
+  (name "gocix")
+  (build '(channels gocix))
+  (channels (cons gocix %default-channels))
+  (systems '("x86_64-linux"))
+  (priority 6)
+  (period 3600))
+ (specification
+  (name "sops-guix")
+  (build '(channels sops-guix))
+  (channels (cons sops-guix %default-channels))
+  (systems '("x86_64-linux"))
+  (priority 6)
+  (period 3600)))

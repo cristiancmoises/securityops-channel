@@ -1,0 +1,122 @@
+Tighten the external VVdeC decoder's bounds and allocation checks, keep both
+HDR SEI side-data records, and respect FFmpeg 9's decoder metadata contract.
+This applies after the pinned Fraunhofer FFmpeg integration patch.
+
+--- a/libavcodec/libvvdec.c
++++ b/libavcodec/libvvdec.c
+@@ -20,6 +20,8 @@
+  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
+  */
+ 
++#include <limits.h>
++
+ #include <vvdec/vvdec.h>
+ #include <vvdec/version.h>
+ 
+@@ -71,11 +73,15 @@
+     AVBufferRef *buf;
+     VVdeCContext *s = ctx;
+     int plane = (int)comp;
+-    uint32_t alignedsize = FFALIGN(size, alignment);
++    uint32_t alignedsize;
+ 
+-    if (plane < 0 || plane > 3)
++    if (plane < 0 || plane >= (int)FF_ARRAY_ELEMS(s->pools) ||
++        !size || !alignment || (alignment & (alignment - 1)) ||
++        alignment > INT_MAX || size > INT_MAX - alignment + 1)
+         return NULL;
+ 
++    alignedsize = FFALIGN(size, alignment);
++
+     if (alignedsize != s->pool_size[plane]) {
+         av_buffer_pool_uninit(&s->pools[plane]);
+         s->pools[plane] = av_buffer_pool_init(alignedsize, NULL);
+@@ -180,6 +186,10 @@
+         AVMasteringDisplayMetadata *metadata =
+             av_mastering_display_metadata_create_side_data(avframe);
+         p = (vvdecSEIMasteringDisplayColourVolume *) (sei->payload);
++        if (!p)
++            return AVERROR_INVALIDDATA;
++        if (!metadata)
++            return AVERROR(ENOMEM);
+         if (p && metadata) {
+             for (i = 0; i < 3; i++) {
+                 const int j = mapping[i];
+@@ -215,7 +225,6 @@
+                    av_q2d(metadata->min_luminance),
+                    av_q2d(metadata->max_luminance));
+         }
+-        return 0;
+     }
+ 
+     sei = vvdec_find_frame_sei(s->decoder, VVDEC_CONTENT_LIGHT_LEVEL_INFO,
+@@ -224,6 +233,10 @@
+         vvdecSEIContentLightLevelInfo *p = NULL;
+         AVContentLightMetadata *light = av_content_light_metadata_create_side_data(avframe);
+         p = (vvdecSEIContentLightLevelInfo *) (sei->payload);
++        if (!p)
++            return AVERROR_INVALIDDATA;
++        if (!light)
++            return AVERROR(ENOMEM);
+         if (p && light) {
+             light->MaxCLL  = p->maxContentLightLevel;
+             light->MaxFALL = p->maxPicAverageLightLevel;
+@@ -439,7 +452,7 @@
+ 
+     s->flush = false;
+ 
+-    if (0 != vvdec_decoder_close(s->decoder))
++    if (s->decoder && 0 != vvdec_decoder_close(s->decoder))
+         return AVERROR_EXTERNAL;
+ 
+     return 0;
+@@ -454,6 +467,9 @@
+     int ret = 0;
+     vvdecFrame *frame = NULL;
+ 
++    if (!s->decoder)
++        return AVERROR_EXTERNAL;
++
+     if (avframe) {
+         if (!avpkt->size && !s->flush)
+             s->flush = true;
+@@ -573,12 +589,14 @@
+ {
+     VVdeCContext *s = avctx->priv_data;
+ 
+-    if (0 != vvdec_decoder_close(s->decoder))
++    if (s->decoder && 0 != vvdec_decoder_close(s->decoder))
+         av_log(avctx, AV_LOG_ERROR, "cannot close during flush\n");
+ 
+     s->decoder = vvdec_decoder_open_with_allocator(&s->params, vvdec_buffer_allocator, vvdec_buffer_unref);
+-    if (!s->decoder)
++    if (!s->decoder) {
+         av_log(avctx, AV_LOG_ERROR, "cannot reinit during flush\n");
++        return;
++    }
+ 
+     vvdec_set_logging_callback(s->decoder, vvdec_log_callback);
+ 
+@@ -585,16 +603,4 @@
+     s->flush = false;
+ }
+ 
+-static const enum AVPixelFormat pix_fmts_vvdec[] = {
+-    AV_PIX_FMT_GRAY8,
+-    AV_PIX_FMT_GRAY10,
+-    AV_PIX_FMT_YUV420P,
+-    AV_PIX_FMT_YUV422P,
+-    AV_PIX_FMT_YUV444P,
+-    AV_PIX_FMT_YUV420P10,
+-    AV_PIX_FMT_YUV422P10,
+-    AV_PIX_FMT_YUV444P10,
+-    AV_PIX_FMT_NONE
+-};
+-
+ #if VVDEC_VERSION_INT > AV_VERSION_INT(2,3,0)
+@@ -628,5 +634,4 @@
+     .p.wrapper_name = "libvvdec",
+     .priv_data_size = sizeof(VVdeCContext),
+-    CODEC_PIXFMTS_ARRAY(pix_fmts_vvdec),
+     .init           = vvdec_dec_init,
+     FF_CODEC_DECODE_CB(vvdec_dec_frame),

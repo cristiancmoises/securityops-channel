@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+client=/usr/local/bin/evelin-client-4.3
+config=/var/lib/evelin-home-forward/client.toml
+: "${SECURITYOPS_FARM_TUNNEL_TARGET:?required}"
+: "${SECURITYOPS_FARM_BRIDGE_BIND:?required}"
+pids=()
+
+cleanup() {
+  trap - EXIT INT TERM
+  if ((${#pids[@]})); then
+    kill "${pids[@]}" 2>/dev/null || true
+    wait "${pids[@]}" 2>/dev/null || true
+  fi
+}
+trap cleanup EXIT INT TERM
+
+"${client}" --config "${config}" forward --local 28126:${SECURITYOPS_FARM_TUNNEL_TARGET}:8082 &
+pids+=("$!")
+/usr/bin/socat TCP-LISTEN:18126,bind=${SECURITYOPS_FARM_BRIDGE_BIND},fork,reuseaddr TCP:127.0.0.1:28126 &
+pids+=("$!")
+
+wait -n "${pids[@]}"

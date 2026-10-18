@@ -1,0 +1,9 @@
+[Unit]
+Description=Renew the dedicated SecurityOps farm-site TLS certificate
+After=network-online.target docker.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/certbot renew --cert-name securityops-farm --non-interactive
+TimeoutStartSec=10min

@@ -9,6 +9,47 @@
 
 (define (run-tests)
   (test-begin "ffmpeg-packages")
+  (define (sexp-has-symbol? value symbol)
+    (cond ((eq? value symbol) #t)
+          ((pair? value)
+           (or (sexp-has-symbol? (car value) symbol)
+               (sexp-has-symbol? (cdr value) symbol)))
+          (else #f)))
+  (define (phases-expression package)
+    (let ((phases (cadr (memq #:phases (package-arguments package)))))
+      (with-store store
+        (lowered-gexp-sexp
+         (run-with-store store
+           (lower-gexp phases #:system "x86_64-linux"))))))
+  (define video-module (resolve-module '(securityops packages video)))
+  (define vvdec (module-ref video-module 'vvdec #f))
+  (define ffmpeg-vvdec (module-ref video-module 'ffmpeg-vvdec #f))
+  (test-assert "VVdeC decoder package is exported" (package? vvdec))
+  (test-assert "FFmpeg VVdeC variant is exported" (package? ffmpeg-vvdec))
+  (when (package? vvdec)
+    (test-equal "VVdeC includes latest security fixes" "3.2.1"
+      (package-version vvdec))
+    (test-equal "missing upstream bitstreams do not fail VVdeC CTest" #f
+      (cadr (memq #:tests? (package-arguments vvdec))))
+    (test-assert "VVdeC has a pinned conformance decode fixture"
+      (origin? (lookup-package-native-input vvdec "vvc-conformance-bitstream"))))
+  (when (package? ffmpeg-vvdec)
+    (test-equal "VVdeC variant tracks channel FFmpeg 9" "9.0.2"
+      (package-version ffmpeg-vvdec))
+    (test-equal "VVdeC variant retains FFmpeg vulnerability lookup" "ffmpeg"
+      (assoc-ref (package-properties ffmpeg-vvdec) 'cpe-name))
+    (test-eq "VVdeC variant uses the packaged decoder" vvdec
+      (lookup-package-input ffmpeg-vvdec "vvdec"))
+    (test-assert "FFmpeg VVdeC carries the conformance bitstream"
+      (origin? (lookup-package-native-input ffmpeg-vvdec
+                                            "vvc-conformance-bitstream")))
+    (test-assert "FFmpeg VVdeC can unpack its conformance bitstream"
+      (package? (lookup-package-native-input ffmpeg-vvdec "unzip")))
+    (test-assert "FFmpeg VVdeC has a dedicated decoder test phase"
+      (sexp-has-symbol? (phases-expression ffmpeg-vvdec)
+                        'check-libvvdec-decoder))
+    (test-equal "VVdeC variant carries upstream and local hardening patches" 2
+      (length (origin-patches (package-source ffmpeg-vvdec)))))
   (test-equal "latest stable FFmpeg" "9.0.2"
     (package-version video:ffmpeg))
   (test-equal "no inherited downgrade graft" #f
@@ -53,6 +94,35 @@
                 (and (string-prefix? "--ignore-tests=" flag)
                      (string-contains flag "filter-frei0r")))
               (configure-flags video:ffmpeg))))
+  (test-assert "only the observed seek-hls regression is excluded from FATE"
+    (any (lambda (flag)
+           (and (string-prefix? "--ignore-tests=" flag)
+                (member "seek-hls"
+                        (string-split
+                         (substring flag (string-length "--ignore-tests="))
+                         #\,))))
+         (configure-flags video:ffmpeg)))
+  (define (ignored-tests package)
+    (append-map
+     (lambda (flag)
+       (if (string-prefix? "--ignore-tests=" flag)
+           (string-split (substring flag (string-length "--ignore-tests=")) #\,)
+           '()))
+     (configure-flags package)))
+  (test-equal "FFmpeg 9 FATE excludes exactly one additional failing test"
+    (sort (delete-duplicates
+           (cons "seek-hls"
+                 (filter (lambda (name)
+                           (not (member name '("filter-frei0r-filter"
+                                               "filter-frei0r-filter-unaligned"))))
+                         (ignored-tests gnu-video:ffmpeg))))
+          string<?)
+    (sort (delete-duplicates (ignored-tests video:ffmpeg)) string<?))
+  (when (package? ffmpeg-vvdec)
+    (test-assert "VVdeC keeps the codec metadata FATE test enabled"
+      (not (member "libavcodec-avcodec" (ignored-tests ffmpeg-vvdec))))
+    (test-assert "VVdeC configure flag is enabled"
+      (member "--enable-libvvdec" (configure-flags ffmpeg-vvdec))))
   (for-each (lambda (flag)
               (test-assert (string-append "NVIDIA configure enables " flag)
                 (member flag (configure-flags video:ffmpeg-nvidia-new-feature))))

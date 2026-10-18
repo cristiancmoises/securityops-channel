@@ -1,0 +1,26 @@
+[Unit]
+Description=Private SecurityOps farm substitutes for the Guix workstation
+After=network-online.target guix-daemon.service
+Wants=network-online.target
+Requires=guix-daemon.service
+
+[Service]
+Type=simple
+User=guix-publish
+Group=guix-publish
+EnvironmentFile=/etc/securityops/farm.env
+LoadCredential=guix-signing-key:/etc/guix/signing-key.sec
+ExecStart=/var/guix/profiles/per-user/root/current-guix/bin/guix publish --listen=${SECURITYOPS_FARM_PUBLISH_BIND} --port=8083 --public-key=/etc/guix/signing-key.pub --private-key=%d/guix-signing-key --compression=zstd:3 --workers=2 --ttl=300s --negative-ttl=60s
+Restart=on-failure
+RestartSec=10
+NoNewPrivileges=yes
+ProtectHome=yes
+ProtectSystem=strict
+ReadWritePaths=/tmp
+PrivateTmp=yes
+CapabilityBoundingSet=
+AmbientCapabilities=
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+
+[Install]
+WantedBy=multi-user.target

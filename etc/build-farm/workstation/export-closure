@@ -1,0 +1,129 @@
+;;; Emit sanitized, exact derivation-output targets without realizing them.
+(use-modules (gnu home)
+             (gnu system)
+             (guix derivations)
+             (guix packages)
+             (guix store)
+             (ice-9 match)
+             (json)
+             (srfi srfi-1)
+             (srfi srfi-13)
+             (srfi srfi-19))
+
+(define (direct-package entry)
+  (match entry
+    ((? package? package) (cons package "out"))
+    (((? package? package) (? string? output)) (cons package output))
+    (_ (error "unexpected direct Guix package selection"))))
+
+(define (configuration source file)
+  (let ((value (primitive-load file)))
+    (match source
+      ("system"
+       (unless (operating-system? value)
+         (error "configuration did not return an operating-system"))
+       (values value (map direct-package (operating-system-packages value))
+               operating-system-derivation))
+      ("home"
+       (unless (home-environment? value)
+         (error "configuration did not return a home-environment"))
+       (values value (map direct-package (home-environment-packages value))
+               home-environment-derivation))
+      (_ (error "source must be system or home")))))
+
+(define (export-closure source file)
+  (call-with-values
+      (lambda () (configuration source file))
+    (lambda (config direct root-procedure)
+      (with-store store
+        ;; Derivation lowering can itself realize inputs.  Never let that
+        ;; implicit work compile on the workstation.
+        (set-build-options
+         store
+         #:max-build-jobs 0
+         #:offload? #t
+         #:substitute-urls
+         (list (or (getenv "SECURITYOPS_FARM_SUBSTITUTE_URL") "https://bordeaux.guix.gnu.org")
+           "https://substitutes.nonguix.org"
+           "https://bordeaux.guix.gnu.org"
+           "https://ci.guix.gnu.org"))
+        (let* ((root (run-with-store store (root-procedure config)))
+               (outputs (make-hash-table))
+               (package-metadata (make-hash-table)))
+          (define (record-output drv output)
+            (let ((path (derivation->output-path drv output)))
+              (unless (hash-ref outputs path)
+                (hash-set! outputs path (cons drv output)))))
+          (record-output root "out")
+          (derivation-input-fold
+           (lambda (input count)
+             (for-each
+              (lambda (output)
+                (record-output (derivation-input-derivation input) output))
+              (derivation-input-sub-derivations input))
+             (+ count 1))
+           0
+           (derivation-inputs root))
+          ;; Classification is by exact derivation output, never display name.
+          ;; Service-generated outputs without a matching package stay generic.
+          (for-each
+           (lambda (package)
+             (let ((drv (package-derivation store package)))
+               (for-each
+                (match-lambda
+                  ((output . details)
+                   (let ((path (derivation-output-path details)))
+                     (when (hash-ref outputs path)
+                       (let ((direct? (any
+                                       (lambda (selection)
+                                         (and (eq? package (car selection))
+                                              (string=? output (cdr selection))))
+                                       direct)))
+                         (hash-set! package-metadata path
+                                    (list (package-name package)
+                                          (package-version package)
+                                          direct?)))))))
+                (derivation-outputs drv))))
+           (package-closure (map car direct)))
+          (let* ((paths (sort (hash-map->list (lambda (path value) path) outputs)
+                              string<?))
+                 (entries
+                  (list->vector
+                   (map
+                    (lambda (path)
+                      (let* ((identity (hash-ref outputs path))
+                             (drv (car identity))
+                             (output (cdr identity))
+                             (metadata (hash-ref package-metadata path))
+                             (name (if metadata (car metadata)
+                                       (derivation-name drv)))
+                             (version (if metadata (cadr metadata) ""))
+                             (direct? (and metadata (caddr metadata))))
+                        `((path . ,path)
+                          (drv . ,(derivation-file-name drv))
+                          (name . ,name)
+                          (version . ,version)
+                          (output . ,output)
+                          (kind . ,(if metadata "package" "output"))
+                          (direct . ,(if direct? #t #f)))))
+                    paths)))
+                 (timestamp
+                  (date->string (current-date 0) "~Y-~m-~dT~H:~M:~SZ")))
+            (display
+             (scm->json-string
+              `((schema . 1)
+                (source . ,source)
+                (system . "x86_64-linux")
+                (generated_at . ,timestamp)
+                (heartbeat_at . ,timestamp)
+                (root_drv . ,(derivation-file-name root))
+                (root_output . ,(derivation->output-path root "out"))
+                (entries . ,entries))))
+            (newline)))))))
+
+(when (and (pair? (command-line))
+           (string-suffix? "/export-closure" (car (command-line))))
+  (match (command-line)
+    ((_ (? string? source) (? string? file))
+     (export-closure source file))
+    (_ (error "usage: export-closure system|home CONFIG"))))

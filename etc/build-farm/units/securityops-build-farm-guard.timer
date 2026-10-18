@@ -1,0 +1,11 @@
+[Unit]
+Description=Check private Guix build farm capacity every five minutes
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=5min
+AccuracySec=30s
+Unit=securityops-build-farm-guard.service
+
+[Install]
+WantedBy=timers.target
