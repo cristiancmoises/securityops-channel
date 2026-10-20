@@ -492,7 +492,9 @@ class PublicationHostTests(unittest.TestCase):
                 raise AssertionError(argv)
 
         transport = SourceTransport()
-        selected, held, evaluation = publication.collect_targets(transport, NOW)
+        selected, held, evaluation = publication.collect_targets(
+            transport, NOW, include_workstation=True
+        )
         self.assertEqual(selected, [PACKAGE, HOME])
         self.assertEqual(held, [])
         self.assertEqual(evaluation, 42)
@@ -517,7 +519,9 @@ class PublicationHostTests(unittest.TestCase):
                 stale["heartbeat_at"] = "2026-10-12T21:01:00Z"
                 return b"P" + json.dumps(stale).encode()
 
-        selected, held, evaluation = publication.collect_targets(SourceTransport(), NOW)
+        selected, held, evaluation = publication.collect_targets(
+            SourceTransport(), NOW, include_workstation=True
+        )
         self.assertEqual(selected, [PACKAGE])
         self.assertEqual(evaluation, 42)
         self.assertEqual(
@@ -538,7 +542,28 @@ class PublicationHostTests(unittest.TestCase):
                 return b"Pnot-json"
 
         with self.assertRaises(ValueError):
-            publication.collect_targets(SourceTransport(), NOW)
+            publication.collect_targets(
+                SourceTransport(), NOW, include_workstation=True
+            )
+
+    def test_default_publication_never_reads_workstation_inventories(self):
+        class ChannelOnlyTransport:
+            def run(self, ct, argv, input=None):
+                if "psql" in argv:
+                    return (
+                        csv_row("channel.package.x86_64-linux", 0, 0, PACKAGE)
+                        + csv_row("channel.failed.x86_64-linux", 1, 1, FAILED)
+                    ).encode()
+                raise AssertionError(
+                    "public channel run attempted private inventory access"
+                )
+
+        selected, held, evaluation = publication.collect_targets(
+            ChannelOnlyTransport(), NOW
+        )
+        self.assertEqual(selected, [PACKAGE])
+        self.assertEqual(evaluation, 42)
+        self.assertEqual(held, [{"path": FAILED, "reason": "unsuccessful_job"}])
 
     def test_public_narinfo_must_name_exact_output_and_have_signature(self):
         valid = (
@@ -747,6 +772,7 @@ class PublicationHostTests(unittest.TestCase):
             self.assertEqual(publication.main([]), 0)
         report = json.loads(output.getvalue())
         self.assertTrue(report["dry_run"])
+        self.assertFalse(report["include_workstation"])
         self.assertEqual(report["planned"], [PACKAGE])
         self.assertEqual(transport.streamed, [])
 

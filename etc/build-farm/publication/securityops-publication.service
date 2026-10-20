@@ -8,5 +8,6 @@ ConditionPathExists=/etc/securityops-build-farm/publication-enabled
 Type=oneshot
 User=root
 WorkingDirectory=/opt/farm-publication
+EnvironmentFile=/etc/securityops-build-farm/publication.env
 ExecStart=/usr/bin/python3 /opt/farm-publication/publication/publish.py --apply --limit 3
 TimeoutStartSec=4h
