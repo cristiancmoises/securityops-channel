@@ -177,8 +177,8 @@ def select_targets(snapshot, manifests):
     return sorted(selected - failed), held
 
 
-def collect_targets(transport, now):
-    """Read the fixed completed evaluation and accepted CT126 inventory files."""
+def collect_targets(transport, now, *, include_workstation=False):
+    """Select channel outputs; private workstation inventories require opt-in."""
     snapshot = parse_cuirass_csv(
         transport.run(
             126,
@@ -200,7 +200,7 @@ def collect_targets(transport, now):
     )
     manifests = []
     inventory_holds = []
-    for source in ("system", "home"):
+    for source in ("system", "home") if include_workstation else ():
         path = f"/var/lib/farm-site/inventory/{source}.json"
         response = transport.run(126, ["/usr/bin/python3", "-c", READ_INVENTORY, path])
         if response == b"M":
@@ -696,10 +696,19 @@ def main(argv=None):
     parser.add_argument(
         "--limit", type=int, default=3, help="maximum reviewed targets this run (0-20)"
     )
+    parser.add_argument(
+        "--include-workstation",
+        action="store_true",
+        help="also consider reviewed packages from private System/Home inventories",
+    )
     args = parser.parse_args(argv)
     transport = HostTransport()
     policy = _read_policy()
-    selected, held, evaluation = collect_targets(transport, datetime.now(timezone.utc))
+    selected, held, evaluation = collect_targets(
+        transport,
+        datetime.now(timezone.utc),
+        include_workstation=args.include_workstation,
+    )
     outcome = publish_paths(
         selected,
         policy,
@@ -711,7 +720,12 @@ def main(argv=None):
     outcome["held"] = held + outcome["held"]
     print(
         json.dumps(
-            {"evaluation": evaluation, "dry_run": not args.apply, **outcome},
+            {
+                "evaluation": evaluation,
+                "dry_run": not args.apply,
+                "include_workstation": args.include_workstation,
+                **outcome,
+            },
             sort_keys=True,
         )
     )
