@@ -20,6 +20,12 @@ Este canal simplesmente não existiria sem esse trabalho.
 
 ## Documentação
 
+A [build farm](https://farm.securityops.co/) atende `x86_64-linux`.
+Os drivers Freedreno (ARM), Geode (i686) e PS3 (PowerPC) permanecem no
+inventário completo, mas dependem de builders compatíveis e validação. Veja a
+[cobertura por arquitetura](etc/build-farm/README.md#architecture-coverage);
+jobs agendados e builds privados não comprovam disponibilidade pública de substitutos.
+
 | Guia | Conteúdo |
 |---|---|
 | [Índice de pacotes](PACKAGES.md) | Pacotes por finalidade, versões verificadas e limites dos testes |

@@ -49,7 +49,7 @@
                  (string-append (car right) "." (cadr right)))))))
 
 (define (cuirass-jobs store arguments)
-  "Register each channel export with a stable, collision-free job identity."
+  "Register supported exports with a stable, collision-free job identity."
   (let ((rows (channel-package-rows))
         (systems (arguments->systems arguments)))
     (append-map
@@ -76,5 +76,15 @@
                 (format (current-error-port)
                         "SECURITYOPS-JOB-ERROR ~a ~a~%" job-name key)
                 (apply throw key arguments)))))
-        rows))
+        (filter
+         (lambda (row)
+           (let ((supported (package-supported-systems (list-ref row 4))))
+             (if (member system supported)
+                 #t
+                 (begin
+                   (format (current-error-port)
+                           "SECURITYOPS-UNSUPPORTED ~a.~a ~a supported=~s~%"
+                           (car row) (cadr row) system supported)
+                   #f))))
+         rows)))
      systems)))

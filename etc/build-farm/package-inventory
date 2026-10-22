@@ -1,10 +1,24 @@
 ;;; Emit the channel's exported package identities for Cuirass reconciliation.
 ;;; Run at the exact checkout recorded by the Cuirass evaluation:
 ;;; guix repl -q -L . etc/build-farm/package-inventory
+;;; Optional: --system SYSTEM or --unsupported-system SYSTEM.
+;;; Without arguments, preserve the complete channel inventory.
 (use-modules (guix discovery)
              (guix packages)
              (ice-9 format)
+             (ice-9 match)
              (srfi srfi-1))
+
+(define selected?
+  (match (cdr (command-line))
+    (() (const #t))
+    (((and flag (or "--system" "--unsupported-system")) system)
+     (when (string-null? system)
+       (error "system must not be empty"))
+     (lambda (package)
+       (let ((supported (member system (package-supported-systems package))))
+         (if (string=? flag "--system") supported (not supported)))))
+    (_ (error "usage: package-inventory [--system SYSTEM | --unsupported-system SYSTEM]"))))
 
 (define (module-owner module)
   (let ((name (module-name module)))
@@ -24,7 +38,7 @@
   (fold-module-public-variables*
    (lambda (module symbol binding result)
      (let ((value (variable-ref binding)))
-       (if (package? value)
+       (if (and (package? value) (selected? value))
            (cons (list (module-owner module)
                        (symbol->string symbol)
                        (package-name value)

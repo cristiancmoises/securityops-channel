@@ -32,6 +32,52 @@ def load_sync():
 
 
 class InventoryTests(unittest.TestCase):
+    def test_architecture_inventory_preserves_unsupported_exports_separately(self):
+        def inventory(*arguments):
+            result = subprocess.run(
+                ["guix", "repl", "-q", "-L", ".", "--", str(SCRIPT), *arguments],
+                cwd=ROOT,
+                capture_output=True,
+                text=True,
+                timeout=180,
+                check=False,
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
+            return {tuple(line.split("\t")) for line in result.stdout.splitlines()}
+
+        all_rows = inventory()
+        native = inventory("--system", "x86_64-linux")
+        unsupported = inventory("--unsupported-system", "x86_64-linux")
+        self.assertEqual(
+            {row[1] for row in unsupported},
+            {"xlibre-video-freedreno", "xlibre-video-geode", "xlibre-video-ps3"},
+        )
+        self.assertFalse(native & unsupported)
+        self.assertEqual(native | unsupported, all_rows)
+        self.assertIn("xlibre-server", {row[1] for row in native})
+        self.assertEqual(sum(row[2] == "steam" for row in native), 2)
+
+    def test_inventory_rejects_unknown_selection_arguments(self):
+        result = subprocess.run(
+            [
+                "guix",
+                "repl",
+                "-q",
+                "-L",
+                ".",
+                "--",
+                str(SCRIPT),
+                "--sysem",
+                "x86_64-linux",
+            ],
+            cwd=ROOT,
+            capture_output=True,
+            text=True,
+            timeout=180,
+            check=False,
+        )
+        self.assertNotEqual(result.returncode, 0)
+
     def test_prebuild_activity_starts_for_exact_root_and_stops_without_export(self):
         sync = load_sync()
         root = "/gnu/store/" + "a" * 32 + "-fixture"
