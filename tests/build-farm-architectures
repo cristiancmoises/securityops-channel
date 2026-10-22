@@ -1,0 +1,54 @@
+;;; Exercise the real job lowering with small, architecture-specific recipes.
+;;; No package outputs are built.  Only export discovery is replaced.
+(use-modules (securityops build-farm ci)
+             (guix build-system trivial)
+             (guix packages)
+             (guix store)
+             (guix tests)
+             (srfi srfi-1)
+             (srfi srfi-64))
+
+(define (fixture name systems)
+  (dummy-package name
+    (build-system trivial-build-system)
+    (arguments '(#:builder (mkdir %output)))
+    (supported-systems systems)))
+
+(define fixtures
+  (list (list "test" "native" "native" "0"
+              (fixture "native" '("x86_64-linux")))
+        (list "test" "arm" "arm" "0"
+              (fixture "arm" '("aarch64-linux")))
+        (list "test" "powerpc" "powerpc" "0"
+              (fixture "powerpc" '("powerpc64le-linux")))
+        (list "test" "native-alias" "native" "0"
+              (fixture "native" '("x86_64-linux")))))
+
+(test-begin "build-farm-architectures")
+(define runner (test-runner-current))
+
+(with-store store
+  (mock ((securityops build-farm ci) channel-package-rows
+         (lambda () fixtures))
+    (define (job-names systems)
+      (sort (map (lambda (job) (assoc-ref job #:job-name))
+                 (cuirass-jobs store `((systems . ,systems))))
+            string<?))
+    (test-equal "native jobs exclude ARM and PowerPC, preserve aliases"
+      '("test.native-alias.x86_64-linux" "test.native.x86_64-linux")
+      (job-names '("x86_64-linux")))
+    (test-equal "ARM export remains buildable on its declared system"
+      '("test.arm.aarch64-linux")
+      (job-names '("aarch64-linux")))
+    (test-equal "PowerPC export remains buildable on its declared system"
+      '("test.powerpc.powerpc64le-linux")
+      (job-names '("powerpc64le-linux")))
+    (test-equal "multiple systems use independent eligibility"
+      '("test.arm.aarch64-linux" "test.native-alias.x86_64-linux"
+        "test.native.x86_64-linux")
+      (job-names '("x86_64-linux" "aarch64-linux")))
+    (test-equal "no declared support yields no jobs"
+      '() (job-names '("riscv64-linux")))))
+
+(test-end "build-farm-architectures")
+(exit (zero? (test-runner-fail-count runner)))
