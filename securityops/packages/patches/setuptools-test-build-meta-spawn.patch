@@ -1,0 +1,25 @@
+Start test workers with a fresh interpreter rather than inheriting the locks
+of other ProcessPoolExecutor manager threads.  With Python 3.12, a forked
+worker can otherwise wait forever in _ThreadWakeup.wakeup during shutdown.
+Keep the same tests and one-worker concurrency.
+
+--- a/setuptools/tests/test_build_meta.py
++++ b/setuptools/tests/test_build_meta.py
+@@ -1,5 +1,6 @@
+ import contextlib
+ import importlib
++import multiprocessing
+ import os
+ import re
+ import shutil
+@@ -47,7 +48,9 @@
+ 
+     def __init__(self, *args, **kwargs) -> None:
+         super().__init__(*args, **kwargs)
+-        self.pool = futures.ProcessPoolExecutor(max_workers=1)
++        self.pool = futures.ProcessPoolExecutor(
++            max_workers=1, mp_context=multiprocessing.get_context("spawn")
++        )
+ 
+     def __getattr__(self, name: str) -> Callable[..., Any]:
+         """Handles arbitrary function invocations on the build backend."""

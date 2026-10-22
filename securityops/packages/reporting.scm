@@ -34,6 +34,10 @@
      (origin
        (inherit (package-source python-setuptools))
        (uri (pypi-uri "setuptools" version))
+       (patches
+        (append (origin-patches (package-source python-setuptools))
+                (list (local-file
+                       "patches/setuptools-test-build-meta-spawn.patch"))))
        (sha256
         (base32 "0wzgn9rnam4s6i0nj9y1ghxi9vh23na2qsf2gr9rn3bz4lhmqsgl"))))
     (native-inputs
