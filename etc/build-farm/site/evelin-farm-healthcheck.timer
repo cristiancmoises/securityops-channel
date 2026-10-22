@@ -1,0 +1,11 @@
+[Unit]
+Description=Periodically check the SecurityOps farm tunnel
+
+[Timer]
+OnBootSec=2min
+OnUnitInactiveSec=5min
+AccuracySec=10s
+Unit=evelin-farm-healthcheck.service
+
+[Install]
+WantedBy=timers.target
