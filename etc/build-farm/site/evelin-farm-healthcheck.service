@@ -1,0 +1,13 @@
+[Unit]
+Description=Check and recover only the SecurityOps farm tunnel
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/sbin/evelin-farm-healthcheck
+Environment=PATH=/usr/sbin:/usr/bin:/sbin:/bin
+TimeoutStartSec=120
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true

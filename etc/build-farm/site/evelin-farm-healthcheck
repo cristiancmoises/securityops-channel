@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+unit=evelin-farm-forward.service
+# Respect intentional stops. try-restart also preserves a stop during probing.
+systemctl is-active --quiet "$unit" || exit 0
+
+probe() {
+  local status
+  status=$(curl -q --silent --show-error --noproxy '*' --proto '=http' \
+    --connect-timeout 2 --max-time 6 --output /dev/null --write-out '%{http_code}' \
+    http://127.0.0.1:28126/) || return 1
+  [[ "$status" == 200 ]]
+}
+
+for attempt in 1 2 3; do
+  if probe; then
+    exit 0
+  fi
+  if [[ "$attempt" != 3 ]]; then sleep 5; fi
+done
+
+logger -t evelin-farm-healthcheck 'Three farm tunnel probes failed; trying one tunnel restart'
+if ! systemctl try-restart "$unit"; then
+  logger -t evelin-farm-healthcheck 'Farm tunnel restart failed'
+  exit 1
+fi
+sleep 5
+if ! probe; then
+  logger -t evelin-farm-healthcheck 'Farm tunnel still unavailable after restart'
+  exit 1
+fi
+logger -t evelin-farm-healthcheck 'Farm tunnel recovered'
