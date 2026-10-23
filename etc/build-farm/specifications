@@ -19,7 +19,7 @@
   (signed-channel
    'securityops
    "https://git.securityops.com.br/cristiancmoises/securityops-channel.git"
-   "fd052724729a7a130f33f3013eaf35b563944e36"
+   "fb3223f3afdc14bab294c78d88e545eda2b146d9"
    "0CFA 43B9 AA96 42EA AF2B E983 C4C6 61C9 ECFB 46E8"))
 
 ;; Keep the Guix base stable while SecurityOps polls for channel changes.
