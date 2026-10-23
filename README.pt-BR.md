@@ -271,7 +271,9 @@ O Guix verifica as assinaturas ao atualizar o canal.
 
 Em 23/10/2026, documentos internos foram removidos do histórico. A chave de
 assinatura permanece a mesma, mas os commits e a introdução mudaram. Atualize
-as declarações existentes para a introdução acima. Gerações antigas podem
+as declarações existentes para a introdução acima. Troque os pins
+`(commit "...")` antigos por uma revisão do novo histórico, ou remova o pin
+para acompanhar `main`. Gerações antigas podem
 recusar a nova ancestralidade; valide o canal em um perfil Guix novo antes
 da migração. Mantenha a verificação de assinaturas habilitada.
 

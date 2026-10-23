@@ -290,7 +290,9 @@ The public key is on the `keyring` branch; authorized signers are recorded in
 
 On 2026-10-23, internal documentation was removed from the repository history.
 The signing key is unchanged, but commit IDs and the introduction changed.
-Update existing channel declarations to the introduction above. Older profile
+Update existing channel declarations to the introduction above. Replace old
+`(commit "...")` pins with a revision from the new history, or remove the pin
+to follow `main`. Older profile
 generations may reject the rewritten ancestry; validate the new channel in a
 fresh Guix profile before migrating. Keep signature verification enabled.
 
