@@ -32,6 +32,13 @@ a separate license text. Its self-contained .NET application bundles third
 party components whose individual notices were not separately audited here.
 The channel fetches the RPM by hash and does not vendor or relicense it.
 
+Zen Browser's recipe adapts the official x86_64 Linux binary under MPL-2.0;
+bundled components keep their individual licenses and `about:license` notices.
+The package installs the matching tag's license and source-release directions
+under `share/doc/zen-browser`. It does not rebuild Firefox or certify complete
+corresponding-source coverage. Binary substitution remains subject to the
+farm's separate source, notice and exact-closure publication checks.
+
 Arduino IDE and RustDesk retain the upstream copyleft licenses and bundled
 third-party notices. Their recipes adapt official binaries; they do not rebuild
 the applications. Arduino installs source directions and its license text;

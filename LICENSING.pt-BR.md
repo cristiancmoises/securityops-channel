@@ -32,6 +32,13 @@ texto de licença separado. O aplicativo .NET autossuficiente contém componente
 de terceiros cujos avisos individuais não foram auditados separadamente aqui.
 O canal baixa o RPM com hash fixo e não o inclui nem o relicencia.
 
+A receita do Zen Browser adapta o binário oficial Linux x86_64 sob MPL-2.0;
+os componentes incluídos mantêm suas licenças e os avisos em `about:license`.
+O pacote instala a licença da tag correspondente e indicações dos fontes em
+`share/doc/zen-browser`. Não recompila o Firefox nem certifica a cobertura
+completa dos fontes correspondentes. A distribuição de substitutos depende
+das verificações separadas da farm sobre fontes, avisos e fechamento exato.
+
 Arduino IDE e RustDesk preservam as licenças copyleft upstream e os avisos de
 terceiros incluídos. As receitas adaptam binários oficiais, sem recompilar os
 aplicativos. Arduino instala a licença e indicações de fonte; RustDesk inclui
