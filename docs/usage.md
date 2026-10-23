@@ -1,10 +1,10 @@
 # Usage reference
 
-Operational examples for GNU Guix System and Guix Home. For current versions
-and validation, see [the package index](../PACKAGES.md).
+Operational examples for GNU Guix System and Guix Home. Query installed
+channel versions with `guix show PACKAGE`.
 
 Import each project's recipe module directly; the
-[project inventory](../PACKAGES.md#projetos-securityops-e-catálogo-de-pesquisa)
+[project inventory](../README.md#applications)
 maps package names to modules. `(securityops packages applications)` and
 `(securityops packages apps)` remain compatibility re-exports; Esquema's old
 `(securityops packages containers)` import also remains available.
@@ -1207,8 +1207,8 @@ guix package -p "$HOME/.local/share/river-tools" -m river-tools.scm
 
 This installs programs; it does not select a login session, start audio services
 or configure authentication for the screen locker. River 0.4 requires a separate
-window manager. The XMonad-style manager under development is not included in
-this channel refresh; see its [validation status](refresh-2026-09-17.md#river-runtime).
+window manager. The channel provides `xmonad-wayland` through
+`(securityops packages xmonad-wayland)`; select and configure it separately.
 
 A service has its own package field. Adding a package to a profile does not
 change an already configured service. For example:
@@ -1232,18 +1232,46 @@ For Lacuna Web PKI, see the [native host and Guix Home guide](webpki.md).
 
 ---
 
+## Containers
+
+`(securityops packages containers)` provides `docker-latest` (the daemon),
+`docker-cli-latest` (the client), and `podman-latest`. Install the clients
+from a channel checkout with:
+
+```sh
+guix package -L . \
+  -e '(@ (securityops packages containers) docker-cli-latest)' \
+  -e '(@ (securityops packages containers) podman-latest)'
+```
+
+Installing a client does not replace the daemon serving `/var/run/docker.sock`.
+Check both versions with `docker version`. To select the channel daemon in
+Guix System, import the module with a prefix and set the corresponding fields
+in your existing `docker-configuration` before reconfiguring:
+
+```scheme
+#:use-module ((securityops packages containers) #:prefix container:)
+;; In the existing docker-configuration:
+(docker container:docker-latest)
+(docker-cli container:docker-cli-latest)
+```
+
+Preserve a recoverable system generation. A successful package build does not
+replace an actual container test after service activation. Rootless Podman may
+require `/etc/subuid` and `/etc/subgid` for images using multiple user IDs.
+
 ## Layout
 
 | Path | Purpose |
 | --- | --- |
-| `securityops/packages/` | Package modules; see the [index](../PACKAGES.md) for exports and versions |
+| `securityops/packages/` | Package modules; see the [mapping](../README.md#applications) for project exports |
 | `securityops/patches/` | Downstream patches with their upstream license notices |
 | `securityops/services/` | Shepherd service definitions |
 | `tests/` | Integration checks for River patches and the Web PKI package |
 | `xlibre.scm`, `xlibre-sources.scm` | Bundled XLibre compatibility module and source pins |
 | `.guix-channel`, `.guix-authorizations` | Channel dependencies and authorized signing keys |
 | `etc/` | Inventory, channel configuration and maintenance tools |
-| `docs/` | Usage, integration and dated validation reports |
+| `docs/` | Public usage and integration guides |
 | `LICENSE`, `LICENSES/`, `LICENSING.md` | License text and file-level exceptions |
 
 Package modules import Guix or Nonguix definitions with prefixes. Some inherit

@@ -6,6 +6,13 @@ tag rather than SemVer of the code.
 
 ## [Unreleased]
 
+### Added — Zen Browser (2026-10-23)
+
+- Added `zen-browser-bin` 1.23.4b from the official x86_64 Linux archive,
+  with a pinned hash, desktop launcher, license and source directions.
+- Managed updates through Guix and included the PulseAudio client library.
+- Verified package metadata, build, version and offline headless rendering.
+
 ### Added — electronics, remote desktop and monitoring (2026-10-07)
 
 - ngspice and libngspice 47 with matched inputs and installed numerical/API
@@ -190,7 +197,7 @@ are not included in this release.
 
 - Updated Fish, Tor, Tor Browser, Chrome, portable Chromium, LibreWolf,
   MoneyPrinterTurbo and three XLibre drivers. Browser source builds are still
-  being validated; see the [refresh report](docs/refresh-2026-09-17.md).
+  being validated at the time of this refresh.
 - Added explicit River 0.4.8 and desktop-helper packages, with current Wayland
   dependencies. Included fixes and integration regressions for active-keyboard
   metadata and layer-shell size negotiation before the first buffer.
@@ -218,20 +225,19 @@ are not included in this release.
   keyring on both Forgejo mirrors. Earlier history was not rewritten.
 - Updated the user/root channel template to eight authenticated, primary-forge
   entries. Root installation requires rerunning the supplied installer.
-- See [authentication and deployment](docs/channel-authentication-fix.md).
+- See [channel authentication](README.md#authentication).
 
 ### Changed — package and documentation refresh (2026-09-06)
 
 - Updated Fish, Emacs, Chrome, Chromium binary, Tor Browser, Nmap, SDB,
   Radare2, age, Evelin, Torando GUI, Zupt, TurboRecorder, MoneyPrinterTurbo
-  and Kitty's purego dependency. See the [version table](PACKAGES.md).
+  and Kitty's purego dependency.
 - Regenerated Fish Cargo sources, adapted Emacs 31 patches, initialized
   Radare2's isolated test fixture and corrected age's embedded version.
 - Replaced duplicated README release text with concise English and Portuguese
   guides; separated the package index, usage examples and dated validation.
-- Recorded incomplete builds and upstream-version exceptions in the
-  [refresh report](docs/refresh-2026-09-06.md). Deployment uses the owner's
-  system/Home reconfiguration and substitute server, not mandatory local builds.
+- Recorded incomplete builds and upstream-version exceptions during validation.
+  Deployment requires reconfiguring the profile that owns each package.
 
 ### Changed — Zupt rename and channel refresh (2026-09-01)
 
@@ -1039,10 +1045,7 @@ workstation's most-used applications, built and verified against Guix commit
 ### Added — channel infrastructure & docs
 - `.guix-channel` (with `nonguix` dependency), `etc/news.txt`,
   `.dir-locals.el` (Guix house style), `.gitignore`, GPL-3.0-or-later `LICENSE`.
-- `README.md`, this `CHANGELOG.md`, and **`AUDIT.md`** — a deep version audit of
-  every package declared in `/etc/config.scm` and `~/.config/guix/home.scm`
-  (391 packages: 124 current, 139 outdated, 128 unknown; plus an active-`home.scm`
-  reconciliation for 11 packages the repo copy lacked).
+- `README.md` and this `CHANGELOG.md` document installation and releases.
 
 ### Verified
 - Channel evaluates: `guix build -L . [-L <nonguix>] -n` over all packages — no errors.
