@@ -58,7 +58,7 @@ Add this entry to your `channels.scm` list. Keep the dependencies available;
  (branch "main")
  (introduction
   (make-channel-introduction
-   "af46f5cce66179f3e53f87c86ca2538c8fc63f98"
+   "fb3223f3afdc14bab294c78d88e545eda2b146d9"
    (openpgp-fingerprint
     "0CFA 43B9 AA96 42EA AF2B  E983 C4C6 61C9 ECFB 46E8"))))
 ```
@@ -283,13 +283,19 @@ Binary packages and vendored applications need deliberate source/hash updates.
 
 ## Authentication
 
-The introduction pins commit `af46f5cce66179f3e53f87c86ca2538c8fc63f98`
+The introduction pins commit `fb3223f3afdc14bab294c78d88e545eda2b146d9`
 and key `0CFA 43B9 AA96 42EA AF2B E983 C4C6 61C9 ECFB 46E8`.
 The public key is on the `keyring` branch; authorized signers are recorded in
 `.guix-authorizations`.
 
+On 2026-10-23, internal documentation was removed from the repository history.
+The signing key is unchanged, but commit IDs and the introduction changed.
+Update existing channel declarations to the introduction above. Older profile
+generations may reject the rewritten ancestry; validate the new channel in a
+fresh Guix profile before migrating. Keep signature verification enabled.
+
 ```sh
-guix git authenticate af46f5cce66179f3e53f87c86ca2538c8fc63f98 \
+guix git authenticate fb3223f3afdc14bab294c78d88e545eda2b146d9 \
   "0CFA 43B9 AA96 42EA AF2B E983 C4C6 61C9 ECFB 46E8"
 ```
 

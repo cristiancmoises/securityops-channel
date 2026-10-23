@@ -7,7 +7,7 @@
 ;;
 (channel-news
  (version 0)
- (entry (commit "bd51ff2b16ff97ecdce22913ddd4b33e02bcb61a")
+ (entry (commit "536bc49fdf97a39f7c47a970438230fa383dd23e")
         (title (en "securityops — kitty 0.48.0 + Tor Browser reports its real 15.0.19")
                (pt_BR "securityops — kitty 0.48.0 + Tor Browser mostra a versao real 15.0.19"))
         (body
@@ -43,7 +43,7 @@ embutia o proprio %torbrowser-version (15.0.14) na versao EXIBIDA, entao um moto
 --with-base-browser-version e MOZ_BUILD_DATE para 15.0.19.  Rode `guix pull' e
 depois `guix home reconfigure'.  Um README em portugues (README.pt-BR.md) ja
 esta disponivel.  Veja CHANGELOG.md e README.md.")))
- (entry (commit "e4a2de36155861d573465fa73552e433e14b554b")
+ (entry (commit "ad6ea9c1f140803762b60bebb3a91dc2c037ad55")
         (title (en "securityops — latest ungoogled-chromium (prebuilt 149.0.7827.155)"))
         (body
          (en "The latest ungoogled-chromium is now available as
@@ -59,7 +59,7 @@ release has none).  Build-and-run verified: `chromium --version' => Chromium
 Run `guix pull' then `guix home reconfigure' and use `chromium' (on NVIDIA it is
 software-rendered: launch with `--use-gl=angle --use-angle=swiftshader').  See
 CHANGELOG.md and README.md.")))
- (entry (commit "d4ffe4a270043697c055e3d8cdf5652abddd5a77")
+ (entry (commit "17daf77bb370a2bee124e6806e947d2035b3be9e")
         (title (en "securityops 0.3.3 — torando-gui 1.1.0 (native GUI + connectivity fixes)"))
         (body
          (en "torando-gui upgraded 1.0.1 -> 1.1.0 (re-vendored source snapshot).
@@ -76,7 +76,7 @@ stack is absent.  The daemon needs no GUI libraries, so they are not package
 inputs -- add `gtk webkitgtk python-pygobject' to your profile for the native
 window.  Run `guix pull' then `guix package -u torando-gui' (or reconfigure).
 See CHANGELOG.md.")))
- (entry (commit "a33e90f099eda0dffd8cdace9abc2610d9dd206a")
+ (entry (commit "e3546945b0e2893199e084d062f40bb5ab17b002")
         (title (en "securityops 0.3.2 — torando-gui service auto-seeds its config"))
         (body
          (en "The torando-gui Shepherd service is now turnkey on Guix System.
@@ -89,7 +89,7 @@ read-only /etc/tor/torrc and listens on DNSPort 5353 (TransPort 9040 / SocksPort
 manual GUI toggling.  New `seed-config' field on torando-gui-configuration (a
 JSON string, or #f to seed nothing).  Verified with `guix system build -n'.  Run
 `guix system reconfigure' then `herd start torando-gui'.  See CHANGELOG.md.")))
- (entry (commit "6b4e6b6e1f045881f40672993e34b98771ffbef5")
+ (entry (commit "844f6ad3538007176ac6cc195d985b5b8faded60")
         (title (en "securityops 0.3.1 — torando-gui Shepherd service (Guix System)"))
         (body
          (en "Guix System runs daemons under the GNU Shepherd, not systemd, so
@@ -111,7 +111,7 @@ then `guix system reconfigure' and `herd start torando-gui'.  NOTE: on Guix
 OFF torando-gui's in-GUI torrc management and let tor-service-type own Tor;
 netfilter/DNS-pin/killswitch/status all work.  Verified with `guix system build
 -n' over a minimal operating-system.  See CHANGELOG.md.")))
- (entry (commit "bfa55a5fc3e46d5faac9ca312d99c3b602ac6022")
+ (entry (commit "d509854be1c743858ba74b0e2944e9999ab5c196")
         (title (en "securityops 0.3.0 — torando-gui 1.0.1 (first-party app)"))
         (body
          (en "New first-party app: torando-gui — a loopback web GUI plus root
@@ -128,7 +128,7 @@ systemd unit points at the store binary.  Built, installed and run-verified
 upstream tests pass).  Install with `guix install torando-gui' after a pull, or
 `guix install -L ~/securityops-channel torando-gui' without one.  See
 CHANGELOG.md.")))
- (entry (commit "b98671e21037116843820273ed8e01c1915b9221")
+ (entry (commit "d05716bd5df69e4524720db2e2648d0f1b5d872b")
         (title (en "securityops 0.2.2 — LibreWolf 152.0.1-2"))
         (body
          (en "librewolf bumped 151.0.4-1 -> 152.0.1-2 (latest upstream) — the
@@ -142,7 +142,7 @@ ungoogled-chromium 147 -> 149 is DEFERRED by choice (guix-maintainer-level
 in-module source assembly + an unverifiable multi-hour compile);
 google-chrome-stable 149 already covers a current Chromium engine.  Run
 `guix pull` then reconfigure to apply.  See CHANGELOG.md.")))
- (entry (commit "206dd07a13d51f2f076d2e682fb7dbaff2f70131")
+ (entry (commit "4d2e812bf85ea1b029f0a7eb084328e2df575aec")
         (title (en "securityops 0.2.1 — Mullvad 2026.3 + wired into configs"))
         (body
          (en "mullvad-vpn-desktop bumped 2026.2 -> 2026.3 (Mullvad's published
@@ -155,7 +155,7 @@ ahead of guix/nonguix from this channel (so:kitty, so:tor, so:torbrowser,
 so:google-chrome-stable) and point mullvad-daemon-service-type at the channel's
 2026.3 package.  Run `guix pull` then `guix system reconfigure` / `guix home
 reconfigure` to apply.  See CHANGELOG.md and README.md.")))
- (entry (commit "20e896585e7b9718e90344afda8adda18843d91e")
+ (entry (commit "398e509097b577af1e024a2fd987f7b75bb22384")
         (title (en "securityops 0.1.0 — curated latest-version app set"))
         (body
          (en "First release.  Provides the latest versions of this
