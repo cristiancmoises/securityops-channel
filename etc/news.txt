@@ -163,6 +163,5 @@ workstation's most-used apps: seven real version bumps with verified source
 hashes (kitty 0.47.4, tor 0.4.9.9, torbrowser 15.0.16, openshot 3.5.1,
 google-chrome 149.0.7827.155, mullvad-vpn-desktop 2026.2, torbrowser-assets
 15.0.16) and the rest re-exported at guix/nonguix latest.  This channel depends
-on nonguix.  See AUDIT.md for a full version audit of every package declared in
-/etc/config.scm and ~/.config/guix/home.scm, and README.md for install and the
+on nonguix.  See README.md for installation and the
 LibreWolf-152 / ungoogled-chromium-149 upgrade notes."))))

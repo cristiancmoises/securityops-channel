@@ -15,20 +15,19 @@ Este canal simplesmente não existiria sem esse trabalho.
 |---|---|
 | Definições de pacotes | Ferramentas de trabalho, eletrônica, acesso remoto, monitoramento, identidade digital e drivers XLibre |
 | Dependências | GNU Guix e nonguix; o empacotamento XLibre está incluído |
-| Validação | [Pacotes, versões e verificações](PACKAGES.md); a ativação do sistema requer reconfiguração separada |
+| Validação | Testes dos pacotes e [limites de uso](docs/usage.md); a ativação do sistema requer reconfiguração separada |
 | Autenticação | Commits assinados e introdução do canal fixada |
 
 ## Documentação
 
 A [build farm](https://farm.securityops.co/) atende `x86_64-linux`.
 Os drivers Freedreno (ARM), Geode (i686) e PS3 (PowerPC) permanecem no
-inventário completo, mas dependem de builders compatíveis e validação. Veja a
-[cobertura por arquitetura](etc/build-farm/README.md#architecture-coverage);
-jobs agendados e builds privados não comprovam disponibilidade pública de substitutos.
+inventário completo, mas dependem de builders compatíveis e validação.
+Jobs agendados e builds privados não comprovam disponibilidade pública de substitutos.
 
 | Guia | Conteúdo |
 |---|---|
-| [Índice de pacotes](PACKAGES.md) | Pacotes por finalidade, versões verificadas e limites dos testes |
+| [Módulos dos pacotes](README.md#applications) | Nomes dos projetos e módulos Guix |
 | [WhatsAppel](docs/usage.md#whatsappel-emacs-workspace-and-guile-bridge) | Cliente Emacs, bridge Guile e backend configurado separadamente |
 | [Eletrônica](docs/usage.md#electronics) | Simulação com ngspice e toolchains do Arduino IDE |
 | [Acesso remoto](docs/usage.md#remote-desktop) | Cliente RustDesk e servidores de rendezvous/relay próprios |
@@ -42,9 +41,8 @@ jobs agendados e builds privados não comprovam disponibilidade pública de subs
 | [Validação XML e documentos fiscais](docs/usage.md#xml-validation-with-phive) | Bibliotecas PHIVE Java, KoSIT Validator e regras XRechnung fixadas para uso offline |
 | [Lacuna Web PKI](docs/webpki.pt-BR.md) | Host nativo, manifests dos navegadores e configuração do Guix Home |
 | [AutoFirma](docs/usage.md#autofirma) | Pacote Linux oficial, comandos de assinatura e limites da integração com navegadores |
-| [Validação de setembro](docs/refresh-2026-09-17.pt-BR.md) | Histórico das verificações e limitações em 17/09/2026 |
 | [Referência de uso](docs/usage.md) | Serviços, Guix System e Guix Home |
-| [Espelhos e autenticação](docs/channel-authentication-fix.md) | Oito canais autenticados, XLibre integrado e instalação para root |
+| [Autenticação](#manutenção-e-autenticação) | Chave de assinatura e introdução do canal |
 | [Histórico](CHANGELOG.md) | Notas de alterações anteriores |
 | [Licenciamento](LICENSING.pt-BR.md) | Limites das licenças dos pacotes e projetos |
 
@@ -99,8 +97,16 @@ Depois de publicar uma revisão do canal, atualize a
 o commit indexado e os módulos/arquivos dos pacotes no catálogo. Cada instância
 tem seu próprio ciclo de atualização; [toys.whereis.social](https://toys.whereis.social)
 é um serviço externo e não há garantia de atualização imediata. Consulte o
-[inventário dos projetos](PACKAGES.md#projetos-securityops-e-catálogo-de-pesquisa)
-para módulos, versões, verificações e limites do catálogo.
+[inventário dos projetos](README.md#applications) para os módulos de cada pacote.
+
+### Zen Browser
+
+O pacote `zen-browser-bin` fornece o [Zen 1.23.4b oficial](https://github.com/zen-browser/desktop/releases/tag/1.23.4b)
+para `x86_64-linux`, com SHA-256 fixado. Instale com
+`guix install zen-browser-bin` e execute `zen-browser` ou `zen`.
+As atualizações são gerenciadas pelo Guix. A receita adapta o binário upstream,
+preservando o sandbox e os avisos de licença; não recompila o Firefox.
+Um build concluído não significa que o substituto já esteja publicado.
 
 ### WhatsAppel
 
@@ -192,7 +198,13 @@ entram em conflito. A remoção exige que o pacote indicado esteja instalado.
 Pacotes de outros perfis não são alterados. Confira `ffmpeg -version` e
 `ffmpeg -hide_banner -encoders` após escolher o comando adequado.
 
-
+Para decodificar H.266/VVC por software, o módulo também fornece `vvdec` 3.2.1
+e `ffmpeg-vvdec` (FFmpeg 9.0.2 com a integração externa do VVdeC fixada por
+hash). Instale `ffmpeg-vvdec` em um perfil separado: ele fornece o mesmo
+executável `ffmpeg` e as mesmas bibliotecas das outras variantes, portanto não
+podem coexistir no mesmo perfil. Selecione `libvvdec` com `-c:v libvvdec`; a
+receita testa a decodificação com um fluxo oficial de conformidade de 30
+quadros.
 
 O SDK 13.1 exige driver 610 ou superior. As bibliotecas CUDA, NVENC e NVCUVID
 usadas pelo pacote também precisam corresponder ao driver carregado no kernel.

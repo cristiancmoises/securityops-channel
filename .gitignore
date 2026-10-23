@@ -3,6 +3,21 @@
 /.guile
 # Local isolated development workspaces
 /.worktrees/
+# Local operational notes and task material
+/AUDIT.md
+/PACKAGES.md
+/docs/REGRESSION.md
+/docs/channel-authentication-fix.md
+/docs/channel-migration-*.md
+/docs/refresh-*.md
+/docs/superpowers/
+/docs/*private-status.md
+/docs/linux-libre-7.2.11.md
+/docs/workstation-upgrade-*.md
+/etc/*prompt.md
+/etc/build-farm/README.md
+/etc/build-farm/publication/README.md
+/etc/build-farm/site/README.md
 # Editor / OS cruft
 *~
 \#*\#

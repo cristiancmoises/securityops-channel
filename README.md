@@ -15,20 +15,19 @@ here. This channel simply wouldn't exist without that work.
 |---|---|
 | Package definitions | Workstation tools, electronics, remote desktop, monitoring, digital identity and XLibre drivers |
 | Dependencies | GNU Guix and nonguix; XLibre packaging is included |
-| Validation | [Package versions and checks](PACKAGES.md); system activation requires a separate reconfiguration |
+| Validation | Package tests and [usage limits](docs/usage.md); system activation requires a separate reconfiguration |
 | Authentication | Signed commits and a pinned channel introduction |
 
 ## Documentation
 
 The [build farm](https://farm.securityops.co/) targets `x86_64-linux`.
 Freedreno (ARM), Geode (i686) and PS3 (PowerPC) drivers remain in the complete
-inventory but require compatible builders and validation. See
-[architecture coverage](etc/build-farm/README.md#architecture-coverage);
-scheduled jobs and private builds are not proof of public substitute availability.
+inventory but require compatible builders and validation.
+Scheduled jobs and private builds are not proof of public substitute availability.
 
 | Guide | Contents |
 |---|---|
-| [Package index](PACKAGES.md) | Packages grouped by purpose, verified versions and test limits (pt-BR) |
+| [Package modules](#applications) | Project names and Guix module mapping |
 | [WhatsAppel](docs/usage.md#whatsappel-emacs-workspace-and-guile-bridge) | Emacs workspace, Guile bridge and separately configured backend |
 | [Electronics](docs/usage.md#electronics) | ngspice simulation and Arduino IDE toolchains |
 | [Remote desktop](docs/usage.md#remote-desktop) | RustDesk client and self-hosted rendezvous/relay servers |
@@ -42,9 +41,8 @@ scheduled jobs and private builds are not proof of public substitute availabilit
 | [XML validation and electronic invoicing](docs/usage.md#xml-validation-with-phive) | PHIVE Java libraries, KoSIT Validator and pinned offline XRechnung rules |
 | [Lacuna Web PKI](docs/webpki.md) | Native host, browser manifests and Guix Home setup |
 | [AutoFirma](docs/usage.md#autofirma) | Official Linux package, signing commands and browser-integration limits |
-| [September validation](docs/refresh-2026-09-17.md) | Historical checks and limitations recorded on 2026-09-17 |
 | [Usage reference](docs/usage.md) | Services, Guix System and Guix Home examples |
-| [Channel mirrors and authentication](docs/channel-authentication-fix.md) | Eight authenticated channels, integrated XLibre and root installation |
+| [Channel authentication](#authentication) | Signing key and channel introduction |
 | [Changelog](CHANGELOG.md) | Historical release notes |
 | [Licensing](LICENSING.md) | Package and project licensing boundaries |
 
@@ -98,9 +96,31 @@ After publishing a channel revision, refresh the owned
 [Toys instance](https://toys.securityops.co) and check its indexed commit and
 package module/file metadata. Each instance has its own refresh cycle;
 [toys.whereis.social](https://toys.whereis.social) is operated externally and
-cannot be promised an immediate update. See the
-[project inventory](PACKAGES.md#projetos-securityops-e-catálogo-de-pesquisa)
-for the module mapping, versions, checks and catalog limits.
+cannot be promised an immediate update.
+
+| Guix package | Recipe module |
+|---|---|
+| `evelin-bin` | `(securityops packages evelin)` |
+| `btp` | `(securityops packages btp)` |
+| `mirim` | `(securityops packages mirim)` |
+| `torando-gui` | `(securityops packages torando-gui)` |
+| `zupt`, `zupt-gui` | `(securityops packages zupt)` |
+| `turborec`, `turborec-nvidia-new-feature` | `(securityops packages turborec)` |
+| `guixvis` | `(securityops packages guixvis)` |
+| `moneyprinterturbo` | `(securityops packages moneyprinterturbo)` |
+| `esquema` | `(securityops packages esquema)` |
+| `whatsappel` | `(securityops packages whatsappel)` |
+| `xmonad-wayland` | `(securityops packages xmonad-wayland)` |
+| `zen-browser-bin` | `(securityops packages zen)` |
+
+### Zen Browser
+
+`zen-browser-bin` packages the [official Zen 1.23.4b Linux release](https://github.com/zen-browser/desktop/releases/tag/1.23.4b)
+for `x86_64-linux`, with a pinned SHA-256. Install with
+`guix install zen-browser-bin` and launch `zen-browser` or `zen`.
+Updates are managed through Guix. This adapts the upstream binary;
+it does not compile Firefox from source. The sandbox and bundled notices
+are preserved. Building a package does not automatically publish substitutes.
 
 ### WhatsAppel
 
@@ -192,7 +212,12 @@ collide. Removal requires the named package to be installed. Packages in
 other profiles are unchanged. Check `ffmpeg -version` and
 `ffmpeg -hide_banner -encoders` after choosing the appropriate command.
 
-
+For software H.266/VVC decoding, this module also provides `vvdec` 3.2.1 and
+`ffmpeg-vvdec` (FFmpeg 9.0.2 with the external, hash-pinned VVdeC integration
+patch). Install `ffmpeg-vvdec` in a separate profile: it provides the same
+`ffmpeg` executable and libraries as the other variants, so one profile cannot
+contain both. Select `libvvdec` with `-c:v libvvdec`; the package build checks
+decoding against an official 30-frame conformance stream.
 
 SDK 13.1 requires driver 610 or newer. The CUDA, NVENC and NVCUVID userspace
 libraries embedded in this build must also match the running kernel driver.
