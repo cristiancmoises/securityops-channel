@@ -82,6 +82,40 @@ A package installed in the user profile does not automatically replace one in
 Guix Home or the system profile. Reconfigure the profile that owns the package.
 Adding a `(commit "...")` field pins the channel to a reproducible revision.
 
+## Prebuilt packages
+
+The public substitute cache is available at
+[substitutes.securityops.co](https://substitutes.securityops.co/nix-cache-info),
+with [substitutes.securityops.com.br](https://substitutes.securityops.com.br/nix-cache-info)
+as an alternative address. Initial published outputs include Wayland protocols
+1.49, eSocial event schemas 1.3-20260701 and communication schemas 1.6.
+Other packages remain subject to build and redistribution checks; a successful
+build shown on the [farm](https://farm.securityops.co/) does not mean it has
+already been published.
+
+Download and verify the substitute signing key before authorizing it:
+
+```sh
+curl --fail --location --output securityops-substitutes.pub \
+  https://substitutes.securityops.co/signing-key.pub
+echo '5db8721d97525215c3497e999c537ee8aaca56f9ee0f4b03e7ad1f0d028040f8  securityops-substitutes.pub' \
+  | sha256sum --check && sudo guix archive --authorize < securityops-substitutes.pub
+```
+
+After adding the channel, request a prebuilt output without permitting local
+compilation or offloading:
+
+```sh
+guix build -e '(@ (securityops packages river) wayland-protocols-latest)' \
+  --substitute-urls='https://substitutes.securityops.co https://bordeaux.guix.gnu.org https://ci.guix.gnu.org' \
+  --max-jobs=0 --no-offload
+```
+
+Substitutes match exact store paths, so channel/dependency revisions and system
+architecture must match the available build. This command fails if the required
+substitutes are missing. The cache key is separate from the channel's OpenPGP
+commit-signing key. Package licenses and notices remain included in the outputs.
+
 ## Applications
 
 Application recipes live in modules named for their projects, such as
