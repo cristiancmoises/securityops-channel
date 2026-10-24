@@ -87,11 +87,15 @@ Use `(commit "...")` para fixar uma revisão reproduzível.
 O cache público de substitutos está disponível em
 [substitutes.securityops.co](https://substitutes.securityops.co/nix-cache-info),
 com [substitutes.securityops.com.br](https://substitutes.securityops.com.br/nix-cache-info)
-como endereço alternativo. Os primeiros outputs publicados incluem Wayland
-protocols 1.49, esquemas de eventos eSocial 1.3-20260701 e esquemas de comunicação
-1.6. Os demais pacotes dependem das verificações de build e redistribuição;
+como endereço alternativo. Os pacotes publicados incluem Esquema 0.3.0,
+Wayland protocols 1.49, esquemas de eventos eSocial 1.3-20260701 e esquemas de
+comunicação 1.6. Os demais pacotes dependem das verificações de build e redistribuição;
 um build concluído na [farm](https://farm.securityops.co/) não significa que
 ele já foi publicado.
+
+O [código-fonte correspondente](https://farm.securityops.co/sources/#pt-br)
+inclui downloads dos fontes, scripts exatos de compilação, patches e avisos de
+licença das saídas publicadas.
 
 Baixe e confira a chave de assinatura dos substitutos antes de autorizá-la:
 
