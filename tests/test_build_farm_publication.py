@@ -5,6 +5,7 @@ import importlib.util
 import io
 import json
 import os
+import socket
 import subprocess
 import sys
 import tempfile
@@ -189,7 +190,7 @@ class FakeTransport:
             if ct == 116 and self.imported:
                 missing = set()
             return ("\n".join(sorted(missing)) + ("\n" if missing else "")).encode()
-        if argv[1:3] == ["repl", "-q"]:
+        if argv[:3] == ["python3", "-c", publication.RUN_PIN_SCRIPT]:
             path = next(path for path in self.requisites if path.encode() in input)
             self.pinned.add((ct, path))
             return b""
@@ -428,6 +429,79 @@ class PublicationExecutionTests(unittest.TestCase):
 
 
 class PublicationHostTests(unittest.TestCase):
+    def run_pin_programs(self, *, already_public, exit_code=0, source=None):
+        with tempfile.TemporaryDirectory() as directory:
+            guix = Path(directory) / "guix"
+            guix.write_text(
+                "#!/usr/bin/env python3\n"
+                "import json, pathlib, stat, sys\n"
+                "assert sys.argv[1:4] == ['repl', '-q', '--']\n"
+                "script = pathlib.Path(sys.argv[4])\n"
+                "source = script.read_text()\n"
+                "print(json.dumps({'source': source, 'path': str(script),\n"
+                "    'mode': stat.S_IMODE(script.stat().st_mode),\n"
+                "    'directory_mode': stat.S_IMODE(script.parent.stat().st_mode)}))\n"
+                f"sys.exit({exit_code})\n",
+                encoding="utf-8",
+            )
+            guix.chmod(0o700)
+            transport = FakeTransport(
+                missing_public=() if already_public else (PACKAGE,)
+            )
+            with patch.object(publication, "GUIX", str(guix)):
+                publication.publish_paths(
+                    [PACKAGE], reviewed(), transport, lambda path: True, apply=True
+                )
+            calls = [
+                call
+                for call in transport.calls
+                if isinstance(call[0], int)
+                and call[2]
+                and b"add-indirect-root" in call[2]
+            ]
+            self.assertEqual([call[0] for call in calls], [126, 116])
+            results = []
+            for _, command, script in calls:
+                # A socket can be read through fd 0 but cannot be reopened as
+                # /dev/stdin, like the inherited pipe in the unprivileged CT.
+                reader, writer = socket.socketpair()
+                with reader, writer:
+                    writer.sendall(script if source is None else source)
+                    writer.shutdown(socket.SHUT_WR)
+                    results.append(
+                        subprocess.run(
+                            command,
+                            stdin=reader.fileno(),
+                            capture_output=True,
+                            timeout=10,
+                            check=False,
+                        )
+                    )
+            return results
+
+    def test_pin_scripts_use_private_files_when_stdin_cannot_be_reopened(self):
+        for already_public in (False, True):
+            with self.subTest(already_public=already_public):
+                for result in self.run_pin_programs(already_public=already_public):
+                    self.assertEqual(result.returncode, 0, result.stderr)
+                    record = json.loads(result.stdout)
+                    self.assertIn(PACKAGE, record["source"])
+                    self.assertEqual(record["mode"], 0o600)
+                    self.assertEqual(record["directory_mode"], 0o700)
+                    self.assertFalse(Path(record["path"]).parent.exists())
+
+    def test_pin_script_failure_propagates_and_removes_temporary_files(self):
+        for result in self.run_pin_programs(already_public=False, exit_code=7):
+            self.assertEqual(result.returncode, 7, result.stderr)
+            record = json.loads(result.stdout)
+            self.assertFalse(Path(record["path"]).parent.exists())
+
+    def test_pin_script_input_is_bounded_before_guix_runs(self):
+        for result in self.run_pin_programs(already_public=False, source=b"x" * 65537):
+            self.assertNotEqual(result.returncode, 0)
+            self.assertIn(b"pin script exceeds", result.stderr)
+            self.assertEqual(result.stdout, b"")
+
     def test_host_capacity_reads_destination_inode_availability(self):
         transport = publication.HostTransport()
         pool = subprocess.CompletedProcess(
@@ -749,13 +823,7 @@ class PublicationHostTests(unittest.TestCase):
         publication.publish_paths(
             [PACKAGE], reviewed(), transport, lambda path: True, apply=True
         )
-        pin_calls = [
-            call
-            for call in transport.calls
-            if isinstance(call[0], int) and call[1][1:3] == ["repl", "-q"]
-        ]
-        self.assertEqual(len(pin_calls), 2)
-        self.assertTrue(all(call[1][-2:] == ["--", "/dev/stdin"] for call in pin_calls))
+        self.assertEqual(transport.pinned, {(126, PACKAGE), (116, PACKAGE)})
 
     def test_main_without_apply_reports_dry_run_and_never_streams(self):
         transport = FakeTransport()

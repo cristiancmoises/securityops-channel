@@ -1,8 +1,8 @@
 """Plan or publish reviewed CT126 package closures through CT116.
 
 Dry-run is the default.  Each approval binds an exact output to SHA-256 of its
-sorted `guix gc --requisites` paths, joined with a final newline.  The human
-reviewer records redistribution and notice obligations in license_basis.
+sorted `guix gc --requisites` paths, joined with a final newline.  Each record
+identifies its reviewer and records redistribution obligations in license_basis.
 The committed empty policy deliberately holds every unknown output.
 """
 
@@ -74,6 +74,20 @@ try:
     sys.stdout.buffer.write(b'P' + data)
 finally:
     os.close(fd)
+"""
+# pct can pass a readable stdin descriptor that the CT cannot reopen via
+# /dev/stdin.  Guix needs file mode so Scheme exceptions remain fatal.
+RUN_PIN_SCRIPT = """import os, subprocess, sys, tempfile
+source = sys.stdin.buffer.read(65536 + 1)
+if len(source) > 65536:
+    raise ValueError("pin script exceeds 64 KiB")
+with tempfile.TemporaryDirectory(prefix="securityops-publication-") as directory:
+    script = os.path.join(directory, "pin.scm")
+    fd = os.open(script, os.O_WRONLY | os.O_CREAT | os.O_EXCL, 0o600)
+    with os.fdopen(fd, "wb") as stream:
+        stream.write(source)
+    result = subprocess.run([sys.argv[1], "repl", "-q", "--", script], check=False)
+    sys.exit(result.returncode)
 """
 
 
@@ -230,7 +244,7 @@ def _unique_object(pairs):
 
 
 def parse_policy(payload):
-    """Require a human record for an exact path and its complete requisites."""
+    """Require an explicit review record for an exact path and its requisites."""
     if not isinstance(payload, bytes) or len(payload) > 1024 * 1024:
         raise ValueError("invalid review policy size")
     try:
@@ -647,7 +661,7 @@ def publish_paths(paths, policy, transport, public_check, *, apply=False, limit=
                 for ct in (126, 116):
                     transport.run(
                         ct,
-                        [GUIX, "repl", "-q", "--", "/dev/stdin"],
+                        ["python3", "-c", RUN_PIN_SCRIPT, GUIX],
                         input=_pin_source(path),
                     )
             result["already_routes_reachable"].append(path)
@@ -662,7 +676,7 @@ def publish_paths(paths, policy, transport, public_check, *, apply=False, limit=
             result["planned"].append(path)
             continue
         transport.run(
-            126, [GUIX, "repl", "-q", "--", "/dev/stdin"], input=_pin_source(path)
+            126, ["python3", "-c", RUN_PIN_SCRIPT, GUIX], input=_pin_source(path)
         )
         transport.stream_archive(
             path, max_bytes=min(MAX_ARCHIVE_BYTES, int(size * 1.25 + 1024**3))
@@ -670,7 +684,7 @@ def publish_paths(paths, policy, transport, public_check, *, apply=False, limit=
         if _missing(transport, 116, requisites):
             raise RuntimeError(f"archive import left missing CT116 requisites: {path}")
         transport.run(
-            116, [GUIX, "repl", "-q", "--", "/dev/stdin"], input=_pin_source(path)
+            116, ["python3", "-c", RUN_PIN_SCRIPT, GUIX], input=_pin_source(path)
         )
         if not all(public_check(item) for item in requisites):
             raise RuntimeError(

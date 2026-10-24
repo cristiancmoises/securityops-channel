@@ -82,6 +82,41 @@ Instalar no perfil do usuário não substitui automaticamente um pacote do
 Guix Home ou do sistema. Reconfigure o perfil responsável pelo pacote.
 Use `(commit "...")` para fixar uma revisão reproduzível.
 
+## Pacotes pré-compilados
+
+O cache público de substitutos está disponível em
+[substitutes.securityops.co](https://substitutes.securityops.co/nix-cache-info),
+com [substitutes.securityops.com.br](https://substitutes.securityops.com.br/nix-cache-info)
+como endereço alternativo. Os primeiros outputs publicados incluem Wayland
+protocols 1.49, esquemas de eventos eSocial 1.3-20260701 e esquemas de comunicação
+1.6. Os demais pacotes dependem das verificações de build e redistribuição;
+um build concluído na [farm](https://farm.securityops.co/) não significa que
+ele já foi publicado.
+
+Baixe e confira a chave de assinatura dos substitutos antes de autorizá-la:
+
+```sh
+curl --fail --location --output securityops-substitutes.pub \
+  https://substitutes.securityops.co/signing-key.pub
+echo '5db8721d97525215c3497e999c537ee8aaca56f9ee0f4b03e7ad1f0d028040f8  securityops-substitutes.pub' \
+  | sha256sum --check && sudo guix archive --authorize < securityops-substitutes.pub
+```
+
+Após adicionar o canal, solicite um output pré-compilado sem permitir compilação
+local nem offloading:
+
+```sh
+guix build -e '(@ (securityops packages river) wayland-protocols-latest)' \
+  --substitute-urls='https://substitutes.securityops.co https://bordeaux.guix.gnu.org https://ci.guix.gnu.org' \
+  --max-jobs=0 --no-offload
+```
+
+Os substitutos correspondem a caminhos exatos no store: as revisões do canal e
+das dependências, assim como a arquitetura, precisam corresponder ao build
+disponível. O comando falha se faltarem substitutos. A chave do cache é distinta
+da chave OpenPGP que assina os commits do canal. As licenças e os avisos dos
+pacotes permanecem incluídos nos outputs.
+
 ## Aplicativos
 
 As receitas dos aplicativos ficam em módulos com o nome de cada projeto, como
