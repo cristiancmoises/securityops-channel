@@ -5,6 +5,7 @@ import importlib.util
 import io
 import json
 import os
+import shutil
 import socket
 import subprocess
 import sys
@@ -15,7 +16,7 @@ from datetime import datetime, timezone
 from email.message import Message
 from pathlib import Path
 from unittest.mock import patch
-from urllib.error import HTTPError
+from urllib.error import HTTPError, URLError
 
 MODULE = Path(__file__).resolve().parents[1] / "etc/build-farm/publication/publish.py"
 SPEC = importlib.util.spec_from_file_location("farm_publication", MODULE)
@@ -195,9 +196,9 @@ class FakeTransport:
             self.pinned.add((ct, path))
             return b""
         if argv[:2] == ["du", "-s"] and "--inodes" in argv:
-            return b"1\t" + PACKAGE.encode() + b"\n"
+            return "".join(f"1\t{path}\n" for path in self.requisites).encode()
         if argv[:2] == ["du", "-s"]:
-            return b"1024\t" + PACKAGE.encode() + b"\n"
+            return "".join(f"1024\t{path}\n" for path in self.requisites).encode()
         raise AssertionError(f"unexpected container command: {ct} {argv}")
 
     def ensure_capacity(self, archive_bytes, entries):
@@ -317,6 +318,95 @@ class PublicationExecutionTests(unittest.TestCase):
         self.assertEqual(transport.streamed, [PACKAGE])
         self.assertEqual(transport.pinned, {(126, PACKAGE), (116, PACKAGE)})
 
+    def test_import_waits_for_pending_narinfo_without_reimporting_or_repinning(self):
+        transport = FakeTransport(requisites=(PACKAGE, OTHER))
+        checked = []
+
+        def public_check(path):
+            self.assertTrue(transport.imported)
+            self.assertEqual(transport.pinned, {(126, PACKAGE), (116, PACKAGE)})
+            checked.append(path)
+            return path == PACKAGE or checked.count(OTHER) == 3
+
+        with patch("time.sleep") as sleep:
+            result = publication.publish_paths(
+                [PACKAGE],
+                reviewed(requisites=(PACKAGE, OTHER)),
+                transport,
+                public_check,
+                apply=True,
+            )
+        self.assertEqual(result["public_routes_reachable"], [PACKAGE])
+        self.assertEqual(checked, [PACKAGE, OTHER, OTHER, OTHER])
+        self.assertEqual([call.args for call in sleep.call_args_list], [(5,), (5,)])
+        self.assertEqual(transport.streamed, [PACKAGE])
+        pins = [
+            call
+            for call in transport.calls
+            if isinstance(call[0], int)
+            and call[1][:3] == ["python3", "-c", publication.RUN_PIN_SCRIPT]
+        ]
+        self.assertEqual([call[0] for call in pins], [126, 116])
+
+    def test_import_narinfo_wait_exhausts_thirteen_checks_and_fails_closed(self):
+        transport = FakeTransport()
+        checked = []
+
+        def public_check(path):
+            checked.append(path)
+            return False
+
+        with (
+            patch("time.sleep") as sleep,
+            self.assertRaisesRegex(RuntimeError, "public narinfo"),
+        ):
+            publication.publish_paths(
+                [PACKAGE],
+                reviewed(),
+                transport,
+                public_check,
+                apply=True,
+            )
+        self.assertEqual(checked, [PACKAGE] * 13)
+        self.assertEqual([call.args for call in sleep.call_args_list], [(5,)] * 12)
+        self.assertEqual(transport.streamed, [PACKAGE])
+
+    def test_import_narinfo_wait_propagates_validation_and_transport_errors(self):
+        for error in (ValueError("invalid narinfo"), URLError("connection failed")):
+            with self.subTest(error=error), patch("time.sleep") as sleep:
+                transport = FakeTransport()
+
+                def public_check(path, error=error):
+                    raise error
+
+                with self.assertRaises(type(error)) as raised:
+                    publication.publish_paths(
+                        [PACKAGE],
+                        reviewed(),
+                        transport,
+                        public_check,
+                        apply=True,
+                    )
+                self.assertIs(raised.exception, error)
+                sleep.assert_not_called()
+                self.assertEqual(transport.streamed, [PACKAGE])
+
+    def test_present_but_not_public_output_is_held_without_readiness_wait(self):
+        transport = FakeTransport(missing_public=())
+        with patch("time.sleep") as sleep:
+            result = publication.publish_paths(
+                [PACKAGE],
+                reviewed(),
+                transport,
+                lambda path: False,
+                apply=True,
+            )
+        self.assertEqual(
+            result["held"], [{"path": PACKAGE, "reason": "ct116_present_not_public"}]
+        )
+        self.assertEqual(transport.streamed, [])
+        sleep.assert_not_called()
+
     def test_already_public_path_is_idempotent(self):
         transport = FakeTransport(missing_public=())
         policy = reviewed()
@@ -384,7 +474,10 @@ class PublicationExecutionTests(unittest.TestCase):
                 [PACKAGE], reviewed(), failed, lambda path: False, apply=True
             )
         unpublished = FakeTransport()
-        with self.assertRaisesRegex(RuntimeError, "public narinfo"):
+        with (
+            patch("time.sleep"),
+            self.assertRaisesRegex(RuntimeError, "public narinfo"),
+        ):
             publication.publish_paths(
                 [PACKAGE], reviewed(), unpublished, lambda path: False, apply=True
             )
@@ -426,6 +519,53 @@ class PublicationExecutionTests(unittest.TestCase):
         value["approved"] = [approved]
         with self.assertRaises(ValueError):
             publication.parse_policy(json.dumps(value).encode())
+
+
+class PublicationRootDirectoryTests(unittest.TestCase):
+    def run_directory_program(self, root):
+        guix = shutil.which("guix")
+        if guix is None:
+            self.skipTest("Guix is required for native root-directory checks")
+        # Exercise the generated filesystem setup without opening a store
+        # connection or registering any GC roots on the test machine.
+        source = (
+            publication._pin_source(PACKAGE).decode().split("(with-store store", 1)[0]
+        )
+        source = source.replace(
+            '"/var/guix/gcroots/securityops-publication"', json.dumps(str(root))
+        )
+        script = root.parent / "prepare-root.scm"
+        script.write_text("(umask #o077)\n" + source, encoding="utf-8")
+        return subprocess.run(
+            [guix, "repl", "-q", "--", str(script)],
+            capture_output=True,
+            timeout=30,
+            check=False,
+        )
+
+    def test_root_directory_is_readable_despite_private_service_umask(self):
+        for existing in (False, True):
+            with (
+                self.subTest(existing=existing),
+                tempfile.TemporaryDirectory() as directory,
+            ):
+                root = Path(directory) / "roots"
+                if existing:
+                    root.mkdir(mode=0o700)
+                result = self.run_directory_program(root)
+                self.assertEqual(result.returncode, 0, result.stderr)
+                self.assertEqual(root.stat().st_mode & 0o7777, 0o755)
+
+    def test_symlinked_root_directory_is_rejected_without_changing_target(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory) / "roots"
+            private = Path(directory) / "private"
+            private.mkdir(mode=0o700)
+            root.symlink_to(private, target_is_directory=True)
+            result = self.run_directory_program(root)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertEqual(private.stat().st_mode & 0o7777, 0o700)
+            self.assertTrue(root.is_symlink())
 
 
 class PublicationHostTests(unittest.TestCase):

@@ -18,6 +18,7 @@ import stat
 import subprocess
 import sys
 import tempfile
+import time
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from urllib.error import HTTPError, URLError
@@ -42,6 +43,8 @@ MAX_CLOSURE_PATHS = 4096
 MAX_ARCHIVE_BYTES = 16 * 1024**3
 MAX_CLOSURE_ENTRIES = 1_000_000
 DESTINATION_OVERHEAD_PER_ENTRY = 8192
+PUBLIC_READINESS_ATTEMPTS = 13
+PUBLIC_READINESS_INTERVAL = 5
 POLICY_PATH = Path(__file__).with_name("reviewed-closures.json")
 PUBLIC_URL = "https://substitutes.securityops.co"
 CT116_PUBLIC_URL = os.environ.get("SECURITYOPS_CT116_PUBLIC_URL")
@@ -357,7 +360,11 @@ def _pin_source(path):
 (define root-directory "/var/guix/gcroots/securityops-publication")
 (unless (valid-path-syntax? path) (error "invalid publication path"))
 (unless (file-exists? root-directory) (mkdir root-directory #o755))
-(unless (file-is-directory? root-directory) (error "publication root directory unavailable"))
+(unless (eq? 'directory (stat:type (lstat root-directory)))
+  (error "publication root directory unavailable"))
+;; These public store-path links must be visible to a non-root Guix daemon,
+;; including when the publisher service creates this directory with umask 0077.
+(chmod root-directory #o755)
 (with-store store
   (unless (valid-path? store path) (error "publication output not valid"))
   (let* ((root (string-append root-directory "/" (store-path-hash-part path)))
@@ -686,7 +693,17 @@ def publish_paths(paths, policy, transport, public_check, *, apply=False, limit=
         transport.run(
             116, ["python3", "-c", RUN_PIN_SCRIPT, GUIX], input=_pin_source(path)
         )
-        if not all(public_check(item) for item in requisites):
+        # guix-publish can return narinfo 404 while baking an imported NAR.
+        # Bound retries to 60 seconds of sleeps plus the HTTP probe durations;
+        # validation and transport exceptions remain fatal, without retries.
+        pending = list(requisites)
+        for attempt in range(PUBLIC_READINESS_ATTEMPTS):
+            pending = [item for item in pending if not public_check(item)]
+            if not pending:
+                break
+            if attempt + 1 < PUBLIC_READINESS_ATTEMPTS:
+                time.sleep(PUBLIC_READINESS_INTERVAL)
+        if pending:
             raise RuntimeError(
                 f"public narinfo unavailable for closure after import: {path}"
             )

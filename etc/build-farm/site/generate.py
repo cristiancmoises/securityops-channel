@@ -112,6 +112,7 @@ COPY = {
         "canceled": "Canceled",
         "unknown": "Status unknown",
         "details": "View public narinfo",
+        "corresponding_source": "Corresponding source",
         "explore": "Interactive map",
         "footer": "Source: latest completed SecurityOps Cuirass evaluation. CT126 store validity, public narinfo and NAR reachability are checked every five minutes. Guix clients still verify the full NAR and signature.",
         "age_note": "If the evaluation time is over 24 hours old, this snapshot may no longer reflect current jobs.",
@@ -162,6 +163,7 @@ COPY = {
         "canceled": "Cancelado",
         "unknown": "Estado desconhecido",
         "details": "Ver narinfo público",
+        "corresponding_source": "Código-fonte correspondente",
         "explore": "Mapa interativo",
         "footer": "Fonte: última avaliação SecurityOps concluída no Cuirass. A validade no CT126, o narinfo público e a rota NAR são verificados a cada cinco minutos. O cliente Guix ainda verifica o NAR completo e a assinatura.",
         "age_note": "Se a avaliação tiver mais de 24 horas, este snapshot pode não refletir os jobs atuais.",
@@ -494,6 +496,7 @@ def render_page(
                 store_hash = match.group(1)
                 href = f"{PUBLIC_URL}/{store_hash}.narinfo"
                 link = f'<a class="narinfo" href="{href}" rel="noopener noreferrer">{copy["details"]} ↗</a>'
+                link += f' <a class="narinfo" href="/sources/">{copy["corresponding_source"]}</a>'
             cards.append(
                 f'<article class="package {state}">'
                 f'<span class="tile" aria-hidden="true"></span>'

@@ -87,11 +87,14 @@ Adding a `(commit "...")` field pins the channel to a reproducible revision.
 The public substitute cache is available at
 [substitutes.securityops.co](https://substitutes.securityops.co/nix-cache-info),
 with [substitutes.securityops.com.br](https://substitutes.securityops.com.br/nix-cache-info)
-as an alternative address. Initial published outputs include Wayland protocols
-1.49, eSocial event schemas 1.3-20260701 and communication schemas 1.6.
+as an alternative address. Published outputs include Esquema 0.3.0, Wayland
+protocols 1.49, eSocial event schemas 1.3-20260701 and communication schemas 1.6.
 Other packages remain subject to build and redistribution checks; a successful
 build shown on the [farm](https://farm.securityops.co/) does not mean it has
 already been published.
+
+[Corresponding source](https://farm.securityops.co/sources/) provides source
+downloads, exact build scripts, patches and license notices for published outputs.
 
 Download and verify the substitute signing key before authorizing it:
 

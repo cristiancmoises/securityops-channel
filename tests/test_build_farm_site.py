@@ -382,6 +382,30 @@ class FarmSiteTests(unittest.TestCase):
         self.assertNotIn("awaiting publication", english)
         self.assertNotIn("publicação pendente", portuguese)
 
+    def test_public_package_links_include_adjacent_corresponding_source(self):
+        snapshot = farm_site.parse_snapshot_csv(CSV)
+        public = {STORE, snapshot["packages"][2]["path"]}
+        for language, label in (
+            ("en", "Corresponding source"),
+            ("pt-br", "Código-fonte correspondente"),
+        ):
+            with self.subTest(language=language):
+                page = farm_site.render_page(snapshot, public, public, language, "date")
+                cards = [
+                    part.split("</article>", 1)[0]
+                    for part in page.split("<article")[1:]
+                ]
+                self.assertEqual(len(cards), 3)
+                self.assertEqual(page.count('href="/sources/"'), 2)
+                for card in cards:
+                    if 'class="package available"' in card:
+                        self.assertRegex(
+                            card,
+                            rf'\.narinfo"[^>]*>[^<]+</a>\s*<a[^>]+href="/sources/"[^>]*>{label}</a>',
+                        )
+                    else:
+                        self.assertNotIn('href="/sources/"', card)
+
     def test_editorial_page_has_localized_heading_and_skip_navigation(self):
         snapshot = farm_site.parse_snapshot_csv(CSV)
         english = farm_site.render_page(snapshot, {STORE}, {STORE}, "en", "date")
