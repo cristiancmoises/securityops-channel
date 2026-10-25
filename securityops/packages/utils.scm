@@ -17,9 +17,40 @@
   #:use-module ((gnu packages image-viewers) #:prefix iv:)
   #:use-module ((gnu packages disk) #:prefix disk:)
   #:use-module ((gnu packages golang-build) #:prefix gb:)
-  #:use-module ((gnu packages golang-xyz) #:prefix go:))
+  #:use-module ((gnu packages golang-xyz) #:prefix go:)
+  #:use-module ((gnu packages qt) #:prefix qt:)
+  #:use-module ((gnu packages crypto) #:prefix crypto:)
+  #:use-module ((gnu packages pkg-config) #:prefix pkg:))
 
-(define-public keepassxc pw:keepassxc)        ; 2.7.12 — latest
+;;; KeePassXC — bumped ahead of Guix: 2.7.12 -> 2.8.0 (latest upstream,
+;;; released 2026-10-21).  git-fetch of the release tag; hash: `guix hash -rx'
+;;; on a checkout of the 2.8.0 tag.  2.8.0 moved to Qt 6, so the inherited
+;;; Qt 5 inputs are replaced with their Qt 6 counterparts and qtx11extras
+;;; (merged into qtbase for Qt 6) is dropped.
+(define-public keepassxc
+  (package
+    (inherit pw:keepassxc)
+    (version "2.8.0")
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://github.com/keepassxreboot/keepassxc")
+             (commit version)))
+       (file-name (git-file-name "keepassxc" version))
+       (sha256
+        (base32 "19v1bkjz4ra7akfmz3f8skydcrz2dvnsgr52dw41xp8xqb3yi1lv"))))
+    (native-inputs (modify-inputs (package-native-inputs pw:keepassxc)
+                     (replace "qttools" qt:qttools)
+                     (append pkg:pkg-config)))
+    (inputs (modify-inputs (package-inputs pw:keepassxc)
+              (replace "qtsvg" qt:qtsvg)
+              (replace "qtwayland" qt:qtwayland)
+              (delete "qtx11extras")
+              (append crypto:keyutils)))
+    (arguments
+     (substitute-keyword-arguments (package-arguments pw:keepassxc)
+       ((#:qtbase _ #f) qt:qtbase)))))
 (define-public ueberzugpp iv:ueberzugpp)      ; 2.9.10 — latest (ueberzug++)
 
 ;; lf r42 migrated from tcell/v2 to tcell/v3 and now measures terminal display

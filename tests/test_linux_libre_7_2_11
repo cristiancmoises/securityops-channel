@@ -1,0 +1,21 @@
+(use-modules (securityops packages linux-libre-7-2-11)
+             (guix packages)
+             (guix base32))
+
+(define kernel linux-libre-7.2.11)
+(define source (package-source kernel))
+
+(unless (equal? (package-name kernel) "linux-libre")
+  (error "unexpected kernel package name" (package-name kernel)))
+(unless (equal? (package-version kernel) "7.2.11")
+  (error "unexpected kernel version" (package-version kernel)))
+(unless (equal? (package-supported-systems kernel) '("x86_64-linux"))
+  (error "unexpected supported systems" (package-supported-systems kernel)))
+(unless (equal? (origin-uri source)
+                "https://linux-libre.fsfla.org/pub/linux-libre/releases/7.2.11-gnu/linux-libre-7.2.11-gnu.tar.xz")
+  (error "unexpected source URL" (origin-uri source)))
+(unless (equal? (content-hash-value (origin-hash source))
+                (base32 "0pj9vmr5c3yf80lc5zdws3ywa0lynq1kll5brpmqbia9irhqy1ah"))
+  (error "unexpected source hash" (origin-hash source)))
+
+(display "linux-libre 7.2.11 metadata OK\n")

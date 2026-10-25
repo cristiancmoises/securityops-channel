@@ -27,14 +27,14 @@
 (define-public rustdesk
   (package
     (name "rustdesk")
-    (version "1.4.9")
+    (version "1.5.0")
     (source
      (origin
        (method url-fetch)
        (uri (string-append "https://github.com/rustdesk/rustdesk/releases/download/"
                            version "/rustdesk-" version "-x86_64.deb"))
        (sha256
-        (base32 "18zx2bbg21h4ij6fg62cam3cwm3w8rcydysb0ir4300fqi3vli3j"))))
+        (base32 "1v50wa1mfjkdx3r1bax6jwpr1mip99cdm6yhydrz6zjss80rfasf"))))
     (build-system binary-build-system)
     (arguments
      (list

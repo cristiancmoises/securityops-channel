@@ -14,6 +14,7 @@
   #:use-module (gnu packages tor)
   #:use-module (gnu packages version-control)
   #:use-module (gnu packages fonts)
+  #:use-module ((gnu packages python-xyz) #:prefix pyx:)
   #:use-module ((guix licenses) #:prefix license:))
 
 ;;; moneyprinterturbo — one-click AI short-video generator (harry0703 v1.3.7).
@@ -52,17 +53,17 @@
 (define-public moneyprinterturbo
   (package
     (name "moneyprinterturbo")
-    (version "1.3.7")
+    (version "1.3.9")
     (source
      (origin
        (method git-fetch)
        (uri (git-reference
              (url "https://github.com/harry0703/MoneyPrinterTurbo")
-             ;; Commit of the v1.3.7 release tag.
-             (commit "cf5a3aedad1741d012152d355aa909d224fc4557")))
+             ;; Commit of the v1.3.9 release tag.
+             (commit "6992380c5e82f07f3e1fc46b90927b6f1c655407")))
        (file-name (git-file-name name version))
        (sha256
-        (base32 "1mij12kk7gv30vbzdbpyhk63r30w5978r3ji6zs1vai8g1cafybw"))
+        (base32 "1xq5hagidyvvcvv9v2h1qkz37xghs298f5a5ak4pdv2bkqnl78xi"))
        (modules '((guix build utils)))
        (snippet
         #~(begin
@@ -71,7 +72,7 @@
             (mkdir-p "resource/fonts")
             (mkdir-p "resource/songs")))))
     (build-system copy-build-system)
-    (native-inputs (list python-pytest))
+    (native-inputs (list python-pytest pyx:python-loguru))
     (inputs `(("python" ,python)
               ("ffmpeg" ,ffmpeg)
               ("torsocks" ,torsocks)
@@ -179,7 +180,7 @@ set -e
 export PATH=\"~a${PATH:+:$PATH}\"
 STORE_SHARE=\"~a\"
 APP_HOME=\"${MPT_HOME:-${XDG_DATA_HOME:-$HOME/.local/share}/moneyprinterturbo}\"
-VERSION=\"1.3.7\"
+VERSION=\"~a\"
 export TORSOCKS_ALLOW_INBOUND=1
 export TORSOCKS_CONF_FILE=\"~a\"
 export GRPC_DNS_RESOLVER=native
@@ -210,6 +211,7 @@ export PYTHONPATH=\"$APP_HOME${PYTHONPATH:+:$PYTHONPATH}\"
 "
                                                path
                                                share
+                                               #$(package-version this-package)
                                                conf
                                                ffmpeg
                                                python

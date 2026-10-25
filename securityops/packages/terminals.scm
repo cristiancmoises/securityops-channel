@@ -33,7 +33,7 @@
 (define-public shader-slang-bin
   (package
     (name "shader-slang-bin")
-    (version "2026.19")
+    (version "2026.20")
     (source
      (origin
        (method url-fetch)
@@ -41,19 +41,19 @@
              "https://github.com/shader-slang/slang/releases/download/v"
              version "/slang-" version "-linux-x86_64-glibc-2.27.tar.gz"))
        (sha256
-        (base32 "0xgyhldbfmadad8idijsq9ffd2p8qjn3f6qxvpm61vniqd0bv6aq"))))
+        (base32 "15h9g1j5pmmyv2r77ndl8zyyxgwwv15cb0rydarjzvjdk5z4fcdq"))))
     (build-system copy-build-system)
     (arguments
      (list
       #:install-plan
-      #~'(("bin/slangc" "bin/")
-          ("lib/libslang-compiler.so.0.2026.19" "lib/")
-          ("lib/libslang-glsl-module-2026.19.so" "lib/")
-          ("lib/libslang-glslang-2026.19.so" "lib/")
-          ("lib/slang-standard-module-2026.19" "lib/")
-          ("LICENSE" "share/doc/shader-slang/")
-          ("LICENSES" "share/doc/shader-slang/")
-          ("third-party-notices" "share/doc/shader-slang/"))
+      #~(list (list "bin/slangc" "bin/")
+              (list (string-append "lib/libslang-compiler.so.0." #$(package-version this-package)) "lib/")
+              (list (string-append "lib/libslang-glsl-module-" #$(package-version this-package) ".so") "lib/")
+              (list (string-append "lib/libslang-glslang-" #$(package-version this-package) ".so") "lib/")
+              (list (string-append "lib/slang-standard-module-" #$(package-version this-package)) "lib/")
+              (list "LICENSE" "share/doc/shader-slang/")
+              (list "LICENSES" "share/doc/shader-slang/")
+              (list "third-party-notices" "share/doc/shader-slang/"))
       #:phases
       #~(modify-phases %standard-phases
           ;; All upstream license texts are copied by #:install-plan below.

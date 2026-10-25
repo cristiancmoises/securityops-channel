@@ -28,13 +28,21 @@
 (define-public nmap
   (package
     (inherit adm:nmap)
-    (version "7.991")
+    (version "7.992")
     (source
      (origin
        (method url-fetch)
        (uri (string-append "https://nmap.org/dist/nmap-" version ".tar.bz2"))
        (sha256
-        (base32 "1gi9d52jf87i3idizfnx16hw5hcgmadgywa7vnzg7gipjkr0gmd5"))))))
+        (base32 "00p4mqf2pxvc1lscpyy6n0mxzsm48k0b0v4ryvpsnzmzvl76c4hc"))))
+    (arguments
+     ;; 7.992 ships ndiff/ndifftest.py already ported to importlib, so
+     ;; Guix's inherited python-3.12 fix would match inside the new
+     ;; "import importlib.util" line and corrupt it.
+     (substitute-keyword-arguments (package-arguments adm:nmap)
+       ((#:phases phases)
+        #~(modify-phases #$phases
+            (delete 'fix-tests-for-python-3.12)))))))
 (define-public masscan adm:masscan)
 (define-public arp-scan net:arp-scan)
 (define-public netdiscover net:netdiscover)

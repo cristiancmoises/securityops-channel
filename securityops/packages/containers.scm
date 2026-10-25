@@ -16,16 +16,16 @@
 (define-public podman-latest
   (package
     (inherit upstream:podman)
-    (version "6.1.3")
+    (version "6.1.4")
     (source
      (origin
        (method url-fetch)
        (uri (string-append
              "https://codeload.github.com/podman-container-tools/podman/"
-             "tar.gz/85b994955e0b4e30fbce9c8351cab85676140ede"))
-       (file-name "podman-6.1.3.tar.gz")
+             "tar.gz/16aec386708b"))
+       (file-name "podman-6.1.4.tar.gz")
        (sha256
-        (base32 "1blr9waq8hbzm8a11xic6daxsx4pnxqn0y9l6w2vbwwmmqz6dppy"))))
+        (base32 "0nhgnqdr042x5c6s0yxczfhdvmd9j5fz5p4l8rl5x1bplafcmgn1"))))
     (native-inputs (modify-inputs (package-native-inputs upstream:podman)
                      (replace "go" go-1.26)))))
 
