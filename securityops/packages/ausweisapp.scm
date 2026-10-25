@@ -143,14 +143,14 @@
 (define ausweisapp-base
   (package
     (inherit upstream:ausweisapp)
-    (version "2.6.0")
+    (version "2.6.1")
     (source
       (origin
         (method url-fetch)
-        (uri "https://codeload.github.com/Governikus/AusweisApp/tar.gz/refs/tags/2.6.0")
-        (file-name "ausweisapp-2.6.0.tar.gz")
+        (uri "https://codeload.github.com/Governikus/AusweisApp/tar.gz/refs/tags/2.6.1")
+        (file-name "ausweisapp-2.6.1.tar.gz")
         (sha256
-          (base32 "1g3phv4fdspi81379hjv4v4pfwmbr6myv1cd5f43ibmvkbnps4mw"))))
+          (base32 "1f1mnqkqwr7qiddyzzxgp2xqvapi5p5lc3kkjmy0iy9ind6ad8xc"))))
     (arguments
       (substitute-keyword-arguments (package-arguments upstream:ausweisapp)
         ((#:configure-flags flags #~'())

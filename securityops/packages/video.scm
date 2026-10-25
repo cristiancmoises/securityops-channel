@@ -322,7 +322,7 @@ libraries."))))
 (define-public yt-dlp
   (package
     (inherit gnu:yt-dlp)
-    (version "2026.08.19")
+    (version "2026.10.21")
     (source
      (origin
        (method git-fetch)
@@ -331,7 +331,7 @@ libraries."))))
              (commit version)))
        (file-name (git-file-name "yt-dlp" version))
        (sha256
-        (base32 "1257p5r20cxdr5shsi0zi20wpn0a5qxzz1kyqjssy7p6ciw5kkh4"))))))
+        (base32 "0s7ay24d2d6glijsgx42kbn61x46s9h69h4v6sp6l6dvzawm180b"))))))
 
 ;;; ytfzf — Guix ships the latest upstream (2.6.2); re-exported with the
 ;;; channel's yt-dlp so the terminal frontend downloads with the bumped engine.
