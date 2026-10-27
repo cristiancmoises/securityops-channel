@@ -13,7 +13,7 @@
   #:use-module ((securityops packages browsers) #:prefix browsers:)
   #:use-module (gnu packages sqlite))
 
-(define %zabbix-version "7.4.15")
+(define %zabbix-version "7.4.16")
 (define %zabbix-report-browser browsers:google-chrome-stable)
 (define %zabbix-source
   (origin
@@ -21,7 +21,7 @@
     (uri (string-append "https://cdn.zabbix.com/zabbix/sources/stable/7.4/"
                         "zabbix-" %zabbix-version ".tar.gz"))
     (sha256
-     (base32 "157k4ix8j66xl88sv50k1167ygwvxw0cxn32blfviygb8wvrn7ay"))))
+     (base32 "0qfjxi3n4lpmjy27priixsych68yllk763i56j7cxb44q4fkjb0f"))))
 
 (define-public zabbix-agentd
   (package

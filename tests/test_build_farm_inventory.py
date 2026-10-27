@@ -269,7 +269,13 @@ class InventoryTests(unittest.TestCase):
         exports = {(row[0], row[1]) for row in rows}
         self.assertEqual(len(exports), len(rows), "ambiguous exported symbols")
         packages = {(row[2], row[3]) for row in rows}
-        self.assertIn(("wazuh-agent", "4.14.8"), packages)
+        self.assertIn(("wazuh-agent", "4.14.9"), packages)
+        self.assertIn(("nmap", "7.993"), packages)
+        self.assertIn(("glances", "4.5.8"), packages)
+        self.assertIn(("arelle", "2.47.3"), packages)
+        self.assertIn(("go-github-com-emmansun-base64", "0.11.0"), packages)
+        self.assertIn(("go-github-com-ebitengine-purego", "0.11.2"), packages)
+        self.assertIn(("zabbix-server", "7.4.16"), packages)
         self.assertIn(("zupt", "5.2.9"), packages)
 
 
