@@ -22,9 +22,9 @@ RuntimeDirectory=cuirass
 RuntimeDirectoryMode=0700
 UMask=0077
 NoNewPrivileges=yes
-MemoryHigh=2G
-MemoryMax=3G
-MemorySwapMax=512M
+MemoryHigh=4G
+MemoryMax=5G
+MemorySwapMax=1G
 ExecStartPre=/usr/bin/pg_isready -q -d cuirass
 ExecStartPre=/usr/bin/test -r /etc/cuirass/modules/securityops/build-farm/ci.scm
 ExecStart=/var/guix/profiles/build-farm/bin/cuirass register --specifications=/etc/cuirass/securityops-specifications.scm --database=dbname=cuirass --cache-directory=/var/cache/cuirass --interval=300 --parallel-evaluations=1 --threads=3 --ttl=30d
