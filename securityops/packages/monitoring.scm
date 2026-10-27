@@ -43,18 +43,18 @@
      (substitute-keyword-arguments (package-arguments pyc:python-pyinstrument)
        ((#:tests? _ #t) #f)))))
 
-;;; glances — bumped ahead of Guix: 4.3.0 -> 4.5.7 (stable upstream).  Cross-
+;;; glances — bumped ahead of Guix: 4.3.0 -> 4.5.8 (stable upstream).  Cross-
 ;;; platform curses/web system monitor (psutil-based).  Inherits Guix's package
 ;;; and overrides version + source; adds the new `pyinstrument' core dependency
 ;;; (via the bumped helper above) and rewrites the arguments because the 4.3.0
 ;;; custom test entry (`unittest-core.py') no longer exists in 4.5.x (tests moved
 ;;; to tests/), so tests are skipped here.  The weekly PyPI update-check is still
 ;;; disabled, exactly as Guix does.
-;;; Hash: Guix's fixed-output hash for the v4.5.7 tag.
+;;; Hash: Guix's fixed-output hash for the v4.5.8 tag.
 (define-public glances
   (package
     (inherit mon:glances)
-    (version "4.5.7")
+    (version "4.5.8")
     (source
      (origin
        (method git-fetch)
@@ -63,7 +63,7 @@
              (commit (string-append "v" version))))
        (file-name (git-file-name "glances" version))
        (sha256
-        (base32 "0a37018lwvqlkbskd0xkpmi49vnz1v3kwxzd366sv34xzfp8h9p1"))))
+        (base32 "0nif1y83s9kkyj84iw66xjppyg0hmwisp08wz9pm9hxxrkj641f0"))))
     (propagated-inputs
      (modify-inputs (package-propagated-inputs mon:glances)
        (append python-pyinstrument)))

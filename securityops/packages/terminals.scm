@@ -105,7 +105,7 @@ and bundled-dependency notices.  Required by Kitty's shader pipeline.")
 (define-public go-github-com-emmansun-base64
   (package
     (name "go-github-com-emmansun-base64")
-    (version "0.10.0")
+    (version "0.11.0")
     (source
      (origin
        (method git-fetch)
@@ -114,7 +114,7 @@ and bundled-dependency notices.  Required by Kitty's shader pipeline.")
              (commit (string-append "v" version))))
        (file-name (git-file-name name version))
        (sha256
-        (base32 "0mkkk9xhc55jfq1nbavb8vivv2xb8sp0l807ci0ak3aimxxjqj9c"))))
+        (base32 "03l3cczxazl6lcc4pajz5dfpxc10hjii5i9f25mn2pjxkfmjm7lz"))))
     (build-system go-build-system)
     (arguments (list #:import-path "github.com/emmansun/base64"))
     (propagated-inputs (list gb:go-golang-org-x-sys))
@@ -186,11 +186,11 @@ kitty's @code{watch} kitten.")
 ;;; so define it here.  kitty builds in GOPATH mode, so only genuinely-imported
 ;;; deps need providing — the other go.mod bumps (chroma, x/sys, …) are used
 ;;; from Guix's existing sources.  Kitty's go.mod names 0.11.0; this channel
-;;; supplies the newer stable purego 0.11.1.
+;;; supplies the newer stable purego 0.11.2.
 (define-public go-github-com-ebitengine-purego
   (package
     (name "go-github-com-ebitengine-purego")
-    (version "0.11.1")
+    (version "0.11.2")
     (source
      (origin
        (method git-fetch)
@@ -199,7 +199,7 @@ kitty's @code{watch} kitten.")
              (commit (string-append "v" version))))
        (file-name (git-file-name name version))
        (sha256
-        (base32 "1r7ivlgwn7ikifzxbp62vzdjccvh19iyill3mzqw4dgc9b0hvg15"))))
+        (base32 "0day2cmjraff5gsqhbklrga39fw5gkc9aznvmjhh5wzilcmv3vqb"))))
     (build-system go-build-system)
     (arguments (list #:import-path "github.com/ebitengine/purego"
                      #:tests? #f))
