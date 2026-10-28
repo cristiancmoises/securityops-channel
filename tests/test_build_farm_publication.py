@@ -184,6 +184,13 @@ class FakeTransport:
 
     def run(self, ct, argv, input=None):
         self.calls.append((ct, argv, input))
+        if argv == ["python3", "-c", publication.LIST_PINNED_SCRIPT]:
+            hashes = sorted(
+                path.removeprefix("/gnu/store/").split("-", 1)[0]
+                for pinned_ct, path in self.pinned
+                if pinned_ct == 116
+            )
+            return ("\n".join(hashes) + ("\n" if hashes else "")).encode()
         if argv[1:3] == ["gc", "--requisites"]:
             return ("\n".join(self.requisites) + "\n").encode()
         if argv[1:3] == ["archive", "--missing"]:
@@ -338,7 +345,7 @@ class PublicationExecutionTests(unittest.TestCase):
             )
         self.assertEqual(result["public_routes_reachable"], [PACKAGE])
         self.assertEqual(checked, [PACKAGE, OTHER, OTHER, OTHER])
-        self.assertEqual([call.args for call in sleep.call_args_list], [(5,), (5,)])
+        self.assertEqual([call.args for call in sleep.call_args_list], [(10,), (10,)])
         self.assertEqual(transport.streamed, [PACKAGE])
         pins = [
             call
@@ -348,7 +355,7 @@ class PublicationExecutionTests(unittest.TestCase):
         ]
         self.assertEqual([call[0] for call in pins], [126, 116])
 
-    def test_import_narinfo_wait_exhausts_thirteen_checks_and_fails_closed(self):
+    def test_import_narinfo_wait_stops_at_deadline_and_fails_closed(self):
         transport = FakeTransport()
         checked = []
 
@@ -358,6 +365,7 @@ class PublicationExecutionTests(unittest.TestCase):
 
         with (
             patch("time.sleep") as sleep,
+            patch("time.monotonic", side_effect=[100, 101, 1900]),
             self.assertRaisesRegex(RuntimeError, "public narinfo"),
         ):
             publication.publish_paths(
@@ -367,8 +375,8 @@ class PublicationExecutionTests(unittest.TestCase):
                 public_check,
                 apply=True,
             )
-        self.assertEqual(checked, [PACKAGE] * 13)
-        self.assertEqual([call.args for call in sleep.call_args_list], [(5,)] * 12)
+        self.assertEqual(checked, [PACKAGE, PACKAGE])
+        self.assertEqual([call.args for call in sleep.call_args_list], [(10,)])
         self.assertEqual(transport.streamed, [PACKAGE])
 
     def test_import_narinfo_wait_propagates_validation_and_transport_errors(self):
@@ -476,6 +484,7 @@ class PublicationExecutionTests(unittest.TestCase):
         unpublished = FakeTransport()
         with (
             patch("time.sleep"),
+            patch("time.monotonic", side_effect=[100, 1900]),
             self.assertRaisesRegex(RuntimeError, "public narinfo"),
         ):
             publication.publish_paths(
@@ -494,6 +503,43 @@ class PublicationExecutionTests(unittest.TestCase):
             [PACKAGE], reviewed(), FakeTransport(), lambda path: False, limit=0
         )
         self.assertEqual(limited["held"], [{"path": PACKAGE, "reason": "run_limit"}])
+
+    def test_unpinned_root_is_prioritized_before_already_public_root(self):
+        transport = FakeTransport(missing_public=(OTHER,))
+        policy = {
+            "approved": {
+                **reviewed(PACKAGE)["approved"],
+                **reviewed(OTHER, requisites=(OTHER,))["approved"],
+            },
+            "denied": set(),
+        }
+
+        def run(ct, argv, input=None):
+            transport.calls.append((ct, argv, input))
+            if argv == ["python3", "-c", publication.LIST_PINNED_SCRIPT]:
+                return (
+                    f"{PACKAGE.removeprefix('/gnu/store/').split('-', 1)[0]}\n".encode()
+                )
+            if argv[1:3] == ["gc", "--requisites"]:
+                return f"{argv[-1]}\n".encode()
+            if argv[1:3] == ["archive", "--missing"]:
+                assert input is not None
+                requested = set(input.decode().splitlines())
+                missing = set() if ct == 126 else {OTHER}
+                values = sorted(requested & missing)
+                return ("\n".join(values) + ("\n" if values else "")).encode()
+            if argv[:2] == ["du", "-s"]:
+                values = argv[argv.index("--") + 1 :]
+                size = 1 if "--inodes" in argv else 1024
+                return "".join(f"{size}\t{path}\n" for path in values).encode()
+            raise AssertionError(f"unexpected container command: {ct} {argv}")
+
+        transport.run = run
+        result = publication.publish_paths(
+            [PACKAGE, OTHER], policy, transport, lambda path: path == PACKAGE, limit=1
+        )
+        self.assertEqual(result["planned"], [OTHER])
+        self.assertEqual(result["held"], [{"path": PACKAGE, "reason": "run_limit"}])
 
     def test_policy_rejects_bad_paths_and_duplicate_review_records(self):
         with self.assertRaises(ValueError):
@@ -786,6 +832,12 @@ class PublicationHostTests(unittest.TestCase):
             "URL: nar/zstd/fixture\nSignature: 1;guix-substitute;abc\n"
         )
         self.assertTrue(publication.validate_narinfo(PACKAGE, valid))
+        self.assertTrue(
+            publication.validate_narinfo(
+                PACKAGE,
+                valid.replace("nar/zstd/fixture", "nar/zstd/libstdc%2B%2B-14.3.0"),
+            )
+        )
         with self.assertRaises(ValueError):
             publication.validate_narinfo(PACKAGE, valid.replace(PACKAGE, HOME))
         with self.assertRaises(ValueError):
@@ -795,6 +847,11 @@ class PublicationHostTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             publication.validate_narinfo(
                 PACKAGE, valid.replace("nar/zstd/fixture", "../bad")
+            )
+        with self.assertRaises(ValueError):
+            publication.validate_narinfo(
+                PACKAGE,
+                valid.replace("nar/zstd/fixture", "nar/zstd/%2E%2E%2Fsecret"),
             )
 
     def test_404_is_not_public_and_other_http_failures_are_errors(self):
@@ -816,8 +873,32 @@ class PublicationHostTests(unittest.TestCase):
             opener.error = HTTPError(
                 "https://example.test", 503, "error", Message(), None
             )
-            with self.assertRaises(HTTPError):
+            with patch("time.sleep") as sleep, self.assertRaises(HTTPError):
                 publication.check_public_output(PACKAGE)
+            self.assertEqual([call.args for call in sleep.call_args_list], [(5,)] * 3)
+
+    def test_oversized_public_narinfo_is_rejected(self):
+        class Response:
+            status = 200
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *args):
+                return False
+
+            def read(self, count):
+                return b"x" * count
+
+        class FakeOpener:
+            def open(self, request, timeout):
+                return Response()
+
+        with (
+            patch.object(publication, "build_opener", return_value=FakeOpener()),
+            self.assertRaisesRegex(ValueError, "exceeds 64 KiB"),
+        ):
+            publication.check_public_output(PACKAGE)
 
     def test_advertised_public_nar_must_be_reachable_by_get(self):
         narinfo = (

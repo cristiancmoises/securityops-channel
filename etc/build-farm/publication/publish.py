@@ -9,6 +9,7 @@ The committed empty policy deliberately holds every unknown output.
 import argparse
 import csv
 import hashlib
+import http.client
 import importlib.util
 import io
 import json
@@ -43,13 +44,21 @@ MAX_CLOSURE_PATHS = 4096
 MAX_ARCHIVE_BYTES = 16 * 1024**3
 MAX_CLOSURE_ENTRIES = 1_000_000
 DESTINATION_OVERHEAD_PER_ENTRY = 8192
-PUBLIC_READINESS_ATTEMPTS = 13
-PUBLIC_READINESS_INTERVAL = 5
+# guix publish only serves a narinfo once it has baked the NAR into its cache.
+# CT116 compresses at zstd:19, so a large requisite (guix, ghc, emacs) can take
+# well over ten minutes; a short window reported successfully imported roots as
+# failures and aborted the rest of the run.
+PUBLIC_READINESS_SECONDS = 1800
+PUBLIC_READINESS_INTERVAL = 10
+PUBLIC_PROBE_ATTEMPTS = 4
+PUBLIC_PROBE_INTERVAL = 5
 POLICY_PATH = Path(__file__).with_name("reviewed-closures.json")
 PUBLIC_URL = "https://substitutes.securityops.co"
 CT116_PUBLIC_URL = os.environ.get("SECURITYOPS_CT116_PUBLIC_URL")
 NAR_HASH = re.compile(r"^sha256:[a-z0-9]{52}$")
-NAR_URL = re.compile(r"^nar/[A-Za-z0-9._+/-]+$")
+# Guix percent-encodes '+' and '?' inside store names.  Restrict escapes to
+# those two characters so encoded separators and traversal are rejected.
+NAR_URL = re.compile(r"^nar/(?:[A-Za-z0-9._+~/-]|%2[Bb]|%3[Ff])+$")
 SQL = """
 SELECT e.id, e.timestamp, j.name, j.status,
        b.id, b.nix_name, b.status, COALESCE(b.starttime, 0),
@@ -77,6 +86,17 @@ try:
     sys.stdout.buffer.write(b'P' + data)
 finally:
     os.close(fd)
+"""
+# Written GC roots on the destination are the cheap, durable record that a
+# reviewed root was already imported and validated.  Listing them lets a run
+# spend its whole per-run limit on roots that still need work.
+LIST_PINNED_SCRIPT = """import os, sys
+directory = "/var/guix/gcroots/securityops-publication"
+try:
+    names = sorted(os.listdir(directory))
+except FileNotFoundError:
+    names = []
+sys.stdout.write("".join(name + chr(10) for name in names))
 """
 # pct can pass a readable stdin descriptor that the CT cannot reopen via
 # /dev/stdin.  Guix needs file mode so Scheme exceptions remain fatal.
@@ -416,17 +436,30 @@ def check_public_output(path, base_url=PUBLIC_URL):
         f"{base_url}/{store_hash}.narinfo",
         headers={"Accept": "text/plain", "User-Agent": "securityops-publication/1"},
     )
-    try:
-        with build_opener(NoRedirects()).open(request, timeout=8) as response:
-            if response.status != 200:
-                raise ValueError(f"unexpected narinfo status: {response.status}")
-            payload = response.read(65537)
-            if len(payload) > 65536:
-                raise ValueError("public narinfo exceeds 64 KiB")
-    except HTTPError as error:
-        if error.code == 404:
-            return False
-        raise
+    opener = build_opener(NoRedirects())
+    # A busy guix publish occasionally resets a connection while baking NARs;
+    # a bounded retry avoids aborting a whole run on one dropped probe.  A 404
+    # is authoritative (not public); persistent protocol errors stay fatal.
+    payload = b""
+    for attempt in range(PUBLIC_PROBE_ATTEMPTS):
+        try:
+            with opener.open(request, timeout=8) as response:
+                if response.status != 200:
+                    raise ValueError(f"unexpected narinfo status: {response.status}")
+                payload = response.read(65537)
+                if len(payload) > 65536:
+                    raise ValueError("public narinfo exceeds 64 KiB")
+            break
+        except HTTPError as error:
+            if error.code == 404:
+                return False
+            if error.code < 500 or attempt + 1 >= PUBLIC_PROBE_ATTEMPTS:
+                raise
+            time.sleep(PUBLIC_PROBE_INTERVAL)
+        except (http.client.HTTPException, ConnectionError, URLError, TimeoutError):
+            if attempt + 1 >= PUBLIC_PROBE_ATTEMPTS:
+                raise
+            time.sleep(PUBLIC_PROBE_INTERVAL)
     document = payload.decode("utf-8")
     validate_narinfo(path, document)
     nar_url = next(
@@ -438,14 +471,22 @@ def check_public_output(path, base_url=PUBLIC_URL):
         f"{base_url}/{nar_url}",
         headers={"Range": "bytes=0-0", "User-Agent": "securityops-publication/1"},
     )
-    try:
-        with build_opener(NoRedirects()).open(request, timeout=30) as response:
-            if response.status not in (200, 206) or not response.read(1):
-                raise ValueError("advertised public NAR is unavailable")
-    except HTTPError as error:
-        if error.code == 404:
-            raise ValueError("advertised public NAR is unavailable") from error
-        raise
+    for attempt in range(PUBLIC_PROBE_ATTEMPTS):
+        try:
+            with opener.open(request, timeout=30) as response:
+                if response.status not in (200, 206) or not response.read(1):
+                    raise ValueError("advertised public NAR is unavailable")
+            break
+        except HTTPError as error:
+            if error.code == 404:
+                raise ValueError("advertised public NAR is unavailable") from error
+            if error.code < 500 or attempt + 1 >= PUBLIC_PROBE_ATTEMPTS:
+                raise
+            time.sleep(PUBLIC_PROBE_INTERVAL)
+        except (http.client.HTTPException, ConnectionError, URLError, TimeoutError):
+            if attempt + 1 >= PUBLIC_PROBE_ATTEMPTS:
+                raise
+            time.sleep(PUBLIC_PROBE_INTERVAL)
     return True
 
 
@@ -615,6 +656,21 @@ class HostTransport:
                 )
 
 
+def _pinned_roots(transport):
+    """Hashes already pinned on the destination, i.e. previous imports."""
+    output = transport.run(116, ["python3", "-c", LIST_PINNED_SCRIPT])
+    return {name for name in output.decode("utf-8").split() if name}
+
+
+def order_candidates(candidates, pinned):
+    """Put roots that still need work before roots imported previously."""
+    pending, published = [], []
+    for path in candidates:
+        store_hash = path.removeprefix("/gnu/store/").split("-", 1)[0]
+        (published if store_hash in pinned else pending).append(path)
+    return pending + published
+
+
 def publish_paths(paths, policy, transport, public_check, *, apply=False, limit=3):
     """Bounded, fail-closed transfer. The transport performs no builds."""
     if type(limit) is not int or not 0 <= limit <= 20:
@@ -625,16 +681,21 @@ def publish_paths(paths, policy, transport, public_check, *, apply=False, limit=
         "already_routes_reachable": [],
         "held": [],
     }
-    attempted = 0
+    candidates = []
     for path in paths:
         exact_output(path)
         if path in policy["denied"] or REVIEW_TRIGGER.search(path):
             result["held"].append({"path": path, "reason": "known_review_trigger"})
-            continue
-        review = policy["approved"].get(path)
-        if review is None:
+        elif policy["approved"].get(path) is None:
             result["held"].append({"path": path, "reason": "unreviewed_redistribution"})
-            continue
+        else:
+            candidates.append(path)
+    ordered = order_candidates(
+        candidates, _pinned_roots(transport) if candidates else set()
+    )
+    attempted = 0
+    for path in ordered:
+        review = policy["approved"][path]
         if attempted >= limit:
             result["held"].append({"path": path, "reason": "run_limit"})
             continue
@@ -693,16 +754,15 @@ def publish_paths(paths, policy, transport, public_check, *, apply=False, limit=
         transport.run(
             116, ["python3", "-c", RUN_PIN_SCRIPT, GUIX], input=_pin_source(path)
         )
-        # guix-publish can return narinfo 404 while baking an imported NAR.
-        # Bound retries to 60 seconds of sleeps plus the HTTP probe durations;
-        # validation and transport exceptions remain fatal, without retries.
+        # CT116 may need minutes to bake large NARs at zstd:19.  Bound the wait
+        # by wall clock because each probe round has its own network timeout.
         pending = list(requisites)
-        for attempt in range(PUBLIC_READINESS_ATTEMPTS):
+        deadline = time.monotonic() + PUBLIC_READINESS_SECONDS
+        while pending:
             pending = [item for item in pending if not public_check(item)]
-            if not pending:
+            if not pending or time.monotonic() >= deadline:
                 break
-            if attempt + 1 < PUBLIC_READINESS_ATTEMPTS:
-                time.sleep(PUBLIC_READINESS_INTERVAL)
+            time.sleep(PUBLIC_READINESS_INTERVAL)
         if pending:
             raise RuntimeError(
                 f"public narinfo unavailable for closure after import: {path}"
