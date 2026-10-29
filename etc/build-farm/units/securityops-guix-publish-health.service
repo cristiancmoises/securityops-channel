@@ -1,0 +1,17 @@
+[Unit]
+Description=Recover a wedged public Guix substitute service
+After=guix-publish.service network.target
+Requires=guix-publish.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/libexec/securityops-guix-publish-health
+User=root
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectHome=yes
+ProtectSystem=strict
+LockPersonality=yes
+RestrictSUIDSGID=yes
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+TimeoutStartSec=45s
