@@ -30,7 +30,7 @@ def pause_reasons(thin_percent, disk_percent, available_kib):
 
 def decide_action(reasons, already_paused):
     if already_paused:
-        return "remain-paused"
+        return "remain-paused" if reasons else "resume"
     return "pause" if reasons else "continue"
 
 
@@ -92,6 +92,11 @@ def stop_registration():
     command("pct", "exec", CT_ID, "--", "systemctl", "disable", "--now", REGISTER_UNIT)
 
 
+def resume():
+    command("pct", "exec", CT_ID, "--", "systemctl", "enable", "--now", REGISTER_UNIT)
+    PAUSE_FILE.unlink()
+
+
 def main():
     already_paused = PAUSE_FILE.exists()
     try:
@@ -120,6 +125,17 @@ def main():
             return 2
         print("Build farm remains manually paused", file=sys.stderr)
         return 1
+    if action == "resume":
+        try:
+            resume()
+        except (OSError, subprocess.SubprocessError) as error:
+            print(
+                "Unable to resume registration: " + type(error).__name__,
+                file=sys.stderr,
+            )
+            return 2
+        print("Build farm capacity recovered; registration resumed")
+        return 0
     print("Build farm capacity OK")
     return 0
 

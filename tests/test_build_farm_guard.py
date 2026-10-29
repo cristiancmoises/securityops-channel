@@ -1,4 +1,4 @@
-"""Capacity decisions are fail-closed and never auto-resume a paused farm."""
+"""Capacity decisions are fail-closed and resume only after recovery."""
 
 import importlib.util
 import subprocess
@@ -42,8 +42,8 @@ class GuardTests(unittest.TestCase):
             with self.subTest(values=values), self.assertRaises(ValueError):
                 self.guard.pause_reasons(*values)
 
-    def test_already_paused_never_resumes_automatically(self):
-        self.assertEqual(self.guard.decide_action([], True), "remain-paused")
+    def test_already_paused_resumes_only_after_capacity_recovers(self):
+        self.assertEqual(self.guard.decide_action([], True), "resume")
         self.assertEqual(self.guard.decide_action(["thin-pool"], True), "remain-paused")
         self.assertEqual(self.guard.decide_action(["thin-pool"], False), "pause")
 
@@ -94,7 +94,7 @@ class GuardTests(unittest.TestCase):
             with (
                 patch.object(self.guard, "PAUSE_FILE", marker),
                 patch.object(
-                    self.guard, "collect_metrics", return_value=(1, 1, 8 * 1024**2)
+                    self.guard, "collect_metrics", return_value=(1, 90, 8 * 1024**2)
                 ),
                 patch.object(self.guard, "command") as command,
             ):
@@ -111,7 +111,31 @@ class GuardTests(unittest.TestCase):
                 "securityops-cuirass-register.service",
             )
 
-    def test_existing_pause_marker_reports_failed_stop(self):
+    def test_existing_pause_marker_resumes_after_capacity_recovers(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            marker = Path(temporary) / "PAUSED"
+            marker.write_text("builder-disk\n")
+            with (
+                patch.object(self.guard, "PAUSE_FILE", marker),
+                patch.object(
+                    self.guard, "collect_metrics", return_value=(1, 1, 8 * 1024**2)
+                ),
+                patch.object(self.guard, "command") as command,
+            ):
+                self.assertEqual(self.guard.main(), 0)
+            self.assertFalse(marker.exists())
+            command.assert_called_once_with(
+                "pct",
+                "exec",
+                "126",
+                "--",
+                "systemctl",
+                "enable",
+                "--now",
+                "securityops-cuirass-register.service",
+            )
+
+    def test_existing_pause_marker_reports_failed_resume(self):
         with tempfile.TemporaryDirectory() as temporary:
             marker = Path(temporary) / "PAUSED"
             marker.write_text("metric-error:TimeoutExpired\n")
