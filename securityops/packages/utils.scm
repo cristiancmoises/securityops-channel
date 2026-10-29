@@ -126,7 +126,27 @@ width of Go strings, UTF-8 byte slices, and runes.")
              (commit (string-append "v" version))))
        (file-name (git-file-name "go-golang-org-x-sys" version))
        (sha256
-        (base32 "16jnfsdfwwnldkspgnyhi70br0y3ygl8r7wm08yd3s4dff93xpaa"))))))
+        (base32 "16jnfsdfwwnldkspgnyhi70br0y3ygl8r7wm08yd3s4dff93xpaa"))))
+    (arguments
+     (substitute-keyword-arguments (package-arguments gb:go-golang-org-x-sys)
+       ((#:phases phases #~%standard-phases)
+        #~(modify-phases #$phases
+            (add-after 'unpack 'handle-confined-file-dedupe-test
+              (lambda _
+                ;; Unprivileged containers return EPERM for FIDEDUPERANGE.
+                ;; Keep the test enabled where the ioctl is available and
+                ;; treat that confinement response like other unsupported
+                ;; filesystem responses already recognized upstream.
+                (use-modules (ice-9 textual-ports))
+                (substitute* "src/golang.org/x/sys/unix/syscall_linux_test.go"
+                  (("if err == unix\\.EOPNOTSUPP \\|\\| err == unix\\.EINVAL \\|\\| err == unix\\.ENOTTY \\{")
+                   "if err == unix.EPERM || err == unix.EOPNOTSUPP || err == unix.EINVAL || err == unix.ENOTTY {"))
+                (unless (string-contains
+                         (call-with-input-file
+                             "src/golang.org/x/sys/unix/syscall_linux_test.go"
+                           get-string-all)
+                         "err == unix.EPERM || err == unix.EOPNOTSUPP")
+                  (error "x/sys dedupe test patch no longer matches"))))))))))
 
 (define go-golang-org-x-term-0.45
   (package
@@ -171,6 +191,14 @@ width of Go strings, UTF-8 byte slices, and runes.")
        (file-name (git-file-name "go-github-com-fsnotify-fsnotify" version))
        (sha256
         (base32 "0dc2bwbji8slb5fc17az9m4q788i0p35cjh4lq6ak73qr214pc78"))))
+    (arguments
+     (substitute-keyword-arguments
+         (package-arguments go:go-github-com-fsnotify-fsnotify)
+       ((#:test-flags _ #~'())
+        ;; Overflow depends on saturating the host's inotify queue, which an
+        ;; unprivileged CT cannot control.  Keep the upstream package's known
+        ;; DiffMatch exclusion and run every other test.
+        #~(list "-skip" "TestDiffMatch/3|TestInotifyOverflow"))))
     (propagated-inputs
      (list go-golang-org-x-sys-0.47))))
 
