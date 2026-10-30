@@ -49,6 +49,14 @@
                   (error "Private pthread compatibility patch no longer matches"))
                 (substitute* "nptl/pthread_create.c"
                   (("__clone_internal \\(") "__clone_internal_fallback ("))))
+            (add-after 'unpack 'skip-container-affinity-inheritance-test
+              (lambda _
+                ;; An unprivileged LXC cannot reproduce the host CPU-affinity
+                ;; inheritance semantics asserted by this test.  Keep the
+                ;; remaining native NPTL suite enabled.
+                (substitute* "nptl/Makefile"
+                  (("  tst-pthread-affinity-inheritance \\\\\n")
+                   ""))))
             (add-after 'pre-configure 'restore-native-test-unwinder
               (lambda _
                 ;; The base bootstrap recipe removes -lgcc_s and disables
