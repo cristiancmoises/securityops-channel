@@ -11,7 +11,7 @@ for file in "$spec" "$register" "$web"; do
 done
 
 grep -qF 'https://git.securityops.com.br/cristiancmoises/securityops-channel.git' "$spec"
-grep -qF '(branch "main")' "$spec"
+grep -qF '(branch branch)' "$spec"
 grep -qF '(build '\''(custom (securityops build-farm ci)))' "$spec"
 grep -qF '(define guix-baseline' "$spec"
 grep -qF '(inherit %default-guix-channel)' "$spec"
@@ -20,6 +20,18 @@ grep -qF '(channels (list securityops guix-baseline))' "$spec"
 grep -qF 'fb3223f3afdc14bab294c78d88e545eda2b146d9' "$spec"
 grep -qF 'https://git.securityops.com.br/cristiancmoises/gocix.git' "$spec"
 grep -qF 'https://git.securityops.com.br/cristiancmoises/sops-guix.git' "$spec"
+grep -qF 'https://git.securityops.co/cristiancmoises/guix.git' "$spec"
+grep -qF 'https://git.securityops.co/cristiancmoises/nonguix.git' "$spec"
+grep -qF 'https://git.securityops.co/cristiancmoises/radix-channel.git' "$spec"
+grep -qF 'https://git.securityops.co/cristiancmoises/rosenthal.git' "$spec"
+grep -qF 'https://git.securityops.co/cristiancmoises/small-guix.git' "$spec"
+if grep -qF 'https://git.securityops.co/cristiancmoises/radix.git' "$spec"; then
+  printf 'obsolete Radix mirror URL in build-farm specification\n' >&2
+  exit 1
+fi
+for name in guix nonguix radix rosenthal small-guix securityops gocix sops-guix; do
+  grep -qF "(name \"$name\")" "$spec"
+done
 grep -qF -- '--interval=300' "$register"
 grep -qF -- '--parallel-evaluations=1' "$register"
 grep -qF -- '--threads=3' "$register"
