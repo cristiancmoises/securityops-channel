@@ -5,11 +5,11 @@
              (guix channels)
              (guix openpgp))
 
-(define (signed-channel name url introduction signer)
+(define (signed-channel name url branch introduction signer)
   (channel
    (name name)
    (url url)
-   (branch "main")
+   (branch branch)
    (introduction
     (make-channel-introduction
      introduction
@@ -19,7 +19,48 @@
   (signed-channel
    'securityops
    "https://git.securityops.com.br/cristiancmoises/securityops-channel.git"
+   "main"
    "fb3223f3afdc14bab294c78d88e545eda2b146d9"
+   "0CFA 43B9 AA96 42EA AF2B E983 C4C6 61C9 ECFB 46E8"))
+
+(define guix
+  (signed-channel
+   'guix
+   "https://git.securityops.co/cristiancmoises/guix.git"
+   "master"
+   "9edb3f66fd807b096b48283debdcddccfea34bad"
+   "BBB0 2DDF 2CEA F6A8 0D1D E643 A2A0 6DF2 A33A 54FA"))
+
+(define nonguix
+  (signed-channel
+   'nonguix
+   "https://git.securityops.co/cristiancmoises/nonguix.git"
+   "master"
+   "897c1a470da759236cc11798f4e0a5f7d4d59fbc"
+   "2A39 3FFF 68F4 EF7A 3D29 12AF 6F51 20A0 22FB B2D5"))
+
+(define radix
+  (signed-channel
+   'radix
+   "https://git.securityops.co/cristiancmoises/radix-channel.git"
+   "main"
+   "f9130e11e35d2c147c6764ef85542dc58dc09c4f"
+   "F164 709E 5FC7 B32B AEC7 9F37 1F2E 76AC E3F5 31C8"))
+
+(define rosenthal
+  (signed-channel
+   'rosenthal
+   "https://git.securityops.co/cristiancmoises/rosenthal.git"
+   "trunk"
+   "7677db76330121a901604dfbad19077893865f35"
+   "13E7 6CD6 E649 C28C 3385 4DF5 5E5A A665 6149 17F7"))
+
+(define small-guix
+  (signed-channel
+   'small-guix
+   "https://git.securityops.co/cristiancmoises/small-guix.git"
+   "main"
+   "59de79f673669b798f650754b629404418464784"
    "0CFA 43B9 AA96 42EA AF2B E983 C4C6 61C9 ECFB 46E8"))
 
 ;; Keep the Guix base stable while SecurityOps polls for channel changes.
@@ -34,6 +75,7 @@
   (signed-channel
    'gocix
    "https://git.securityops.com.br/cristiancmoises/gocix.git"
+   "main"
    "cdb78996334c4f63304ecce224e95bb96bfd4c7d"
    "8D10 60B9 6BB8 292E 829B 7249 AED4 1CC1 93B7 01E2"))
 
@@ -41,10 +83,46 @@
   (signed-channel
    'sops-guix
    "https://git.securityops.com.br/cristiancmoises/sops-guix.git"
+   "main"
    "0bbaf1fdd25266c7df790f65640aaa01e6d2dbc9"
    "8D10 60B9 6BB8 292E 829B 7249 AED4 1CC1 93B7 01E2"))
 
 (list
+ (specification
+  (name "guix")
+  (build '(channels guix))
+  (channels (list guix))
+  (systems '("x86_64-linux"))
+  (priority 4)
+  (period 3600))
+ (specification
+  (name "nonguix")
+  (build '(channels nonguix))
+  (channels (list nonguix guix))
+  (systems '("x86_64-linux"))
+  (priority 5)
+  (period 3600))
+ (specification
+  (name "radix")
+  (build '(channels radix))
+  (channels (list radix guix))
+  (systems '("x86_64-linux"))
+  (priority 6)
+  (period 3600))
+ (specification
+  (name "rosenthal")
+  (build '(channels rosenthal))
+  (channels (list rosenthal guix))
+  (systems '("x86_64-linux"))
+  (priority 6)
+  (period 3600))
+ (specification
+  (name "small-guix")
+  (build '(channels small-guix))
+  (channels (list small-guix gocix sops-guix guix))
+  (systems '("x86_64-linux"))
+  (priority 5)
+  (period 3600))
  (specification
   (name "securityops")
   (build '(custom (securityops build-farm ci)))
