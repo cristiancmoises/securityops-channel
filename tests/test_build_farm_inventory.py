@@ -253,6 +253,24 @@ class InventoryTests(unittest.TestCase):
         self.assertIn("(overload-threshold #f)", machine)
         self.assertIn("(parallel-builds 1)", machine)
 
+    def test_offload_uses_the_stable_ct126_service_address(self):
+        machine = (ROOT / "etc/build-farm/offload/machines-ct126.scm").read_text()
+        setup = (ROOT / "etc/build-farm/offload/setup-workstation.sh").read_text()
+        self.assertIn('"192.168.1.126"', machine)
+        self.assertNotIn('"192.168.1.26"', machine)
+        self.assertIn(
+            "machine_source=/home/berkeley/securityops-channel/etc/build-farm/offload/machines-ct126.scm",
+            setup,
+        )
+        self.assertIn(
+            "ff51ae5a0ef9ba646b2acd78257ef498b6773c12ed047c348d6903cdcbdbbbcd",
+            setup,
+        )
+        self.assertIn(
+            "374434ac7a3cb8d72dc45ed6a1d73a6ba1d663af2c2f782f0e24670102718032",
+            setup,
+        )
+
     def test_every_channel_package_has_a_unique_name_and_version(self):
         result = subprocess.run(
             ["guix", "repl", "-q", "-L", ".", str(SCRIPT)],
