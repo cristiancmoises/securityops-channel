@@ -9,10 +9,11 @@ if [ "$(id -u)" -ne 0 ]; then
 fi
 
 private_source=/home/berkeley/.ssh/securityops-guix-offload-ct126
-machine_source=/home/berkeley/securityops-channel/.worktrees/build-farm/etc/build-farm/offload/machines-ct126.scm
+machine_source=/home/berkeley/securityops-channel/etc/build-farm/offload/machines-ct126.scm
 builder_public=/home/berkeley/ct126-guix-signing-key.pub
 private_target=/root/.ssh/securityops-guix-offload-ct126
 machine_target=/etc/guix/machines.scm
+machine_backup=/etc/guix/machines.scm.before-ct126-address
 guix=/var/guix/profiles/per-user/root/current-guix/bin/guix
 
 for source in "$private_source" "$machine_source" "$builder_public"; do
@@ -25,7 +26,7 @@ if [ -L /root/.ssh ] || [ "$(stat -c %a "$private_source")" != 600 ]; then
   printf '%s\n' 'Unsafe SSH key permissions or root SSH directory.' >&2
   exit 1
 fi
-if [ "$(sha256sum "$machine_source" | cut -d ' ' -f 1)" != 374434ac7a3cb8d72dc45ed6a1d73a6ba1d663af2c2f782f0e24670102718032 ]; then
+if [ "$(sha256sum "$machine_source" | cut -d ' ' -f 1)" != ff51ae5a0ef9ba646b2acd78257ef498b6773c12ed047c348d6903cdcbdbbbcd ]; then
   printf '%s\n' 'The reviewed build-machine configuration changed.' >&2
   exit 1
 fi
@@ -44,13 +45,13 @@ if [ -e "$machine_target" ] && ! cmp -s "$machine_source" "$machine_target"; the
     exit 1
   fi
   case "$(sha256sum "$machine_target" | cut -d ' ' -f 1)" in
-    d40e823cf56b01c47599648a52acd5a9c0ea9128aefa5599f6eee492df1d2f4e|8c89cbe355434ea92cc5ba32dadb9791d00d286969bd5f921e564ef464518eea) ;;
+    d40e823cf56b01c47599648a52acd5a9c0ea9128aefa5599f6eee492df1d2f4e|8c89cbe355434ea92cc5ba32dadb9791d00d286969bd5f921e564ef464518eea|374434ac7a3cb8d72dc45ed6a1d73a6ba1d663af2c2f782f0e24670102718032) ;;
     *)
       printf 'Refusing to replace unrecognized configuration: %s\n' "$machine_target" >&2
       exit 1
       ;;
   esac
-  if [ -e /etc/guix/machines.scm.before-import ]; then
+  if [ -e "$machine_backup" ]; then
     printf '%s\n' 'Refusing to replace an existing offload backup.' >&2
     exit 1
   fi
@@ -62,7 +63,7 @@ if [ ! -e "$private_target" ]; then
   install -m 600 "$private_source" "$private_target"
 fi
 if [ -e "$machine_target" ] && ! cmp -s "$machine_source" "$machine_target"; then
-  install -m 600 "$machine_target" /etc/guix/machines.scm.before-import
+  install -m 600 "$machine_target" "$machine_backup"
   machine_tmp=$(mktemp /etc/guix/.machines.scm.XXXXXXXX)
   install -m 600 "$machine_source" "$machine_tmp"
   mv -- "$machine_tmp" "$machine_target"

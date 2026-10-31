@@ -5,7 +5,7 @@
 
 (list
  (build-machine
-  (name (or (getenv "SECURITYOPS_CT126_HOST") "ct126.invalid"))
+  (name (or (getenv "SECURITYOPS_CT126_HOST") "192.168.1.126"))
   (systems (list "x86_64-linux"))
   (host-key "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKKlL9GeWPmhnbLjNQWTt5b4gKxke2bA5dcAuv6JMGmx root@guix-builder")
   (user "guix-offload")
