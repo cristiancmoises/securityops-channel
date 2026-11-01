@@ -5,7 +5,7 @@
 
 (unless (and (package? arelle)
              (string=? (package-name arelle) "arelle")
-             (string=? (package-version arelle) "2.46.0"))
+             (string=? (package-version arelle) "2.47.4"))
   (error "Missing or incorrect Arelle package"))
 
 (for-each

@@ -26,22 +26,22 @@
 ;;; ---------------------------------------------------------------------------
 ;;; tor — stable upstream release, ahead of the base Guix recipe.
 ;;; Plain GNU build system; inherit everything and swap source only.
-;;; Hash: `guix download https://dist.torproject.org/tor-0.4.9.14.tar.gz'.
+;;; Hash: `guix download https://dist.torproject.org/tor-0.4.9.15.tar.gz'.
 ;;; ---------------------------------------------------------------------------
 (define-public tor
   (package
     (inherit tor:tor)
-    (version "0.4.9.14")
+    (version "0.4.9.15")
     (source
      (origin
        (method url-fetch)
        (uri (string-append "https://dist.torproject.org/tor-" version
                            ".tar.gz"))
        (sha256
-        (base32 "0jjy4g30w6g44s8nvnr70cyx048f0h19pdi7v9w35x4g3jn4j90q"))))))
+        (base32 "1wv356lq0q4746ddy1dmlcn6vjbd3kzvr2x08g8lx0d62srga48r"))))))
 
-;; All browser inputs below follow tbb-15.0.24-build1 (commit
-;; 166b1f8faab7e1cf7f553db8f0450d1f9bb8fdce) of tor-browser-build.
+;; All browser inputs below follow tbb-16.0-build1 (commit
+;; eb1e8801b909ecedc16bd27b052c3fef8894d16c) of tor-browser-build.
 ;; Translation commits come from projects/translation/config; Firefox locale
 ;; data is the revision in the released source's l10n-changesets.json.
 (define torbrowser-translation-base
@@ -49,24 +49,24 @@
     (method git-fetch)
     (uri (git-reference
           (url "https://gitlab.torproject.org/tpo/translation.git")
-          (commit "c62d7c244409d6d6ca37cd7f4819260ffc3cf60b")))
+          (commit "e1166567b3a76662f0b6223b4eb3ff55a2eca34b")))
     (file-name "translation-base-browser")
-    (sha256 (base32 "0gasp5gx4zc603yjhxi5rhagjq5pswvyxdgin75ax5p76bkaypcp"))))
+    (sha256 (base32 "04qp10jl0bqn65zwca06cbf8hss4ql9yjjmvmv5y9idy838x407v"))))
 
 (define torbrowser-translation-specific
   (origin
     (method git-fetch)
     (uri (git-reference
           (url "https://gitlab.torproject.org/tpo/translation.git")
-          (commit "8cae94965791def3a7e63a1acb9e998ce8133de9")))
+          (commit "523ce42af96512b616417c3b5f229887abd9f565")))
     (file-name "translation-tor-browser")
-    (sha256 (base32 "03dhx4zlawmymp3v7fv9mr9nywpryblha3iz344s7riwk7iv8ivl"))))
+    (sha256 (base32 "18n2yifn6hl5kadzls1yshzmw7jwpppa60wnyq8kw19rsbg3hb9n"))))
 
 (define torbrowser-firefox-locales
-  (let ((commit "412690f1368e37f70af57eecabb93497167eb9ba"))
+  (let ((commit "1e95d1c5f519c3fbde715345ae7beb56a2c79077"))
     (package
       (inherit (@@ (gnu packages tor-browsers) firefox-locales))
-      (version (git-version "0.0.0" "2" commit))
+      (version (git-version "0.0.0" "3" commit))
       (source
        (origin
          (method git-fetch)
@@ -75,7 +75,7 @@
                (commit commit)))
          (file-name (git-file-name "firefox-locales" version))
          (sha256
-          (base32 "15614g94zdk3n1nnx5jy622zryv2ydd5cmn4pidwrl07g1f3xxxa")))))))
+          (base32 "12rlba5g46sw22fxqyjj2jfvplxw45dm2m82lq17ajgqh21frdzf")))))))
 
 (define torbrowser-tor-client
   (package
@@ -88,7 +88,7 @@
   (let ((base (@@ (gnu packages browser-extensions) noscript)))
     (make-icecat-extension (package
                              (inherit base)
-                             (version "13.6.36.1984")
+                             (version "13.6.37.1984")
                              (source
                               (origin
                                 (inherit (package-source base))
@@ -98,14 +98,14 @@
                                       ".xpi"))
                                 (sha256
                                  (base32
-                                  "0q7xb9pjawa14a7q7142fhg42aqc3pch9y8m8qp51bsa0xbnzaz6"))))
+                                  "1lxk46ii1iklfd6ss0n5x1720kp28dv0z00xqd0kib8rh4srd0bb"))))
                              ;; Bundled flextabs and he JavaScript libraries use the Expat license.
                              (license (list license:gpl3+ license:expat))))))
 
 (define-public torbrowser-assets
   (package
     (name "torbrowser-assets")
-    (version "15.0.26")
+    (version "16.0")
     (source
      (origin
        (method url-fetch)
@@ -113,7 +113,7 @@
              "https://archive.torproject.org/tor-package-archive/torbrowser/"
              version "/tor-browser-linux-x86_64-" version ".tar.xz"))
        (sha256
-        (base32 "0x5zzwbgr9na67blphdx76bibvhhn68n6l4p6rnypf946x2cfyij"))))
+        (base32 "090s54xc9i4587kym41jx552l8rv5sxibmfd723q9hl9ffv70cyy"))))
     (build-system copy-build-system)
     (arguments
      (list
@@ -193,8 +193,8 @@ Browser bundle, matching the @code{torbrowser} version in this channel.")
                                 "vi"
                                 "zh-CN"
                                 "zh-TW")
-                    #:build-date "20261021024437"
-                    #:base-browser-version "15.0.26"))
+                    #:build-date "20261026134500"
+                    #:base-browser-version "16.0"))
          ;; Bind inputs before evaluating the inherited arguments.  Guix's
          ;; phases use this-package-input for Tor's geoip data and locales.
          ;; Evaluating the upstream arguments first captures the old inputs.
@@ -206,16 +206,16 @@ Browser bundle, matching the @code{torbrowser} version in this channel.")
                            (replace "tor-client" torbrowser-tor-client))))))
     (package
       (inherit base)
-      (version "15.0.26")
+      (version "16.0")
       (source
        (origin
          (inherit (package-source base))
          (uri (string-append
                "https://archive.torproject.org/tor-package-archive/torbrowser/"
                version
-               "/src-firefox-tor-browser-140.17.0esr-15.0-1-build7.tar.xz"))
+               "/src-firefox-tor-browser-153.6.0esr-16.0-1-build3.tar.xz"))
          (sha256
-          (base32 "1a2v43c5933mdrgmi083cy0kb4hbf1schj3difzhx1qjci5877i0"))))
+          (base32 "0zx87pnm6wrjdxrwyxjz3x2z20v0vsfysxvw8yigx0kxc61in5v4"))))
       (arguments
        (substitute-keyword-arguments (package-arguments base)
          ((#:configure-flags flags

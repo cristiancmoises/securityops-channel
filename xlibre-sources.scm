@@ -19,17 +19,17 @@
 (hash-set!
   %xlibre-sources
   "xlibre-server"
-  (cons "25.2.2"
+  (cons "25.2.3"
         (origin
           (method git-fetch)
           (uri (git-reference
                  (url "https://github.com/X11Libre/xserver")
-                 (commit "xlibre-xserver-25.2.2")))
+                 (commit "xlibre-xserver-25.2.3")))
           (sha256
             (base32
-              "0zc88lvxrlck6vy8a1bl810smjmd1jgya9g9mbznjg75vwz3kpfz"))
+              "1kyr3zk9zz9j1vrhip7crsw1k6xyr2lghybcjnsnwf33j9n7g2yw"))
           (file-name
-            (git-file-name "xlibre-server" "25.2.2")))))
+            (git-file-name "xlibre-server" "25.2.3")))))
 
 ;; this file was automatically generated
 

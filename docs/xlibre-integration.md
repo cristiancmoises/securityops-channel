@@ -11,7 +11,7 @@ The compatibility implementation was integrated from spacecadet's
 `guix-xlibre` revision `09edbfa3c5c4eaafbbb1947445c219ac53c465a6`:
 `https://gitlab.vulnix.sh/spacecadet/guix-xlibre.git`.
 Original package descriptions, per-package licenses and driver source hashes
-are retained. The server uses SecurityOps' existing 25.2.2 source/hash; the
+are retained. The server uses SecurityOps' verified 25.2.3 source/hash; the
 obsolete pre-gen4 Intel patch remains removed. Driver versions are unchanged.
 
 This replaces the previous overlay that inherited an external channel recipe.

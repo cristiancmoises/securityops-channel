@@ -3,7 +3,7 @@
 (use-modules (guix packages) (guix channels) (srfi srfi-1)
              (xlibre) ((securityops packages xlibre) #:prefix so:))
 (unless (and (eq? so:xlibre-server xlibre-server)
-             (string=? (package-version xlibre-server) "25.2.2")
+             (string=? (package-version xlibre-server) "25.2.3")
              (= (length %default-xlibre-modules) 13)
              (every package? %default-xlibre-modules))
   (error "XLibre compatibility exports or default drivers differ"))

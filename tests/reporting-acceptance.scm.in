@@ -63,7 +63,7 @@
 from importlib.metadata import distribution
 import sys, tarfile
 with tarfile.open(sys.argv[1]) as archive:
-    original = archive.extractfile('arelle_release-2.46.0/PKG-INFO').read(1048577)
+    original = archive.extractfile('arelle_release-2.47.4/PKG-INFO').read(1048577)
 assert len(original) <= 1048576
 original = BytesParser().parsebytes(original)
 installed = distribution('arelle-release').metadata

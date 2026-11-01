@@ -13,17 +13,17 @@
 (define-public pipewire-latest
   (package
     (inherit guix:pipewire)
-    (version "1.6.10")
+    (version "1.6.11")
     (source
      (origin
        (method git-fetch)
        (uri (git-reference
              (url "https://gitlab.freedesktop.org/pipewire/pipewire.git")
-             ;; Upstream stable tag 1.6.10, released 2026-10-22.
-             (commit "f9d6cbc99c354b9b0ad1d37245dc3ab0fb9f9171")))
+             ;; Upstream stable tag 1.6.11, released 2026-10-29.
+             (commit "4287f31510771fc999f8a58a024c81ca10b8d55f")))
        (file-name (git-file-name "pipewire" version))
        (sha256
-        (base32 "030ppdvsmz9ylbkvs108wzan680xqq0s12ravj9i0hyg4kyf0k51"))))
+        (base32 "0940sbgmpn9c1wa2wkfqs7kx7b0zwn2g6zc37b9zz7zgfgg19la0"))))
     (arguments
      (substitute-keyword-arguments (package-arguments guix:pipewire)
        ((#:configure-flags flags

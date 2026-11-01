@@ -100,7 +100,7 @@ def main():
                     )
 
                 wait_for(lambda: query("agent.ping").stdout.strip() == "1", process)
-                assert query("agent.version").stdout.strip() == "7.4.15"
+                assert query("agent.version").stdout.strip() == "7.4.16"
                 # An unrelated host metric must be rejected by the test allowlist.
                 forbidden = query("system.uptime")
                 assert forbidden.stdout.startswith("ZBX_NOTSUPPORTED"), (

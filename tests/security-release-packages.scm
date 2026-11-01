@@ -7,9 +7,9 @@
 
 (define (run-tests)
   (test-begin "security-release-packages")
-  (test-equal "sdb stable" "2.5.8" (package-version s:sdb))
+  (test-equal "sdb stable" "2.6.2" (package-version s:sdb))
   (test-equal "radare2 stable" "6.2.4" (package-version s:radare2))
-  (test-equal "Tor stable" "0.4.9.14" (package-version t:tor))
+  (test-equal "Tor stable" "0.4.9.15" (package-version t:tor))
   (test-assert "no conflicting regular radare2 dependency"
     (let ((library (lookup-package-input s:radare2 "sdb")))
       (or (not library) (eq? s:sdb library))))

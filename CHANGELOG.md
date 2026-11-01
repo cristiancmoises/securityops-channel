@@ -6,6 +6,17 @@ tag rather than SemVer of the code.
 
 ## [Unreleased]
 
+### Changed — stable package refresh (2026-11-01)
+
+- Updated PipeWire 1.6.11, Arelle 2.47.4, sdb 2.6.2, Tor 0.4.9.15,
+  yt-dlp 2026.10.26, OpenShot 4.1.0 and XLibre 25.2.3.
+- Updated Chrome and portable Chromium to 156.0.8078.79-1. Chrome remains
+  subject to its vendor license and is not eligible for public substitutes.
+- Updated Tor Browser to 16.0 with its matching source, translations, locales,
+  NoScript and asset bundle. The published source and asset signatures were
+  checked against the Tor Browser Developers release key.
+- Corrected the documented Zabbix version to the existing 7.4.16 package.
+
 ### Added — Zen Browser (2026-10-23)
 
 - Added `zen-browser-bin` 1.23.4b from the official x86_64 Linux archive,
