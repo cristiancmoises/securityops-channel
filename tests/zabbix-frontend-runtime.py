@@ -53,14 +53,14 @@ def main():
                         time.sleep(0.1)
                 else:
                     raise TimeoutError("PHP server did not become ready")
-                assert "7.4.15" in page
+                assert "7.4.16" in page
                 assert "Welcome" in page and "Zabbix" in page
                 log.flush()
                 log.seek(0)
                 messages = log.read()
                 assert "Fatal error" not in messages and "Warning:" not in messages
                 print(
-                    f"PASS: PHP{php_version} renders Zabbix7.4.15 setup page "
+                    f"PASS: PHP{php_version} renders Zabbix7.4.16 setup page "
                     "without warnings"
                 )
             except BaseException:

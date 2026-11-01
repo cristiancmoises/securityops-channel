@@ -10,15 +10,15 @@
   (define root
     (canonicalize-path (string-append (dirname (car (command-line))) "/..")))
   (test-begin "browser-release-packages")
-  (test-equal "Chrome stable release" "155.0.8059.39-1"
+  (test-equal "Chrome stable release" "156.0.8078.79-1"
     (package-version b:google-chrome-stable))
   (test-equal "Chrome published archive"
-    "https://dl.google.com/linux/chrome/deb/pool/main/g/google-chrome-stable/google-chrome-stable_155.0.8059.39-1_amd64.deb"
+    "https://dl.google.com/linux/chrome/deb/pool/main/g/google-chrome-stable/google-chrome-stable_156.0.8078.79-1_amd64.deb"
     (origin-uri (package-source b:google-chrome-stable)))
-  (test-equal "portable Chromium stable release" "154.0.8037.97-1"
+  (test-equal "portable Chromium stable release" "156.0.8078.79-1"
     (package-version c:ungoogled-chromium-bin))
   (test-equal "portable Chromium published archive"
-    "https://github.com/ungoogled-software/ungoogled-chromium-portablelinux/releases/download/154.0.8037.97-1/ungoogled-chromium-154.0.8037.97-1-x86_64_linux.tar.xz"
+    "https://github.com/ungoogled-software/ungoogled-chromium-portablelinux/releases/download/156.0.8078.79-1/ungoogled-chromium-156.0.8078.79-1-x86_64_linux.tar.xz"
     (origin-uri (package-source c:ungoogled-chromium-bin)))
   (test-eq "source Chromium retains Guix compiler and patch contract"
     upstream:ungoogled-chromium b:ungoogled-chromium)

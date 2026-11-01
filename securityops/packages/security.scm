@@ -100,7 +100,7 @@
 (define-public sdb
   (package
     (inherit db:sdb)
-    (version "2.5.8")
+    (version "2.6.2")
     (source
      (origin
        (inherit (package-source db:sdb))
@@ -109,7 +109,7 @@
              (commit version)))
        (file-name (git-file-name "sdb" version))
        (sha256
-        (base32 "1kda7kfyx2180g7641krij3h4q2xywmvdjjzjdq6zgxdy86caf2s"))))))
+        (base32 "0zavmpl2jv0plwls03r9mf98z9rvlh71cpipynikiid9ylqybgbh"))))))
 
 (define-public radare2
   (package

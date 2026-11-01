@@ -154,7 +154,7 @@ Runtime modes are documented by `python3 tests/rustdesk-runtime-test.py --help`.
 
 ## Monitoring
 
-The Zabbix 7.4.15 components share one verified source release in
+The Zabbix 7.4.16 components share one verified source release in
 `(securityops packages zabbix)`.
 
 | Package | Provided component |
@@ -508,7 +508,7 @@ default grafting and substitute authentication.
 
 | Package | Version | Module | Interface |
 |---|---|---|---|
-| `arelle` | 2.46.0 | `(securityops packages reporting)` | `arelle`, upstream `arelleCmdLine` and Python modules |
+| `arelle` | 2.47.4 | `(securityops packages reporting)` | `arelle`, upstream `arelleCmdLine` and Python modules |
 
 ### Offline XBRL validation
 
@@ -1167,7 +1167,7 @@ a Guix System service, use the bundled service type:
 `xlibre-server`, its drivers and the compatibility `(xlibre)` module are
 included in SecurityOps. No external XLibre channel is required. Use
 `((securityops packages xlibre) #:prefix so:)` and `so:xlibre-server`.
-The server source remains pinned to 25.2.2; the obsolete Intel-driver patch
+The server source remains pinned to 25.2.3; the obsolete Intel-driver patch
 is omitted because its policy is already upstream.
 
 Scheme resolves a package through the module you import. Importing the channel

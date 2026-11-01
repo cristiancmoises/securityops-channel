@@ -9,7 +9,7 @@
   (for-each
    (lambda (package)
      (test-equal (string-append (package-name package) " stable release")
-       "7.4.15" (package-version package))
+       "7.4.16" (package-version package))
      (test-equal "all components share verified upstream source"
        (origin-hash (package-source z:zabbix-agentd))
        (origin-hash (package-source package)))
@@ -19,7 +19,7 @@
          z:zabbix-java-gateway z:zabbix-web-service))
   (for-each
    (lambda (package)
-     (test-equal "command package tracks stable agent" "7.4.15"
+     (test-equal "command package tracks stable agent" "7.4.16"
        (package-version package))
      (test-eq "command package reuses the native agent build"
        z:zabbix-agentd (lookup-package-input package "zabbix-agentd")))

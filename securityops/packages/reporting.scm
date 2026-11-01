@@ -305,13 +305,13 @@ Tcl/Tk applications, including the Arelle graphical interface.")
 (define arelle-base
   (package
     (name "arelle")
-    (version "2.47.3")
+    (version "2.47.4")
     (source
      (origin
        (method url-fetch)
        (uri (pypi-uri "arelle_release" version))
        (sha256
-        (base32 "19dz7h11rh2myjzww5gf4x1zpqyin60wafv34kky78z11lnll1km"))))
+        (base32 "053sqf8san3dbd8gh4c8h36g78zfysprqi223sr7as9a6v0l4giz"))))
     (build-system pyproject-build-system)
     (native-inputs
      `(("python-setuptools" ,python-setuptools-for-arelle)
@@ -321,9 +321,9 @@ Tcl/Tk applications, including the Arelle graphical interface.")
        ("upstream-tests" ,(origin
                    (method url-fetch)
                    (uri (string-append "https://github.com/Arelle/Arelle/"
-                                       "archive/refs/tags/2.47.3.tar.gz"))
+                                       "archive/refs/tags/2.47.4.tar.gz"))
                    (sha256
-                    (base32 "18vqas44anxngkv8msizdwdb1yxbfwp7447jblkzvwcbmfn9164r"))))))
+                    (base32 "0a9pazaksyyj2mz0yz47h2nzpd2cf98x7c3z4j7pa4dp771qvfb1"))))))
     (propagated-inputs
      (cons `("python:tk" ,python "tk")
            (map (lambda (package) (list (package-name package) package))
@@ -348,9 +348,9 @@ Tcl/Tk applications, including the Arelle graphical interface.")
           (add-after 'unpack 'unpack-upstream-tests
             (lambda* (#:key inputs #:allow-other-keys)
               (invoke "tar" "xf" (assoc-ref inputs "upstream-tests")
-                      "--strip-components=1" "Arelle-2.47.3/tests/unit_tests"
-                      "Arelle-2.47.3/tests/__init__.py"
-                      "Arelle-2.47.3/conftest.py")))
+                      "--strip-components=1" "Arelle-2.47.4/tests/unit_tests"
+                      "Arelle-2.47.4/tests/__init__.py"
+                      "Arelle-2.47.4/conftest.py")))
           (add-after 'unpack 'replace-native-tktable-payload
             (lambda* (#:key inputs #:allow-other-keys)
               ;; The sdist's existing SOURCES list otherwise omits new data.

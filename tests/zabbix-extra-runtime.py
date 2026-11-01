@@ -77,7 +77,7 @@ def java_test(gateway, jdk, state, environment):
     version = subprocess.check_output(
         [command, "-V"], env=environment, text=True, timeout=10
     )
-    assert "7.4.15" in version
+    assert "7.4.16" in version
     environment = environment.copy()
     environment["JAVA_TOOL_OPTIONS"] = (
         "-Dzabbix.listenIP=127.0.0.1 -Dzabbix.listenPort=23052 "
@@ -117,7 +117,7 @@ def java_test(gateway, jdk, state, environment):
         )
         assert response == {
             "response": "success",
-            "data": [{"value": "1"}, {"value": "7.4.15"}],
+            "data": [{"value": "1"}, {"value": "7.4.16"}],
         }, response
         response = gateway_query(
             23052,
@@ -177,7 +177,7 @@ class Dashboard(http.server.BaseHTTPRequestHandler):
         assert self.browser_verified, "pinned sandboxed Chrome process not observed"
         data = (
             b"<!doctype html><html><body><div class='wrapper is-ready'>"
-            b"Zabbix isolated PDF fixture 7.4.15</div></body></html>"
+            b"Zabbix isolated PDF fixture 7.4.16</div></body></html>"
         )
         self.send_response(200)
         self.send_header("Content-Type", "text/html; charset=utf-8")
@@ -225,7 +225,7 @@ def web_test(service, state, environment):
         Path(browser_path.group(1)).parent / "share/google/chrome/chrome"
     )
     Dashboard.browser_verified = False
-    assert "7.4.15" in subprocess.check_output(
+    assert "7.4.16" in subprocess.check_output(
         [command, "-V"], env=environment, text=True, timeout=10
     )
     config = state / "web-service.conf"
@@ -275,7 +275,7 @@ def web_test(service, state, environment):
             text = subprocess.check_output(
                 ["pdftotext", str(pdf), "-"], text=True, timeout=10
             )
-            assert "Zabbix isolated PDF fixture 7.4.15" in text, text
+            assert "Zabbix isolated PDF fixture 7.4.16" in text, text
             assert Dashboard.browser_verified
             assert process.poll() is None
             assert not marker.exists(), "ambient browser superseded pinned Chrome"
@@ -284,7 +284,7 @@ def web_test(service, state, environment):
 
 def javascript_test(prefix, environment):
     command = str(prefix / "bin/zabbix_js")
-    assert "7.4.15" in subprocess.check_output(
+    assert "7.4.16" in subprocess.check_output(
         [command, "-V"], env=environment, text=True, timeout=10
     )
     result = subprocess.run(

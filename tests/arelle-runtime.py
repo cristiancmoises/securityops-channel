@@ -28,7 +28,7 @@ def main():
         "build-only setuptools leaked into runtime"
     )
     assert "-tk/lib/python" in wrapper, "Python Tk output missing from runtime"
-    assert version("arelle-release") == "2.46.0"
+    assert version("arelle-release") == "2.47.4"
     assert version("filelock") == "4.0.12"
     assert version("lxml") == "6.1.3"
     assert version("pillow") == "12.3.0"

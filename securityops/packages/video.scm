@@ -314,15 +314,12 @@ libraries."))))
        (sha256
         (base32 "1psz4b6c1kxr8jv92xs02b8gc3hdwqg0xkyji6dq9mfps41vbjp7"))))))
 
-;;; yt-dlp — bumped ahead of Guix: 2026.07.04 -> 2026.08.19 (latest upstream,
-;;; released 2026-08-19).  git-fetch of the release tag; the arguments (test
-;;; deselections and the ffmpeg-location phase) are inherited unchanged.  Hash
-;;; cross-checked against the definition prepared in the owner's guix fork
-;;; checkout.
+;;; yt-dlp — latest stable upstream release.  The source is the upstream release
+;;; tag; test deselections and the ffmpeg-location phase remain inherited.
 (define-public yt-dlp
   (package
     (inherit gnu:yt-dlp)
-    (version "2026.10.21")
+    (version "2026.10.26")
     (source
      (origin
        (method git-fetch)
@@ -331,7 +328,7 @@ libraries."))))
              (commit version)))
        (file-name (git-file-name "yt-dlp" version))
        (sha256
-        (base32 "0s7ay24d2d6glijsgx42kbn61x46s9h69h4v6sp6l6dvzawm180b"))))))
+        (base32 "1s8x4gqkgzj88avwmcdhjnmm6dfqg17jn63xg3w55yrr1vszs1fj"))))))
 
 ;;; ytfzf — Guix ships the latest upstream (2.6.2); re-exported with the
 ;;; channel's yt-dlp so the terminal frontend downloads with the bumped engine.
@@ -341,9 +338,9 @@ libraries."))))
     (inputs (modify-inputs (package-inputs gnu-iv:ytfzf)
               (replace "yt-dlp" yt-dlp)))))
 
-;;; openshot — bumped ahead of Guix: 3.4.0 -> 4.0.1 (stable upstream).
-;;; git-fetch of tag v4.0.1; inherits the upstream origin (snippet preserved).
-;;; Hash: `guix download --git --commit=v4.0.1 .../OpenShot/openshot-qt'.
+;;; openshot — bumped ahead of Guix: 3.4.0 -> 4.1.0 (stable upstream).
+;;; git-fetch of tag v4.1.0; inherits the upstream origin (snippet preserved).
+;;; Hash: `guix download --git --commit=v4.1.0 .../OpenShot/openshot-qt'.
 ;;;
 ;;; 3.5.1 and later restructure the test suite: Guix's inherited check phase invokes the
 ;;; removed `src/tests/query_tests.py' (now split into unittest modules such as
@@ -353,7 +350,7 @@ libraries."))))
 (define-public openshot
   (package
     (inherit gnu:openshot)
-    (version "4.0.1")
+    (version "4.1.0")
     (source
      (origin
        (inherit (package-source gnu:openshot))
@@ -362,9 +359,9 @@ libraries."))))
              (commit (string-append "v" version))))
        (file-name (git-file-name (package-name gnu:openshot) version))
        (sha256
-        (base32 "0d0frymfyh3nr0b32mp2cl893zs4gc422iav4ci391hia9j8rdh6"))))
+        (base32 "04q6qs6vjwpmdb7wvym6icz1p2690pbs5h1h2nadjnj7l7xi8b7j"))))
     (arguments
-     ;; OpenShot 4.0.1 ships src/qt_api.py, but its setuptools layout does not
+     ;; OpenShot 4.1.0 ships src/qt_api.py, but its setuptools layout does not
      ;; install that file as a top-level Python module.  launch.py imports
      ;; `qt_api` directly, so install it beside the site packages before Guix's
      ;; Python sanity-check loads the gui_scripts entry point.
