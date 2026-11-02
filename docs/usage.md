@@ -225,8 +225,9 @@ delivery. The extra fixture rejects ordinary host execution:
 
 ## Wazuh
 
-The channel packages Wazuh 4.14.8, matching indexer/dashboard 4.14.8-1 and
-the compatible Filebeat 7.10.2-2 distribution for x86_64-linux.
+The channel packages Wazuh agent and manager 4.14.9. The server stack uses
+indexer/dashboard 4.14.8-1 and the compatible Filebeat 7.10.2-2 distribution
+for x86_64-linux.
 
 | Role | Module export | Installed command |
 |---|---|---|
@@ -565,7 +566,7 @@ or change user, Home or system profiles when you add the channel.
 | `libdigidocpp` 4.5.1 | `(securityops packages eid)` | Native library, headers and upstream `digidoc-tool` |
 | `digidoc4` 4.11.1 | `(securityops packages digidoc4)` | Native Qt desktop, `qdigidoc4`, desktop entry and signed bootstrap |
 | `eid-mw` 5.1.31 | `(securityops packages belgian-eid)` | Belgian eID GTK3 viewer and `lib/libbeidpkcs11.so` |
-| `ausweisapp` 2.6.0 | `(securityops packages ausweisapp)` | Native `AusweisApp` desktop and loopback SDK |
+| `ausweisapp` 2.6.1 | `(securityops packages ausweisapp)` | Native `AusweisApp` desktop and loopback SDK |
 | `openpace` 1.1.4 | `(securityops packages openpace)` | Native `libeac.so.3`, C headers, `libeac.pc` and CVC tools |
 | `icp-brasil-roots` 2026.10.05 | `(securityops packages icp-brasil)` | Explicit-purpose PEM bundles and original public root data |
 | `esocial-schemas` 1.3-20260701 | `(securityops packages brazil-tax)` | `share/esocial/events`, S-1.3 / NT 06/2026 |
@@ -756,7 +757,7 @@ application logs and loaded-library evidence; inspect the screenshot as well
 as the exit status. The fixture exercises normal SDK commands and refuses
 invalid input and an unauthorized Origin, without cards or remote providers.
 
-Source: [official AusweisApp 2.6.0 release](https://github.com/Governikus/AusweisApp/releases/tag/2.6.0).
+Source: [official AusweisApp 2.6.1 release](https://github.com/Governikus/AusweisApp/releases/tag/2.6.1).
 
 ### OpenPACE native EAC library
 

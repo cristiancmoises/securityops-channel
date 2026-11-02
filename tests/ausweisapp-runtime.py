@@ -206,7 +206,7 @@ def main():
         environment.pop("QT_SVG_DEFAULT_OPTIONS", None)
         version = output([binary, "--version"], environment).strip()
         print("Installed command-line version:", version)
-        assert version == "AusweisApp 2.6.0", version
+        assert version == "AusweisApp 2.6.1", version
         with running(
             [
                 binary,
