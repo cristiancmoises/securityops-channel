@@ -93,6 +93,30 @@ comunicação 1.6. Os demais pacotes dependem das verificações de build e redi
 um build concluído na [farm](https://farm.securityops.co/) não significa que
 ele já foi publicado.
 
+As versões estáveis das receitas atualizadas em 2026-11-01 estão abaixo. Esta
+tabela descreve a revisão do canal; consulte a farm para acompanhar o build e a
+disponibilidade pública dos substitutos.
+
+| Receita | Versão |
+|---|---|
+| PipeWire | 1.6.11 |
+| Arelle | 2.47.4 |
+| sdb | 2.6.2 |
+| Tor | 0.4.9.15 |
+| Tor Browser | 16.0 |
+| yt-dlp | 2026.10.26 |
+| OpenShot | 4.1.0 |
+| XLibre Server | 25.2.3 |
+| Google Chrome | 156.0.8078.79-1 |
+| Ungoogled Chromium | 156.0.8078.79-1 |
+| Zabbix | 7.4.16 |
+| AusweisApp | 2.6.1 |
+| MoneyPrinterTurbo | 1.3.9 |
+| Wazuh agent/manager | 4.14.9 |
+
+O Google Chrome permanece sujeito à licença do fornecedor e não é publicado
+como substituto público.
+
 O [código-fonte correspondente](https://farm.securityops.co/sources/#pt-br)
 inclui downloads dos fontes, scripts exatos de compilação, patches e avisos de
 licença das saídas publicadas.

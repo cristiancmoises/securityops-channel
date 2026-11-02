@@ -93,6 +93,30 @@ Other packages remain subject to build and redistribution checks; a successful
 build shown on the [farm](https://farm.securityops.co/) does not mean it has
 already been published.
 
+Current stable recipe versions refreshed on 2026-11-01 are listed below. This
+table describes the channel revision; use the farm for live build and public
+substitute status.
+
+| Recipe | Version |
+|---|---|
+| PipeWire | 1.6.11 |
+| Arelle | 2.47.4 |
+| sdb | 2.6.2 |
+| Tor | 0.4.9.15 |
+| Tor Browser | 16.0 |
+| yt-dlp | 2026.10.26 |
+| OpenShot | 4.1.0 |
+| XLibre Server | 25.2.3 |
+| Google Chrome | 156.0.8078.79-1 |
+| Ungoogled Chromium | 156.0.8078.79-1 |
+| Zabbix | 7.4.16 |
+| AusweisApp | 2.6.1 |
+| MoneyPrinterTurbo | 1.3.9 |
+| Wazuh agent/manager | 4.14.9 |
+
+Google Chrome remains subject to its vendor license and is not published as a
+public substitute.
+
 [Corresponding source](https://farm.securityops.co/sources/) provides source
 downloads, exact build scripts, patches and license notices for published outputs.
 
