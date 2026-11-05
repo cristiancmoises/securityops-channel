@@ -5,8 +5,11 @@ root=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 spec="$root/etc/build-farm/specifications"
 register="$root/etc/build-farm/units/securityops-cuirass-register.service"
 web="$root/etc/build-farm/units/securityops-cuirass-web.service"
+priority_service="$root/etc/build-farm/units/securityops-cuirass-prioritize.service"
+priority_timer="$root/etc/build-farm/units/securityops-cuirass-prioritize.timer"
+priority_sql="$root/etc/build-farm/prioritize-securityops.sql"
 
-for file in "$spec" "$register" "$web"; do
+for file in "$spec" "$register" "$web" "$priority_service" "$priority_timer" "$priority_sql"; do
   test -s "$file" || { printf 'missing: %s\n' "$file" >&2; exit 1; }
 done
 
@@ -34,6 +37,7 @@ fi
 for name in guix nonguix radix rosenthal small-guix securityops gocix sops-guix; do
   grep -qF "(name \"$name\")" "$spec"
 done
+test "$(grep -cF '(is-active? #f)' "$spec")" -eq 7
 grep -qF -- '--interval=300' "$register"
 grep -qF -- '--parallel-evaluations=1' "$register"
 grep -qF -- '--threads=3' "$register"
@@ -47,8 +51,20 @@ grep -qF 'Environment=GUILE_LOAD_PATH=/etc/cuirass/modules' "$register"
 grep -qF 'ExecStartPre=/usr/bin/test -r /etc/cuirass/modules/securityops/build-farm/ci.scm' "$register"
 grep -qF 'ExecStartPre=/usr/bin/pg_isready -q -d cuirass' "$web"
 grep -qF 'RuntimeDirectory=cuirass' "$register"
+grep -qF "e.specification = 'securityops'" "$priority_sql"
+grep -qF 'AND b.status < 0' "$priority_sql"
+grep -qF 'UPDATE Builds' "$priority_sql"
+grep -qF 'SET priority = 0' "$priority_sql"
+grep -qF 'CASE WHEN status = 4 THEN -2 ELSE status END' "$priority_sql"
+grep -qF 'SET status = 4' "$priority_sql"
+grep -qF 'AND specification.is_active = 0' "$priority_sql"
+test "$(grep -cF 'AND build.status < 0' "$priority_sql")" -eq 1
+grep -qF 'AND build.id NOT IN (SELECT id FROM required)' "$priority_sql"
+grep -qF 'User=postgres' "$priority_service"
+grep -qF 'OnUnitActiveSec=5min' "$priority_timer"
+grep -qF 'Persistent=true' "$priority_timer"
 
-if grep -Eq 'BEGIN PRIVATE KEY|password=|token=|https://[^[:space:]"\047]+@' "$spec" "$register" "$web"; then
+if grep -Eq 'BEGIN PRIVATE KEY|password=|token=|https://[^[:space:]"\047]+@' "$spec" "$register" "$web" "$priority_service" "$priority_timer" "$priority_sql"; then
   printf 'secret or credential-bearing URL in build-farm configuration\n' >&2
   exit 1
 fi

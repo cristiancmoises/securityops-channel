@@ -1,0 +1,18 @@
+[Unit]
+Description=Prioritize pending SecurityOps Cuirass build dependencies
+Requires=postgresql@17-main.service
+After=postgresql@17-main.service securityops-cuirass-register.service
+
+[Service]
+Type=oneshot
+User=postgres
+Group=postgres
+ExecStart=/usr/bin/psql -X -v ON_ERROR_STOP=1 -d cuirass -f /usr/local/share/securityops/prioritize-securityops.sql
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectHome=yes
+ProtectSystem=strict
+LockPersonality=yes
+RestrictSUIDSGID=yes
+RestrictAddressFamilies=AF_UNIX
+TimeoutStartSec=60s
