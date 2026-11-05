@@ -102,6 +102,7 @@
   (build '(channels guix))
   (channels (list guix))
   (systems '("x86_64-linux"))
+  (is-active? #f)
   (priority 4)
   (period 3600))
  (specification
@@ -109,6 +110,7 @@
   (build '(channels nonguix))
   (channels (list nonguix guix))
   (systems '("x86_64-linux"))
+  (is-active? #f)
   (priority 5)
   (period 3600))
  (specification
@@ -116,6 +118,7 @@
   (build '(channels radix))
   (channels (list radix guix))
   (systems '("x86_64-linux"))
+  (is-active? #f)
   (priority 6)
   (period 3600))
  (specification
@@ -123,6 +126,7 @@
   (build '(channels rosenthal))
   (channels (list rosenthal guix))
   (systems '("x86_64-linux"))
+  (is-active? #f)
   (priority 6)
   (period 3600))
  (specification
@@ -130,6 +134,7 @@
   (build '(channels small-guix))
   (channels (list small-guix gocix sops-guix guix))
   (systems '("x86_64-linux"))
+  (is-active? #f)
   (priority 5)
   (period 3600))
  (specification
@@ -144,6 +149,7 @@
   (build '(channels gocix))
   (channels (cons gocix %default-channels))
   (systems '("x86_64-linux"))
+  (is-active? #f)
   (priority 6)
   (period 3600))
  (specification
@@ -151,5 +157,6 @@
   (build '(channels sops-guix))
   (channels (cons sops-guix %default-channels))
   (systems '("x86_64-linux"))
+  (is-active? #f)
   (priority 6)
   (period 3600)))
