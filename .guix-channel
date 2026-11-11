@@ -26,7 +26,7 @@
    (name nonguix)
    (url "https://git.securityops.com.br/cristiancmoises/nonguix.git")
    ;; This revision was verified with the farm's pinned Guix baseline
-   ;; (99c84619b4b7aae9f250c65c89b31c817789e44d). Advance both only after a
+   ;; (b7f6549b5026b5776141482f9e228c49f09b5569). Advance both only after a
    ;; successful channel evaluation.
    (commit "c241d19ff840dc75556f722b231760d119b6adea")
    (introduction
