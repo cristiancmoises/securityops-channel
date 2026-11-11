@@ -8,6 +8,7 @@
   #:use-module (guix gexp)
   #:use-module (guix build-system trivial)
   #:use-module ((guix licenses) #:prefix license:)
+  #:use-module ((gnu packages bash) #:prefix bash:)
   #:use-module ((gnu packages monitoring) #:prefix upstream:)
   #:use-module (gnu packages java)
   #:use-module ((securityops packages browsers) #:prefix browsers:)
@@ -38,6 +39,15 @@
      (origin
        (inherit %zabbix-source)
        (patches (origin-patches (package-source upstream:zabbix-agent2)))))
+    (arguments
+     (substitute-keyword-arguments (package-arguments upstream:zabbix-agent2)
+       ((#:phases phases)
+        #~(modify-phases #$phases
+            (add-after 'unpack 'fix-smartctl-test-shell
+              (lambda _
+                (substitute* "src/go/plugins/smart/controller_test.go"
+                  (("#!/bin/sh")
+                   (string-append "#!" #$bash:bash-minimal "/bin/sh")))))))))
     (replacement #f)))
 
 (define-public zabbix-java-gateway

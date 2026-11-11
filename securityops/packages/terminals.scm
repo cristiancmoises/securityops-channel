@@ -251,8 +251,9 @@ loading shared libraries and dispatching into them at runtime.")
               (lambda _
                 (setenv "GOTOOLCHAIN" "local")))))))
     (native-inputs (modify-inputs (package-native-inputs gnu:kitty)
-                     (append go-github-com-emmansun-base64
-                             go-github-com-sgtdi-fswatcher
+                     (replace "go-github-com-emmansun-base64"
+                              go-github-com-emmansun-base64)
+                     (append go-github-com-sgtdi-fswatcher
                              go-github-com-kovidgoyal-go-shm-v2
                              go-github-com-ebitengine-purego
                              python-sphinx-design
