@@ -675,6 +675,16 @@ def publish_paths(paths, policy, transport, public_check, *, apply=False, limit=
     """Bounded, fail-closed transfer. The transport performs no builds."""
     if type(limit) is not int or not 0 <= limit <= 20:
         raise ValueError("invalid per-run limit")
+    public_reachable = set()
+
+    def check_reachable(path):
+        if path in public_reachable:
+            return True
+        if public_check(path):
+            public_reachable.add(path)
+            return True
+        return False
+
     result = {
         "planned": [],
         "public_routes_reachable": [],
@@ -720,7 +730,7 @@ def publish_paths(paths, policy, transport, public_check, *, apply=False, limit=
             continue
         missing_public = _missing(transport, 116, requisites)
         if not missing_public:
-            if not all(public_check(item) for item in requisites):
+            if not all(check_reachable(item) for item in requisites):
                 result["held"].append(
                     {"path": path, "reason": "ct116_present_not_public"}
                 )
@@ -759,7 +769,7 @@ def publish_paths(paths, policy, transport, public_check, *, apply=False, limit=
         pending = list(requisites)
         deadline = time.monotonic() + PUBLIC_READINESS_SECONDS
         while pending:
-            pending = [item for item in pending if not public_check(item)]
+            pending = [item for item in pending if not check_reachable(item)]
             if not pending or time.monotonic() >= deadline:
                 break
             time.sleep(PUBLIC_READINESS_INTERVAL)

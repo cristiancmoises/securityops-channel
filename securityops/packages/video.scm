@@ -17,7 +17,8 @@
   #:use-module ((nongnu packages nvidia) #:prefix nong:)
   #:use-module ((securityops packages nvidia) #:prefix channel-nvidia:)
   #:use-module ((gnu packages video) #:prefix gnu:)
-  #:use-module ((gnu packages image-viewers) #:prefix gnu-iv:))
+  #:use-module ((gnu packages image-viewers) #:prefix gnu-iv:)
+  #:use-module ((gnu packages xml) #:prefix xml:))
 
 ;;; Keep the CPU build available separately: proprietary NVIDIA libraries must
 ;;; never become a requirement on other hardware.  The release archive's PGP
@@ -351,6 +352,9 @@ libraries."))))
   (package
     (inherit gnu:openshot)
     (version "4.1.0")
+    (propagated-inputs
+     (modify-inputs (package-propagated-inputs gnu:openshot)
+       (append xml:python-defusedxml)))
     (source
      (origin
        (inherit (package-source gnu:openshot))

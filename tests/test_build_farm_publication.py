@@ -221,6 +221,27 @@ class FakeTransport:
 
 
 class PublicationExecutionTests(unittest.TestCase):
+    def test_shared_reachable_requisites_are_checked_once_per_run(self):
+        transport = FakeTransport(requisites=(PACKAGE, OTHER), missing_public=())
+        policy = {
+            "approved": {
+                **reviewed(PACKAGE, requisites=(PACKAGE, OTHER))["approved"],
+                **reviewed(OTHER, requisites=(PACKAGE, OTHER))["approved"],
+            },
+            "denied": set(),
+        }
+        checked = []
+
+        def public_check(path):
+            checked.append(path)
+            return True
+
+        result = publication.publish_paths(
+            [PACKAGE, OTHER], policy, transport, public_check, limit=2
+        )
+        self.assertEqual(result["already_routes_reachable"], [PACKAGE, OTHER])
+        self.assertEqual(sorted(checked), sorted((PACKAGE, OTHER)))
+
     def test_size_probe_counts_logical_bytes_and_entries(self):
         transport = FakeTransport()
         self.assertEqual(
