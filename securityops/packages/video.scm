@@ -325,7 +325,7 @@ libraries."))))
        (method git-fetch)
        (uri (git-reference
              (url "https://github.com/yt-dlp/yt-dlp/")
-             (commit version)))
+             (commit "f264a6cbd1f630894da0f368df00f8aae50140e0")))
        (file-name (git-file-name "yt-dlp" version))
        (sha256
         (base32 "1s8x4gqkgzj88avwmcdhjnmm6dfqg17jn63xg3w55yrr1vszs1fj"))))))

@@ -9,7 +9,10 @@
   #:use-module (gnu packages base)
   #:use-module (gnu packages bash)
   #:use-module (gnu packages python)
+  #:use-module (gnu packages python-build)
+  #:use-module (gnu packages python-web)
   #:use-module (gnu packages check)
+  #:use-module (gnu packages databases)
   #:use-module (gnu packages video)
   #:use-module (gnu packages tor)
   #:use-module (gnu packages version-control)
@@ -17,7 +20,7 @@
   #:use-module ((gnu packages python-xyz) #:prefix pyx:)
   #:use-module ((guix licenses) #:prefix license:))
 
-;;; moneyprinterturbo — one-click AI short-video generator (harry0703 v1.3.7).
+;;; moneyprinterturbo — one-click AI short-video generator (harry0703 v1.3.10).
 ;;; THIRD-PARTY Python app with a huge, partly-unpackaged dependency tree
 ;;; (streamlit, moviepy, edge-tts, litellm, faster-whisper, the cloud SDKs), so a
 ;;; full native python-build-system package is infeasible here.  Instead this ships
@@ -53,17 +56,17 @@
 (define-public moneyprinterturbo
   (package
     (name "moneyprinterturbo")
-    (version "1.3.9")
+    (version "1.3.10")
     (source
      (origin
        (method git-fetch)
        (uri (git-reference
              (url "https://github.com/harry0703/MoneyPrinterTurbo")
-             ;; Commit of the v1.3.9 release tag.
-             (commit "6992380c5e82f07f3e1fc46b90927b6f1c655407")))
+             ;; Commit of the v1.3.10 release tag.
+             (commit "8b0206be2c7977e3bc3cf25ff99a2adc3c9c65f9")))
        (file-name (git-file-name name version))
        (sha256
-        (base32 "1xq5hagidyvvcvv9v2h1qkz37xghs298f5a5ak4pdv2bkqnl78xi"))
+        (base32 "1mp0hbk0bssj7w7vjjwcilp2h9kbdq1wi50pz9vh0qcm747hx2yw"))
        (modules '((guix build utils)))
        (snippet
         #~(begin
@@ -72,7 +75,9 @@
             (mkdir-p "resource/fonts")
             (mkdir-p "resource/songs")))))
     (build-system copy-build-system)
-    (native-inputs (list python-pytest pyx:python-loguru))
+    (native-inputs (list python-pytest pyx:python-loguru
+                         pyx:python-pydantic pyx:python-pillow
+                         python-redis python-requests python-toml))
     (inputs `(("python" ,python)
               ("ffmpeg" ,ffmpeg)
               ("torsocks" ,torsocks)

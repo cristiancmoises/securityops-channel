@@ -15,7 +15,7 @@ expected = {
     ("btp", "btp", "0.7"),
     ("whatsappel", "whatsappel", "3.3.1"),
     ("torando-gui", "torando-gui", "1.4.1"),
-    ("moneyprinterturbo", "moneyprinterturbo", "1.3.9"),
+    ("moneyprinterturbo", "moneyprinterturbo", "1.3.10"),
     ("guixvis", "guixvis", "0.10.0"),
     ("esquema", "esquema", "0.3.0"),
     ("xmonad-wayland", "xmonad-wayland", "0.5.0"),

@@ -13,7 +13,7 @@
     (zupt zupt-gui "zupt-gui" "5.2.9" applications)
     (turborec turborec "turborec" "3.10.4" applications)
     (turborec turborec-nvidia-new-feature "turborec-nvidia-new-feature" "3.10.4" applications)
-    (moneyprinterturbo moneyprinterturbo "moneyprinterturbo" "1.3.9" applications)
+    (moneyprinterturbo moneyprinterturbo "moneyprinterturbo" "1.3.10" applications)
     (guixvis guixvis "guixvis" "0.10.0" applications)
     (whatsappel whatsappel "whatsappel" "3.3.1" applications)
     (esquema esquema "esquema" "0.3.0" containers)
