@@ -47,7 +47,8 @@
               (lambda _
                 (substitute* "src/go/plugins/smart/controller_test.go"
                   (("#!/bin/sh")
-                   (string-append "#!" #$bash:bash-minimal "/bin/sh")))))))))
+                   (string-append "#!"
+                                  #$(file-append bash:bash-minimal "/bin/sh"))))))))))
     (replacement #f)))
 
 (define-public zabbix-java-gateway
