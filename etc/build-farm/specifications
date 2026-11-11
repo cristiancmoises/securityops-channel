@@ -69,7 +69,7 @@
 (define guix-baseline
   (channel
    (inherit %default-guix-channel)
-   (commit "99c84619b4b7aae9f250c65c89b31c817789e44d")))
+   (commit "b7f6549b5026b5776141482f9e228c49f09b5569")))
 
 ;; Make the SecurityOps dependency an explicit Cuirass root as well.  The
 ;; previous evaluation recorded this pin but its channel profile still used
