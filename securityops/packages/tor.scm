@@ -26,19 +26,19 @@
 ;;; ---------------------------------------------------------------------------
 ;;; tor — stable upstream release, ahead of the base Guix recipe.
 ;;; Plain GNU build system; inherit everything and swap source only.
-;;; Hash: `guix download https://dist.torproject.org/tor-0.4.9.15.tar.gz'.
+;;; Hash: `guix download https://dist.torproject.org/tor-0.4.9.16.tar.gz'.
 ;;; ---------------------------------------------------------------------------
 (define-public tor
   (package
     (inherit tor:tor)
-    (version "0.4.9.15")
+    (version "0.4.9.16")
     (source
      (origin
        (method url-fetch)
        (uri (string-append "https://dist.torproject.org/tor-" version
                            ".tar.gz"))
        (sha256
-        (base32 "1wv356lq0q4746ddy1dmlcn6vjbd3kzvr2x08g8lx0d62srga48r"))))))
+        (base32 "0j0f2vk8czqq58b60g1wjrdh78mj3621cxalrayjai9g2n9y3031"))))))
 
 ;; All browser inputs below follow tbb-16.0-build1 (commit
 ;; eb1e8801b909ecedc16bd27b052c3fef8894d16c) of tor-browser-build.

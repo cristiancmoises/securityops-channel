@@ -28,7 +28,7 @@
     (package-version river:xwayland-latest))
   (test-equal "sdb stable" "2.6.2"
     (package-version security:sdb))
-  (test-equal "Tor stable" "0.4.9.15"
+  (test-equal "Tor stable" "0.4.9.16"
     (package-version tor:tor))
   (test-equal "Tor Browser stable" "16.0"
     (package-version tor:torbrowser))
