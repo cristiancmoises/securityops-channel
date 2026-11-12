@@ -16,6 +16,7 @@
   #:use-module (guix gexp)
   #:use-module (guix utils)
   #:use-module ((gnu packages admin) #:prefix adm:)
+  #:use-module ((gnu packages bash) #:prefix bash:)
   #:use-module ((gnu packages databases) #:prefix db:)
   #:use-module ((gnu packages networking) #:prefix net:)
   #:use-module ((gnu packages password-utils) #:prefix pw:)
@@ -156,6 +157,18 @@
                   (list "-Duse_sys_zydis=true")))
        ((#:phases phases)
         #~(modify-phases #$phases
+            (add-after 'unpack 'prepare-shell-and-filesystem-tests
+              (lambda* (#:key inputs #:allow-other-keys)
+                (let ((shell (search-input-file inputs "/bin/sh")))
+                  (setenv "SHELL" shell)
+                  (substitute* '("test/unit/test_r2r.c"
+                                 "libr/include/r_util/r_file.h")
+                    (("\"/bin/sh\"") (format #f "~s" shell))))
+                (mkdir-p "test/bins/fs")
+                (copy-file (assoc-ref inputs "radare2-ext2-fixture")
+                           "test/bins/fs/ext2.img")
+                (copy-file (assoc-ref inputs "radare2-ntfs-fixture")
+                           "test/bins/fs/ntfs.img")))
             (add-after 'unpack 'initialize-test-calling-convention
               (lambda _
                 ;; The new variadic test requires the amd64 convention, whose
@@ -195,7 +208,23 @@
     (inputs
      (modify-inputs (package-inputs eng:radare2)
        (replace "sdb" sdb)
-       (append eng:zydis eng:zycore)))
+       (append eng:zydis eng:zycore bash:bash-minimal)))
+    (native-inputs
+     (append
+      (list
+       (list "radare2-ext2-fixture"
+             (origin
+               (method url-fetch)
+               (uri "https://raw.githubusercontent.com/radareorg/radare2-testbins/297b778000bbfaf9bf4717cb95535c3b80d52e3e/fs/ext2.img")
+               (sha256
+                (base32 "1izzkdgb2g79cnyr8shlysknrm5sx48r7vqa511cyx5hdv6h6hn7"))))
+       (list "radare2-ntfs-fixture"
+             (origin
+               (method url-fetch)
+               (uri "https://raw.githubusercontent.com/radareorg/radare2-testbins/297b778000bbfaf9bf4717cb95535c3b80d52e3e/fs/ntfs.img")
+               (sha256
+                (base32 "1d58dmhc9sm7lhv0i2l2jylgjdn4s7fkh8pvjrf7lfv73a9d3b9v")))))
+      (package-native-inputs eng:radare2)))
     ;; Guix exposes sdb to consumers through radare2's propagated inputs, not
     ;; regular inputs.  Keep that public dependency on the channel's current
     ;; package as well, otherwise a profile containing both packages conflicts
