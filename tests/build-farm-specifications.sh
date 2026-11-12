@@ -52,7 +52,9 @@ grep -qF 'ExecStartPre=/usr/bin/test -r /etc/cuirass/modules/securityops/build-f
 grep -qF 'ExecStartPre=/usr/bin/pg_isready -q -d cuirass' "$web"
 grep -qF 'RuntimeDirectory=cuirass' "$register"
 grep -qF "e.specification = 'securityops'" "$priority_sql"
-grep -qF 'AND b.status < 0' "$priority_sql"
+test "$(grep -cF 'JOIN Evaluations AS e ON e.id = job.evaluation' "$priority_sql")" -eq 2
+test "$(grep -cF 'JOIN Builds AS b ON b.id = job.build' "$priority_sql")" -eq 2
+grep -qF '(b.status < 0 OR' "$priority_sql"
 grep -qF 'UPDATE Builds' "$priority_sql"
 grep -qF 'SET priority = 0' "$priority_sql"
 grep -qF 'CASE WHEN status = 4 THEN -2 ELSE status END' "$priority_sql"
