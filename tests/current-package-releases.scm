@@ -43,6 +43,13 @@
     (package-version video:yt-dlp))
   (test-equal "OpenShot stable" "4.1.1"
     (package-version video:openshot))
+  (let ((renderer (lookup-package-propagated-input video:mpv "libplacebo")))
+    (test-assert "mpv renderer satisfies its upstream minimum"
+      (version>=? (package-version renderer) "7.387.0"))
+    (test-assert "renderer declares its native Jinja generator"
+      (member "python-jinja2"
+              (map (lambda (input) (package-name (cadr input)))
+                   (package-native-inputs renderer)))))
   (test-equal "XLibre stable" "25.2.3"
     (package-version xlibre:xlibre-server))
   (test-equal "Zabbix stable" "7.4.16"

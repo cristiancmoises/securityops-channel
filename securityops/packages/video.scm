@@ -13,6 +13,7 @@
   #:use-module (guix download)
   #:use-module (guix build-system cmake)
   #:use-module ((gnu packages curl) #:prefix curl:)
+  #:use-module ((gnu packages python-xyz) #:prefix python:)
   #:use-module ((guix licenses) #:prefix license:)
   #:use-module ((gnu packages compression) #:prefix compression:)
   #:use-module ((nongnu packages nvidia) #:prefix nong:)
@@ -313,10 +314,17 @@ libraries."))))
        (inherit (package-source gnu:libplacebo))
        (uri (git-reference
              (url "https://code.videolan.org/videolan/libplacebo.git")
-             (commit (string-append "v" version))))
+             (commit "275f7dea27924cdd34ab2e6c20e448b6bc4fab65")))
        (file-name (git-file-name "libplacebo" version))
        (sha256
-        (base32 "133q2rnv8km743kip99x4kv03i1z35zalrvzdqn9a0gf5vbvd21x"))))))
+        (base32 "133q2rnv8km743kip99x4kv03i1z35zalrvzdqn9a0gf5vbvd21x"))))
+    (arguments
+     (substitute-keyword-arguments (package-arguments gnu:libplacebo)
+       ((#:configure-flags flags)
+        #~(append #$flags (list "-Dtests=true")))))
+    (native-inputs
+     (modify-inputs (package-native-inputs gnu:libplacebo)
+       (replace "python-mako" python:python-jinja2)))))
 
 ;;; mpv 0.42 adds a libcurl network backend; keep it enabled in the channel.
 (define-public mpv
