@@ -149,7 +149,7 @@ control metadata and distribution archives.")
        (method url-fetch)
        (uri (pypi-uri "hatch_fancy_pypi_readme" version))
        (sha256
-        (base32 "1y76b7yj67k0amiy3r8za66l2aps5pjnlijnwjnf966cyq8ffabr"))))
+        (base32 "0i803kq80qx0k1lj3z69zw40ynqxml4p1qsc851izmchzwyysn4w"))))
     (build-system pyproject-build-system)
     (native-inputs
      (list python-hatchling-for-arelle python-pytest python-pypa-build
