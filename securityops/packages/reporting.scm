@@ -153,6 +153,7 @@ control metadata and distribution archives.")
     (native-inputs
      (modify-inputs (package-native-inputs python-filelock-next)
        (replace "python-hatchling" python-hatchling-for-arelle)))
+    (license license:expat)
     (arguments
      (substitute-keyword-arguments (package-arguments python-filelock-next)
        ((#:phases phases #~%standard-phases)
@@ -202,6 +203,9 @@ control metadata and distribution archives.")
        (uri (pypi-uri "pillow" version))
        (sha256
         (base32 "041mpvk6yajs590bqj2psnjvdsm43flcjw21sxb773qpb2i1pkfd"))))
+    (license (license:x11-style
+              "https://github.com/python-pillow/Pillow/blob/13.0.0/LICENSE"
+              "MIT-CMU License"))
     (arguments
      (substitute-keyword-arguments (package-arguments python-pillow)
        ((#:phases phases)
