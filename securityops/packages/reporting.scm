@@ -269,15 +269,6 @@ preserving the remaining compressed data.")
            python-hatch-fancy-pypi-readme-for-arelle
            python-hatch-vcs python-pytest python-pytest-mock
            python-pypa-build python-wheel))
-    (arguments
-     (list
-      ;; Validate the core SBOM and Hatch hook used by Filelock.  Upstream's
-      ;; validation and other backend suites require optional extras that are
-      ;; deliberately outside this package's propagated input closure.
-      #:test-flags
-      #~(list "tests/_collect" "tests/_generate" "tests/_wheel"
-              "tests/hatch" "tests/_cli/test_embed.py"
-              "tests/test_public_api.py" "tests/test_version.py")))
     (propagated-inputs
      (list python-hatchling-for-arelle python-installer-for-arelle
            python-packageurl python-packaging-for-arelle
