@@ -302,6 +302,22 @@ Select an encoder with @code{-c h264_nvenc}, @code{-c hevc_nvenc}, or
 The running NVIDIA kernel driver must match this variant's userspace
 libraries."))))
 
+;;; mpv 0.42 requires libplacebo >= 7.387.0.  Pin its released source until
+;;; the upstream Guix package catches up.
+(define libplacebo-for-mpv
+  (package
+    (inherit gnu:libplacebo)
+    (version "7.387.0")
+    (source
+     (origin
+       (inherit (package-source gnu:libplacebo))
+       (uri (git-reference
+             (url "https://code.videolan.org/videolan/libplacebo.git")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name "libplacebo" version))
+       (sha256
+        (base32 "133q2rnv8km743kip99x4kv03i1z35zalrvzdqn9a0gf5vbvd21x"))))))
+
 ;;; mpv 0.42 adds a libcurl network backend; keep it enabled in the channel.
 (define-public mpv
   (package
@@ -322,6 +338,7 @@ libraries."))))
         #~(append #$flags (list "-Dlibcurl=enabled")))))
     (propagated-inputs
      (modify-inputs (package-propagated-inputs gnu:mpv)
+       (replace "libplacebo" libplacebo-for-mpv)
        (append curl:curl)))))
 (define-public vlc
   (package

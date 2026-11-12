@@ -431,14 +431,19 @@
                                 (error "upstream Zig content hash mismatch"
                                        (car entry)))))
                           '#$river-zig-dependencies))))
-          (add-after 'install 'fix-installed-protocol-prefix
+          ;; Guix's Zig build system now installs during 'build+install;
+          ;; older revisions keep a separate 'install phase.
+          (add-after (if (assq 'build+install %standard-phases)
+                         'build+install
+                         'install)
+              'fix-installed-protocol-prefix
             (lambda _
               (substitute* (string-append #$output
                             "/share/pkgconfig/river-protocols.pc")
                 (("^prefix=.*")
                  (string-append "prefix="
                                 #$output "\n")))))
-          (add-after 'install 'check-installed-version
+          (add-after 'fix-installed-protocol-prefix 'check-installed-version
             (lambda _
               (invoke (string-append #$output "/bin/river") "-version"))))))
     (inputs (list libevdev-latest
