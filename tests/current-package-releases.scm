@@ -20,7 +20,7 @@
     (package-version audio:pipewire-latest))
   (test-equal "Arelle stable" "2.47.4"
     (package-version reporting:arelle))
-  (test-equal "Chrome stable" "156.0.8078.79-1"
+  (test-equal "Chrome stable" "157.0.8103.78-1"
     (package-version browsers:google-chrome-stable))
   (test-equal "portable Chromium stable" "156.0.8078.79-1"
     (package-version chromium:ungoogled-chromium-bin))
@@ -30,13 +30,13 @@
     (package-version security:sdb))
   (test-equal "Tor stable" "0.4.9.16"
     (package-version tor:tor))
-  (test-equal "Tor Browser stable" "16.0"
+  (test-equal "Tor Browser stable" "16.0.1"
     (package-version tor:torbrowser))
-  (test-equal "Tor Browser assets match" "16.0"
+  (test-equal "Tor Browser assets match" "16.0.1"
     (package-version tor:torbrowser-assets))
   (test-equal "yt-dlp stable" "2026.10.26"
     (package-version video:yt-dlp))
-  (test-equal "OpenShot stable" "4.1.0"
+  (test-equal "OpenShot stable" "4.1.1"
     (package-version video:openshot))
   (test-equal "XLibre stable" "25.2.3"
     (package-version xlibre:xlibre-server))

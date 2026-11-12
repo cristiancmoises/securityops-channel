@@ -772,7 +772,7 @@ def main():
             assert status == 200
             authorization = "Bearer " + response.decode().strip('"\n')
             status, response = api_request(opener, "/", authorization)
-            assert status == 200 and "4.14.8" in response.decode()
+            assert status == 200 and "4.14.10" in response.decode()
             status, _ = api_request(opener, "/agents", "Bearer invalid-fixture-token")
             assert status == 401
             print(

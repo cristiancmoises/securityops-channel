@@ -127,6 +127,7 @@ and bundled-dependency notices.  Required by Kitty's shader pipeline.")
 (define-public go-github-com-sgtdi-fswatcher
   (package
     (name "go-github-com-sgtdi-fswatcher")
+    ;; Kitty 0.50.0 imports the v1 module path; fswatcher v2 uses /v2.
     (version "1.3.0")
     (source
      (origin
@@ -173,24 +174,24 @@ kitty's @code{watch} kitten.")
     (license license:bsd-3)))
 
 ;;; ---------------------------------------------------------------------------
-;;; kitty — bumped ahead of Guix: 0.46.2 -> 0.49.2 (latest upstream).
+;;; kitty — bumped ahead of Guix: 0.46.2 -> 0.50.0 (latest upstream).
 ;;;
 ;;; Inherits the upstream package and ORIGIN so the docs-build snippet and
 ;;; module list are preserved.  The recipe adds the required Go dependencies
 ;;; and Slang compiler, including a store-path default for user shaders.
 ;;; `version' is in scope inside `source', so the v-tag tracks it.
-;;; Hash is the recursive Guix hash of the official v0.49.2 checkout.
+;;; Hash is the recursive Guix hash of the official v0.50.0 checkout.
 ;;; ---------------------------------------------------------------------------
 ;;; ebitengine/purego — call C from Go without cgo.  A NEW direct dependency of
 ;;; kitty 0.48 (imported once, in the notify kitten); Guix does not package it,
 ;;; so define it here.  kitty builds in GOPATH mode, so only genuinely-imported
 ;;; deps need providing — the other go.mod bumps (chroma, x/sys, …) are used
 ;;; from Guix's existing sources.  Kitty's go.mod names 0.11.0; this channel
-;;; supplies the newer stable purego 0.11.2.
+;;; supplies the newer stable purego 0.11.3.
 (define-public go-github-com-ebitengine-purego
   (package
     (name "go-github-com-ebitengine-purego")
-    (version "0.11.2")
+    (version "0.11.3")
     (source
      (origin
        (method git-fetch)
@@ -199,7 +200,7 @@ kitty's @code{watch} kitten.")
              (commit (string-append "v" version))))
        (file-name (git-file-name name version))
        (sha256
-        (base32 "0day2cmjraff5gsqhbklrga39fw5gkc9aznvmjhh5wzilcmv3vqb"))))
+        (base32 "05pg7yfffq5xmk6lv360rlvcli9z04x7dca8x9ny0n0aszdmqayp"))))
     (build-system go-build-system)
     (arguments (list #:import-path "github.com/ebitengine/purego"
                      #:tests? #f))
@@ -212,7 +213,7 @@ loading shared libraries and dispatching into them at runtime.")
 (define-public kitty
   (package
     (inherit gnu:kitty)
-    (version "0.49.2")
+    (version "0.50.0")
     (source
      (origin
        (inherit (package-source gnu:kitty))
@@ -221,7 +222,7 @@ loading shared libraries and dispatching into them at runtime.")
              (commit (string-append "v" version))))
        (file-name (git-file-name (package-name gnu:kitty) version))
        (sha256
-        (base32 "1xp9nnvpisjcm1h2m7zijrvskf9g7cv5hwrg8gxmr1qx7h3mzjqn"))))
+        (base32 "0mcribxksk0z4rrm5kaw7bwjdivwq1x17z8cqdyvcf7mvlps6909"))))
     ;; kitty's tests need a real environment the build sandbox lacks
     ;; (kitty_tests/dnd_kitten imports the display-only graphics module Guix
     ;; strips; the Go TestMachineId needs /etc/machine-id).  The release is

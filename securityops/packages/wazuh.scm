@@ -51,9 +51,9 @@
 (define wazuh-source
   (origin
     (method url-fetch)
-    (uri "https://github.com/wazuh/wazuh/archive/refs/tags/v4.14.9.tar.gz")
+    (uri "https://github.com/wazuh/wazuh/archive/refs/tags/v4.14.10.tar.gz")
     (sha256
-     (base32 "1p1g07alsdw7qss9f3iq663whvrx5gza894lzk6a1d22rk1w2n4x"))
+     (base32 "15yc6cky18fplx08hhpwnhcxcfid9d4a6r75947b8qy8gvkgflip"))
     (modules '((guix build utils)))
     (snippet
      '(begin
@@ -302,7 +302,7 @@
 (define %wazuh-shared-python
   (package
     (name "wazuh-python-runtime")
-    (version "4.14.9")
+    (version "4.14.10")
     (source wazuh-source)
     (build-system gnu-build-system)
     (arguments
@@ -405,7 +405,7 @@ or independently security-certified.")
 (define (wazuh-core-package target)
   (package
     (name (if (string=? target "agent") "wazuh-agent" "wazuh-manager"))
-    (version "4.14.9")
+    (version "4.14.10")
     (source wazuh-source)
     (build-system gnu-build-system)
     (arguments

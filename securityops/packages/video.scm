@@ -12,6 +12,7 @@
   #:use-module (guix git-download)
   #:use-module (guix download)
   #:use-module (guix build-system cmake)
+  #:use-module ((gnu packages curl) #:prefix curl:)
   #:use-module ((guix licenses) #:prefix license:)
   #:use-module ((gnu packages compression) #:prefix compression:)
   #:use-module ((nongnu packages nvidia) #:prefix nong:)
@@ -301,8 +302,27 @@ Select an encoder with @code{-c h264_nvenc}, @code{-c hevc_nvenc}, or
 The running NVIDIA kernel driver must match this variant's userspace
 libraries."))))
 
-;;; mpv tracks Guix; VLC keeps the current stable 3.0 bug-fix release.
-(define-public mpv gnu:mpv)
+;;; mpv 0.42 adds a libcurl network backend; keep it enabled in the channel.
+(define-public mpv
+  (package
+    (inherit gnu:mpv)
+    (version "0.42.0")
+    (source
+     (origin
+       (inherit (package-source gnu:mpv))
+       (uri (git-reference
+             (url "https://github.com/mpv-player/mpv")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name "mpv" version))
+       (sha256
+        (base32 "093rqhls45v53pj21g99c6vbdylcxxy1cf1xcxz9a6mh1ca4grch"))))
+    (arguments
+     (substitute-keyword-arguments (package-arguments gnu:mpv)
+       ((#:configure-flags flags #~'())
+        #~(append #$flags (list "-Dlibcurl=enabled")))))
+    (propagated-inputs
+     (modify-inputs (package-propagated-inputs gnu:mpv)
+       (append curl:curl)))))
 (define-public vlc
   (package
     (inherit gnu:vlc)
@@ -351,7 +371,7 @@ libraries."))))
 (define-public openshot
   (package
     (inherit gnu:openshot)
-    (version "4.1.0")
+    (version "4.1.1")
     (propagated-inputs
      (modify-inputs (package-propagated-inputs gnu:openshot)
        (append xml:python-defusedxml)))
@@ -363,9 +383,9 @@ libraries."))))
              (commit (string-append "v" version))))
        (file-name (git-file-name (package-name gnu:openshot) version))
        (sha256
-        (base32 "04q6qs6vjwpmdb7wvym6icz1p2690pbs5h1h2nadjnj7l7xi8b7j"))))
+        (base32 "0v9dpigrm7l9m2s8igwmyk3iijdalvvx75j5d4fbd8pcgr7q6ppk"))))
     (arguments
-     ;; OpenShot 4.1.0 ships src/qt_api.py, but its setuptools layout does not
+     ;; OpenShot 4.1.1 ships src/qt_api.py, but its setuptools layout does not
      ;; install that file as a top-level Python module.  launch.py imports
      ;; `qt_api` directly, so install it beside the site packages before Guix's
      ;; Python sanity-check loads the gui_scripts entry point.

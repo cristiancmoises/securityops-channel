@@ -252,7 +252,7 @@ license and notice files are retained; it does not install system services.")
                           "network.host: \"127.0.0.1\"")))))
                  (copy-file
                   #$(plain-file "SOURCE-LINKS"
-                     "https://github.com/wazuh/wazuh/tree/v4.14.8\nhttps://github.com/wazuh/wazuh-indexer\nhttps://github.com/wazuh/wazuh-dashboard\nhttps://github.com/wazuh/wazuh-dashboard-plugins/tree/v4.14.8\nhttps://github.com/elastic/beats/tree/v7.10.2\nhttps://github.com/adoptium/jdk21u/releases/tag/jdk-21.0.12.1%2B1\nhttps://nodejs.org/dist/v18.20.8/node-v18.20.8.tar.xz\n")
+                     "https://github.com/wazuh/wazuh/tree/v4.14.10\nhttps://github.com/wazuh/wazuh-indexer\nhttps://github.com/wazuh/wazuh-dashboard\nhttps://github.com/wazuh/wazuh-dashboard-plugins/tree/v4.14.10\nhttps://github.com/elastic/beats/tree/v7.10.2\nhttps://github.com/adoptium/jdk21u/releases/tag/jdk-21.0.12.1%2B1\nhttps://nodejs.org/dist/v18.20.8/node-v18.20.8.tar.xz\n")
                   (string-append docs "/SOURCE-LINKS"))
                  (#$%relocate-elf home %build-inputs)
                  (for-each patch-shebang
@@ -336,13 +336,13 @@ mutable state is installed.  Upstream license and source directions are retained
                  (list license:asl2.0 license:gpl2) license:asl2.0))))
 
 (define-public wazuh-indexer
-  (wazuh-search-package "wazuh-indexer" "4.14.8-1"
-                        "03r5iv7wmxlh0mf4n3pdn2kaxhfc2cc1ljaib75x90sgmkw295k3"
+  (wazuh-search-package "wazuh-indexer" "4.14.10-1"
+                        "1gldk90yzidmhjpcd8r4fa1n8hjplhwr42m9l0jr9dlii2riifbv"
                         temurin-for-wazuh '("indexer" "securityadmin")))
 
 (define-public wazuh-dashboard
-  (wazuh-search-package "wazuh-dashboard" "4.14.8-1"
-                        "1m7jhqnmws77bymvxbqv4iyl2x016qm6xgd0rj0yd58jna2k0hgj"
+  (wazuh-search-package "wazuh-dashboard" "4.14.10-1"
+                        "0vv3x3q27lb208nbalfkcy19hfdmi8363vr26h96dziphjiij1dr"
                         node-for-wazuh '("dashboard")))
 
 (define-public wazuh-filebeat

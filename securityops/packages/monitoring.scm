@@ -43,7 +43,7 @@
      (substitute-keyword-arguments (package-arguments pyc:python-pyinstrument)
        ((#:tests? _ #t) #f)))))
 
-;;; glances — bumped ahead of Guix: 4.3.0 -> 4.5.8 (stable upstream).  Cross-
+;;; glances — bumped ahead of Guix: 4.3.0 -> 4.5.9 (stable upstream).  Cross-
 ;;; platform curses/web system monitor (psutil-based).  Inherits Guix's package
 ;;; and overrides version + source; adds the new `pyinstrument' core dependency
 ;;; (via the bumped helper above) and rewrites the arguments because the 4.3.0
@@ -54,7 +54,7 @@
 (define-public glances
   (package
     (inherit mon:glances)
-    (version "4.5.8")
+    (version "4.5.9")
     (source
      (origin
        (method git-fetch)
@@ -63,7 +63,7 @@
              (commit (string-append "v" version))))
        (file-name (git-file-name "glances" version))
        (sha256
-        (base32 "0nif1y83s9kkyj84iw66xjppyg0hmwisp08wz9pm9hxxrkj641f0"))))
+        (base32 "030z4v3in2y3bizas5rdq0p4ff3wlrqxmm9fqkap9idx1lczvx0a"))))
     (propagated-inputs
      (modify-inputs (package-propagated-inputs mon:glances)
        (append python-pyinstrument)))
