@@ -170,6 +170,73 @@ control metadata and distribution archives.")
 source fragments as a Hatch metadata hook.")
     (license license:expat)))
 
+(define python-packaging-for-arelle
+  (package
+    (inherit python-packaging)
+    (version "26.3")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "packaging" version))
+       (sha256
+        (base32 "0ygd980dcvwx5i4kg20aqppz1fdy53nnwc1ixdi8gwsa89bc5vcl"))))))
+
+(define python-installer-for-arelle
+  (package
+    (inherit python-installer)
+    (version "1.1.0")
+    (source
+     (origin
+       (inherit (package-source python-installer))
+       (uri (pypi-uri "installer" version))
+       (sha256
+        (base32 "1rsxrcaspck5iwsx0qpmibgyakwld36qfs94ksc0kn32rq0hrp2s"))))))
+
+(define python-zipremove-for-arelle
+  (package
+    (name "python-zipremove")
+    (version "0.10.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "zipremove" version))
+       (sha256
+        (base32 "0890lsw5vg1dzxwbii4qzic4b75mcj3i48rskllm8ys42p0mfn9w"))))
+    (build-system pyproject-build-system)
+    (native-inputs
+     (list python-setuptools-for-arelle python-wheel python-pytest))
+    (home-page "https://github.com/danny0838/zipremove")
+    (synopsis "Remove members from ZIP archives without recompressing")
+    (description "Zipremove deletes selected members from ZIP archives while
+preserving the remaining compressed data.")
+    (license license:expat)))
+
+(define python-sbom-for-arelle
+  (package
+    (name "python-sbom")
+    (version "0.3.1")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "python_sbom" version))
+       (sha256
+        (base32 "0wrsf87xh7gldr828d5wx1ak1nsd2rz197h9i0yxrz8n18yzml1p"))))
+    (build-system pyproject-build-system)
+    (native-inputs
+     (list python-hatchling-for-arelle
+           python-hatch-fancy-pypi-readme-for-arelle
+           python-hatch-vcs python-pytest python-pytest-mock
+           python-pypa-build python-wheel))
+    (propagated-inputs
+     (list python-hatchling-for-arelle python-installer-for-arelle
+           python-packageurl python-packaging-for-arelle
+           python-zipremove-for-arelle))
+    (home-page "https://github.com/tox-dev/python-sbom")
+    (synopsis "Create software bills of materials for Python distributions")
+    (description "Python-sbom builds and embeds CycloneDX software bills of
+materials in Python wheels, including through a Hatch build hook.")
+    (license (list license:expat license:asl2.0))))
+
 (define python-filelock-for-arelle
   (package
     (inherit python-filelock-next)
@@ -183,7 +250,8 @@ source fragments as a Hatch metadata hook.")
     (native-inputs
      (modify-inputs (package-native-inputs python-filelock-next)
        (replace "python-hatchling" python-hatchling-for-arelle)
-       (append python-hatch-fancy-pypi-readme-for-arelle)))
+       (append python-hatch-fancy-pypi-readme-for-arelle
+               python-sbom-for-arelle)))
     (license license:expat)
     (arguments
      (substitute-keyword-arguments (package-arguments python-filelock-next)
