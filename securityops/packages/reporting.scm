@@ -180,6 +180,9 @@ source fragments as a Hatch metadata hook.")
        (uri (pypi-uri "packaging" version))
        (sha256
         (base32 "0ygd980dcvwx5i4kg20aqppz1fdy53nnwc1ixdi8gwsa89bc5vcl"))))
+    (native-inputs
+     (modify-inputs (package-native-inputs python-packaging)
+       (append python-hypothesis)))
     (arguments
      (substitute-keyword-arguments (package-arguments python-packaging)
        ((#:phases phases #~%standard-phases)
