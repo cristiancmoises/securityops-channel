@@ -18,6 +18,10 @@
  '((python-vcs-versioning-for-arelle . "2.6.0")
    (python-hatchling-for-arelle . "1.33.0")
    (python-hatch-fancy-pypi-readme-for-arelle . "25.1.0")
+   (python-packaging-for-arelle . "26.3")
+   (python-installer-for-arelle . "1.1.0")
+   (python-zipremove-for-arelle . "0.10.0")
+   (python-sbom-for-arelle . "0.3.1")
    (python-filelock-for-arelle . "4.2.10")
    (python-lxml-for-arelle . "6.1.3")))
 
