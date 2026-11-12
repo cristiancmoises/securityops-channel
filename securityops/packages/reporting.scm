@@ -231,13 +231,21 @@ source fragments as a Hatch metadata hook.")
             (lambda* (#:key inputs #:allow-other-keys)
               ;; Zipremove extends CPython's ZIP tests, which Guix omits from
               ;; the installed interpreter.  Use the matching pinned source.
-              (let ((test-lib (string-append "Python-" #$(package-version python)
-                                             "/Lib")))
-                (invoke "tar" "--zstd" "-xf"
+              (let* ((test-root (string-append (getenv "TMPDIR")
+                                               "/cpython-tests"))
+                     (test-lib (string-append test-root "/Python-"
+                                              #$(package-version python)
+                                              "/Lib")))
+                ;; Keep CPython's suite outside the pytest collection root.
+                (mkdir test-root)
+                (invoke "tar" "--zstd" "-C" test-root "-xf"
                         (assoc-ref inputs "cpython-test-source")
-                        (string-append test-lib "/test"))
+                        (string-append "Python-" #$(package-version python)
+                                       "/Lib/test"))
+                ;; The sdist omits this marker but its tests use relative imports.
+                (invoke "touch" "tests/__init__.py")
                 (setenv "PYTHONPATH"
-                        (string-append (getcwd) "/" test-lib ":"
+                        (string-append test-lib ":"
                                        (or (getenv "PYTHONPATH") "")))))))))
     (home-page "https://github.com/danny0838/zipremove")
     (synopsis "Remove members from ZIP archives without recompressing")
