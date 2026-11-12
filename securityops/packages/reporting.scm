@@ -179,7 +179,17 @@ source fragments as a Hatch metadata hook.")
        (method url-fetch)
        (uri (pypi-uri "packaging" version))
        (sha256
-        (base32 "0ygd980dcvwx5i4kg20aqppz1fdy53nnwc1ixdi8gwsa89bc5vcl"))))))
+        (base32 "0ygd980dcvwx5i4kg20aqppz1fdy53nnwc1ixdi8gwsa89bc5vcl"))))
+    (arguments
+     (substitute-keyword-arguments (package-arguments python-packaging)
+       ((#:phases phases #~%standard-phases)
+        #~(modify-phases #$phases
+            (add-before 'check 'test-installed-version
+              (lambda _
+                ;; The bootstrap pytest wrapper also carries packaging 26.2.
+                (setenv "PYTHONPATH"
+                        (string-append (getcwd) "/src:"
+                                       (getenv "GUIX_PYTHONPATH")))))))))))
 
 (define python-installer-for-arelle
   (package
