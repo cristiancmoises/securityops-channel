@@ -17,6 +17,7 @@
               (package-version dependency)))))
  '((python-vcs-versioning-for-arelle . "2.6.0")
    (python-hatchling-for-arelle . "1.33.0")
+   (python-hatch-fancy-pypi-readme-for-arelle . "25.1.0")
    (python-filelock-for-arelle . "4.2.10")
    (python-lxml-for-arelle . "6.1.3")))
 

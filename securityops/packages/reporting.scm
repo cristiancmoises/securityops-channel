@@ -140,6 +140,36 @@ control metadata and distribution archives.")
             (add-before 'unpack 'bound-build-resources
               #$(%bounded-build-environment))))))))
 
+(define python-hatch-fancy-pypi-readme-for-arelle
+  (package
+    (name "python-hatch-fancy-pypi-readme")
+    (version "25.1.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "hatch_fancy_pypi_readme" version))
+       (sha256
+        (base32 "1y76b7yj67k0amiy3r8za66l2aps5pjnlijnwjnf966cyq8ffabr"))))
+    (build-system pyproject-build-system)
+    (native-inputs
+     (list python-hatchling-for-arelle python-pytest python-pypa-build
+           python-wheel))
+    (propagated-inputs (list python-hatchling-for-arelle))
+    (arguments
+     (list
+      #:phases
+      #~(modify-phases %standard-phases
+          (add-before 'check 'disable-test-build-isolation
+            (lambda _
+              (substitute* "tests/test_end_to_end.py"
+                (("args = \\[\"-w\"\\]")
+                 "args = [\"-w\", \"--no-isolation\"]")))))))
+    (home-page "https://github.com/hynek/hatch-fancy-pypi-readme")
+    (synopsis "Hatch metadata hook for PyPI readmes")
+    (description "Hatch-fancy-pypi-readme composes Python package readmes from
+source fragments as a Hatch metadata hook.")
+    (license license:expat)))
+
 (define python-filelock-for-arelle
   (package
     (inherit python-filelock-next)
@@ -152,7 +182,8 @@ control metadata and distribution archives.")
         (base32 "0pdxjg74vplg7ls5ylf2nf60dbfv2m5w0cg2n0xlnzzyig5w1hzw"))))
     (native-inputs
      (modify-inputs (package-native-inputs python-filelock-next)
-       (replace "python-hatchling" python-hatchling-for-arelle)))
+       (replace "python-hatchling" python-hatchling-for-arelle)
+       (append python-hatch-fancy-pypi-readme-for-arelle)))
     (license license:expat)
     (arguments
      (substitute-keyword-arguments (package-arguments python-filelock-next)
