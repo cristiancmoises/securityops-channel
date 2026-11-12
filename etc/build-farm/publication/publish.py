@@ -672,7 +672,7 @@ def order_candidates(candidates, pinned):
 
 
 def publish_paths(paths, policy, transport, public_check, *, apply=False, limit=3):
-    """Bounded, fail-closed transfer. The transport performs no builds."""
+    """Bound new closure transfers; verified public roots use no transfer budget."""
     if type(limit) is not int or not 0 <= limit <= 20:
         raise ValueError("invalid per-run limit")
     public_reachable = set()
@@ -706,10 +706,9 @@ def publish_paths(paths, policy, transport, public_check, *, apply=False, limit=
     attempted = 0
     for path in ordered:
         review = policy["approved"][path]
-        if attempted >= limit:
+        if limit == 0:
             result["held"].append({"path": path, "reason": "run_limit"})
             continue
-        attempted += 1
         requisites = _guix_paths(
             transport.run(126, [GUIX, "gc", "--requisites", path]), root=path
         )
@@ -744,6 +743,10 @@ def publish_paths(paths, policy, transport, public_check, *, apply=False, limit=
                     )
             result["already_routes_reachable"].append(path)
             continue
+        if attempted >= limit:
+            result["held"].append({"path": path, "reason": "run_limit"})
+            continue
+        attempted += 1
         size, entries = _closure_footprint(transport, requisites)
         if size > MAX_ARCHIVE_BYTES or entries > MAX_CLOSURE_ENTRIES:
             result["held"].append({"path": path, "reason": "oversized_closure"})
