@@ -29,7 +29,7 @@
 (define python-setuptools-for-arelle
   (package
     (inherit python-setuptools)
-    (version "84.0.0")
+    (version "84.2.1")
     (source
      (origin
        (inherit (package-source python-setuptools))
@@ -39,7 +39,7 @@
                 (list (local-file
                        "patches/setuptools-test-build-meta-spawn.patch"))))
        (sha256
-        (base32 "0wzgn9rnam4s6i0nj9y1ghxi9vh23na2qsf2gr9rn3bz4lhmqsgl"))))
+        (base32 "1g6nciflz2d6skj16hqd0w9y113bm1jr6hglc1lsc2ia96sv7y1z"))))
     (native-inputs
      (modify-inputs (package-native-inputs python-setuptools)
        (append python-coverage)))
@@ -123,13 +123,13 @@ control metadata and distribution archives.")
 (define python-hatchling-for-arelle
   (package
     (inherit python-hatchling)
-    (version "1.32.4")
+    (version "1.33.0")
     (source
      (origin
        (method url-fetch)
        (uri (pypi-uri "hatchling" version))
        (sha256
-        (base32 "01sz6w6rf3k9g5mzv3vzy25qgfa3ihvz1w2fmcm4s1ac2irqyin4"))))
+        (base32 "1vvvc8db7v4mfn7ksmbygzwyjhayz2b9agmpwmfzzz2lspa2nhjc"))))
     (propagated-inputs
      (modify-inputs (package-propagated-inputs python-hatchling)
        (append python-tomlkit)))
@@ -143,13 +143,13 @@ control metadata and distribution archives.")
 (define python-filelock-for-arelle
   (package
     (inherit python-filelock-next)
-    (version "4.0.12")
+    (version "4.2.10")
     (source
      (origin
        (method url-fetch)
        (uri (pypi-uri "filelock" version))
        (sha256
-        (base32 "031v60sc94nvk3g90qm3xzp5mil8l0r07awz565q34f7g8d72hng"))))
+        (base32 "0pdxjg74vplg7ls5ylf2nf60dbfv2m5w0cg2n0xlnzzyig5w1hzw"))))
     (native-inputs
      (modify-inputs (package-native-inputs python-filelock-next)
        (replace "python-hatchling" python-hatchling-for-arelle)))
@@ -195,13 +195,13 @@ control metadata and distribution archives.")
 (define python-pillow-for-arelle
   (package
     (inherit python-pillow)
-    (version "12.3.0")
+    (version "13.0.0")
     (source
      (origin
        (method url-fetch)
        (uri (pypi-uri "pillow" version))
        (sha256
-        (base32 "1kkw54q5ianvy2dmf7y7l0cqicfnr178pqip4q0alpk8cskq509v"))))
+        (base32 "041mpvk6yajs590bqj2psnjvdsm43flcjw21sxb773qpb2i1pkfd"))))
     (arguments
      (substitute-keyword-arguments (package-arguments python-pillow)
        ((#:phases phases)
