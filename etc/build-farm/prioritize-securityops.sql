@@ -1,6 +1,7 @@
 -- Cuirass does not propagate a root build's priority through BuildDependencies.
--- Keep the dependency closure of pending SecurityOps jobs ahead of the general
--- Guix channel backlog without deleting build records or history.
+-- Keep the dependency closure of pending SecurityOps jobs, including jobs
+-- waiting on failed dependencies in the latest completed evaluation, ahead of
+-- the general Guix channel backlog without deleting build records or history.
 BEGIN;
 
 WITH RECURSIVE securityops_roots(id) AS (
@@ -8,7 +9,10 @@ WITH RECURSIVE securityops_roots(id) AS (
     FROM Builds AS b
     JOIN Evaluations AS e ON e.id = b.evaluation
    WHERE e.specification = 'securityops'
-     AND b.status < 0
+     AND (b.status < 0 OR
+          (b.status = 2 AND e.id = (
+            SELECT MAX(id) FROM Evaluations
+             WHERE specification = 'securityops' AND status = 0)))
 ), required(id) AS (
   SELECT id FROM securityops_roots
   UNION
@@ -30,7 +34,10 @@ WITH RECURSIVE securityops_roots(id) AS (
     FROM Builds AS b
     JOIN Evaluations AS e ON e.id = b.evaluation
    WHERE e.specification = 'securityops'
-     AND b.status < 0
+     AND (b.status < 0 OR
+          (b.status = 2 AND e.id = (
+            SELECT MAX(id) FROM Evaluations
+             WHERE specification = 'securityops' AND status = 0)))
 ), required(id) AS (
   SELECT id FROM securityops_roots
   UNION
