@@ -560,7 +560,52 @@ class PublicationExecutionTests(unittest.TestCase):
             [PACKAGE, OTHER], policy, transport, lambda path: path == PACKAGE, limit=1
         )
         self.assertEqual(result["planned"], [OTHER])
-        self.assertEqual(result["held"], [{"path": PACKAGE, "reason": "run_limit"}])
+        self.assertEqual(result["held"], [])
+        self.assertEqual(result["already_routes_reachable"], [PACKAGE])
+
+    def test_public_pinned_root_does_not_starve_another_pinned_root(self):
+        transport = FakeTransport(requisites=(PACKAGE, OTHER), missing_public=())
+        transport.pinned.update((116, p) for p in (PACKAGE, OTHER))
+        policy = {
+            "approved": {
+                **reviewed(PACKAGE)["approved"],
+                **reviewed(OTHER, requisites=(OTHER,))["approved"],
+            },
+            "denied": set(),
+        }
+        original_run = transport.run
+
+        def run(ct, argv, input=None):
+            if argv[1:3] == ["gc", "--requisites"]:
+                return (argv[-1] + "\n").encode()
+            return original_run(ct, argv, input)
+
+        transport.run = run
+        result = publication.publish_paths(
+            [PACKAGE, OTHER], policy, transport, lambda p: p == PACKAGE, limit=1
+        )
+        self.assertEqual(result["already_routes_reachable"], [PACKAGE])
+        self.assertEqual(
+            result["held"], [{"path": OTHER, "reason": "ct116_present_not_public"}]
+        )
+
+    def test_new_closure_transfers_still_obey_the_run_limit(self):
+        transport = FakeTransport(
+            requisites=(PACKAGE, OTHER), missing_public=(PACKAGE, OTHER)
+        )
+        policy = {
+            "approved": {
+                **reviewed(PACKAGE, requisites=(PACKAGE, OTHER))["approved"],
+                **reviewed(OTHER, requisites=(PACKAGE, OTHER))["approved"],
+            },
+            "denied": set(),
+        }
+        result = publication.publish_paths(
+            [PACKAGE, OTHER], policy, transport, lambda p: False, limit=1
+        )
+        self.assertEqual(result["planned"], [PACKAGE])
+        self.assertEqual(result["held"], [{"path": OTHER, "reason": "run_limit"}])
+        self.assertEqual(transport.streamed, [])
 
     def test_policy_rejects_bad_paths_and_duplicate_review_records(self):
         with self.assertRaises(ValueError):
