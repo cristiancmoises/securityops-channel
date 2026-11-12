@@ -2,6 +2,7 @@
 ;;; Run: guix repl -L . tests/current-package-releases.scm
 (define-module (tests current-package-releases))
 (use-modules (guix packages)
+             (guix utils)
              (srfi srfi-64)
              ((securityops packages audio) #:prefix audio:)
              ((securityops packages browsers) #:prefix browsers:)
@@ -32,6 +33,10 @@
     (package-version tor:tor))
   (test-equal "Tor Browser stable" "16.0.1"
     (package-version tor:torbrowser))
+  (test-assert "Tor Browser satisfies the Firefox 153 ICU minimum"
+    (version>=? (package-version
+                 (lookup-package-input tor:torbrowser "icu4c"))
+                "78.1"))
   (test-equal "Tor Browser assets match" "16.0.1"
     (package-version tor:torbrowser-assets))
   (test-equal "yt-dlp stable" "2026.10.26"

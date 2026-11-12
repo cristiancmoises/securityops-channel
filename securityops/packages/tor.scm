@@ -16,6 +16,7 @@
   #:use-module (gnu build icecat-extension)
   #:use-module (gnu packages browser-extensions)
   #:use-module (gnu packages compression)
+  #:use-module ((gnu packages icu4c) #:prefix icu:)
   #:use-module ((gnu packages rust-apps) #:prefix rust-apps:)
   #:use-module ((guix licenses)
                 #:prefix license:)
@@ -203,6 +204,7 @@ Browser bundle, matching the @code{torbrowser} version in this channel.")
          (base (package
                  (inherit upstream)
                  (inputs (modify-inputs (package-inputs upstream)
+                           (replace "icu4c" icu:icu4c-78)
                            (replace "firefox-locales"
                                     torbrowser-firefox-locales)
                            (replace "tor-client" torbrowser-tor-client))))))
