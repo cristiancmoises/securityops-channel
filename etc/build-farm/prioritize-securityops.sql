@@ -5,6 +5,29 @@
 -- Builds are reused across evaluations; Jobs identifies the current evaluation.
 BEGIN;
 
+-- Cuirass can leave a root at "dependency failed" after its dependency is
+-- rebuilt successfully.  Requeue only roots from the latest completed
+-- SecurityOps evaluation whose recorded requirements now all succeeded.
+WITH latest(id) AS (
+  SELECT MAX(id) FROM Evaluations
+   WHERE specification = 'securityops' AND status = 0
+), retry(id) AS (
+  SELECT b.id
+    FROM Jobs AS job
+    JOIN latest ON job.evaluation = latest.id
+    JOIN Builds AS b ON b.id = job.build
+   WHERE b.status = 2
+     AND EXISTS (SELECT 1 FROM BuildDependencies AS d
+                  WHERE d.source = b.id)
+     AND NOT EXISTS (
+       SELECT 1 FROM BuildDependencies AS d
+         JOIN Builds AS required ON required.id = d.target
+        WHERE d.source = b.id AND required.status <> 0)
+)
+UPDATE Builds
+   SET status = -2, priority = 0
+ WHERE status = 2 AND id IN (SELECT id FROM retry);
+
 WITH RECURSIVE securityops_roots(id) AS (
   SELECT b.id
     FROM Jobs AS job

@@ -421,9 +421,13 @@ or independently security-certified.")
             (lambda* (#:key inputs #:allow-other-keys)
               ;; Store libraries are read-only.  Upstream copies and strips
               ;; two compiler-runtime files as intermediate build targets.
+              ;; libstdc++ is copied to $@.tmp before stripping, whereas
+              ;; libgcc_s is copied directly to $@.
               (substitute* "src/Makefile"
-                (("\\$\\{STRIP_TOOL\\} -x \\$@")
-                 "chmod u+w $@ && ${STRIP_TOOL} -x $@"))
+                (("\\$\\{STRIP_TOOL\\} -x \\$@\\.tmp")
+                 "chmod u+w $@.tmp && ${STRIP_TOOL} -x $@.tmp")
+                (("\\$\\{STRIP_TOOL\\} -x \\$@\n")
+                 "chmod u+w $@ && ${STRIP_TOOL} -x $@\n"))
               ;; Locks are mutable data; preserve the upstream algorithm.
               (for-each
                (lambda (file)
