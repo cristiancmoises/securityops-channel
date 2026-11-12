@@ -2,12 +2,14 @@
 -- Keep the dependency closure of pending SecurityOps jobs, including jobs
 -- waiting on failed dependencies in the latest completed evaluation, ahead of
 -- the general Guix channel backlog without deleting build records or history.
+-- Builds are reused across evaluations; Jobs identifies the current evaluation.
 BEGIN;
 
 WITH RECURSIVE securityops_roots(id) AS (
   SELECT b.id
-    FROM Builds AS b
-    JOIN Evaluations AS e ON e.id = b.evaluation
+    FROM Jobs AS job
+    JOIN Evaluations AS e ON e.id = job.evaluation
+    JOIN Builds AS b ON b.id = job.build
    WHERE e.specification = 'securityops'
      AND (b.status < 0 OR
           (b.status = 2 AND e.id = (
@@ -31,8 +33,9 @@ UPDATE Builds
 -- excluding their scheduled backlog from the SecurityOps build lane.
 WITH RECURSIVE securityops_roots(id) AS (
   SELECT b.id
-    FROM Builds AS b
-    JOIN Evaluations AS e ON e.id = b.evaluation
+    FROM Jobs AS job
+    JOIN Evaluations AS e ON e.id = job.evaluation
+    JOIN Builds AS b ON b.id = job.build
    WHERE e.specification = 'securityops'
      AND (b.status < 0 OR
           (b.status = 2 AND e.id = (
