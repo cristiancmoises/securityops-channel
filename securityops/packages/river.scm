@@ -596,7 +596,10 @@ by the XMonad Wayland nested test and does not configure a system session.")
                  ".{ .x = 25, .y = 25 }")
                 (("\\.\\{ 100, 100 \\}")
                  ".{ .x = 100, .y = 100 }"))))
-          (add-after 'install 'install-documentation
+          (add-after (if (assq 'build+install %standard-phases)
+                         'build+install
+                         'install)
+              'install-documentation
             (lambda* (#:key inputs native-inputs #:allow-other-keys)
               (let ((doc (string-append #$output
                                         "/share/doc/channel-river-input"))
