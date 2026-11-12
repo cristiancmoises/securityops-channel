@@ -10,6 +10,7 @@
   #:use-module ((guix licenses) #:prefix license:)
   #:use-module (gnu packages version-control)
   #:use-module (gnu packages check)
+  #:use-module (gnu packages compression)
   #:use-module (gnu packages python)
   #:use-module (gnu packages python-build)
   #:use-module (gnu packages python-check)
@@ -217,7 +218,27 @@ source fragments as a Hatch metadata hook.")
         (base32 "0890lsw5vg1dzxwbii4qzic4b75mcj3i48rskllm8ys42p0mfn9w"))))
     (build-system pyproject-build-system)
     (native-inputs
-     (list python-setuptools-for-arelle python-wheel python-pytest))
+     `(("python-setuptools" ,python-setuptools-for-arelle)
+       ("python-wheel" ,python-wheel)
+       ("python-pytest" ,python-pytest)
+       ("zstd" ,zstd)
+       ("cpython-test-source" ,(package-source python))))
+    (arguments
+     (list
+      #:phases
+      #~(modify-phases %standard-phases
+          (add-before 'check 'provide-cpython-tests
+            (lambda* (#:key inputs #:allow-other-keys)
+              ;; Zipremove extends CPython's ZIP tests, which Guix omits from
+              ;; the installed interpreter.  Use the matching pinned source.
+              (let ((test-lib (string-append "Python-" #$(package-version python)
+                                             "/Lib")))
+                (invoke "tar" "--zstd" "-xf"
+                        (assoc-ref inputs "cpython-test-source")
+                        (string-append test-lib "/test"))
+                (setenv "PYTHONPATH"
+                        (string-append (getcwd) "/" test-lib ":"
+                                       (or (getenv "PYTHONPATH") "")))))))))
     (home-page "https://github.com/danny0838/zipremove")
     (synopsis "Remove members from ZIP archives without recompressing")
     (description "Zipremove deletes selected members from ZIP archives while
