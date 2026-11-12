@@ -91,7 +91,7 @@ def server_test(prefix: Path, directory: Path, environment: dict[str, str]) -> N
 
 def client_test(prefix: Path, directory: Path, environment: dict[str, str]) -> None:
     binary = str(prefix / "bin/rustdesk")
-    assert output([binary, "--version"], environment).strip() == "1.4.9"
+    assert output([binary, "--version"], environment).strip() == "1.5.3"
     print("PASS: client version and dynamic library loading")
     environment["DISPLAY"] = ":87"
     with running(

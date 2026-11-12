@@ -1,0 +1,145 @@
+Use system Boost headers in Kismet 2026.10.R1.  The source origin removes
+the bundled boost directory; angle brackets make that dependency explicit.
+
+diff --git a/fmt_asio.h b/fmt_asio.h
+index 911f48f..ebd01cc 100644
+--- a/fmt_asio.h
++++ b/fmt_asio.h
+@@ -19,14 +19,14 @@
+ #ifndef __FMT_ASIO_H__
+ #define __FMT_ASIO_H__
+ 
+-#include "boost/asio/ip/basic_endpoint.hpp"
++#include <boost/asio/ip/basic_endpoint.hpp>
+ #include "config.h"
+ #include "fmt/ostream.h"
+ 
+ #define ASIO_HAS_STD_CHRONO
+ #define ASIO_HAS_MOVE
+ 
+-#include "boost/asio.hpp"
++#include <boost/asio.hpp>
+ #include "fmt.h"
+ 
+ template <>struct fmt::formatter<boost::asio::ip::address> : fmt::ostream_formatter {};
+diff --git a/globalregistry.h b/globalregistry.h
+index 29b8340..fcb967a 100644
+--- a/globalregistry.h
++++ b/globalregistry.h
+@@ -34,7 +34,7 @@
+ #include "util.h"
+ #include "uuid.h"
+ 
+-#include "boost/asio.hpp"
++#include <boost/asio.hpp>
+ 
+ #include "fnv_ht.h"
+ 
+diff --git a/gpsgpsd_v3.h b/gpsgpsd_v3.h
+index ef29315..f943522 100644
+--- a/gpsgpsd_v3.h
++++ b/gpsgpsd_v3.h
+@@ -25,7 +25,7 @@
+ #include "kis_gps.h"
+ #include "timetracker.h"
+ 
+-#include "boost/asio.hpp"
++#include <boost/asio.hpp>
+ 
+ using boost::asio::ip::tcp;
+ 
+diff --git a/gpsnmea_v3.h b/gpsnmea_v3.h
+index 74fd881..6684067 100644
+--- a/gpsnmea_v3.h
++++ b/gpsnmea_v3.h
+@@ -34,7 +34,7 @@
+ #define ASIO_HAS_STD_CHRONO
+ #define ASIO_HAS_MOVE
+ 
+-#include "boost/asio.hpp"
++#include <boost/asio.hpp>
+ 
+ // NMEA 0183 sentence decoder; no I/O or state, so it can be shared by any transport
+ namespace gps_nmea {
+diff --git a/gpsserial_v3.h b/gpsserial_v3.h
+index 68779d1..e60ffe2 100644
+--- a/gpsserial_v3.h
++++ b/gpsserial_v3.h
+@@ -39,7 +39,7 @@
+ #define ASIO_HAS_STD_CHRONO
+ #define ASIO_HAS_MOVE
+ 
+-#include "boost/asio.hpp"
++#include <boost/asio.hpp>
+ 
+ // Serial-attached GPS (includes USB GPS).  All port I/O, decoding, and timers run on
+ // the strand.
+diff --git a/kis_external.cc b/kis_external.cc
+index d44d712..89aa07c 100644
+--- a/kis_external.cc
++++ b/kis_external.cc
+@@ -21,7 +21,7 @@
+ 
+ #include <array>
+ 
+-#include "boost/asio/use_future.hpp"
++#include <boost/asio/use_future.hpp>
+ #include "configfile.h"
+ 
+ #include "json_adapter.h"
+diff --git a/kis_external.h b/kis_external.h
+index 073b808..31a160e 100644
+--- a/kis_external.h
++++ b/kis_external.h
+@@ -45,7 +45,7 @@
+ #include "kis_external_packet.h"
+ #include "kis_net_beast_httpd.h"
+ 
+-#include "boost/asio.hpp"
++#include <boost/asio.hpp>
+ using boost::asio::ip::tcp;
+ 
+ // Protobufs are now optional & will be phased out
+diff --git a/kis_net_beast_httpd.h b/kis_net_beast_httpd.h
+index 66d6a99..b3eaaab 100644
+--- a/kis_net_beast_httpd.h
++++ b/kis_net_beast_httpd.h
+@@ -29,9 +29,9 @@
+ #include <thread>
+ #include <unordered_map>
+ 
+-#include "boost/asio.hpp"
+-#include "boost/beast.hpp"
+-#include "boost/optional.hpp"
++#include <boost/asio.hpp>
++#include <boost/beast.hpp>
++#include <boost/optional.hpp>
+ 
+ #include "jwt-cpp/jwt.h"
+ 
+diff --git a/packet.h b/packet.h
+index aaf405d..d77a4a2 100644
+--- a/packet.h
++++ b/packet.h
+@@ -46,7 +46,7 @@
+ 
+ #include "unordered_dense.h"
+ 
+-#include "boost/asio/streambuf.hpp"
++#include <boost/asio/streambuf.hpp>
+ 
+ // This is the main switch for how big the vector is.  If something ever starts
+ // bumping up against this we'll need to increase it, but that'll slow down 
+diff --git a/regex_adapter.h b/regex_adapter.h
+index 9f989a0..a8d0fdb 100644
+--- a/regex_adapter.h
++++ b/regex_adapter.h
+@@ -33,7 +33,7 @@
+ #include <pcre2.h>
+ #endif
+ 
+-#include "boost/algorithm/string.hpp"
++#include <boost/algorithm/string.hpp>
+ 
+ #include "fmt.h"
+ 

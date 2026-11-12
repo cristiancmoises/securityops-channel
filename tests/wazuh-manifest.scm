@@ -18,9 +18,9 @@
     (for-each
      (lambda (entry)
        (test-equal "compatible component version"
-         (assoc-ref '(("wazuh-manager" . "4.14.9")
-                      ("wazuh-indexer" . "4.14.8-1")
-                      ("wazuh-dashboard" . "4.14.8-1")
+         (assoc-ref '(("wazuh-manager" . "4.14.10")
+                      ("wazuh-indexer" . "4.14.10-1")
+                      ("wazuh-dashboard" . "4.14.10-1")
                       ("filebeat" . "7.10.2-2"))
                     (manifest-entry-name entry))
          (manifest-entry-version entry)))

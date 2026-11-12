@@ -10,10 +10,10 @@
   (define root
     (canonicalize-path (string-append (dirname (car (command-line))) "/..")))
   (test-begin "browser-release-packages")
-  (test-equal "Chrome stable release" "156.0.8078.79-1"
+  (test-equal "Chrome stable release" "157.0.8103.78-1"
     (package-version b:google-chrome-stable))
   (test-equal "Chrome published archive"
-    "https://dl.google.com/linux/chrome/deb/pool/main/g/google-chrome-stable/google-chrome-stable_156.0.8078.79-1_amd64.deb"
+    "https://dl.google.com/linux/chrome/deb/pool/main/g/google-chrome-stable/google-chrome-stable_157.0.8103.78-1_amd64.deb"
     (origin-uri (package-source b:google-chrome-stable)))
   (test-equal "portable Chromium stable release" "156.0.8078.79-1"
     (package-version c:ungoogled-chromium-bin))

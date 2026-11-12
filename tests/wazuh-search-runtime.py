@@ -572,7 +572,7 @@ def check_live_client(dashboard: Path, integration: dict, wrong_ca: Path) -> Non
             f"Live manager API installed-client {mode} TLS failure"
         )
     print(
-        "PASS actual live manager API: installed Node client CA refusal/authenticated4.14.8"
+        "PASS actual live manager API: installed Node client CA refusal/authenticated4.14.10"
     )
 
 

@@ -8,7 +8,7 @@
   (test-begin "wazuh-packages")
   (for-each
    (lambda (package)
-     (test-equal "current stable core release" "4.14.8"
+     (test-equal "current stable core release" "4.14.10"
        (package-version package))
      (test-equal "no replacement" #f (package-replacement package))
      (test-assert "core recipe has a real source" (package-source package))
@@ -18,7 +18,7 @@
    (list w:wazuh-agent w:wazuh-manager))
   (let ((runtime (assoc-ref (package-inputs w:wazuh-manager) "python-runtime")))
     (test-assert "manager declares its shared pinned Python environment" runtime)
-    (test-equal "shared environment follows the component release" "4.14.8"
+    (test-equal "shared environment follows the component release" "4.14.10"
       (and runtime (package-version (car runtime))))
     (test-assert "agent and manager reuse the exact same Python closure"
       (eq? (car runtime)

@@ -797,7 +797,7 @@ def main():
                 )
                 if accepted:
                     assert result.returncode == 0, result.stderr
-                    assert "4.14.8" in result.stdout + result.stderr
+                    assert "4.14.10" in result.stdout + result.stderr
                 else:
                     assert result.returncode != 0, value
                     assert "Unsafe WAZUH_HOME state ownership or ancestry" in (

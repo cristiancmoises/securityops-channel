@@ -27,14 +27,14 @@
 (define-public rustdesk
   (package
     (name "rustdesk")
-    (version "1.5.0")
+    (version "1.5.3")
     (source
      (origin
        (method url-fetch)
        (uri (string-append "https://github.com/rustdesk/rustdesk/releases/download/"
                            version "/rustdesk-" version "-x86_64.deb"))
        (sha256
-        (base32 "1v50wa1mfjkdx3r1bax6jwpr1mip99cdm6yhydrz6zjss80rfasf"))))
+        (base32 "109vgfwmrwpzx6alrylydwm2lwdhbfhvqlf380jkahzxclpns2c1"))))
     (build-system binary-build-system)
     (arguments
      (list
@@ -106,17 +106,17 @@
                   (string-append #$output "/share/doc/rustdesk/PACKAGING-NOTICE")
                 (lambda (port)
                   (display
-                   "Guix packaging modifications dated 2026-10-07
+                   "Guix packaging modifications dated 2026-11-11
 
-This package repackages the official RustDesk 1.4.9 Linux binary release.
+This package repackages the official RustDesk 1.5.3 Linux binary release.
 It changes the ELF interpreter and executable/shared-library runpaths for
 Guix, adjusts desktop launch commands, and adds a scoped shell wrapper for
 runtime tools and GStreamer plugins.  It does not rebuild the application.
 
 The matching upstream repository and recursive submodule checkout are
 retained in source/ beside this notice, including libs/hbb_common/.
-Repository: https://github.com/rustdesk/rustdesk/tree/1.4.9
-Commit: 6c578292e8ebbbec708b76986ba8c4bc7c509747
+Repository: https://github.com/rustdesk/rustdesk/tree/1.5.3
+Commit: 95cca3f661f635b3cc85c04935fe8d96d8f432ef
 License and Corresponding Source requirements: source/LICENCE (AGPLv3).
 Upstream build instructions: https://rustdesk.com/docs/en/dev/build/
 Retained build scripts: source/build.py and
@@ -138,11 +138,11 @@ and satisfy the applicable Corresponding Source and notice requirements.
               (method git-fetch)
               (uri (git-reference
                     (url "https://github.com/rustdesk/rustdesk")
-                    (commit "6c578292e8ebbbec708b76986ba8c4bc7c509747")
+                    (commit "95cca3f661f635b3cc85c04935fe8d96d8f432ef")
                     (recursive? #t)))
               (file-name (git-file-name "rustdesk-source" version))
               (sha256
-               (base32 "00lmgm04i3a3vfw44wmqgnx33b8zmw8a08p3yawf1g8kxqh1sz02"))))))
+               (base32 "0rq14naipz3j90c7qp2k490aygxax1h56wflfp8bns88sbqn1rax"))))))
     (inputs
      `(("glibc" ,glibc) ("gcc:lib" ,gcc "lib")
        ("gtk+" ,gtk+) ("glib" ,glib) ("pango" ,pango) ("cairo" ,cairo)

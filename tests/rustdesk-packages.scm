@@ -25,7 +25,7 @@
                (and (origin? source)
                     (git-reference? (origin-uri source))
                     (git-reference-recursive? (origin-uri source))))))))
-     '((rustdesk . "1.4.9") (rustdesk-server . "1.1.16"))))
+     '((rustdesk . "1.5.3") (rustdesk-server . "1.1.16"))))
   (let ((runner (test-runner-current)))
     (test-end "rustdesk-packages")
     (exit (if (zero? (test-runner-fail-count runner)) 0 1))))

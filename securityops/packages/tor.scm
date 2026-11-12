@@ -41,33 +41,34 @@
        (sha256
         (base32 "0j0f2vk8czqq58b60g1wjrdh78mj3621cxalrayjai9g2n9y3031"))))))
 
-;; All browser inputs below follow tbb-16.0-build1 (commit
-;; eb1e8801b909ecedc16bd27b052c3fef8894d16c) of tor-browser-build.
-;; Translation commits come from projects/translation/config; Firefox locale
-;; data is the revision in the released source's l10n-changesets.json.
+;; All browser inputs below follow tbb-16.0.1-build1 (commit
+;; cd8ab79f93f31ab8259bcf26c9ccb663e25bbd5d) of tor-browser-build.
+;; Translation commits come from projects/translation/config.  The Firefox
+;; locale snapshot predates the release build; per-locale revisions are listed
+;; in the released source's l10n-changesets.json.
 (define torbrowser-translation-base
   (origin
     (method git-fetch)
     (uri (git-reference
           (url "https://gitlab.torproject.org/tpo/translation.git")
-          (commit "e1166567b3a76662f0b6223b4eb3ff55a2eca34b")))
+          (commit "a92b2df1444ff83dca9278b97dd4a5746ea95a92")))
     (file-name "translation-base-browser")
-    (sha256 (base32 "04qp10jl0bqn65zwca06cbf8hss4ql9yjjmvmv5y9idy838x407v"))))
+    (sha256 (base32 "0hynm4h7y5lznzk86rkdqqh2gjv1wl4b3va82f5j5fxc5my1dh78"))))
 
 (define torbrowser-translation-specific
   (origin
     (method git-fetch)
     (uri (git-reference
           (url "https://gitlab.torproject.org/tpo/translation.git")
-          (commit "523ce42af96512b616417c3b5f229887abd9f565")))
+          (commit "509783257e9707323d1509622cb711f518fde965")))
     (file-name "translation-tor-browser")
-    (sha256 (base32 "18n2yifn6hl5kadzls1yshzmw7jwpppa60wnyq8kw19rsbg3hb9n"))))
+    (sha256 (base32 "0blajm0n4p6xflldznvnvzlgii0h6s3h42zlkpi3nzcc0l8g30lw"))))
 
 (define torbrowser-firefox-locales
-  (let ((commit "1e95d1c5f519c3fbde715345ae7beb56a2c79077"))
+  (let ((commit "2412c916180c16ecfd0724cbbecfaa5641a441ba"))
     (package
       (inherit (@@ (gnu packages tor-browsers) firefox-locales))
-      (version (git-version "0.0.0" "3" commit))
+      (version (git-version "0.0.0" "4" commit))
       (source
        (origin
          (method git-fetch)
@@ -76,7 +77,7 @@
                (commit commit)))
          (file-name (git-file-name "firefox-locales" version))
          (sha256
-          (base32 "12rlba5g46sw22fxqyjj2jfvplxw45dm2m82lq17ajgqh21frdzf")))))))
+          (base32 "0jgrxlralgnk2jwjvm414cx1s9x8ng3n0kjg54nw7q1xkxipw7af")))))))
 
 (define torbrowser-tor-client
   (package
@@ -89,7 +90,7 @@
   (let ((base (@@ (gnu packages browser-extensions) noscript)))
     (make-icecat-extension (package
                              (inherit base)
-                             (version "13.6.37.1984")
+                             (version "13.6.38.1984")
                              (source
                               (origin
                                 (inherit (package-source base))
@@ -99,14 +100,14 @@
                                       ".xpi"))
                                 (sha256
                                  (base32
-                                  "1lxk46ii1iklfd6ss0n5x1720kp28dv0z00xqd0kib8rh4srd0bb"))))
+                                  "1djaaqddgkqzw3lphwyz76dbg5vc3jcbjpm6ivqqvn0pa3b69mxv"))))
                              ;; Bundled flextabs and he JavaScript libraries use the Expat license.
                              (license (list license:gpl3+ license:expat))))))
 
 (define-public torbrowser-assets
   (package
     (name "torbrowser-assets")
-    (version "16.0")
+    (version "16.0.1")
     (source
      (origin
        (method url-fetch)
@@ -114,7 +115,7 @@
              "https://archive.torproject.org/tor-package-archive/torbrowser/"
              version "/tor-browser-linux-x86_64-" version ".tar.xz"))
        (sha256
-        (base32 "090s54xc9i4587kym41jx552l8rv5sxibmfd723q9hl9ffv70cyy"))))
+        (base32 "1c3qp8b00h41qp7b88634yii87x1scf7vwnafam1zj101ihssdjv"))))
     (build-system copy-build-system)
     (arguments
      (list
@@ -194,7 +195,7 @@ Browser bundle, matching the @code{torbrowser} version in this channel.")
                                 "vi"
                                 "zh-CN"
                                 "zh-TW")
-                    #:build-date "20261026134500"
+                    #:build-date "20261109080000"
                     #:base-browser-version "16.0"))
          ;; Bind inputs before evaluating the inherited arguments.  Guix's
          ;; phases use this-package-input for Tor's geoip data and locales.
@@ -207,16 +208,16 @@ Browser bundle, matching the @code{torbrowser} version in this channel.")
                            (replace "tor-client" torbrowser-tor-client))))))
     (package
       (inherit base)
-      (version "16.0")
+      (version "16.0.1")
       (source
        (origin
          (inherit (package-source base))
          (uri (string-append
                "https://archive.torproject.org/tor-package-archive/torbrowser/"
                version
-               "/src-firefox-tor-browser-153.6.0esr-16.0-1-build3.tar.xz"))
+               "/src-firefox-tor-browser-153.7.0esr-16.0-1-build2.tar.xz"))
          (sha256
-          (base32 "0zx87pnm6wrjdxrwyxjz3x2z20v0vsfysxvw8yigx0kxc61in5v4"))))
+          (base32 "1g1mdqk0nxl2v8pn014ym211fx0l43x4gwrs133aqn8wi5fn91dx"))))
       (arguments
        (substitute-keyword-arguments (package-arguments base)
          ((#:configure-flags flags

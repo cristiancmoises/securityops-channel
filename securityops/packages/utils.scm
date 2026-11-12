@@ -3,8 +3,8 @@
 ;;;
 ;;; This file is part of the securityops channel.
 ;;;
-;;; Everyday TUI / desktop utilities.  KeePassXC and ueberzug++ track the
-;;; pinned Guix packages; lf is bumped ahead with its new Go dependency chain.
+;;; Everyday TUI / desktop utilities.  KeePassXC and ueberzug++ are bumped
+;;; ahead of Guix; lf uses its newer Go dependency chain.
 
 (define-module (securityops packages utils)
   #:use-module (guix gexp)
@@ -51,7 +51,19 @@
     (arguments
      (substitute-keyword-arguments (package-arguments pw:keepassxc)
        ((#:qtbase _ #f) qt:qtbase)))))
-(define-public ueberzugpp iv:ueberzugpp)      ; 2.9.10 — latest (ueberzug++)
+(define-public ueberzugpp
+  (package
+    (inherit iv:ueberzugpp)
+    (version "2.9.11")
+    (source
+     (origin
+       (inherit (package-source iv:ueberzugpp))
+       (uri (git-reference
+             (url "https://github.com/jstkdng/ueberzugpp")
+             (commit (string-append "v" version))))
+       (file-name (git-file-name "ueberzugpp" version))
+       (sha256
+        (base32 "0lzn4q9rr4j8gbq5f5nskwbc982ndsy29i9ny5dj75r8shcm6pxa"))))))
 
 ;; lf r42 migrated from tcell/v2 to tcell/v3 and now measures terminal display
 ;; width with clipperhouse's UAX #29 implementation.  These three Go modules are

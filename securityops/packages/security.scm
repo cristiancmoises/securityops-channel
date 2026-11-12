@@ -76,7 +76,25 @@
 ;;; Wireless
 (define-public aircrack-ng net:aircrack-ng)
 (define-public reaver net:reaver)
-(define-public kismet net:kismet)
+(define-public kismet
+  (package
+    (inherit net:kismet)
+    (version "2026.10.R1")
+    (source
+     (origin
+       (inherit (package-source net:kismet))
+       (uri (git-reference
+             (url "https://www.kismetwireless.net/git/kismet.git")
+             (commit "kismet-2026-10-R1")))
+       (file-name (git-file-name "kismet" version))
+       (patches
+        (map (lambda (patch)
+               (if (string=? (basename patch) "kismet-unbundle-boost.patch")
+                   (local-file "patches/kismet-unbundle-boost-2026.patch")
+                   patch))
+             (origin-patches (package-source net:kismet))))
+       (sha256
+        (base32 "0xxasx229jlg3v73zfhdlqi90wqhhcdrcydw8h1ibfa9sylk25mn"))))))
 
 ;;; Password / login cracking — THC-Hydra, bumped ahead of Guix (9.6 -> 9.7).
 (define-public hydra
@@ -114,7 +132,7 @@
 (define-public radare2
   (package
     (inherit eng:radare2)
-    (version "6.2.4")
+    (version "6.2.6")
     (source
      (origin
        (inherit (package-source eng:radare2))
@@ -123,16 +141,14 @@
              (commit version)))
        (file-name (git-file-name "radare2" version))
        (patches
-        (append
-         (map (lambda (patch)
-                (if (string=? (basename patch)
-                              "radare2-fix-meson-build-to-use-sys-sdb.patch")
-                    (local-file "patches/radare2-system-sdb-6.2.4.patch")
-                    patch))
-              (origin-patches (package-source eng:radare2)))
-         (list (local-file "patches/radare2-register-tmp-filesystem.patch"))))
+        (map (lambda (patch)
+               (if (string=? (basename patch)
+                             "radare2-fix-meson-build-to-use-sys-sdb.patch")
+                   (local-file "patches/radare2-system-sdb-6.2.6.patch")
+                   patch))
+             (origin-patches (package-source eng:radare2))))
        (sha256
-        (base32 "1jdg8njx5a1ba0gmzk2fr78f8akj6bjsjvzalpwqc44vaw1s9380"))))
+        (base32 "1gfkari95nj6xzwfyjd09lmcm5gzfspzrif8fvhmmd0b46x5c1rh"))))
     (arguments
      (substitute-keyword-arguments (package-arguments eng:radare2)
        ((#:configure-flags flags #~'())

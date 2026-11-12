@@ -225,8 +225,8 @@ delivery. The extra fixture rejects ordinary host execution:
 
 ## Wazuh
 
-The channel packages Wazuh agent and manager 4.14.9. The server stack uses
-indexer/dashboard 4.14.8-1 and the compatible Filebeat 7.10.2-2 distribution
+The channel packages Wazuh agent and manager 4.14.10. The server stack uses
+indexer/dashboard 4.14.10-1 and the compatible Filebeat 7.10.2-2 distribution
 for x86_64-linux.
 
 | Role | Module export | Installed command |
