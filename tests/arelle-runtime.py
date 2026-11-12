@@ -29,9 +29,9 @@ def main():
     )
     assert "-tk/lib/python" in wrapper, "Python Tk output missing from runtime"
     assert version("arelle-release") == "2.47.4"
-    assert version("filelock") == "4.0.12"
+    assert version("filelock") == "4.2.10"
     assert version("lxml") == "6.1.3"
-    assert version("pillow") == "12.3.0"
+    assert version("pillow") == "13.0.0"
     print("Loaded lxml extension:", Path(lxml_etree.__file__).resolve())
     assert "-python-lxml-6.1.3/" in str(Path(lxml_etree.__file__).resolve())
     print(
