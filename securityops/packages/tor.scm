@@ -121,8 +121,11 @@
     (arguments
      (list
       #:install-plan ''(("Browser" "."
-                         #:include-regexp ("^\\./TorBrowser/Data/Tor/torrc-defaults"
-                                           "^\\./fonts/"))
+                         #:include-regexp ("^\\./fonts/"))
+                        ;; The 16.x bundle moved this beside the Tor binary.
+                        ;; Preserve Guix's explicit defaults/GeoIP directory.
+                        ("Browser/TorBrowser/Tor/torrc-defaults"
+                         "TorBrowser/Data/Tor/torrc-defaults")
                         ("Browser/TorBrowser/Docs/Licenses"
                          "share/doc/torbrowser-assets"
                          #:include ("Noto-CJK-Font.txt" "Noto-Fonts.txt"
