@@ -16,8 +16,6 @@
   #:use-module (gnu build icecat-extension)
   #:use-module (gnu packages browser-extensions)
   #:use-module (gnu packages compression)
-  #:use-module ((gnu packages icu4c) #:prefix icu:)
-  #:use-module ((gnu packages rust-apps) #:prefix rust-apps:)
   #:use-module ((guix licenses)
                 #:prefix license:)
   #:use-module ((gnu packages tor)
@@ -42,11 +40,9 @@
        (sha256
         (base32 "0j0f2vk8czqq58b60g1wjrdh78mj3621cxalrayjai9g2n9y3031"))))))
 
-;; All browser inputs below follow tbb-16.0.1-build1 (commit
-;; cd8ab79f93f31ab8259bcf26c9ccb663e25bbd5d) of tor-browser-build.
-;; Translation commits come from projects/translation/config.  The Firefox
-;; locale snapshot predates the release build; per-locale revisions are listed
-;; in the released source's l10n-changesets.json.
+;; All browser inputs below follow tbb-16.0.1-build1 of tor-browser-build.
+;; Translation commits come from projects/translation/config; Firefox locale
+;; data is the revision in the released source's l10n-changesets.json.
 (define torbrowser-translation-base
   (origin
     (method git-fetch)
@@ -66,10 +62,10 @@
     (sha256 (base32 "0blajm0n4p6xflldznvnvzlgii0h6s3h42zlkpi3nzcc0l8g30lw"))))
 
 (define torbrowser-firefox-locales
-  (let ((commit "2412c916180c16ecfd0724cbbecfaa5641a441ba"))
+  (let ((commit "4e2e25a0b94740a84c357e93346ec4f4c94521e3"))
     (package
       (inherit (@@ (gnu packages tor-browsers) firefox-locales))
-      (version (git-version "0.0.0" "4" commit))
+      (version (git-version "0.0.0" "2" commit))
       (source
        (origin
          (method git-fetch)
@@ -78,7 +74,7 @@
                (commit commit)))
          (file-name (git-file-name "firefox-locales" version))
          (sha256
-          (base32 "0jgrxlralgnk2jwjvm414cx1s9x8ng3n0kjg54nw7q1xkxipw7af")))))))
+          (base32 "0n3c3r9piyyvygh7f1f1w899minc1rlsgrqg5g3cd08aikwdfr25")))))))
 
 (define torbrowser-tor-client
   (package
@@ -121,11 +117,8 @@
     (arguments
      (list
       #:install-plan ''(("Browser" "."
-                         #:include-regexp ("^\\./fonts/"))
-                        ;; The 16.x bundle moved this beside the Tor binary.
-                        ;; Preserve Guix's explicit defaults/GeoIP directory.
-                        ("Browser/TorBrowser/Tor/torrc-defaults"
-                         "TorBrowser/Data/Tor/torrc-defaults")
+                         #:include-regexp ("^\\./TorBrowser/Tor/torrc-defaults"
+                                           "^\\./fonts/"))
                         ("Browser/TorBrowser/Docs/Licenses"
                          "share/doc/torbrowser-assets"
                          #:include ("Noto-CJK-Font.txt" "Noto-Fonts.txt"
@@ -200,14 +193,13 @@ Browser bundle, matching the @code{torbrowser} version in this channel.")
                                 "zh-CN"
                                 "zh-TW")
                     #:build-date "20261109080000"
-                    #:base-browser-version "16.0"))
+                    #:base-browser-version "16.0.1"))
          ;; Bind inputs before evaluating the inherited arguments.  Guix's
          ;; phases use this-package-input for Tor's geoip data and locales.
          ;; Evaluating the upstream arguments first captures the old inputs.
          (base (package
                  (inherit upstream)
                  (inputs (modify-inputs (package-inputs upstream)
-                           (replace "icu4c" icu:icu4c-78)
                            (replace "firefox-locales"
                                     torbrowser-firefox-locales)
                            (replace "tor-client" torbrowser-tor-client))))))
@@ -229,8 +221,5 @@ Browser bundle, matching the @code{torbrowser} version in this channel.")
            #~'())
           #~(append #$flags
                     (list "--enable-lto=thin")))))
-      (native-inputs
-       (modify-inputs (package-native-inputs base)
-         (replace "rust-cbindgen" rust-apps:rust-cbindgen-0.29)))
       (propagated-inputs (modify-inputs (package-propagated-inputs base)
                            (replace "noscript-icecat" torbrowser-noscript))))))
