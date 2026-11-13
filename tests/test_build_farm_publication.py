@@ -386,7 +386,7 @@ class PublicationExecutionTests(unittest.TestCase):
 
         with (
             patch("time.sleep") as sleep,
-            patch("time.monotonic", side_effect=[100, 101, 1900]),
+            patch("time.monotonic", side_effect=[100, 101, 3800]),
             self.assertRaisesRegex(RuntimeError, "public narinfo"),
         ):
             publication.publish_paths(
@@ -553,7 +553,7 @@ class PublicationExecutionTests(unittest.TestCase):
         unpublished = FakeTransport()
         with (
             patch("time.sleep"),
-            patch("time.monotonic", side_effect=[100, 1900]),
+            patch("time.monotonic", side_effect=[100, 3800]),
             self.assertRaisesRegex(RuntimeError, "public narinfo"),
         ):
             publication.publish_paths(
@@ -934,15 +934,22 @@ class PublicationHostTests(unittest.TestCase):
                 raise self.error
 
         opener = FakeOpener()
-        with patch.object(publication, "build_opener", return_value=opener):
+        with (
+            patch.object(publication, "build_opener", return_value=opener),
+            patch("time.sleep") as sleep,
+        ):
             opener.error = HTTPError(
                 "https://example.test", 404, "missing", Message(), None
             )
             self.assertFalse(publication.check_public_output(PACKAGE))
+            self.assertEqual(
+                [call.args for call in sleep.call_args_list], [(5,)] * 3
+            )
             opener.error = HTTPError(
                 "https://example.test", 503, "error", Message(), None
             )
-            with patch("time.sleep") as sleep, self.assertRaises(HTTPError):
+            sleep.call_args_list.clear()
+            with self.assertRaises(HTTPError):
                 publication.check_public_output(PACKAGE)
             self.assertEqual([call.args for call in sleep.call_args_list], [(5,)] * 3)
 
