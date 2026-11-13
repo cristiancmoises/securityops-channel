@@ -470,6 +470,7 @@ or independently security-certified.")
             (lambda _
               (invoke "make" "-C" "src" "-j2"
                       (string-append "TARGET=" #$target)
+                      "V=1"
                       "CMAKE_OPTS=-DCMAKE_POLICY_VERSION_MINIMUM=3.5")))
           (replace 'check
             (lambda _
