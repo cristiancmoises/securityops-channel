@@ -50,9 +50,10 @@ MAX_CLOSURE_ENTRIES = 1_000_000
 DESTINATION_OVERHEAD_PER_ENTRY = 8192
 # guix publish only serves a narinfo once it has baked the NAR into its cache.
 # CT116 compresses at zstd:19, so a large requisite (guix, ghc, emacs) can take
-# well over ten minutes; a short window reported successfully imported roots as
+# well over ten minutes; the public mirror may also cache a 404 for a while
+# after an import.  A short window reported successfully imported roots as
 # failures and aborted the rest of the run.
-PUBLIC_READINESS_SECONDS = 1800
+PUBLIC_READINESS_SECONDS = 3600
 PUBLIC_READINESS_INTERVAL = 10
 PUBLIC_PROBE_ATTEMPTS = 4
 PUBLIC_PROBE_INTERVAL = 5
@@ -463,7 +464,12 @@ def check_public_output(path, base_url=PUBLIC_URL):
             break
         except HTTPError as error:
             if error.code == 404:
-                return False
+                # A public mirror can hold a stale 404 shortly after import;
+                # retry briefly, then accept it as authoritative.
+                if attempt + 1 >= PUBLIC_PROBE_ATTEMPTS:
+                    return False
+                time.sleep(PUBLIC_PROBE_INTERVAL)
+                continue
             if error.code < 500 or attempt + 1 >= PUBLIC_PROBE_ATTEMPTS:
                 raise
             time.sleep(PUBLIC_PROBE_INTERVAL)
