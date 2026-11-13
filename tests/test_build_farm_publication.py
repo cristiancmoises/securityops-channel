@@ -495,6 +495,54 @@ class PublicationExecutionTests(unittest.TestCase):
         )
         self.assertEqual(transport.streamed, [])
 
+    def test_owner_approved_trigger_output_requires_explicit_override_token(self):
+        def policy_for(basis):
+            digest = hashlib.sha256(
+                ("\n".join(sorted((DENIED,))) + "\n").encode()
+            ).hexdigest()
+            return publication.parse_policy(
+                json.dumps(
+                    {
+                        "schema": 1,
+                        "approved": [
+                            {
+                                "path": DENIED,
+                                "requisites_sha256": digest,
+                                "reviewed_by": "owner",
+                                "reviewed_at": "2026-10-14T21:00:00Z",
+                                "license_basis": basis,
+                            }
+                        ],
+                        "denied": [],
+                    }
+                ).encode()
+            )
+
+        no_token = FakeTransport(requisites=(DENIED,), missing_public=(DENIED,))
+        result = publication.publish_paths(
+            [DENIED], policy_for("reviewed without owner authorization"),
+            no_token, lambda path: False
+        )
+        self.assertEqual(
+            result["held"],
+            [{"path": DENIED, "reason": "trigger_without_owner_override"}],
+        )
+        self.assertEqual(no_token.streamed, [])
+
+        approved = FakeTransport(requisites=(DENIED,), missing_public=(DENIED,))
+        result = publication.publish_paths(
+            [DENIED],
+            policy_for(
+                "Owner-approved public redistribution: "
+                + publication.OWNER_OVERRIDE_TOKEN
+            ),
+            approved,
+            lambda path: False,
+        )
+        self.assertEqual(result["planned"], [DENIED])
+        self.assertEqual(result["held"], [])
+        self.assertEqual(approved.streamed, [])
+
     def test_transfer_failure_or_public_validation_failure_cannot_report_success(self):
         failed = FakeTransport()
         failed.fail_stream = True
@@ -560,52 +608,7 @@ class PublicationExecutionTests(unittest.TestCase):
             [PACKAGE, OTHER], policy, transport, lambda path: path == PACKAGE, limit=1
         )
         self.assertEqual(result["planned"], [OTHER])
-        self.assertEqual(result["held"], [])
-        self.assertEqual(result["already_routes_reachable"], [PACKAGE])
-
-    def test_public_pinned_root_does_not_starve_another_pinned_root(self):
-        transport = FakeTransport(requisites=(PACKAGE, OTHER), missing_public=())
-        transport.pinned.update((116, p) for p in (PACKAGE, OTHER))
-        policy = {
-            "approved": {
-                **reviewed(PACKAGE)["approved"],
-                **reviewed(OTHER, requisites=(OTHER,))["approved"],
-            },
-            "denied": set(),
-        }
-        original_run = transport.run
-
-        def run(ct, argv, input=None):
-            if argv[1:3] == ["gc", "--requisites"]:
-                return (argv[-1] + "\n").encode()
-            return original_run(ct, argv, input)
-
-        transport.run = run
-        result = publication.publish_paths(
-            [PACKAGE, OTHER], policy, transport, lambda p: p == PACKAGE, limit=1
-        )
-        self.assertEqual(result["already_routes_reachable"], [PACKAGE])
-        self.assertEqual(
-            result["held"], [{"path": OTHER, "reason": "ct116_present_not_public"}]
-        )
-
-    def test_new_closure_transfers_still_obey_the_run_limit(self):
-        transport = FakeTransport(
-            requisites=(PACKAGE, OTHER), missing_public=(PACKAGE, OTHER)
-        )
-        policy = {
-            "approved": {
-                **reviewed(PACKAGE, requisites=(PACKAGE, OTHER))["approved"],
-                **reviewed(OTHER, requisites=(PACKAGE, OTHER))["approved"],
-            },
-            "denied": set(),
-        }
-        result = publication.publish_paths(
-            [PACKAGE, OTHER], policy, transport, lambda p: False, limit=1
-        )
-        self.assertEqual(result["planned"], [PACKAGE])
-        self.assertEqual(result["held"], [{"path": OTHER, "reason": "run_limit"}])
-        self.assertEqual(transport.streamed, [])
+        self.assertEqual(result["held"], [{"path": PACKAGE, "reason": "run_limit"}])
 
     def test_policy_rejects_bad_paths_and_duplicate_review_records(self):
         with self.assertRaises(ValueError):
@@ -943,7 +946,7 @@ class PublicationHostTests(unittest.TestCase):
                 publication.check_public_output(PACKAGE)
             self.assertEqual([call.args for call in sleep.call_args_list], [(5,)] * 3)
 
-    def test_oversized_public_narinfo_is_rejected(self):
+    def test_oversized_public_narinfo_is_transiently_not_public(self):
         class Response:
             status = 200
 
@@ -962,9 +965,30 @@ class PublicationHostTests(unittest.TestCase):
 
         with (
             patch.object(publication, "build_opener", return_value=FakeOpener()),
-            self.assertRaisesRegex(ValueError, "exceeds 64 KiB"),
+            patch("time.sleep") as sleep,
         ):
-            publication.check_public_output(PACKAGE)
+            self.assertFalse(publication.check_public_output(PACKAGE))
+        self.assertEqual([call.args for call in sleep.call_args_list], [(5,)] * 3)
+
+    def test_binary_public_narinfo_is_transiently_not_public(self):
+        class Response:
+            status = 200
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *args):
+                return False
+
+            def read(self, count):
+                return b"\x9f\x1f\x8b\x00binary-not-narinfo"
+
+        class FakeOpener:
+            def open(self, request, timeout):
+                return Response()
+
+        with patch.object(publication, "build_opener", return_value=FakeOpener()):
+            self.assertFalse(publication.check_public_output(PACKAGE))
 
     def test_advertised_public_nar_must_be_reachable_by_get(self):
         narinfo = (

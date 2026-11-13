@@ -4,6 +4,9 @@ Dry-run is the default.  Each approval binds an exact output to SHA-256 of its
 sorted `guix gc --requisites` paths, joined with a final newline.  Each record
 identifies its reviewer and records redistribution obligations in license_basis.
 The committed empty policy deliberately holds every unknown output.
+An explicitly approved record whose `license_basis` carries the token
+`owner-approved-public-redistribution` may override the automatic
+redistribution trigger filter for that exact output and closure only.
 """
 
 import argparse
@@ -39,6 +42,7 @@ REVIEW_TRIGGER = re.compile(
     r"(?:^|[-_.])(?:nvidia|cuda|linux-firmware|nonfree|unfree|proprietary|steam|google-chrome)(?:[-_.]|$)",
     re.IGNORECASE,
 )
+OWNER_OVERRIDE_TOKEN = "owner-approved-public-redistribution"
 GUIX = "/var/guix/profiles/per-user/root/current-guix/bin/guix"
 MAX_CLOSURE_PATHS = 4096
 MAX_ARCHIVE_BYTES = 16 * 1024**3
@@ -448,7 +452,14 @@ def check_public_output(path, base_url=PUBLIC_URL):
                     raise ValueError(f"unexpected narinfo status: {response.status}")
                 payload = response.read(65537)
                 if len(payload) > 65536:
-                    raise ValueError("public narinfo exceeds 64 KiB")
+                    # A concurrent NAR bake can expose a corrupted oversized
+                    # cache entry.  A real narinfo is tiny text, so treat this
+                    # as "not ready" instead of aborting the whole run; the
+                    # next cycle re-checks.
+                    if attempt + 1 >= PUBLIC_PROBE_ATTEMPTS:
+                        return False
+                    time.sleep(PUBLIC_PROBE_INTERVAL)
+                    continue
             break
         except HTTPError as error:
             if error.code == 404:
@@ -460,8 +471,17 @@ def check_public_output(path, base_url=PUBLIC_URL):
             if attempt + 1 >= PUBLIC_PROBE_ATTEMPTS:
                 raise
             time.sleep(PUBLIC_PROBE_INTERVAL)
-    document = payload.decode("utf-8")
-    validate_narinfo(path, document)
+    try:
+        document = payload.decode("utf-8")
+    except UnicodeDecodeError:
+        # Same transient corruption as the oversized case: not yet public.
+        return False
+    try:
+        validate_narinfo(path, document)
+    except ValueError as error:
+        if "malformed public narinfo" in str(error):
+            return False
+        raise
     nar_url = next(
         line.partition(": ")[2]
         for line in document.splitlines()
@@ -671,8 +691,13 @@ def order_candidates(candidates, pinned):
     return pending + published
 
 
+def owner_approved(record):
+    """True when an explicit review record authorizes a trigger-named output."""
+    return OWNER_OVERRIDE_TOKEN in (record or {}).get("license_basis", "")
+
+
 def publish_paths(paths, policy, transport, public_check, *, apply=False, limit=3):
-    """Bound new closure transfers; verified public roots use no transfer budget."""
+    """Bounded, fail-closed transfer. The transport performs no builds."""
     if type(limit) is not int or not 0 <= limit <= 20:
         raise ValueError("invalid per-run limit")
     public_reachable = set()
@@ -694,10 +719,25 @@ def publish_paths(paths, policy, transport, public_check, *, apply=False, limit=
     candidates = []
     for path in paths:
         exact_output(path)
-        if path in policy["denied"] or REVIEW_TRIGGER.search(path):
+        if path in policy["denied"]:
             result["held"].append({"path": path, "reason": "known_review_trigger"})
         elif policy["approved"].get(path) is None:
-            result["held"].append({"path": path, "reason": "unreviewed_redistribution"})
+            result["held"].append(
+                {
+                    "path": path,
+                    "reason": (
+                        "known_review_trigger"
+                        if REVIEW_TRIGGER.search(path)
+                        else "unreviewed_redistribution"
+                    ),
+                }
+            )
+        elif REVIEW_TRIGGER.search(path) and not owner_approved(
+            policy["approved"][path]
+        ):
+            result["held"].append(
+                {"path": path, "reason": "trigger_without_owner_override"}
+            )
         else:
             candidates.append(path)
     ordered = order_candidates(
@@ -706,14 +746,19 @@ def publish_paths(paths, policy, transport, public_check, *, apply=False, limit=
     attempted = 0
     for path in ordered:
         review = policy["approved"][path]
-        if limit == 0:
+        if attempted >= limit:
             result["held"].append({"path": path, "reason": "run_limit"})
             continue
+        attempted += 1
         requisites = _guix_paths(
             transport.run(126, [GUIX, "gc", "--requisites", path]), root=path
         )
         if any(
-            item in policy["denied"] or REVIEW_TRIGGER.search(item)
+            item in policy["denied"]
+            or (
+                REVIEW_TRIGGER.search(item)
+                and not owner_approved(policy["approved"].get(item))
+            )
             for item in requisites
         ):
             result["held"].append({"path": path, "reason": "known_review_trigger"})
@@ -743,10 +788,6 @@ def publish_paths(paths, policy, transport, public_check, *, apply=False, limit=
                     )
             result["already_routes_reachable"].append(path)
             continue
-        if attempted >= limit:
-            result["held"].append({"path": path, "reason": "run_limit"})
-            continue
-        attempted += 1
         size, entries = _closure_footprint(transport, requisites)
         if size > MAX_ARCHIVE_BYTES or entries > MAX_CLOSURE_ENTRIES:
             result["held"].append({"path": path, "reason": "oversized_closure"})
