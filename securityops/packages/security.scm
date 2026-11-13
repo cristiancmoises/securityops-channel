@@ -128,7 +128,16 @@
              (commit version)))
        (file-name (git-file-name "sdb" version))
        (sha256
-        (base32 "0zavmpl2jv0plwls03r9mf98z9rvlh71cpipynikiid9ylqybgbh"))))))
+        (base32 "0zavmpl2jv0plwls03r9mf98z9rvlh71cpipynikiid9ylqybgbh"))))
+    (arguments
+     (substitute-keyword-arguments (package-arguments db:sdb)
+       ;; sdb 2.6.x builds a shared libsdb and links the sdb binary against
+       ;; it.  The default meson layout installs the executable without a
+       ;; surviving RUNPATH, so the binary could not find libsdb at runtime.
+       ;; Link the executable against the static library instead so it stays
+       ;; self-contained.
+       ((#:configure-flags flags #~'())
+        #~(append #$flags (list "-Ddefault_library=static")))))))
 
 (define-public radare2
   (package
@@ -154,7 +163,12 @@
      (substitute-keyword-arguments (package-arguments eng:radare2)
        ((#:configure-flags flags #~'())
         #~(append #$flags
-                  (list "-Duse_sys_zydis=true")))
+                  (list "-Duse_sys_zydis=true"
+                        ;; Meson 1.9 defaults to lib64 on x86_64, but Guix's
+                        ;; meson-build-system links against <out>/lib; pin the
+                        ;; install directory so r2 and its utilities resolve
+                        ;; libr_*.so at runtime.
+                        "-Dlibdir=lib")))
        ((#:phases phases)
         #~(modify-phases #$phases
             (add-after 'unpack 'prepare-shell-and-filesystem-tests
