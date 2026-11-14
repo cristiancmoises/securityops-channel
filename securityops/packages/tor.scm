@@ -16,6 +16,8 @@
   #:use-module (gnu build icecat-extension)
   #:use-module (gnu packages browser-extensions)
   #:use-module (gnu packages compression)
+  #:use-module ((gnu packages icu4c)
+                #:prefix icu4c:)
   #:use-module ((gnu packages rust-apps)
                 #:prefix rust-apps:)
   #:use-module ((guix licenses)
@@ -204,7 +206,10 @@ Browser bundle, matching the @code{torbrowser} version in this channel.")
                  (inputs (modify-inputs (package-inputs upstream)
                            (replace "firefox-locales"
                                     torbrowser-firefox-locales)
-                           (replace "tor-client" torbrowser-tor-client))))))
+                           (replace "tor-client" torbrowser-tor-client)
+                           ;; Firefox 153.7.0esr requires ICU >= 78.1; the
+                           ;; baseline still ships ICU 76.1 in make-torbrowser.
+                           (replace "icu4c" icu4c:icu4c-78))))))
     (package
       (inherit base)
       (version "16.0.1")
