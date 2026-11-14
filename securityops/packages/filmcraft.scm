@@ -153,8 +153,8 @@
                   (lambda (port)
                     (display
                      (string-append
-                      "FilmCraft 0.7.2 private candidate; "
-                      "not proof of redistribution clearance.\n"
+                      "FilmCraft 0.7.2 official upstream binary, "
+                      "repackaged with dependency source notices.\n"
                       "FilmCraft source uses Symphonia 0.5.5 "
                       "in filmcraft-codecs.\n"
                       "Symphonia 0.5.5 upstream tag source: "

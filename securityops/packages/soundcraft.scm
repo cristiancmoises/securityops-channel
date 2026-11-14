@@ -123,7 +123,7 @@
                   (lambda (port)
                     (display
                      (string-append
-                      "SoundCraft 0.5.0 private candidate; not proof of redistribution clearance.\n"
+                      "SoundCraft 0.5.0 official upstream binary, repackaged with dependency source notices.\n"
                       "Symphonia 0.5.5 upstream tag source: "
                       "https://github.com/pdeljanov/Symphonia/archive/refs/tags/v0.5.5.tar.gz\n"
                       "Local copy: sources/Symphonia-v0.5.5.tar.gz\n"

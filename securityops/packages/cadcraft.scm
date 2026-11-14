@@ -147,8 +147,8 @@
                   (lambda (port)
                     (display
                      (string-append
-                      "CADCraft 0.7.0 private candidate; "
-                      "not proof of redistribution clearance.\n"
+                      "CADCraft 0.7.0 official upstream binary, "
+                      "repackaged with dependency source notices.\n"
                       "CADCraft DWG bridge uses acadrust 0.6.4 "
                       "on non-wasm targets.\n"
                       "acadrust source: "
