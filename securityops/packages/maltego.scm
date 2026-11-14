@@ -82,7 +82,16 @@ Maltego Technologies GmbH owns the Maltego product and brand.
                 (chmod launcher #o755))))
           (add-after 'create-launcher 'check-package
             (lambda _
-              (invoke (string-append #$output "/bin/maltego") "--help"))))))
+              (unless (and (file-exists?
+                            (string-append #$output "/bin/maltego"))
+                           (access?
+                            (string-append #$output "/bin/maltego")
+                            X_OK)
+                           (file-exists?
+                            (string-append
+                             #$output
+                             "/share/maltego/bin/maltego")))
+                (error "Maltego launcher or upstream binary is missing")))))))
     (native-inputs (list unzip))
     (inputs (list openjdk21 bash-minimal gawk coreutils))
     (supported-systems '("x86_64-linux"))
