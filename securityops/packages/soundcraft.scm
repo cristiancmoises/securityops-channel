@@ -10,6 +10,7 @@
   #:use-module (gnu packages bash)
   #:use-module (gnu packages gcc)
   #:use-module (gnu packages gl)
+  #:use-module ((gnu packages freedesktop) #:prefix freedesktop:)
   #:use-module (gnu packages linux)
   #:use-module (gnu packages xdisorg)
   #:use-module (gnu packages xorg))
@@ -42,7 +43,8 @@
        ("libxcursor" ,libxcursor)
        ("libxi" ,libxi)
        ("libxkbcommon" ,libxkbcommon)
-       ("mesa" ,mesa)))
+       ("mesa" ,mesa)
+       ("wayland" ,freedesktop:wayland)))
     (native-inputs
      (list
       (list "symphonia-source"
@@ -147,7 +149,7 @@
                         (map (lambda (name)
                                (string-append (assoc-ref inputs name) "/lib"))
                              '("libx11" "libxcb" "libxcursor" "libxi"
-                               "libxkbcommon" "mesa")))
+                               "libxkbcommon" "mesa" "wayland")))
                        ":"))
                      (bin (string-append out "/bin")))
                 (mkdir-p bin)
