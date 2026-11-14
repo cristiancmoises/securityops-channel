@@ -5,6 +5,7 @@
   #:use-module ((gnu packages security-token) #:prefix upstream:)
   #:use-module ((gnu packages web) #:prefix upstream:)
   #:use-module (gnu packages qt)
+  #:use-module (gnu packages)
   #:use-module (guix download)
   #:use-module (guix gexp)
   #:use-module (guix packages)
@@ -85,6 +86,10 @@
         ;; while load stays above the core count.  Build and test serially.
         ((#:parallel-build? _ #f) #f)
         ((#:parallel-tests? _ #f) #f)))
+    (inputs
+      (modify-inputs (package-inputs qtsvg)
+        ;; Build against the matching 6.9.2 Qt base, not the 6.12 baseline.
+        (replace "qtbase" qtbase-for-ausweisapp)))
     (source
       (origin
         (inherit (package-source qtsvg))
@@ -156,6 +161,9 @@
     ;; QuickVectorImage embeds SVG-private state, so compile against new headers.
     (inputs
       (modify-inputs (package-inputs qtdeclarative)
+        ;; Same 6.9.2 Qt base as the source; the 6.12 headers dropped the
+        ;; Unicode cases table used by the bundled JavaScriptCore stubs.
+        (replace "qtbase" qtbase-for-ausweisapp)
         (replace "qtsvg" qtsvg-for-ausweisapp)))))
 
 (define %use-safe-svg-default
