@@ -80,9 +80,10 @@
     (version "6.9.2")
     (arguments
       (substitute-keyword-arguments (package-arguments qtsvg)
-        ;; The farm builds Qt tests on a box shared with a long kernel build.
-        ;; ctest's load guard keeps the suite idle forever while load stays
-        ;; above the core count, so run the SVG tests serially without it.
+        ;; The farm shares this box with a long kernel build, so both the
+        ;; make -l guard and ctest's --test-load guard keep the suite parked
+        ;; while load stays above the core count.  Build and test serially.
+        ((#:parallel-build? _ #f) #f)
         ((#:parallel-tests? _ #f) #f)))
     (source
       (origin
@@ -130,8 +131,8 @@
     (version "6.9.2")
     (arguments
       (substitute-keyword-arguments (package-arguments qtdeclarative)
-        ;; Same load-guard stall as qtsvg: keep the declarative tests serial
-        ;; so they do not wait on the concurrent kernel build's load average.
+        ;; Same load-guard stall as qtsvg; build and test serially.
+        ((#:parallel-build? _ #f) #f)
         ((#:parallel-tests? _ #f) #f)))
     (source
       (origin
