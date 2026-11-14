@@ -123,6 +123,8 @@
       #:install-plan ''(("Browser" "."
                          #:include-regexp ("^\\./TorBrowser/Tor/torrc-defaults"
                                            "^\\./fonts/"))
+                        ("Browser/TorBrowser/Tor/torrc-defaults"
+                         "TorBrowser/Data/Tor/torrc-defaults")
                         ("Browser/TorBrowser/Docs/Licenses"
                          "share/doc/torbrowser-assets"
                          #:include ("Noto-CJK-Font.txt" "Noto-Fonts.txt"
