@@ -36,7 +36,7 @@
         (inherit (package-source qtbase))
         (uri "mirror://qt/qt/6.9/6.9.2/submodules/qtbase-everywhere-src-6.9.2.tar.xz")
         (sha256
-          (base32 "8jz9r7ngw10jki6yl2ky3cvasivckk07qa902sn9irxl2lag4i00"))
+          (base32 "0h149x8l2ywfr5m034n20z6cjxnldary39x0vv22jhg0ryg9rgj4"))
         (patches
           (append (search-patches
                     "qtbase-moc-ignore-gcc-macro.patch"
@@ -83,7 +83,7 @@
         (inherit (package-source qtsvg))
         (uri "mirror://qt/qt/6.9/6.9.2/submodules/qtsvg-everywhere-src-6.9.2.tar.xz")
         (sha256
-          (base32 "v62cmf7jccsal70mwnwg1kcz3dy0q4l9zq5nihf89as6kdsn0njh"))
+          (base32 "1985asvnkd2ar30nh2zyi490qz0vkz6z1f752lfald33yawcm16r"))
         (patches
           (append (origin-patches (package-source qtsvg))
             (list
@@ -127,7 +127,7 @@
         (inherit (package-source qtdeclarative))
         (uri "mirror://qt/qt/6.9/6.9.2/submodules/qtdeclarative-everywhere-src-6.9.2.tar.xz")
         (sha256
-          (base32 "8xzjsb0bv64ic43q31r5wva9h83f0cyzna2rqlhj3q0s0sn44rj0"))
+          (base32 "0r16qima008y2999r1djvwry01l295nmwwhqg081d2fr1cn2szs7"))
         (patches
           (append (origin-patches (package-source qtdeclarative))
             (list
