@@ -16,6 +16,8 @@
   #:use-module (gnu build icecat-extension)
   #:use-module (gnu packages browser-extensions)
   #:use-module (gnu packages compression)
+  #:use-module ((gnu packages rust-apps)
+                #:prefix rust-apps:)
   #:use-module ((guix licenses)
                 #:prefix license:)
   #:use-module ((gnu packages tor)
@@ -221,5 +223,10 @@ Browser bundle, matching the @code{torbrowser} version in this channel.")
            #~'())
           #~(append #$flags
                     (list "--enable-lto=thin")))))
+      ;; Tor Browser 16.0.1 (Firefox 153.7.0esr) requires cbindgen >= 0.29.4;
+      ;; the Guix baseline still pins rust-cbindgen-0.28 in make-torbrowser.
+      (native-inputs (modify-inputs (package-native-inputs base)
+                       (replace "rust-cbindgen"
+                                rust-apps:rust-cbindgen-0.29)))
       (propagated-inputs (modify-inputs (package-propagated-inputs base)
                            (replace "noscript-icecat" torbrowser-noscript))))))
