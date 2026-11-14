@@ -62,7 +62,7 @@ Maltego Technologies GmbH owns the Maltego product and brand.
                      port))))))
           (add-after 'install-packaging-notice 'create-launcher
             (lambda* (#:key inputs #:allow-other-keys)
-              (use-modules (ice-9 format))
+              (use-modules (guix build utils) (ice-9 format))
               (let* ((out #$output)
                      (java (search-input-file inputs "/bin/java"))
                      (bash (search-input-file inputs "/bin/bash"))
@@ -72,11 +72,15 @@ Maltego Technologies GmbH owns the Maltego product and brand.
                      (app-dir (string-append out "/share/maltego"))
                      (bin (string-append out "/bin"))
                      (launcher (string-append bin "/maltego")))
+                ;; The upstream launcher hard-codes /usr/bin/awk, which does
+                ;; not exist on Guix System.  Point it at gawk instead.
+                (substitute* (string-append app-dir "/bin/maltego")
+                  (("/usr/bin/awk") awk))
                 (mkdir-p bin)
                 (call-with-output-file launcher
                   (lambda (port)
                     (format port
-                            "#!~a~%export JAVA_HOME=~a~%export PATH=~a:~a:~a:$PATH~%exec ~a/bin/maltego \"$@\"~%"
+                            "#!~a~%export JAVA_HOME=~a~%export PATH=~a:~a:~a:$PATH~%conf=\"$HOME/.maltego/v4.14.0/etc/maltego.conf\"~%if [ ! -f \"$conf\" ]; then~%  mkdir -p \"$(dirname \"$conf\")\"~%  printf 'jdkhome=\"%s\"\\n' \"$JAVA_HOME\" > \"$conf\"~%fi~%exec ~a/bin/maltego \"$@\"~%"
                             bash java-home java-bin (dirname bash)
                             (dirname awk) app-dir)))
                 (chmod launcher #o755))))
