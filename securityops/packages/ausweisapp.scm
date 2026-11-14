@@ -28,11 +28,23 @@
     (inherit qtbase)
     ;; Preserve Qt 6.9's ABI and check policy: dual-stack UDP and the official
     ;; CVE-2026-76151/CVE-2026-78253 backports.
+    ;; Pinned to 6.9.2 so the CVE backports below keep applying: the Guix
+    ;; baseline moved to Qt 6.12 and those patches no longer fit.
+    (version "6.9.2")
     (source
       (origin
         (inherit (package-source qtbase))
+        (uri "mirror://qt/qt/6.9/6.9.2/submodules/qtbase-everywhere-src-6.9.2.tar.xz")
+        (sha256
+          (base32 "8jz9r7ngw10jki6yl2ky3cvasivckk07qa902sn9irxl2lag4i00"))
         (patches
-          (append (origin-patches (package-source qtbase))
+          (append (search-patches
+                    "qtbase-moc-ignore-gcc-macro.patch"
+                    "qtbase-absolute-runpath.patch"
+                    "qtbase-qmake-use-libname.patch"
+                    "qtbase-qmlimportscanner-qml-import-path.patch"
+                    "qtbase-qmake-fix-includedir.patch"
+                    "qtbase-patch-libvulkan.patch")
             (list
               (origin
                 (method url-fetch)
@@ -65,9 +77,13 @@
 (define qtsvg-for-ausweisapp
   (package
     (inherit qtsvg)
+    (version "6.9.2")
     (source
       (origin
         (inherit (package-source qtsvg))
+        (uri "mirror://qt/qt/6.9/6.9.2/submodules/qtsvg-everywhere-src-6.9.2.tar.xz")
+        (sha256
+          (base32 "v62cmf7jccsal70mwnwg1kcz3dy0q4l9zq5nihf89as6kdsn0njh"))
         (patches
           (append (origin-patches (package-source qtsvg))
             (list
@@ -105,9 +121,13 @@
 (define qtdeclarative-for-ausweisapp
   (package
     (inherit qtdeclarative)
+    (version "6.9.2")
     (source
       (origin
         (inherit (package-source qtdeclarative))
+        (uri "mirror://qt/qt/6.9/6.9.2/submodules/qtdeclarative-everywhere-src-6.9.2.tar.xz")
+        (sha256
+          (base32 "8xzjsb0bv64ic43q31r5wva9h83f0cyzna2rqlhj3q0s0sn44rj0"))
         (patches
           (append (origin-patches (package-source qtdeclarative))
             (list
