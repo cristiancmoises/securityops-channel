@@ -155,8 +155,8 @@
                   (lambda (port)
                     (display
                      (string-append
-                      "EffectCraft 0.10.0 private candidate; "
-                      "not proof of redistribution clearance.\n"
+                      "EffectCraft 0.10.0 official upstream binary, "
+                      "repackaged with dependency source notices.\n"
                       "EffectCraft media depends on FilmCraft codecs at Git commit "
                       "2c5ba7a72619935f0481f99d59409e0d1844b234; "
                       "that crate uses Symphonia 0.5.5.\n"

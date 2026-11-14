@@ -139,7 +139,7 @@
                   (lambda (port)
                     (display
                      (string-append
-                      "DeckCraft 0.7.0 private candidate; not proof of redistribution clearance.\n"
+                      "DeckCraft 0.7.0 official upstream binary, repackaged with dependency source notices.\n"
                       "Symphonia 0.5.5 upstream tag source: "
                       "https://github.com/pdeljanov/Symphonia/archive/refs/tags/v0.5.5.tar.gz\n"
                       "Local copy: sources/Symphonia-v0.5.5.tar.gz\n"

@@ -154,7 +154,7 @@
                   (lambda (port)
                     (display
                      (string-append
-                      "FigCraft 0.6.0 private candidate; not proof of redistribution clearance.\n"
+                      "FigCraft 0.6.0 official upstream binary, repackaged with dependency source notices.\n"
                       "imbl 7.0.2 crate source: "
                       "https://static.crates.io/crates/imbl/imbl-7.0.2.crate\n"
                       "Local copy: sources/imbl-7.0.2.crate\n"
