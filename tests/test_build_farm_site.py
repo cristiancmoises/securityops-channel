@@ -3,6 +3,7 @@
 import importlib.util
 import json
 import os
+import re
 import shutil
 import stat
 import subprocess
@@ -60,6 +61,89 @@ def minimal_manifest(source):
 
 
 class FarmSiteTests(unittest.TestCase):
+    def test_refresh_keeps_historical_outputs_out_of_current_targets(self):
+        old = "/gnu/store/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-btp-0.7"
+        history_csv = CSV.replace("989,", "988,").replace(STORE, old)
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            with (
+                patch.dict(os.environ, {"SECURITYOPS_HISTORY_EVALUATION": "988"}),
+                patch.object(
+                    farm_site.subprocess,
+                    "run",
+                    side_effect=[Mock(stdout=CSV), Mock(stdout=history_csv)],
+                ) as run,
+                patch.object(
+                    farm_site, "read_manifest", side_effect=FileNotFoundError()
+                ),
+                patch.object(farm_site, "published_outputs", return_value={STORE, old}),
+                patch.object(
+                    farm_site, "valid_local_outputs", return_value={STORE, old}
+                ),
+                patch.object(sys, "argv", ["generate.py", "--output-dir", str(root)]),
+            ):
+                farm_site.main()
+            self.assertIn("AND id = 988", run.call_args_list[1].args[0][-1])
+            current = root / "current"
+            home = (current / "index.html").read_text()
+            archive = (current / "published/index.html").read_text()
+            self.assertIn("1 previous outputs still public", home)
+            self.assertNotIn("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.narinfo", home)
+            self.assertIn("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.narinfo", archive)
+            self.assertNotIn(old, (current / "explore/data.json").read_text())
+
+    def test_historical_routes_do_not_inflate_current_count(self):
+        snapshot = farm_site.parse_snapshot_csv(CSV)
+        old = "/gnu/store/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa-previous-1.0"
+        html = farm_site.render_page(
+            snapshot,
+            {STORE, old},
+            {STORE, old},
+            "en",
+            "2026-11-15 00:00 UTC",
+            previous_public=(12465, 194),
+        )
+        metric = re.search(
+            r'<div class="metric available">.*?<dd class="number">(\d+)</dd>', html
+        )
+        self.assertIsNotNone(metric)
+        assert metric is not None
+        self.assertEqual(metric.group(1), "1")
+        self.assertIn('href="/published/"', html)
+        self.assertIn("194 previous outputs still public", html)
+
+    def test_historical_page_is_explicit_and_translated(self):
+        snapshot = farm_site.parse_snapshot_csv(CSV)
+        html = farm_site.render_page(
+            snapshot,
+            {STORE},
+            {STORE},
+            "pt-br",
+            "2026-11-15 00:00 UTC",
+            historical=True,
+        )
+        self.assertIn("Saídas publicadas anteriormente", html)
+        self.assertIn("podem diferir das receitas atuais", html)
+        self.assertIn('href="/pt-br/"', html)
+        with tempfile.TemporaryDirectory() as directory:
+            farm_site.write_pages(
+                snapshot,
+                {STORE},
+                Path(directory),
+                "2026-11-15 00:00 UTC",
+                extra_pages={
+                    "published/index.html": b"old English",
+                    "pt-br/published/index.html": html.encode(),
+                },
+                previous_public=(12465, 194),
+            )
+            current = Path(directory) / "current"
+            self.assertTrue((current / "published/index.html").is_file())
+            self.assertIn(
+                "Saídas publicadas anteriormente",
+                (current / "pt-br/published/index.html").read_text(),
+            )
+
     @staticmethod
     def seed_previous(root):
         previous = root / "releases" / "old"

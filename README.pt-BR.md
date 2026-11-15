@@ -314,6 +314,13 @@ comunicação 1.6. Os demais pacotes dependem das verificações de build e redi
 um build concluído na [farm](https://farm.securityops.co/) não significa que
 ele já foi publicado.
 
+Os contadores principais da farm descrevem as saídas exatas da avaliação atual,
+não todos os NARs mantidos no cache público. Alterações nas receitas ou nas
+dependências podem gerar novos caminhos no store enquanto os substitutos
+anteriores continuam disponíveis. O [arquivo de saídas publicadas](https://farm.securityops.co/pt-br/published/)
+lista saídas históricas cujos narinfos e rotas NAR são verificados novamente a
+cada atualização; essas saídas podem não corresponder à revisão atual do canal.
+
 As versões estáveis das receitas atualizadas em 2026-11-11 estão abaixo. Esta
 tabela descreve a revisão do canal; consulte a farm para acompanhar o build e a
 disponibilidade pública dos substitutos.

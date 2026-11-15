@@ -314,6 +314,13 @@ Other packages remain subject to build and redistribution checks; a successful
 build shown on the [farm](https://farm.securityops.co/) does not mean it has
 already been published.
 
+The farm's main counters describe the exact outputs of its current evaluation,
+not every NAR retained in the public cache. Recipe or dependency changes can
+produce new store paths while older substitutes remain available. The
+[published archive](https://farm.securityops.co/published/) lists historical
+outputs whose narinfo and NAR routes are checked again at each refresh; these
+outputs may not match the current channel revision.
+
 Current stable recipe versions refreshed on 2026-11-11 are listed below. This
 table describes the channel revision; use the farm for live build and public
 substitute status.

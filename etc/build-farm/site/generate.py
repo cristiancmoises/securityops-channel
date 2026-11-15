@@ -22,6 +22,7 @@ PUBLIC_URL = "https://substitutes.securityops.co"
 PUBLIC_CHECK_URL = os.environ.get(
     "SECURITYOPS_PUBLIC_CHECK_URL", "https://ct116.example.invalid"
 )
+PUBLIC_KEY_SHA256 = "5db8721d97525215c3497e999c537ee8aaca56f9ee0f4b03e7ad1f0d028040f8"
 GUIX = "/var/guix/profiles/per-user/root/current-guix/bin/guix"
 INBOX = Path("/var/lib/farm-site/inventory")
 STORE_PATH = re.compile(r"^/gnu/store/([a-z0-9]{32})-([^/\s]+)$")
@@ -33,6 +34,7 @@ CATALOG_PAGE = re.compile(
 EXPLORE_ASSET = re.compile(
     r"^(?:pt-br/)?explore/index\.html$|^explore/(?:app\.js|data\.json)$"
 )
+HISTORY_PAGE = re.compile(r"^(?:pt-br/)?published/index\.html$")
 
 catalog_spec = importlib.util.spec_from_file_location(
     "farm_catalog_site", Path(__file__).with_name("catalog.py")
@@ -113,6 +115,14 @@ COPY = {
         "unknown": "Status unknown",
         "details": "View public narinfo",
         "corresponding_source": "Corresponding source",
+        "identity": "Exact store identity",
+        "cache_title": "Use the public cache",
+        "cache_empty": "No public NAR routes confirmed in this snapshot. Private CT126 outputs shown here cannot be downloaded from the public cache yet.",
+        "cache_ready": "Only the exact outputs marked Public NAR route have a checked public route in this snapshot; Guix must still verify the complete NAR and signature.",
+        "cache_key": "Compare the signing key with an independent source before authorizing it in Guix. Published key SHA-256:",
+        "cache_config": "Configure this substitute URL and authorized key following the Guix manual:",
+        "cache_manual": "Guix manual",
+        "cache_match": "Match the exact store path below with your Guix/channel revision; a package name alone does not identify a substitute. Check with a dry run before any operation that might build locally:",
         "explore": "Interactive map",
         "footer": "Source: latest completed SecurityOps Cuirass evaluation. CT126 store validity, public narinfo and NAR reachability are checked every five minutes. Guix clients still verify the full NAR and signature.",
         "age_note": "If the evaluation time is over 24 hours old, this snapshot may no longer reflect current jobs.",
@@ -164,6 +174,14 @@ COPY = {
         "unknown": "Estado desconhecido",
         "details": "Ver narinfo público",
         "corresponding_source": "Código-fonte correspondente",
+        "identity": "Identidade exata no store",
+        "cache_title": "Usar o cache público",
+        "cache_empty": "Nenhuma rota NAR pública confirmada neste snapshot. Saídas privadas do CT126 exibidas aqui ainda não podem ser baixadas pelo cache público.",
+        "cache_ready": "Somente as saídas exatas marcadas como Rota NAR pública têm uma rota verificada neste snapshot; o Guix ainda precisa validar o NAR completo e a assinatura.",
+        "cache_key": "Compare a chave de assinatura com uma fonte independente antes de autorizá-la no Guix. SHA-256 da chave publicada:",
+        "cache_config": "Configure esta URL de substitutos e a chave autorizada conforme o manual do Guix:",
+        "cache_manual": "Manual do Guix",
+        "cache_match": "Compare o caminho exato no store abaixo com a revisão do seu Guix/canal; somente o nome do pacote não identifica um substituto. Faça uma simulação antes de qualquer operação que possa compilar localmente:",
         "explore": "Mapa interativo",
         "footer": "Fonte: última avaliação SecurityOps concluída no Cuirass. A validade no CT126, o narinfo público e a rota NAR são verificados a cada cinco minutos. O cliente Guix ainda verifica o NAR completo e a assinatura.",
         "age_note": "Se a avaliação tiver mais de 24 horas, este snapshot pode não refletir os jobs atuais.",
@@ -423,10 +441,56 @@ def render_page(
     catalog_sources=(),
     target_paths=None,
     active_paths=None,
+    previous_public=None,
+    historical=False,
 ):
     if language not in COPY:
         raise ValueError(f"unsupported language: {language}")
-    copy = COPY[language]
+    copy = dict(COPY[language])
+    if historical:
+        if language == "en":
+            copy.update(
+                headline="Previously published outputs",
+                partial_subtitle="Archived evaluation. These outputs may differ from the current channel recipes.",
+                age_note="This page checks older outputs. Return to the main page for current build targets.",
+                footer="Historical evaluation; exact public narinfo and NAR routes are checked again on every refresh.",
+                switch_href="/pt-br/published/",
+            )
+        else:
+            copy.update(
+                headline="Saídas publicadas anteriormente",
+                partial_subtitle="Avaliação arquivada. Estas saídas podem diferir das receitas atuais do canal.",
+                age_note="Esta página verifica saídas anteriores. A página inicial mostra os alvos atuais de build.",
+                footer="Avaliação histórica; narinfos e rotas NAR públicas exatas são verificados a cada atualização.",
+                switch_href="/published/",
+            )
+        copy["title"] = copy["headline"] + " | SecurityOps Build Farm"
+    history_note = ""
+    if previous_public is not None:
+        if (
+            not isinstance(previous_public, tuple)
+            or len(previous_public) != 2
+            or any(type(value) is not int or value < 0 for value in previous_public)
+        ):
+            raise ValueError("invalid historical availability summary")
+        evaluation, count = previous_public
+        if language == "en":
+            label = f"{count} previous outputs still public · evaluation #{evaluation}"
+            explanation = "The counters above track current evaluation outputs; they are not the total size of the public cache."
+            href = "/published/"
+        else:
+            label = (
+                f"{count} saídas anteriores ainda públicas · avaliação #{evaluation}"
+            )
+            explanation = "Os contadores acima acompanham as saídas da avaliação atual; não representam todo o cache público."
+            href = "/pt-br/published/"
+        history_note = (
+            f'<p class="freshness-note">{explanation} <a href="{href}">{label}</a></p>'
+        )
+    if historical:
+        href = "/" if language == "en" else "/pt-br/"
+        label = "Current builds" if language == "en" else "Builds atuais"
+        history_note = f'<p class="freshness-note"><a href="{href}">{label}</a></p>'
     catalog_sources = set(catalog_sources)
     if not catalog_sources <= {"system", "home"}:
         raise ValueError("invalid catalog source")
@@ -497,12 +561,18 @@ def render_page(
                 href = f"{PUBLIC_URL}/{store_hash}.narinfo"
                 link = f'<a class="narinfo" href="{href}" rel="noopener noreferrer">{copy["details"]} ↗</a>'
                 link += f' <a class="narinfo" href="/sources/">{copy["corresponding_source"]}</a>'
+            identity = (
+                f'<p class="store-label">{escape(copy["identity"])}</p>'
+                f'<code class="store-path">{escape(item["path"])}</code>'
+                if item["path"]
+                else ""
+            )
             cards.append(
                 f'<article class="package {state}">'
                 f'<span class="tile" aria-hidden="true"></span>'
                 f'<div class="package-info"><h3>{escape(item["name"])}</h3>'
                 f'<p class="job">{escape(item["job"])}</p>'
-                f'<p class="status">{escape(status)}</p>{link}</div></article>'
+                f'<p class="status">{escape(status)}</p>{identity}{link}</div></article>'
             )
         group_html.append(
             f'<section class="group"><div class="group-heading"><h2>{escape(group)}</h2>'
@@ -526,6 +596,18 @@ def render_page(
             ("issues", issues, "issues"),
         )
     )
+    public_routes = bool(targets & published_paths)
+    cache_status = copy["cache_ready"] if public_routes else copy["cache_empty"]
+    cache_class = "ready" if public_routes else "empty"
+    cache_guide = f'''<section class="cache-guide" aria-labelledby="cache-guide-title">
+        <h2 id="cache-guide-title">{escape(copy["cache_title"])}</h2>
+        <p class="cache-availability {cache_class}" role="status">{escape(cache_status)}</p>
+        <ol>
+          <li>{escape(copy["cache_key"])} <a href="{PUBLIC_URL}/signing-key.pub" rel="noopener noreferrer">signing-key.pub</a> <code>{PUBLIC_KEY_SHA256}</code></li>
+          <li>{escape(copy["cache_config"])} <code>{PUBLIC_URL}</code> <a href="https://guix.gnu.org/manual/en/html_node/Getting-Substitutes-from-Other-Servers.html" rel="noopener noreferrer">{escape(copy["cache_manual"])} ↗</a></li>
+          <li>{escape(copy["cache_match"])} <code>guix build --dry-run --substitute-urls={PUBLIC_URL} PACKAGE</code></li>
+        </ol>
+      </section>'''
     legend = "".join(
         f'<li class="key {state}"><span class="swatch" aria-hidden="true"></span>{copy[label]}</li>'
         for state, label in (
@@ -571,6 +653,8 @@ def render_page(
       {source_nav}
       <section class="hero" aria-labelledby="page-title"><p class="eyebrow">{copy["eyebrow"]}</p><h1 id="page-title" class="animated-title">{copy["headline"]}</h1><p class="hero-subtitle">{escape(subtitle)}</p><div class="hero-meta"><span>{copy["eval"]} <strong>#{snapshot["evaluation"]}</strong></span><span>{copy["channel_jobs"]} <strong>{len(packages)}</strong></span><span>{eval_time}</span></div><p class="freshness-note">{escape(copy["age_note"])}</p></section>
       <dl class="metrics" aria-label="{copy["map"]}">{summary}</dl>
+      {history_note}
+      {cache_guide}
       <section class="system-note" aria-labelledby="map-title"><div class="section-heading"><p class="section-index">SecurityOps / Cuirass</p><h2 id="map-title">{copy["map"]}</h2></div><p>{escape(copy["explain"])} {escape(scope_note)}</p><div class="legend" aria-label="{copy["legend"]}"><ul>{legend}</ul></div></section>
       <div id="packages" class="groups">{"".join(group_html)}</div>
     </main>
@@ -600,13 +684,18 @@ def write_pages(
     extra_pages=None,
     target_paths=None,
     active_paths=None,
+    previous_public=None,
 ):
     """Publish both languages and CSS by switching one versioned symlink."""
     root = Path(root)
     present_paths = set() if present_paths is None else present_paths
     extra_pages = {} if extra_pages is None else extra_pages
     if any(
-        not (CATALOG_PAGE.fullmatch(relative) or EXPLORE_ASSET.fullmatch(relative))
+        not (
+            CATALOG_PAGE.fullmatch(relative)
+            or EXPLORE_ASSET.fullmatch(relative)
+            or HISTORY_PAGE.fullmatch(relative)
+        )
         or not isinstance(content, bytes)
         for relative, content in extra_pages.items()
     ):
@@ -628,6 +717,7 @@ def write_pages(
             catalog_sources=catalog_sources,
             target_paths=target_paths,
             active_paths=active_paths,
+            previous_public=previous_public,
         ).encode("utf-8"),
         "pt-br/index.html": render_page(
             snapshot,
@@ -639,6 +729,7 @@ def write_pages(
             catalog_sources=catalog_sources,
             target_paths=target_paths,
             active_paths=active_paths,
+            previous_public=previous_public,
         ).encode("utf-8"),
         "style.css": Path(__file__).with_name("style.css").read_bytes(),
     }
@@ -705,6 +796,34 @@ def main():
         timeout=30,
     )
     snapshot = parse_snapshot_csv(result.stdout)
+    history = None
+    history_id = int(os.environ.get("SECURITYOPS_HISTORY_EVALUATION", "0"))
+    if history_id < 0:
+        raise ValueError("invalid historical evaluation")
+    if history_id and history_id != snapshot["evaluation"]:
+        history_sql = SQL.replace(
+            "WHERE specification = 'securityops' AND status = 0",
+            f"WHERE specification = 'securityops' AND status = 0 AND id = {history_id}",
+        )
+        history_result = subprocess.run(
+            [
+                "psql",
+                "-X",
+                "--csv",
+                "--tuples-only",
+                "-d",
+                "cuirass",
+                "-c",
+                history_sql,
+            ],
+            capture_output=True,
+            text=True,
+            check=True,
+            timeout=30,
+        )
+        history = parse_snapshot_csv(history_result.stdout)
+        if history["evaluation"] != history_id:
+            raise ValueError("historical evaluation mismatch")
     manifests = []
     for source in ("system", "home"):
         try:
@@ -714,8 +833,14 @@ def main():
     pending_sources = {"system", "home"} - {item["source"] for item in manifests}
     targets = catalog.merge_targets(manifests, snapshot["packages"])
     paths = [target["path"] for target in targets]
-    published = published_outputs(snapshot, extra_paths=paths)
-    present = valid_local_outputs(paths)
+    history_paths = (
+        {item["path"] for item in history["packages"] if item["path"]}
+        if history
+        else set()
+    )
+    all_paths = set(paths) | history_paths
+    published = published_outputs(snapshot, extra_paths=all_paths)
+    present = valid_local_outputs(all_paths)
     now = datetime.now(timezone.utc)
     active = {}
     for manifest in manifests:
@@ -728,6 +853,18 @@ def main():
     active.update({path: now for path in active_channel_paths})
     generated_at = now.strftime("%Y-%m-%d %H:%M UTC")
     extra_pages = {}
+    previous_public = None
+    if history:
+        previous_public = (history["evaluation"], len(history_paths & published))
+        for language, prefix in (("en", ""), ("pt-br", "pt-br/")):
+            extra_pages[prefix + "published/index.html"] = render_page(
+                history,
+                published,
+                present,
+                language,
+                generated_at,
+                historical=True,
+            ).encode("utf-8")
     for manifest in manifests:
         for language in ("en", "pt-br"):
             extra_pages.update(
@@ -783,9 +920,10 @@ def main():
         extra_pages=extra_pages,
         target_paths=paths,
         active_paths=active,
+        previous_public=previous_public,
     )
     print(
-        f"evaluation={snapshot['evaluation']} jobs={len(snapshot['packages'])} succeeded={sum(item['job_status'] == 0 for item in snapshot['packages'])} targets={len(targets)} present={len(present)} published={len(published)} updated={generated_at}"
+        f"evaluation={snapshot['evaluation']} jobs={len(snapshot['packages'])} succeeded={sum(item['job_status'] == 0 for item in snapshot['packages'])} targets={len(targets)} present={len(set(paths) & present)} published={len(set(paths) & published)} historical_public={len(history_paths & published)} updated={generated_at}"
     )
 
 
