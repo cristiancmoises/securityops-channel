@@ -144,14 +144,28 @@
       (modify-inputs (package-inputs qtlanguageserver)
         (replace "qtbase" qtbase-for-ausweisapp)))))
 
+(define qtshadertools-for-ausweisapp
+  (package
+    (inherit qtshadertools)
+    (version "6.9.2")
+    (source
+      (origin
+        (inherit (package-source qtshadertools))
+        (uri "mirror://qt/qt/6.9/6.9.2/submodules/qtshadertools-everywhere-src-6.9.2.tar.xz")
+        (sha256
+          (base32 "158lpzb1nqspwm0n48d3nfr81q85zka1igrjp6xj8cjlv7wqlrqp"))))
+    (inputs
+      (modify-inputs (package-inputs qtshadertools)
+        (replace "qtbase" qtbase-for-ausweisapp)))))
+
 (define qtdeclarative-for-ausweisapp
   (package
     (inherit qtdeclarative)
     (version "6.9.2")
     (arguments
       (substitute-keyword-arguments (package-arguments qtdeclarative)
-        ;; Same load-guard stall as qtsvg; build and test serially.
-        ((#:parallel-build? _ #f) #f)
+        ;; Keep resource-heavy tests serial, but let the C++ build use the
+        ;; builder's available cores instead of discarding that capacity.
         ((#:parallel-tests? _ #f) #f)))
     (source
       (origin
@@ -180,7 +194,74 @@
         (replace "qtbase" qtbase-for-ausweisapp)
         (replace "qtsvg" qtsvg-for-ausweisapp)
         (replace "qtlanguageserver"
-                 qtlanguageserver-for-ausweisapp)))))
+                 qtlanguageserver-for-ausweisapp)))
+    (native-inputs
+      (modify-inputs (package-native-inputs qtdeclarative)
+        (replace "qtshadertools" qtshadertools-for-ausweisapp)))))
+
+(define qtscxml-for-ausweisapp
+  (package
+    (inherit qtscxml)
+    (version "6.9.2")
+    (source
+      (origin
+        (inherit (package-source qtscxml))
+        (uri "mirror://qt/qt/6.9/6.9.2/submodules/qtscxml-everywhere-src-6.9.2.tar.xz")
+        (sha256
+          (base32 "1dpb687zbw4akx42kfpbb5cpdlq3hcqn8l3l0x7sd5i9061z2sp0"))))
+    (inputs
+      (modify-inputs (package-inputs qtscxml)
+        (replace "qtbase" qtbase-for-ausweisapp)
+        (replace "qtdeclarative" qtdeclarative-for-ausweisapp)))))
+
+(define qtwayland-for-ausweisapp
+  (package
+    (inherit qtwayland)
+    (version "6.9.2")
+    (source
+      (origin
+        (inherit (package-source qtwayland))
+        (uri "mirror://qt/qt/6.9/6.9.2/submodules/qtwayland-everywhere-src-6.9.2.tar.xz")
+        (sha256
+          (base32 "10bpxwpam56gvymz9vjxkppbqsj1369ddzl3k4pz2s2maq39imya"))))
+    (inputs
+      (modify-inputs (package-inputs qtwayland)
+        (replace "qtbase" qtbase-for-ausweisapp)))
+    (native-inputs
+      (modify-inputs (package-native-inputs qtwayland)
+        (replace "qtdeclarative" qtdeclarative-for-ausweisapp)))))
+
+(define qtwebsockets-for-ausweisapp
+  (package
+    (inherit qtwebsockets)
+    (version "6.9.2")
+    (source
+      (origin
+        (inherit (package-source qtwebsockets))
+        (uri "mirror://qt/qt/6.9/6.9.2/submodules/qtwebsockets-everywhere-src-6.9.2.tar.xz")
+        (sha256
+          (base32 "1vh82w96436pqrp4daf324mqs2zjvn51z78b3ksc5mnqgrk3z0xy"))))
+    (inputs
+      (modify-inputs (package-inputs qtwebsockets)
+        (replace "qtbase" qtbase-for-ausweisapp)
+        (replace "qtdeclarative" qtdeclarative-for-ausweisapp)))))
+
+(define qttools-for-ausweisapp
+  (package
+    (inherit qttools)
+    (version "6.9.2")
+    (source
+      (origin
+        (inherit (package-source qttools))
+        (uri "mirror://qt/qt/6.9/6.9.2/submodules/qttools-everywhere-src-6.9.2.tar.xz")
+        (sha256
+          (base32 "12d4czfwvh9rfjwnkpsiwzrpx4ga69c6vz85aabhpk3hx7lggdyq"))))
+    (inputs
+      (modify-inputs (package-inputs qttools)
+        (replace "qtbase" qtbase-for-ausweisapp)))
+    (native-inputs
+      (modify-inputs (package-native-inputs qttools)
+        (replace "qtdeclarative" qtdeclarative-for-ausweisapp)))))
 
 (define %use-safe-svg-default
   #~(lambda _
@@ -230,7 +311,14 @@
         (replace "openssl" (@@ (securityops packages tls-security) openssl-security))
         (replace "qtsvg" qtsvg-for-ausweisapp)
         (replace "qtdeclarative" qtdeclarative-for-ausweisapp)
-        (prepend llhttp-for-ausweisapp)))))
+        (replace "qtscxml" qtscxml-for-ausweisapp)
+        (replace "qtshadertools" qtshadertools-for-ausweisapp)
+        (replace "qtwayland" qtwayland-for-ausweisapp)
+        (replace "qtwebsockets" qtwebsockets-for-ausweisapp)
+        (prepend llhttp-for-ausweisapp)))
+    (native-inputs
+      (modify-inputs (package-native-inputs upstream:ausweisapp)
+        (replace "qttools" qttools-for-ausweisapp)))))
 
 (define-public ausweisapp
   (with-broadcast-qt ausweisapp-base))

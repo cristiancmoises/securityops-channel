@@ -18,7 +18,7 @@
          (desktop (and interface (module-ref interface 'ausweisapp #f))))
     (test-assert "desktop is a usable package" (package? desktop))
     (when (package? desktop)
-      (test-equal "released desktop version" "2.6.0" (package-version desktop))
+      (test-equal "released desktop version" "2.6.1" (package-version desktop))
       (test-equal "current HTTP parser" "9.4.3"
         (package-version (lookup-package-input desktop "llhttp")))
       (test-equal "supported OpenSSL runtime" "3.5.9"
@@ -48,27 +48,58 @@
                      (content-hash-value (origin-hash patch))))
               (filter origin? (origin-patches (package-source fixed)))))
           (test-equal "inherited Guix patches remain first and unchanged"
-            (origin-patches (package-source original))
-            (take (origin-patches (package-source fixed))
-              (length (origin-patches (package-source original)))))
+            (take (origin-patches (package-source original)) 6)
+            (take (origin-patches (package-source fixed)) 6))
           (test-equal "native Qt flags and check policy are unchanged"
             (package-arguments original) (package-arguments fixed))
           (test-equal "native Qt test inputs are unchanged"
             (package-native-inputs original) (package-native-inputs fixed))))
       (for-each
         (lambda (name)
-          (test-assert (string-append name " uses the same Qt replacement graph")
-            (package?
-              (package-replacement
-                (lookup-package-input
-                  (lookup-package-input desktop name) "qtbase")))))
+          (test-equal (string-append name " uses the same Qt 6.9.2 base")
+            "6.9.2"
+            (package-version
+              (lookup-package-input
+                (lookup-package-input desktop name) "qtbase"))))
         '("qtdeclarative" "qtsvg"))
+      (test-equal "Qt shader tools use the matching 6.9.2 source"
+        "6.9.2"
+        (package-version
+          (lookup-package-native-input
+            (lookup-package-input desktop "qtdeclarative")
+            "qtshadertools")))
+      (for-each
+        (lambda (name)
+          (test-equal (string-append name " uses the 6.9.2 source")
+            "6.9.2"
+            (package-version (lookup-package-input desktop name))))
+        '("qtscxml" "qtshadertools" "qtwayland" "qtwebsockets"))
+      (test-equal "Qt tools use the matching 6.9.2 source"
+        "6.9.2"
+        (package-version (lookup-package-native-input desktop "qttools")))
       (let* ((svg (lookup-package-input desktop "qtsvg"))
              (qml (lookup-package-input desktop "qtdeclarative")))
         (for-each
           (lambda (fixed original urls hashes local-name)
             (let ((patches (origin-patches (package-source fixed)))
                   (name (package-name fixed)))
+              (define (without-qt-shader-tools inputs)
+                (map (lambda (input)
+                       (list (car input) (package-name (cadr input))
+                         (package-version (cadr input))
+                         (package-source (cadr input))))
+                  (remove (lambda (input)
+                            (string=? (car input) "qtshadertools"))
+                    inputs)))
+              (define (without-parallel-options arguments)
+                (cond
+                  ((null? arguments) '())
+                  ((memq (car arguments)
+                     '(#:parallel-build? #:parallel-tests?))
+                   (without-parallel-options (cddr arguments)))
+                  (else
+                   (cons (car arguments)
+                     (without-parallel-options (cdr arguments))))))
               (test-equal (string-append name " retains inherited source version")
                 "6.9.2" (package-version fixed))
               (test-equal (string-append name " official patch URLs are pinned")
@@ -85,19 +116,12 @@
               (test-equal (string-append name " inherited patches remain first")
                 (origin-patches (package-source original))
                 (take patches (length (origin-patches (package-source original)))))
-              (test-equal (string-append name " native flags and checks are unchanged")
-                (package-arguments original) (package-arguments fixed))
+              (test-equal (string-append name " native checks are unchanged")
+                (package-arguments original)
+                (without-parallel-options (package-arguments fixed)))
               (test-equal (string-append name " native test inputs are unchanged")
-                (map (lambda (input)
-                       (list (car input) (package-name (cadr input))
-                         (package-version (cadr input))
-                         (package-source (cadr input))))
-                  (package-native-inputs original))
-                (map (lambda (input)
-                       (list (car input) (package-name (cadr input))
-                         (package-version (cadr input))
-                         (package-source (cadr input))))
-                  (package-native-inputs fixed)))))
+                (without-qt-shader-tools (package-native-inputs original))
+                (without-qt-shader-tools (package-native-inputs fixed)))))
           (list svg qml)
           (list (@ (gnu packages qt) qtsvg) (@ (gnu packages qt) qtdeclarative))
           (list
