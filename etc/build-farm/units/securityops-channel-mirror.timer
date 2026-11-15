@@ -1,0 +1,12 @@
+[Unit]
+Description=Refresh the signed Security Ops channel mirror
+
+[Timer]
+OnBootSec=1min
+OnUnitActiveSec=2min
+AccuracySec=15s
+Persistent=true
+Unit=securityops-channel-mirror.service
+
+[Install]
+WantedBy=timers.target

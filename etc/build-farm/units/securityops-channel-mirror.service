@@ -1,0 +1,29 @@
+[Unit]
+Description=Refresh the signed Security Ops channel mirror
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=cuirass
+Group=cuirass
+Environment=HOME=/var/lib/cuirass
+Environment=LC_ALL=C
+ExecStartPre=/usr/bin/test -d /var/lib/cuirass/mirrors/securityops-channel.git
+ExecStartPre=/usr/bin/test -d /var/lib/cuirass/mirrors/guix.git
+ExecStartPre=/usr/bin/test -d /var/lib/cuirass/mirrors/nonguix.git
+ExecStart=/usr/bin/git --git-dir=/var/lib/cuirass/mirrors/securityops-channel.git fetch --prune --no-tags https://git.securityops.com.br/cristiancmoises/securityops-channel.git +refs/heads/main:refs/heads/main
+ExecStart=/usr/bin/git --git-dir=/var/lib/cuirass/mirrors/guix.git fetch --prune --no-tags https://git.securityops.com.br/cristiancmoises/guix.git +refs/heads/master:refs/heads/master
+ExecStart=/usr/bin/git --git-dir=/var/lib/cuirass/mirrors/nonguix.git fetch --prune --no-tags https://git.securityops.com.br/cristiancmoises/nonguix.git +refs/heads/master:refs/heads/master
+TimeoutStartSec=15min
+UMask=0077
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectHome=yes
+ProtectSystem=strict
+ReadWritePaths=/var/lib/cuirass/mirrors
+RestrictAddressFamilies=AF_UNIX AF_INET AF_INET6
+LockPersonality=yes
+
+[Install]
+WantedBy=multi-user.target

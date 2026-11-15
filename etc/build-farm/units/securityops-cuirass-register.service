@@ -1,8 +1,8 @@
 [Unit]
 Description=Security Ops private Cuirass registration and builds
 Requires=postgresql@17-main.service guix-daemon.service
-After=postgresql@17-main.service guix-daemon.service network-online.target
-Wants=network-online.target
+After=postgresql@17-main.service guix-daemon.service network-online.target securityops-channel-mirror.service
+Wants=network-online.target securityops-channel-mirror.service
 StartLimitIntervalSec=300
 StartLimitBurst=5
 
@@ -27,6 +27,7 @@ MemoryMax=8G
 MemorySwapMax=2G
 ExecStartPre=/usr/bin/pg_isready -q -d cuirass
 ExecStartPre=/usr/bin/test -r /etc/cuirass/modules/securityops/build-farm/ci.scm
+ExecStartPre=/usr/bin/test -d /var/lib/cuirass/mirrors/securityops-channel.git
 ExecStart=/var/guix/profiles/build-farm/bin/cuirass register --specifications=/etc/cuirass/securityops-specifications.scm --database=dbname=cuirass --cache-directory=/var/cache/cuirass --interval=300 --parallel-evaluations=1 --threads=3 --ttl=30d
 Restart=on-failure
 RestartSec=30s

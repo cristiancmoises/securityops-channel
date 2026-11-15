@@ -15,10 +15,14 @@
      introduction
      (openpgp-fingerprint signer)))))
 
+;; Cuirass' libgit2 fetcher can treat an interrupted HTTPS read as fatal on
+;; this large history.  The mirror service refreshes a bare checkout from the
+;; canonical remote; Guix still authenticates the signed channel introduction
+;; and every evaluated commit.
 (define securityops
   (signed-channel
    'securityops
-   "https://git.securityops.com.br/cristiancmoises/securityops-channel.git"
+   "file:///var/lib/cuirass/mirrors/securityops-channel.git"
    "main"
    "1662809a25bf267088b0c066eed8992bd52da8d7"
    "0CFA 43B9 AA96 42EA AF2B E983 C4C6 61C9 ECFB 46E8"))
@@ -69,7 +73,7 @@
 (define guix-baseline
   (channel
    (inherit guix)
-   (url "https://git.securityops.com.br/cristiancmoises/guix.git")
+   (url "file:///var/lib/cuirass/mirrors/guix.git")
    (commit "3f81f6643f69194f7b0c3243c214e3dbbdc3b805")))
 
 ;; Make the SecurityOps dependency an explicit Cuirass root as well.  The
@@ -78,7 +82,7 @@
 (define securityops-nonguix
   (channel
    (inherit nonguix)
-   (url "https://git.securityops.com.br/cristiancmoises/nonguix.git")
+   (url "file:///var/lib/cuirass/mirrors/nonguix.git")
    (commit "c241d19ff840dc75556f722b231760d119b6adea")))
 
 (define gocix

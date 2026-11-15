@@ -4,6 +4,8 @@ set -euo pipefail
 root=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
 spec="$root/etc/build-farm/specifications"
 register="$root/etc/build-farm/units/securityops-cuirass-register.service"
+mirror_service="$root/etc/build-farm/units/securityops-channel-mirror.service"
+mirror_timer="$root/etc/build-farm/units/securityops-channel-mirror.timer"
 web="$root/etc/build-farm/units/securityops-cuirass-web.service"
 priority_service="$root/etc/build-farm/units/securityops-cuirass-prioritize.service"
 priority_timer="$root/etc/build-farm/units/securityops-cuirass-prioritize.timer"
@@ -12,19 +14,23 @@ requeue_script="$root/etc/build-farm/requeue-stalled-builds"
 requeue_service="$root/etc/build-farm/units/securityops-cuirass-requeue.service"
 requeue_timer="$root/etc/build-farm/units/securityops-cuirass-requeue.timer"
 
-for file in "$spec" "$register" "$web" "$priority_service" "$priority_timer" \
+for file in "$spec" "$register" "$mirror_service" "$mirror_timer" \
+            "$web" "$priority_service" "$priority_timer" \
             "$priority_sql" "$requeue_script" "$requeue_service" "$requeue_timer"; do
   test -s "$file" || { printf 'missing: %s\n' "$file" >&2; exit 1; }
 done
 
-grep -qF 'https://git.securityops.com.br/cristiancmoises/securityops-channel.git' "$spec"
+grep -qF 'file:///var/lib/cuirass/mirrors/securityops-channel.git' "$spec"
+grep -qF 'https://git.securityops.com.br/cristiancmoises/securityops-channel.git' \
+  "$mirror_service"
 grep -qF '(branch branch)' "$spec"
 grep -qF '(build '\''(custom (securityops build-farm ci)))' "$spec"
 grep -qF '(define guix-baseline' "$spec"
 grep -qF '(inherit guix)' "$spec"
-grep -qF '(url "https://git.securityops.com.br/cristiancmoises/guix.git")' "$spec"
+grep -qF '(url "file:///var/lib/cuirass/mirrors/guix.git")' "$spec"
 grep -qF '(commit "3f81f6643f69194f7b0c3243c214e3dbbdc3b805")' "$spec"
 grep -qF '(define securityops-nonguix' "$spec"
+grep -qF '(url "file:///var/lib/cuirass/mirrors/nonguix.git")' "$spec"
 grep -qF '(commit "c241d19ff840dc75556f722b231760d119b6adea")' "$spec"
 grep -qF '(channels (list securityops guix-baseline securityops-nonguix))' "$spec"
 grep -qF '1662809a25bf267088b0c066eed8992bd52da8d7' "$spec"
@@ -51,11 +57,30 @@ grep -qF 'MemoryMax=8G' "$register"
 grep -qF 'MemorySwapMax=2G' "$register"
 grep -qF '127.0.0.1' "$web"
 grep -qF 'After=postgresql@17-main.service guix-daemon.service' "$register"
+grep -qF 'Wants=network-online.target securityops-channel-mirror.service' "$register"
 grep -qF 'ExecStartPre=/usr/bin/pg_isready -q -d cuirass' "$register"
+grep -qF 'ExecStartPre=/usr/bin/test -d /var/lib/cuirass/mirrors/securityops-channel.git' \
+  "$register"
+grep -qF 'ExecStartPre=/usr/bin/test -d /var/lib/cuirass/mirrors/guix.git' \
+  "$mirror_service"
+grep -qF 'ExecStartPre=/usr/bin/test -d /var/lib/cuirass/mirrors/nonguix.git' \
+  "$mirror_service"
 grep -qF 'Environment=GUILE_LOAD_PATH=/etc/cuirass/modules' "$register"
 grep -qF 'ExecStartPre=/usr/bin/test -r /etc/cuirass/modules/securityops/build-farm/ci.scm' "$register"
 grep -qF 'ExecStartPre=/usr/bin/pg_isready -q -d cuirass' "$web"
 grep -qF 'RuntimeDirectory=cuirass' "$register"
+grep -qF 'User=cuirass' "$mirror_service"
+grep -qF 'ExecStart=/usr/bin/git --git-dir=/var/lib/cuirass/mirrors/securityops-channel.git fetch --prune --no-tags' \
+  "$mirror_service"
+grep -qF 'ExecStart=/usr/bin/git --git-dir=/var/lib/cuirass/mirrors/guix.git fetch --prune --no-tags' \
+  "$mirror_service"
+grep -qF 'ExecStart=/usr/bin/git --git-dir=/var/lib/cuirass/mirrors/nonguix.git fetch --prune --no-tags' \
+  "$mirror_service"
+grep -qF 'ProtectSystem=strict' "$mirror_service"
+grep -qF 'ReadWritePaths=/var/lib/cuirass/mirrors' "$mirror_service"
+grep -qF 'OnUnitActiveSec=2min' "$mirror_timer"
+grep -qF 'Persistent=true' "$mirror_timer"
+grep -qF 'Unit=securityops-channel-mirror.service' "$mirror_timer"
 grep -qF "e.specification = 'securityops'" "$priority_sql"
 test "$(grep -cF 'JOIN Evaluations AS e ON e.id = job.evaluation' "$priority_sql")" -eq 2
 test "$(grep -cF 'JOIN Builds AS b ON b.id = job.build' "$priority_sql")" -eq 2
@@ -79,7 +104,8 @@ grep -qF 'OnUnitActiveSec=15min' "$requeue_timer"
 grep -qF 'Persistent=true' "$requeue_timer"
 
 if grep -Eq 'BEGIN PRIVATE KEY|password=|token=|https://[^[:space:]"\047]+@' \
-    "$spec" "$register" "$web" "$priority_service" "$priority_timer" \
+    "$spec" "$register" "$mirror_service" "$mirror_timer" \
+    "$web" "$priority_service" "$priority_timer" \
     "$priority_sql" "$requeue_script" "$requeue_service" "$requeue_timer"; then
   printf 'secret or credential-bearing URL in build-farm configuration\n' >&2
   exit 1
