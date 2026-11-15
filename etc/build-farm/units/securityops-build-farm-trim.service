@@ -1,0 +1,11 @@
+[Unit]
+Description=Return unused farm and publisher blocks to the Proxmox thin pool
+After=pve-cluster.service
+ConditionPathExists=/usr/sbin/pct
+
+[Service]
+Type=oneshot
+ExecStart=/usr/sbin/pct fstrim 126
+ExecStart=/usr/sbin/pct fstrim 116
+TimeoutStartSec=10min
+NoNewPrivileges=true
