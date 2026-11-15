@@ -9,6 +9,8 @@
   #:use-module (gnu packages base)
   #:use-module (gnu packages bash)
   #:use-module (gnu packages gcc)
+  #:use-module (gnu packages glib)
+  #:use-module (gnu packages gnome)
   #:use-module (gnu packages gl)
   #:use-module ((gnu packages freedesktop) #:prefix freedesktop:)
   #:use-module (gnu packages xdisorg)
@@ -35,6 +37,8 @@
     (inputs
      `(("glibc" ,glibc)
        ("gcc:lib" ,gcc "lib")
+       ("dbus" ,dbus)
+       ("zenity" ,zenity)
        ("bash-minimal" ,bash-minimal)
        ("libx11" ,libx11)
        ("libxcb" ,libxcb)
@@ -155,7 +159,7 @@
                         (list (dirname loader) (dirname gcc-lib))
                         (map (lambda (name)
                                (string-append (assoc-ref inputs name) "/lib"))
-                             '("libx11" "libxcb" "libxcursor" "libxi"
+                             '("dbus" "libx11" "libxcb" "libxcursor" "libxi"
                                "libxrandr" "libxkbcommon" "mesa" "wayland")))
                        ":"))
                      (bin (string-append out "/bin"))
@@ -175,6 +179,7 @@
                                  (string-append
                                   "#!~a~%"
                                   "LD_LIBRARY_PATH=~a; export LD_LIBRARY_PATH~%"
+                                  "PATH=" #$(file-append zenity "/bin") ":$PATH; export PATH~%"
                                   "exec ~a --library-path ~a ~a \"$@\"~%")
                                  shell library-path loader library-path
                                  original)))
