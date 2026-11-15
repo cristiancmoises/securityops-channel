@@ -9,7 +9,7 @@
 (when (string-suffix? "librewolf-packages.scm" (car (command-line)))
   (test-begin "librewolf-packages")
   (let ((runner (test-runner-current)))
-    (test-equal "published stable LibreWolf release" "157.0-1"
+    (test-equal "published stable LibreWolf release" "160.0-1"
       (package-version channel:librewolf))
     (test-assert "reuse the authenticated native source build"
       (eq? upstream:librewolf
