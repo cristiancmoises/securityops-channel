@@ -1,0 +1,10 @@
+[Unit]
+Description=Requeue stalled SecurityOps Cuirass builds
+Requires=postgresql@17-main.service
+After=postgresql@17-main.service securityops-cuirass-register.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/libexec/securityops/requeue-stalled-builds
+NoNewPrivileges=yes
+TimeoutStartSec=120s

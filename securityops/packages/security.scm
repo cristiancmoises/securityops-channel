@@ -17,6 +17,7 @@
   #:use-module (guix utils)
   #:use-module ((gnu packages admin) #:prefix adm:)
   #:use-module ((gnu packages bash) #:prefix bash:)
+  #:use-module ((gnu packages crypto) #:prefix crypto:)
   #:use-module ((gnu packages databases) #:prefix db:)
   #:use-module ((gnu packages networking) #:prefix net:)
   #:use-module ((gnu packages password-utils) #:prefix pw:)
@@ -277,6 +278,7 @@
                 "-Duse_sys_zlib=enabled"
                 "-Duse_sys_lz4=enabled"
                 "-Duse_sys_libzstd=enabled"
+                "-Duse_sys_blake3=enabled"
                 "-Duse_sys_xxhash=enabled"
                 "-Duse_sys_openssl=disabled"
                 "-Duse_sys_tree_sitter=enabled"
@@ -289,7 +291,7 @@
                 "-Duse_gpl=true"))))
     (inputs
      (modify-inputs (package-inputs eng:rizin)
-       (append eng:zydis eng:zycore)))))
+       (append crypto:blake3 eng:zydis eng:zycore)))))
 (define-public binwalk fw:binwalk)
 
 ;;; Crypto

@@ -130,6 +130,20 @@
                 (uri "https://download.qt.io/official_releases/qt/6.10/CVE-2026-8168-qtsvg-6.10-0004.diff")
                 (sha256 (base32 "170j83m598j7vkk3jva5ydvq2jfcp56sa169scim6nh825bcq50d"))))))))))
 
+(define qtlanguageserver-for-ausweisapp
+  (package
+    (inherit qtlanguageserver)
+    (version "6.9.2")
+    (source
+      (origin
+        (inherit (package-source qtlanguageserver))
+        (uri "mirror://qt/qt/6.9/6.9.2/submodules/qtlanguageserver-everywhere-src-6.9.2.tar.xz")
+        (sha256
+          (base32 "1vlb0qn53y1b4zf7zkpxdvdh5ikr1cidq5gv8blvf6pyw6pnw6vq"))))
+    (inputs
+      (modify-inputs (package-inputs qtlanguageserver)
+        (replace "qtbase" qtbase-for-ausweisapp)))))
+
 (define qtdeclarative-for-ausweisapp
   (package
     (inherit qtdeclarative)
@@ -164,7 +178,9 @@
         ;; Same 6.9.2 Qt base as the source; the 6.12 headers dropped the
         ;; Unicode cases table used by the bundled JavaScriptCore stubs.
         (replace "qtbase" qtbase-for-ausweisapp)
-        (replace "qtsvg" qtsvg-for-ausweisapp)))))
+        (replace "qtsvg" qtsvg-for-ausweisapp)
+        (replace "qtlanguageserver"
+                 qtlanguageserver-for-ausweisapp)))))
 
 (define %use-safe-svg-default
   #~(lambda _

@@ -8,8 +8,12 @@ web="$root/etc/build-farm/units/securityops-cuirass-web.service"
 priority_service="$root/etc/build-farm/units/securityops-cuirass-prioritize.service"
 priority_timer="$root/etc/build-farm/units/securityops-cuirass-prioritize.timer"
 priority_sql="$root/etc/build-farm/prioritize-securityops.sql"
+requeue_script="$root/etc/build-farm/requeue-stalled-builds"
+requeue_service="$root/etc/build-farm/units/securityops-cuirass-requeue.service"
+requeue_timer="$root/etc/build-farm/units/securityops-cuirass-requeue.timer"
 
-for file in "$spec" "$register" "$web" "$priority_service" "$priority_timer" "$priority_sql"; do
+for file in "$spec" "$register" "$web" "$priority_service" "$priority_timer" \
+            "$priority_sql" "$requeue_script" "$requeue_service" "$requeue_timer"; do
   test -s "$file" || { printf 'missing: %s\n' "$file" >&2; exit 1; }
 done
 
@@ -65,8 +69,17 @@ grep -qF 'AND build.id NOT IN (SELECT id FROM required)' "$priority_sql"
 grep -qF 'User=postgres' "$priority_service"
 grep -qF 'OnUnitActiveSec=5min' "$priority_timer"
 grep -qF 'Persistent=true' "$priority_timer"
+grep -qF '"$RUNUSER" -u postgres -- "$PSQL"' "$requeue_script"
+grep -qF 'FROM builds WHERE status = -2' "$requeue_script"
+grep -qF 'FROM builds WHERE status = -1' "$requeue_script"
+grep -qF '"$SYSTEMCTL" restart "$REGISTER"' "$requeue_script"
+grep -qF 'NoNewPrivileges=yes' "$requeue_service"
+grep -qF 'OnUnitActiveSec=15min' "$requeue_timer"
+grep -qF 'Persistent=true' "$requeue_timer"
 
-if grep -Eq 'BEGIN PRIVATE KEY|password=|token=|https://[^[:space:]"\047]+@' "$spec" "$register" "$web" "$priority_service" "$priority_timer" "$priority_sql"; then
+if grep -Eq 'BEGIN PRIVATE KEY|password=|token=|https://[^[:space:]"\047]+@' \
+    "$spec" "$register" "$web" "$priority_service" "$priority_timer" \
+    "$priority_sql" "$requeue_script" "$requeue_service" "$requeue_timer"; then
   printf 'secret or credential-bearing URL in build-farm configuration\n' >&2
   exit 1
 fi

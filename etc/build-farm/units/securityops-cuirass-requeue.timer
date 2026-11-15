@@ -1,0 +1,12 @@
+[Unit]
+Description=Requeue stalled SecurityOps Cuirass builds every fifteen minutes
+
+[Timer]
+OnBootSec=5min
+OnUnitActiveSec=15min
+AccuracySec=30s
+Persistent=true
+Unit=securityops-cuirass-requeue.service
+
+[Install]
+WantedBy=timers.target

@@ -18,6 +18,227 @@ Este canal simplesmente não existiria sem esse trabalho.
 | Validação | Testes dos pacotes e [limites de uso](docs/usage.md); a ativação do sistema requer reconfiguração separada |
 | Autenticação | Commits assinados e introdução do canal fixada |
 
+## Destaques de segurança e produtividade
+
+O canal inclui Burp Suite 2026.10.1 para interceptação HTTP e testes de
+aplicações, além de Maltego 4.14.0 para análise de vínculos e investigações.
+Essas ferramentas de segurança acompanham a suíte completa de produtividade
+ArtCraft: CADCraft, DeckCraft, DesignCraft, EffectCraft, FigCraft, FilmCraft,
+GridCraft, LightCraft, PdfCraft, PhotoCraft, SoundCraft, VectorCraft e
+WordCraft. As versões exatas aparecem no catálogo abaixo.
+
+## Catálogo completo de pacotes
+
+Esta tabela abrange todas as definições de pacote exportadas pelo canal. Os
+três drivers marcados `Outro alvo` são mantidos para ARM, i686 ou PowerPC; a
+build farm `x86_64-linux` avalia atualmente os outros 196 alvos.
+
+<!-- package-catalog:start -->
+
+| Módulo | Export Guix | Pacote | Versão | Build farm |
+|---|---|---|---|---|
+| `security` | `age` | `age` | 1.3.2 | x86_64-linux |
+| `security` | `aircrack-ng` | `aircrack-ng` | 1.7 | x86_64-linux |
+| `terminals` | `alacritty` | `alacritty` | 0.17.0 | x86_64-linux |
+| `arduino` | `arduino-ide` | `arduino-ide` | 2.3.10 | x86_64-linux |
+| `reporting` | `arelle` | `arelle` | 2.47.4 | x86_64-linux |
+| `security` | `arp-scan` | `arp-scan` | 1.10.0 | x86_64-linux |
+| `ausweisapp` | `ausweisapp` | `ausweisapp` | 2.6.1 | x86_64-linux |
+| `autofirma` | `autofirma` | `autofirma` | 1.9 | x86_64-linux |
+| `security` | `binwalk` | `binwalk` | 3.1.0 | x86_64-linux |
+| `applications` | `btp` | `btp` | 0.7 | x86_64-linux |
+| `burpsuite` | `burpsuite` | `burpsuite` | 2026.10.1 | x86_64-linux |
+| `cadcraft` | `cadcraft` | `cadcraft` | 0.7.0 | x86_64-linux |
+| `river` | `channel-river-input` | `channel-river-input` | 0.5.1 | x86_64-linux |
+| `deckcraft` | `deckcraft` | `deckcraft` | 0.7.0 | x86_64-linux |
+| `designcraft` | `designcraft` | `designcraft` | 0.8.0 | x86_64-linux |
+| `digidoc4` | `digidoc4` | `digidoc4` | 4.11.1 | x86_64-linux |
+| `containers` | `docker-cli-latest` | `docker-cli` | 29.9.3 | x86_64-linux |
+| `containers` | `docker-latest` | `docker` | 29.9.3 | x86_64-linux |
+| `effectcraft` | `effectcraft` | `effectcraft` | 0.10.0 | x86_64-linux |
+| `belgian-eid` | `eid-mw` | `eid-mw` | 5.1.31 | x86_64-linux |
+| `emacs` | `emacs-pgtk` | `emacs-pgtk` | 31.1 | x86_64-linux |
+| `emacs` | `emacs` | `emacs` | 31.1 | x86_64-linux |
+| `brazil-tax` | `esocial-communication-schemas` | `esocial-communication-schemas` | 1.6 | x86_64-linux |
+| `brazil-tax` | `esocial-schemas` | `esocial-schemas` | 1.3-20260701 | x86_64-linux |
+| `containers` | `esquema` | `esquema` | 0.3.0 | x86_64-linux |
+| `applications` | `evelin-bin` | `evelin-bin` | 4.4.0 | x86_64-linux |
+| `video` | `ffmpeg-8-nvidia-new-feature` | `ffmpeg-8-nvidia-new-feature` | 8.1.3 | x86_64-linux |
+| `video` | `ffmpeg-nvidia-new-feature` | `ffmpeg-nvidia-new-feature` | 9.0.2 | x86_64-linux |
+| `video` | `ffmpeg-vvdec` | `ffmpeg-vvdec` | 9.0.2 | x86_64-linux |
+| `video` | `ffmpeg` | `ffmpeg` | 9.0.2 | x86_64-linux |
+| `figcraft` | `figcraft` | `figcraft` | 0.6.0 | x86_64-linux |
+| `wazuh-search` | `wazuh-filebeat` | `filebeat` | 7.10.2-2 | x86_64-linux |
+| `filmcraft` | `filmcraft` | `filmcraft` | 0.7.2 | x86_64-linux |
+| `shells` | `fish` | `fish` | 4.9.3 | x86_64-linux |
+| `river` | `foot-latest` | `foot` | 1.28.0 | x86_64-linux |
+| `security` | `fping` | `fping` | 5.5 | x86_64-linux |
+| `river` | `fuzzel-latest` | `fuzzel` | 1.15.0 | x86_64-linux |
+| `xmonad` | `ghc-xmonad-contrib` | `ghc-xmonad-contrib` | 0.18.2 | x86_64-linux |
+| `monitoring` | `glances` | `glances` | 4.5.9 | x86_64-linux |
+| `terminals` | `go-github-com-ebitengine-purego` | `go-github-com-ebitengine-purego` | 0.11.3 | x86_64-linux |
+| `terminals` | `go-github-com-emmansun-base64` | `go-github-com-emmansun-base64` | 0.11.0 | x86_64-linux |
+| `terminals` | `go-github-com-kovidgoyal-go-shm-v2` | `go-github-com-kovidgoyal-go-shm-v2` | 2.0.1 | x86_64-linux |
+| `terminals` | `go-github-com-sgtdi-fswatcher` | `go-github-com-sgtdi-fswatcher` | 1.3.0 | x86_64-linux |
+| `browsers` | `google-chrome-stable` | `google-chrome-stable` | 157.0.8103.78-1 | x86_64-linux |
+| `gridcraft` | `gridcraft` | `gridcraft` | 0.7.0 | x86_64-linux |
+| `xsearch` | `guix-xsearch` | `guix-xsearch` | 2.3-0.1af46e0 | x86_64-linux |
+| `applications` | `guixvis` | `guixvis` | 0.10.0 | x86_64-linux |
+| `security` | `hydra` | `hydra` | 9.7 | x86_64-linux |
+| `icp-brasil-chain` | `icp-brasil-ca-data` | `icp-brasil-ca-data` | 2026.08.26 | x86_64-linux |
+| `icp-brasil` | `icp-brasil-roots` | `icp-brasil-roots` | 2026.10.05 | x86_64-linux |
+| `utils` | `keepassxc` | `keepassxc` | 2.8.0 | x86_64-linux |
+| `security` | `kismet` | `kismet` | 2026.10.R1 | x86_64-linux |
+| `terminals` | `kitty` | `kitty` | 0.50.0 | x86_64-linux |
+| `einvoicing` | `kosit-validator` | `kosit-validator` | 1.6.3 | x86_64-linux |
+| `webpki` | `lacuna-webpki` | `lacuna-webpki` | 2.16.0 | x86_64-linux |
+| `utils` | `lf` | `lf` | 42 | x86_64-linux |
+| `eid` | `libdigidocpp-acceptance` | `libdigidocpp-acceptance` | 4.5.1 | x86_64-linux |
+| `eid` | `libdigidocpp` | `libdigidocpp` | 4.5.1 | x86_64-linux |
+| `river` | `libevdev-latest` | `libevdev` | 1.14.0 | x86_64-linux |
+| `river` | `libinput-minimal-latest` | `libinput-minimal` | 1.32.0 | x86_64-linux |
+| `electronics` | `libngspice` | `libngspice` | 47 | x86_64-linux |
+| `browsers` | `librewolf` | `librewolf` | 160.0-1 | x86_64-linux |
+| `river` | `libxkbcommon-latest` | `libxkbcommon` | 1.13.2 | x86_64-linux |
+| `lightcraft` | `lightcraft` | `lightcraft` | 0.8.0 | x86_64-linux |
+| `linux-libre-7-2-11` | `linux-libre-7.2.11` | `linux-libre` | 7.2.11 | x86_64-linux |
+| `security` | `lynis` | `lynis` | 3.1.7 | x86_64-linux |
+| `river` | `mako-latest` | `mako` | 1.11.0 | x86_64-linux |
+| `maltego` | `maltego` | `maltego` | 4.14.0 | x86_64-linux |
+| `security` | `masscan` | `masscan` | 1.3.2 | x86_64-linux |
+| `applications` | `mirim` | `mirim` | 1.1.1 | x86_64-linux |
+| `applications` | `moneyprinterturbo` | `moneyprinterturbo` | 1.3.10 | x86_64-linux |
+| `video` | `mpv` | `mpv` | 0.42.0 | x86_64-linux |
+| `security` | `mtr` | `mtr` | 0.96 | x86_64-linux |
+| `vpn` | `mullvad-vpn-desktop` | `mullvad-vpn-desktop` | 2026.5 | x86_64-linux |
+| `security` | `netdiscover` | `netdiscover` | 0.21 | x86_64-linux |
+| `electronics` | `ngspice` | `ngspice` | 47 | x86_64-linux |
+| `security` | `nmap` | `nmap` | 7.993 | x86_64-linux |
+| `video` | `nv-codec-headers` | `nv-codec-headers` | 13.1.15.0 | x86_64-linux |
+| `nvidia` | `nvda-new-feature` | `nvda` | 615.78.08 | x86_64-linux |
+| `nvidia` | `nvidia-driver-new-feature` | `nvidia-driver-new-feature` | 615.78.08 | x86_64-linux |
+| `nvidia` | `nvidia-firmware-new-feature` | `nvidia-firmware-new-feature` | 615.78.08 | x86_64-linux |
+| `nvidia` | `nvidia-module-new-feature` | `nvidia-module-new-feature` | 615.78.08 | x86_64-linux |
+| `openpace` | `openpace` | `openpace` | 1.1.4 | x86_64-linux |
+| `video` | `openshot` | `openshot` | 4.1.1 | x86_64-linux |
+| `pdfcraft` | `pdfcraft` | `pdfcraft` | 0.8.0 | x86_64-linux |
+| `phive` | `phive` | `phive` | 12.2.0 | x86_64-linux |
+| `photocraft` | `photocraft` | `photocraft` | 0.9.0 | x86_64-linux |
+| `audio` | `pipewire-latest` | `pipewire` | 1.6.11 | x86_64-linux |
+| `containers` | `podman-latest` | `podman` | 6.2.0 | x86_64-linux |
+| `security` | `proxychains-ng` | `proxychains-ng` | 4.17 | x86_64-linux |
+| `security` | `radare2` | `radare2` | 6.2.6 | x86_64-linux |
+| `security` | `reaver` | `reaver` | 1.6.6 | x86_64-linux |
+| `river` | `river-xmonad-runtime` | `river-xmonad-runtime` | 0.4.8 | x86_64-linux |
+| `security` | `rizin` | `rizin` | 0.9.1 | x86_64-linux |
+| `remote-desktop` | `rustdesk-server` | `rustdesk-server` | 1.1.16 | x86_64-linux |
+| `remote-desktop` | `rustdesk` | `rustdesk` | 1.5.3 | x86_64-linux |
+| `security` | `sdb` | `sdb` | 2.6.2 | x86_64-linux |
+| `terminals` | `shader-slang-bin` | `shader-slang-bin` | 2026.20 | x86_64-linux |
+| `soundcraft` | `soundcraft` | `soundcraft` | 0.5.0 | x86_64-linux |
+| `nvidia` | `steam-nvidia-new-feature` | `steam` | 1.0.0.87 | x86_64-linux |
+| `games` | `steam` | `steam` | 1.0.0.87 | x86_64-linux |
+| `river` | `swaybg-latest` | `swaybg` | 1.2.2 | x86_64-linux |
+| `river` | `swaylock-latest` | `swaylock` | 1.8.6 | x86_64-linux |
+| `tor` | `tor` | `tor` | 0.4.9.16 | x86_64-linux |
+| `applications` | `torando-gui` | `torando-gui` | 1.4.1 | x86_64-linux |
+| `tor` | `torbrowser-assets` | `torbrowser-assets` | 16.0.1 | x86_64-linux |
+| `tor` | `torbrowser` | `torbrowser` | 16.0.1 | x86_64-linux |
+| `applications` | `turborec-nvidia-new-feature` | `turborec-nvidia-new-feature` | 3.10.4 | x86_64-linux |
+| `applications` | `turborec` | `turborec` | 3.10.4 | x86_64-linux |
+| `utils` | `ueberzugpp` | `ueberzugpp` | 2.9.11 | x86_64-linux |
+| `browsers` | `ungoogled-chromium-bin` | `ungoogled-chromium-bin` | 156.0.8078.79-1 | x86_64-linux |
+| `browsers` | `ungoogled-chromium` | `ungoogled-chromium` | 156.0.8078.47-1 | x86_64-linux |
+| `vectorcraft` | `vectorcraft` | `vectorcraft` | 0.10.0 | x86_64-linux |
+| `video` | `vlc` | `vlc` | 3.0.24 | x86_64-linux |
+| `video` | `vvdec` | `vvdec` | 3.2.1 | x86_64-linux |
+| `river` | `wayland-protocols-latest` | `wayland-protocols` | 1.49 | x86_64-linux |
+| `river` | `wayland-latest` | `wayland` | 1.26.0 | x86_64-linux |
+| `wazuh` | `wazuh-agent` | `wazuh-agent` | 4.14.10 | x86_64-linux |
+| `wazuh-search` | `wazuh-dashboard` | `wazuh-dashboard` | 4.14.10-1 | x86_64-linux |
+| `wazuh-search` | `wazuh-indexer` | `wazuh-indexer` | 4.14.10-1 | x86_64-linux |
+| `wazuh` | `wazuh-manager` | `wazuh-manager` | 4.14.10 | x86_64-linux |
+| `video` | `wf-recorder-nvidia-new-feature` | `wf-recorder-nvidia-new-feature` | 0.6.0 | x86_64-linux |
+| `applications` | `whatsappel` | `whatsappel` | 3.3.1 | x86_64-linux |
+| `security` | `whois` | `whois` | 5.6.6 | x86_64-linux |
+| `audio` | `wireplumber-latest` | `wireplumber` | 0.5.18 | x86_64-linux |
+| `river` | `wlr-randr-latest` | `wlr-randr` | 0.5.0 | x86_64-linux |
+| `river` | `wlroots-latest` | `wlroots` | 0.20.2 | x86_64-linux |
+| `wordcraft` | `wordcraft` | `wordcraft` | 0.7.0 | x86_64-linux |
+| `xlibre` | `xf86-input-keyboard-xlibre` | `xf86-input-keyboard-xlibre` | 25.0.0 | x86_64-linux |
+| `xlibre` | `xf86-input-mouse-xlibre` | `xf86-input-mouse-xlibre` | 25.0.0 | x86_64-linux |
+| `xlibre` | `xf86-input-wacom-xlibre` | `xf86-input-wacom-xlibre` | 1.2.4 | x86_64-linux |
+| `xlibre` | `xf86-video-ark-xlibre` | `xf86-video-ark-xlibre` | 25.0.0 | x86_64-linux |
+| `xlibre` | `xf86-video-i128-xlibre` | `xf86-video-i128-xlibre` | 25.0.0 | x86_64-linux |
+| `xlibre` | `xf86-video-qxl-xlibre` | `xf86-video-qxl-xlibre` | 25.0.0 | x86_64-linux |
+| `xlibre` | `xlibre-input-elographics` | `xlibre-input-elographics` | 25.0.1 | x86_64-linux |
+| `xlibre` | `xlibre-input-evdev` | `xlibre-input-evdev` | 25.0.0 | x86_64-linux |
+| `xlibre` | `xlibre-input-joystick` | `xlibre-input-joystick` | 25.0.0 | x86_64-linux |
+| `xlibre` | `xlibre-input-keyboard` | `xlibre-input-keyboard` | 25.0.0 | x86_64-linux |
+| `xlibre` | `xlibre-input-libinput` | `xlibre-input-libinput` | 25.0.1 | x86_64-linux |
+| `xlibre` | `xlibre-input-mouse` | `xlibre-input-mouse` | 25.0.0 | x86_64-linux |
+| `xlibre` | `xlibre-input-synaptics` | `xlibre-input-synaptics` | 25.0.0 | x86_64-linux |
+| `xlibre` | `xlibre-input-vmmouse` | `xlibre-input-vmmouse` | 25.0.0 | x86_64-linux |
+| `xlibre` | `xlibre-input-void` | `xlibre-input-void` | 25.0.0 | x86_64-linux |
+| `xlibre` | `xlibre-input-wacom` | `xlibre-input-wacom` | 25.0.0 | x86_64-linux |
+| `xlibre` | `xlibre-server` | `xlibre-server` | 25.2.3 | x86_64-linux |
+| `xlibre` | `xlibre-video-amdgpu` | `xlibre-video-amdgpu` | 25.1.2 | x86_64-linux |
+| `xlibre` | `xlibre-video-apm` | `xlibre-video-apm` | 25.0.0 | x86_64-linux |
+| `xlibre` | `xlibre-video-ark` | `xlibre-video-ark` | 25.0.0 | x86_64-linux |
+| `xlibre` | `xlibre-video-ast` | `xlibre-video-ast` | 25.0.0 | x86_64-linux |
+| `xlibre` | `xlibre-video-ati` | `xlibre-video-ati` | 25.0.1 | x86_64-linux |
+| `xlibre` | `xlibre-video-chips` | `xlibre-video-chips` | 25.0.0 | x86_64-linux |
+| `xlibre` | `xlibre-video-cirrus` | `xlibre-video-cirrus` | 25.0.0 | x86_64-linux |
+| `xlibre` | `xlibre-video-dummy` | `xlibre-video-dummy` | 25.0.0 | x86_64-linux |
+| `xlibre` | `xlibre-video-fbdev` | `xlibre-video-fbdev` | 25.0.0 | x86_64-linux |
+| `xlibre` | `xlibre-video-freedreno` | `xlibre-video-freedreno` | 25.0.0 | Outro alvo |
+| `xlibre` | `xlibre-video-geode` | `xlibre-video-geode` | 25.0.0 | Outro alvo |
+| `xlibre` | `xlibre-video-i128` | `xlibre-video-i128` | 25.0.0 | x86_64-linux |
+| `xlibre` | `xlibre-video-i740` | `xlibre-video-i740` | 25.0.0 | x86_64-linux |
+| `xlibre` | `xlibre-video-intel` | `xlibre-video-intel` | 25.0.2 | x86_64-linux |
+| `xlibre` | `xlibre-video-mach64` | `xlibre-video-mach64` | 25.0.0 | x86_64-linux |
+| `xlibre` | `xlibre-video-mga` | `xlibre-video-mga` | 25.0.0 | x86_64-linux |
+| `xlibre` | `xlibre-video-neomagic` | `xlibre-video-neomagic` | 25.0.0 | x86_64-linux |
+| `xlibre` | `xlibre-video-nested` | `xlibre-video-nested` | 25.0.0 | x86_64-linux |
+| `xlibre` | `xlibre-video-nouveau` | `xlibre-video-nouveau` | 25.0.1 | x86_64-linux |
+| `xlibre` | `xlibre-video-nv` | `xlibre-video-nv` | 25.0.0 | x86_64-linux |
+| `xlibre` | `xlibre-video-ps3` | `xlibre-video-ps3` | 1.2.6.1 | Outro alvo |
+| `xlibre` | `xlibre-video-qxl` | `xlibre-video-qxl` | 25.0.0 | x86_64-linux |
+| `xlibre` | `xlibre-video-r128` | `xlibre-video-r128` | 25.0.0 | x86_64-linux |
+| `xlibre` | `xlibre-video-rendition` | `xlibre-video-rendition` | 25.0.0 | x86_64-linux |
+| `xlibre` | `xlibre-video-s3virge` | `xlibre-video-s3virge` | 25.0.0 | x86_64-linux |
+| `xlibre` | `xlibre-video-savage` | `xlibre-video-savage` | 25.0.0 | x86_64-linux |
+| `xlibre` | `xlibre-video-siliconmotion` | `xlibre-video-siliconmotion` | 25.0.0 | x86_64-linux |
+| `xlibre` | `xlibre-video-sis` | `xlibre-video-sis` | 25.0.0 | x86_64-linux |
+| `xlibre` | `xlibre-video-sisusb` | `xlibre-video-sisusb` | 25.0.0 | x86_64-linux |
+| `xlibre` | `xlibre-video-tdfx` | `xlibre-video-tdfx` | 25.0.0 | x86_64-linux |
+| `xlibre` | `xlibre-video-trident` | `xlibre-video-trident` | 25.0.0 | x86_64-linux |
+| `xlibre` | `xlibre-video-v4l` | `xlibre-video-v4l` | 25.0.1 | x86_64-linux |
+| `xlibre` | `xlibre-video-vbox` | `xlibre-video-vbox` | 25.0.0 | x86_64-linux |
+| `xlibre` | `xlibre-video-vesa` | `xlibre-video-vesa` | 25.0.0 | x86_64-linux |
+| `xlibre` | `xlibre-video-vmware` | `xlibre-video-vmware` | 25.0.0 | x86_64-linux |
+| `xlibre` | `xlibre-video-voodoo` | `xlibre-video-voodoo` | 25.0.0 | x86_64-linux |
+| `xmonad-wayland` | `xmonad-wayland` | `xmonad-wayland` | 0.5.0 | x86_64-linux |
+| `xmonad` | `xmonad` | `xmonad` | 0.18.1 | x86_64-linux |
+| `river` | `xwayland-latest` | `xorg-server-xwayland` | 24.1.14 | x86_64-linux |
+| `einvoicing` | `xrechnung-validator-configuration` | `xrechnung-validator-configuration` | 2026-08-31 | x86_64-linux |
+| `video` | `yt-dlp` | `yt-dlp` | 2026.10.26 | x86_64-linux |
+| `video` | `ytfzf` | `ytfzf` | 2.6.2 | x86_64-linux |
+| `zabbix` | `zabbix-agent2` | `zabbix-agent2` | 7.4.16 | x86_64-linux |
+| `zabbix` | `zabbix-agentd` | `zabbix-agentd` | 7.4.16 | x86_64-linux |
+| `zabbix` | `zabbix-get` | `zabbix-get` | 7.4.16 | x86_64-linux |
+| `zabbix` | `zabbix-java-gateway` | `zabbix-java-gateway` | 7.4.16 | x86_64-linux |
+| `zabbix` | `zabbix-js` | `zabbix-js` | 7.4.16 | x86_64-linux |
+| `zabbix` | `zabbix-proxy` | `zabbix-proxy` | 7.4.16 | x86_64-linux |
+| `zabbix` | `zabbix-sender` | `zabbix-sender` | 7.4.16 | x86_64-linux |
+| `zabbix` | `zabbix-server` | `zabbix-server` | 7.4.16 | x86_64-linux |
+| `zabbix` | `zabbix-web-service` | `zabbix-web-service` | 7.4.16 | x86_64-linux |
+| `zen` | `zen-browser-bin` | `zen-browser-bin` | 1.23.4b | x86_64-linux |
+| `applications` | `zupt-gui` | `zupt-gui` | 5.2.9 | x86_64-linux |
+| `applications` | `zupt` | `zupt` | 5.2.9 | x86_64-linux |
+
+<!-- package-catalog:end -->
+
 ## Documentação
 
 A [build farm](https://farm.securityops.co/) atende `x86_64-linux`.

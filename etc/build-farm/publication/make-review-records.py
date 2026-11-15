@@ -64,8 +64,7 @@ def main(argv=None):
         digest = hashlib.sha256(("\n".join(closure) + "\n").encode()).hexdigest()
         basis = (
             "Operator-approved public redistribution under the terms of the "
-            "output and its reviewed closure. "
-            + OWNER_TOKEN
+            "output and its reviewed closure. " + OWNER_TOKEN
             if args.owner
             else (
                 "Source and requisite redistribution terms reviewed by the "
