@@ -41,6 +41,11 @@
         (base32 "18xpc8qv5ll1hfswjfphzlbzrbrihgpyby46w81rk5p48sm6w5v4"))))
     (arguments
      (substitute-keyword-arguments (package-arguments wayland)
+       ((#:configure-flags flags #~'())
+        ;; Guix adds this option in its source patch; our upstream source uses
+        ;; the source-book phase below instead.  Keep all unrelated options.
+        #~(filter (lambda (flag) (not (string-prefix? "-Dbook=" flag)))
+                  #$flags))
        ((#:phases phases)
         #~(modify-phases #$phases
             (add-after 'unpack 'use-source-book
