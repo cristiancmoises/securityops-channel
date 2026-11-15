@@ -1,5 +1,6 @@
 """Behavior checks for the public, static build-farm status snapshot."""
 
+import http.client
 import importlib.util
 import json
 import os
@@ -14,7 +15,7 @@ import unittest
 from datetime import datetime, timedelta, timezone
 from email.message import Message
 from pathlib import Path
-from unittest.mock import Mock, patch
+from unittest.mock import MagicMock, Mock, patch
 from urllib.error import HTTPError, URLError
 
 MODULE = Path(__file__).resolve().parents[1] / "etc/build-farm/site/generate.py"
@@ -26,6 +27,10 @@ SPEC.loader.exec_module(farm_site)
 
 STORE = "/gnu/store/29cg9q8k2yzryzi7df79s0ngyvdsx7gd-btp-0.7"
 NAR_HASH = "129rq55gfyvk77rrznn7rf2rmamsnfrpzjcr2f32q8gbx9md0rmf"
+NARINFO = (
+    f"StorePath: {STORE}\nNarHash: sha256:{NAR_HASH}\n"
+    "URL: nar/zstd/fixture\nSignature: 1;guix-substitute;abc\n"
+).encode()
 CSV = (
     "989,1791920000,applications.btp.x86_64-linux,0,1,btp-0.7,0,1791861508,1791861509,out,"
     + STORE
@@ -247,6 +252,167 @@ class FarmSiteTests(unittest.TestCase):
 
         with patch.object(farm_site, "build_opener", return_value=FakeOpener()):
             self.assertFalse(farm_site.check_public_output(STORE))
+
+    @staticmethod
+    def public_response(payload, status=200):
+        response = MagicMock(status=status)
+        response.__enter__.return_value = response
+        response.read.return_value = payload
+        return response
+
+    def test_transient_public_probe_failures_are_retried(self):
+        errors = (
+            http.client.BadStatusLine("broken status"),
+            http.client.HTTPException("protocol failure"),
+            URLError("connection lost"),
+            ConnectionError("connection reset"),
+            TimeoutError("timed out"),
+        )
+        for endpoint in ("narinfo", "nar"):
+            for operation in ("open", "read"):
+                for error in errors:
+                    for failures in (1, 2):
+                        with self.subTest(
+                            endpoint=endpoint,
+                            operation=operation,
+                            error=type(error).__name__,
+                            failures=failures,
+                        ):
+                            narinfo = self.public_response(NARINFO)
+                            nar = self.public_response(b"x", status=206)
+                            response = narinfo if endpoint == "narinfo" else nar
+                            attempts = [error] * failures + [response]
+                            if operation == "read":
+                                response.read.side_effect = [error] * failures + [
+                                    response.read.return_value
+                                ]
+                                attempts = [response] * (failures + 1)
+                            responses = (
+                                attempts + [nar]
+                                if endpoint == "narinfo"
+                                else [narinfo] + attempts
+                            )
+                            with (
+                                patch.object(farm_site, "build_opener") as build,
+                                patch("time.sleep") as sleep,
+                            ):
+                                build.return_value.open.side_effect = responses
+                                self.assertTrue(farm_site.check_public_output(STORE))
+                            self.assertEqual(
+                                build.return_value.open.call_count, failures + 2
+                            )
+                            self.assertEqual(sleep.call_count, failures)
+                            for call in sleep.call_args_list:
+                                self.assertGreater(call.args[0], 0)
+                                self.assertLessEqual(call.args[0], 1)
+
+    def test_persistent_public_transport_failure_raises_after_three_attempts(self):
+        for endpoint in ("narinfo", "nar"):
+            with self.subTest(endpoint=endpoint):
+                error = http.client.BadStatusLine("broken status")
+                responses = [error] * 3
+                if endpoint == "nar":
+                    responses.insert(0, self.public_response(NARINFO))
+                with (
+                    patch.object(farm_site, "build_opener") as build,
+                    patch("time.sleep") as sleep,
+                    self.assertRaises(http.client.BadStatusLine) as raised,
+                ):
+                    build.return_value.open.side_effect = responses
+                    farm_site.check_public_output(STORE)
+                self.assertIs(raised.exception, error)
+                self.assertEqual(build.return_value.open.call_count, len(responses))
+                self.assertEqual(sleep.call_count, 2)
+
+    def test_public_http_errors_are_not_retried(self):
+        for endpoint in ("narinfo", "nar"):
+            for code in (400, 401, 403, 404, 429, 503):
+                with self.subTest(endpoint=endpoint, code=code):
+                    error = HTTPError(
+                        "https://example.invalid/", code, "error", Message(), None
+                    )
+                    responses = [error]
+                    if endpoint == "nar":
+                        responses.insert(0, self.public_response(NARINFO))
+                    with (
+                        patch.object(farm_site, "build_opener") as build,
+                        patch("time.sleep") as sleep,
+                    ):
+                        build.return_value.open.side_effect = responses
+                        if code == 404:
+                            self.assertFalse(farm_site.check_public_output(STORE))
+                        else:
+                            with self.assertRaises(HTTPError) as raised:
+                                farm_site.check_public_output(STORE)
+                            self.assertIs(raised.exception, error)
+                    self.assertEqual(build.return_value.open.call_count, len(responses))
+                    sleep.assert_not_called()
+
+    def test_invalid_public_metadata_is_not_retried_or_hidden(self):
+        invalid = (
+            NARINFO.replace(STORE.encode(), (STORE + "-wrong").encode()),
+            NARINFO.replace(NAR_HASH.encode(), b"abc"),
+            NARINFO.replace(b"Signature:", b"NoSignature:"),
+            NARINFO.replace(b"nar/zstd/fixture", b"nar/../fixture"),
+            b"\xff",
+            b"x" * 65537,
+        )
+        for payload in invalid:
+            with self.subTest(payload=payload[:80]):
+                with (
+                    patch.object(farm_site, "build_opener") as build,
+                    patch("time.sleep") as sleep,
+                    self.assertRaises(ValueError),
+                ):
+                    build.return_value.open.return_value = self.public_response(payload)
+                    farm_site.check_public_output(STORE)
+                self.assertEqual(build.return_value.open.call_count, 1)
+                sleep.assert_not_called()
+
+    def test_exhausted_public_probe_keeps_complete_previous_snapshot(self):
+        for endpoint in ("narinfo", "nar"):
+            with (
+                self.subTest(endpoint=endpoint),
+                tempfile.TemporaryDirectory() as directory,
+            ):
+                root = Path(directory)
+                self.seed_previous(root)
+                error = http.client.BadStatusLine("broken status")
+                responses = [error] * 3
+                if endpoint == "nar":
+                    responses.insert(0, self.public_response(NARINFO))
+                with (
+                    patch.object(
+                        farm_site.subprocess,
+                        "run",
+                        return_value=Mock(stdout=CSV.splitlines()[0]),
+                    ),
+                    patch.object(
+                        farm_site, "read_manifest", side_effect=FileNotFoundError()
+                    ),
+                    patch.object(farm_site, "build_opener") as build,
+                    patch("time.sleep") as sleep,
+                    patch.dict(os.environ, {"SECURITYOPS_HISTORY_EVALUATION": "0"}),
+                    patch.object(
+                        sys, "argv", ["generate.py", "--output-dir", str(root)]
+                    ),
+                    self.assertRaises(http.client.BadStatusLine),
+                ):
+                    build.return_value.open.side_effect = responses
+                    farm_site.main()
+                self.assertEqual(build.return_value.open.call_count, len(responses))
+                self.assertEqual(sleep.call_count, 2)
+                self.assertEqual((root / "current").readlink(), Path("releases/old"))
+                self.assertEqual(
+                    (root / "current/index.html").read_text(), "old English"
+                )
+                self.assertEqual(
+                    (root / "current/pt-br/index.html").read_text(), "old Portuguese"
+                )
+                self.assertEqual((root / "current/style.css").read_text(), "old CSS")
+                self.assertEqual(
+                    list((root / "releases").iterdir()), [root / "releases/old"]
+                )
 
     def test_public_catalog_uses_same_publisher_over_lan_and_external_witness(self):
         snapshot = farm_site.parse_snapshot_csv(CSV)

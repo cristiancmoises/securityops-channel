@@ -2,6 +2,7 @@
 
 import argparse
 import csv
+import http.client
 import importlib.util
 import io
 import os
@@ -10,12 +11,13 @@ import shutil
 import stat
 import subprocess
 import tempfile
+import time
 from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta, timezone
 from html import escape
 from pathlib import Path
-from urllib.error import HTTPError
+from urllib.error import HTTPError, URLError
 from urllib.request import HTTPRedirectHandler, Request, build_opener
 
 PUBLIC_URL = "https://substitutes.securityops.co"
@@ -299,17 +301,31 @@ def check_public_output(store_path, base_url=PUBLIC_URL):
         headers={"Accept": "text/plain", "User-Agent": "securityops-farm-site/1"},
     )
     opener = build_opener(NoRedirects())
-    try:
-        with opener.open(request, timeout=8) as response:
-            if response.status != 200:
-                raise ValueError(f"unexpected substitute status: {response.status}")
-            data = response.read(65537)
-            if len(data) > 65536:
-                raise ValueError("public narinfo exceeds 64 KiB")
-    except HTTPError as error:
-        if error.code == 404:
-            return False
-        raise
+
+    def read_response(request, timeout, size, statuses):
+        # HTTPError is also a URLError: only transport failures get retries.
+        for attempt in range(3):
+            try:
+                with opener.open(request, timeout=timeout) as response:
+                    if response.status not in statuses:
+                        raise ValueError(
+                            f"unexpected substitute status: {response.status}"
+                        )
+                    return response.read(size)
+            except HTTPError as error:
+                if error.code == 404:
+                    return None
+                raise
+            except (http.client.HTTPException, URLError, ConnectionError, TimeoutError):
+                if attempt == 2:
+                    raise
+                time.sleep(0.2)
+
+    data = read_response(request, timeout=8, size=65537, statuses=(200,))
+    if data is None:
+        return False
+    if len(data) > 65536:
+        raise ValueError("public narinfo exceeds 64 KiB")
     try:
         document = data.decode("utf-8")
         validate_narinfo(store_path, document)
@@ -324,14 +340,11 @@ def check_public_output(store_path, base_url=PUBLIC_URL):
         f"{base_url}/{nar_url}",
         headers={"Range": "bytes=0-0", "User-Agent": "securityops-farm-site/1"},
     )
-    try:
-        with opener.open(request, timeout=30) as response:
-            if response.status not in (200, 206) or not response.read(1):
-                raise ValueError("advertised public NAR is unavailable")
-    except HTTPError as error:
-        if error.code == 404:
-            return False
-        raise
+    data = read_response(request, timeout=30, size=1, statuses=(200, 206))
+    if data is None:
+        return False
+    if not data:
+        raise ValueError("advertised public NAR is unavailable")
     return True
 
 
