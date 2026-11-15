@@ -13,8 +13,16 @@ machine_source=/home/berkeley/securityops-channel/etc/build-farm/offload/machine
 builder_public=/home/berkeley/ct126-guix-signing-key.pub
 private_target=/root/.ssh/securityops-guix-offload-ct126
 machine_target=/etc/guix/machines.scm
-machine_backup=/etc/guix/machines.scm.before-ct126-address
+machine_backup=/etc/guix/machines.scm.before-ct126-privacy-template
 guix=/var/guix/profiles/per-user/root/current-guix/bin/guix
+machine_rendered=
+
+cleanup() {
+  if [ -n "$machine_rendered" ]; then
+    rm -f -- "$machine_rendered"
+  fi
+}
+trap cleanup EXIT HUP INT TERM
 
 for source in "$private_source" "$machine_source" "$builder_public"; do
   if [ ! -f "$source" ] || [ -L "$source" ]; then
@@ -26,10 +34,31 @@ if [ -L /root/.ssh ] || [ "$(stat -c %a "$private_source")" != 600 ]; then
   printf '%s\n' 'Unsafe SSH key permissions or root SSH directory.' >&2
   exit 1
 fi
-if [ "$(sha256sum "$machine_source" | cut -d ' ' -f 1)" != ff51ae5a0ef9ba646b2acd78257ef498b6773c12ed047c348d6903cdcbdbbbcd ]; then
+if [ "$(sha256sum "$machine_source" | cut -d ' ' -f 1)" != 03d86656b539b6161148a6db67e008cdd9c3b59de307d05afb4ee9c1f45db3a9 ]; then
   printf '%s\n' 'The reviewed build-machine configuration changed.' >&2
   exit 1
 fi
+
+builder_host=${SECURITYOPS_CT126_HOST:-}
+if [ -z "$builder_host" ] && [ -f "$machine_target" ] && [ ! -L "$machine_target" ]; then
+  builder_host=$(sed -n \
+    -e 's/^[[:space:]]*(name "\([A-Za-z0-9.:-]*\)")[[:space:]]*$/\1/p' \
+    -e 's/.*SECURITYOPS_CT126_HOST") "\([A-Za-z0-9.:-]*\)".*/\1/p' \
+    "$machine_target" | sed -n '1p')
+fi
+case "$builder_host" in
+  '')
+    printf '%s\n' 'Set SECURITYOPS_CT126_HOST to the CT126 address or hostname.' >&2
+    exit 1
+    ;;
+  *[!A-Za-z0-9.:-]*)
+    printf '%s\n' 'SECURITYOPS_CT126_HOST contains unsupported characters.' >&2
+    exit 1
+    ;;
+esac
+machine_rendered=$(mktemp /var/tmp/securityops-ct126-machines.XXXXXXXX)
+sed "s/ct126\\.invalid/$builder_host/g" "$machine_source" > "$machine_rendered"
+
 if [ "$(sha256sum "$builder_public" | cut -d ' ' -f 1)" != e63ea7ed2b313a76169fd1af983170a4725fb7a2bd6783814b09f1f6c5731101 ]; then
   printf '%s\n' 'The CT126 public signing key changed.' >&2
   exit 1
@@ -38,14 +67,14 @@ if [ -e "$private_target" ] && ! cmp -s "$private_source" "$private_target"; the
   printf 'Refusing to replace existing key: %s\n' "$private_target" >&2
   exit 1
 fi
-if [ -e "$machine_target" ] && ! cmp -s "$machine_source" "$machine_target"; then
+if [ -e "$machine_target" ] && ! cmp -s "$machine_rendered" "$machine_target"; then
   # Only migrate the exact earlier reviewed template.  Preserve it for rollback.
   if [ -L "$machine_target" ]; then
     printf 'Refusing to replace symlinked configuration: %s\n' "$machine_target" >&2
     exit 1
   fi
   case "$(sha256sum "$machine_target" | cut -d ' ' -f 1)" in
-    d40e823cf56b01c47599648a52acd5a9c0ea9128aefa5599f6eee492df1d2f4e|8c89cbe355434ea92cc5ba32dadb9791d00d286969bd5f921e564ef464518eea|374434ac7a3cb8d72dc45ed6a1d73a6ba1d663af2c2f782f0e24670102718032) ;;
+    ff51ae5a0ef9ba646b2acd78257ef498b6773c12ed047c348d6903cdcbdbbbcd|d40e823cf56b01c47599648a52acd5a9c0ea9128aefa5599f6eee492df1d2f4e|8c89cbe355434ea92cc5ba32dadb9791d00d286969bd5f921e564ef464518eea|374434ac7a3cb8d72dc45ed6a1d73a6ba1d663af2c2f782f0e24670102718032) ;;
     *)
       printf 'Refusing to replace unrecognized configuration: %s\n' "$machine_target" >&2
       exit 1
@@ -62,13 +91,13 @@ install -d -m 700 /root/.ssh
 if [ ! -e "$private_target" ]; then
   install -m 600 "$private_source" "$private_target"
 fi
-if [ -e "$machine_target" ] && ! cmp -s "$machine_source" "$machine_target"; then
+if [ -e "$machine_target" ] && ! cmp -s "$machine_rendered" "$machine_target"; then
   install -m 600 "$machine_target" "$machine_backup"
   machine_tmp=$(mktemp /etc/guix/.machines.scm.XXXXXXXX)
-  install -m 600 "$machine_source" "$machine_tmp"
+  install -m 600 "$machine_rendered" "$machine_tmp"
   mv -- "$machine_tmp" "$machine_target"
 elif [ ! -e "$machine_target" ]; then
-  install -m 600 "$machine_source" "$machine_target"
+  install -m 600 "$machine_rendered" "$machine_target"
 fi
 
 "$guix" archive --authorize < "$builder_public"
