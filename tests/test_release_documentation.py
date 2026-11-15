@@ -29,6 +29,33 @@ class ReleaseDocumentationTests(unittest.TestCase):
                 for package, version in CURRENT_RELEASES:
                     self.assertIn(f"| {package} | {version} |", document)
 
+    def test_readmes_contain_every_channel_package_and_version(self):
+        inventory = []
+        for number, line in enumerate(
+            (ROOT / "etc/build-farm/channel-packages.tsv")
+            .read_text(encoding="utf-8")
+            .splitlines(),
+            1,
+        ):
+            fields = line.split("\t")
+            self.assertEqual(len(fields), 5, f"inventory row {number}")
+            module, export, package, version, _home_page = fields
+            inventory.append((module, export, package, version))
+
+        self.assertEqual(len(inventory), 199)
+        self.assertEqual(len({row[1] for row in inventory}), len(inventory))
+
+        for name in ("README.md", "README.pt-BR.md"):
+            document = (ROOT / name).read_text(encoding="utf-8")
+            catalog = document.split("<!-- package-catalog:start -->", 1)[1]
+            catalog = catalog.split("<!-- package-catalog:end -->", 1)[0]
+            with self.subTest(document=name):
+                for module, export, package, version in inventory:
+                    self.assertIn(
+                        f"| `{module}` | `{export}` | `{package}` | {version} |",
+                        catalog,
+                    )
+
     def test_usage_guide_matches_current_ausweisapp_recipe(self):
         document = (ROOT / "docs/usage.md").read_text(encoding="utf-8")
         self.assertIn("| `ausweisapp` 2.6.1 |", document)

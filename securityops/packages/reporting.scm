@@ -7,22 +7,55 @@
   #:use-module (guix utils)
   #:use-module (guix build-system pyproject)
   #:use-module (guix build-system gnu)
+  #:use-module (guix build-system copy)
   #:use-module ((guix licenses) #:prefix license:)
   #:use-module (gnu packages version-control)
   #:use-module (gnu packages check)
   #:use-module (gnu packages compression)
+  #:use-module (gnu packages elf)
+  #:use-module (gnu packages gcc)
   #:use-module (gnu packages python)
   #:use-module (gnu packages python-build)
   #:use-module (gnu packages python-check)
   #:use-module (gnu packages python-xyz)
   #:use-module (gnu packages python-web)
   #:use-module (gnu packages python-crypto)
+  #:use-module (gnu packages rdf)
   #:use-module (gnu packages time)
   #:use-module (gnu packages tcl)
   #:use-module (gnu packages xorg)
   #:use-module (gnu packages tls)
   #:use-module (gnu packages xml)
   #:use-module (srfi srfi-1))
+
+(define %python-site-packages
+  (string-append "lib/python"
+                 (version-major+minor (package-version python))
+                 "/site-packages"))
+
+(define python-pytest-mock-for-arelle
+  ;; 3.16.1 fixed mocker.stop() selecting an earlier create_autospec entry
+  ;; instead of the patch that registered the same mock object.  filelock's
+  ;; Windows-unlink regression check relies on that contract.
+  (package
+    (inherit python-pytest-mock)
+    (version "3.17.0")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (pypi-uri "pytest_mock" version))
+       (sha256
+        (base32 "1d4h6mz768kfid61pvw91ka24y66cslyg4cqk5z040ayk3h7crg3"))))))
+
+(define python-hatch-vcs-for-arelle
+  ;; setuptools-scm 8.3.1 terminates git archive without reaping it.  Pytest
+  ;; promotes that ResourceWarning to an error in python-sbom's setuptools
+  ;; integration tests; 9.2.2 waits for the process.
+  (package
+    (inherit python-hatch-vcs)
+    (propagated-inputs
+     (modify-inputs (package-propagated-inputs python-hatch-vcs)
+       (replace "python-setuptools-scm" python-setuptools-scm-next)))))
 
 (define %bounded-build-environment
   (@@ (securityops packages xml-security) %bounded-build-environment))
@@ -253,6 +286,124 @@ source fragments as a Hatch metadata hook.")
 preserving the remaining compressed data.")
     (license license:expat)))
 
+(define python-jsonschema-rs
+  ;; Upstream publishes this abi3 Rust extension as the supported platform
+  ;; wheel.  Keep the wheel intact and give its shared object the Guix runtime
+  ;; path before exposing it to python-sbom's test suite.
+  (package
+    (name "python-jsonschema-rs")
+    (version "0.61.2")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (string-append
+             "https://files.pythonhosted.org/packages/f6/55/"
+             "cea8729869eb926830596effc581bc80d42def04061c90dd51c9da1489c9/"
+             "jsonschema_rs-0.61.2-cp310-abi3-manylinux2014_x86_64."
+             "manylinux_2_17_x86_64.whl"))
+       (file-name (string-append name "-" version ".zip"))
+       (sha256 (base32 "0kasr762qms7lxm8v00z9anw7g8lhwzmpff7ph1hidyk8hqnbk1f"))))
+    (build-system copy-build-system)
+    (native-inputs (list patchelf python unzip))
+    (inputs (list (list "gcc:lib" gcc "lib")))
+    (arguments
+     (list
+      #:install-plan #~'()
+      #:strip-binaries? #f
+      #:validate-runpath? #f
+      #:phases
+      #~(modify-phases %standard-phases
+          (delete 'unpack)
+          (replace 'install
+            (lambda* (#:key inputs #:allow-other-keys)
+              (let ((site-packages (string-append #$output "/"
+                                                  #$%python-site-packages)))
+                (mkdir-p site-packages)
+                (invoke "unzip" "-q"
+                        (assoc-ref inputs "source")
+                        "-d" site-packages))))
+          (add-after 'install 'set-runtime-path
+            (lambda* (#:key inputs #:allow-other-keys)
+              (let* ((module-dir (string-append #$output "/"
+                                                #$%python-site-packages
+                                                "/jsonschema_rs"))
+                     (shared-object
+                      (car (find-files module-dir "\\.so$"))))
+                (invoke "patchelf" "--set-rpath"
+                        (string-append (assoc-ref inputs "gcc:lib") "/lib")
+                        shared-object))))
+          (add-after 'set-runtime-path 'check-import
+            (lambda* (#:key inputs #:allow-other-keys)
+              (let ((python (string-append (assoc-ref inputs "python")
+                                           "/bin/python3"))
+                    (site-packages (string-append #$output "/"
+                                                  #$%python-site-packages)))
+                (setenv "PYTHONPATH" site-packages)
+                (invoke python "-c"
+                        (string-append
+                         "import jsonschema_rs; "
+                         "print(jsonschema_rs.Draft7Validator.__name__)"))))))))
+    (home-page "https://github.com/Stranger6667/jsonschema")
+    (synopsis "High-performance JSON Schema validator")
+    (description "Jsonschema-rs provides the Python binding for the Rust
+JSON Schema validator used by python-sbom's validation tests.")
+    (license license:expat)))
+
+(define python-spdx-tools
+  (package
+    (name "python-spdx-tools")
+    (version "0.8.5")
+    (source
+     (origin
+       (method url-fetch)
+       (uri (string-append
+             "https://files.pythonhosted.org/packages/88/f5/"
+             "1ac402e1f8d253fa60ac167c4a1fb7eeb0f29a04942788e2d43c984cd749/"
+             "spdx_tools-0.8.5-py3-none-any.whl"))
+       (file-name (string-append name "-" version ".zip"))
+       (sha256 (base32 "1i2r9wqfr3qrvc6k4aasvjcd4ba2spl89c7mk3ld5s8vjijmhbbw"))))
+    (build-system copy-build-system)
+    (native-inputs (list python unzip))
+    (propagated-inputs
+     (list python-beartype python-click python-license-expression python-ply
+           python-pyyaml python-rdflib python-semantic-version
+           python-uritools python-xmltodict))
+    (arguments
+     (list
+      #:install-plan #~'()
+      #:strip-binaries? #f
+      #:validate-runpath? #f
+      #:phases
+      #~(modify-phases %standard-phases
+          (delete 'unpack)
+          (replace 'install
+            (lambda* (#:key inputs #:allow-other-keys)
+              (let ((site-packages (string-append #$output "/"
+                                                  #$%python-site-packages)))
+                (mkdir-p site-packages)
+                (invoke "unzip" "-q"
+                        (assoc-ref inputs "source")
+                        "-d" site-packages))))
+          (add-after 'install 'check-import
+            (lambda* (#:key inputs #:allow-other-keys)
+              (let ((python (string-append (assoc-ref inputs "python")
+                                           "/bin/python3"))
+                    (site-packages (string-append #$output "/"
+                                                  #$%python-site-packages)))
+                (setenv "PYTHONPATH"
+                        (string-append site-packages ":"
+                                       (or (getenv "GUIX_PYTHONPATH") "")))
+                (invoke python "-c"
+                        (string-append
+                         "from spdx_tools.spdx.parser.jsonlikedict."
+                         "json_like_dict_parser import JsonLikeDictParser; "
+                         "print(JsonLikeDictParser.__name__)"))))))))
+    (home-page "https://github.com/spdx/tools-python")
+    (synopsis "SPDX parser and tools")
+    (description "Spdx-tools parses and validates Software Package Data
+Exchange documents used by python-sbom's conformance tests.")
+    (license license:asl2.0)))
+
 (define python-sbom-for-arelle
   (package
     (name "python-sbom")
@@ -267,12 +418,48 @@ preserving the remaining compressed data.")
     (native-inputs
      (list python-hatchling-for-arelle
            python-hatch-fancy-pypi-readme-for-arelle
-           python-hatch-vcs python-pytest python-pytest-mock
-           python-pypa-build python-wheel))
+           python-hatch-vcs-for-arelle python-pytest
+           python-pytest-mock-for-arelle
+           python-pypa-build python-wheel
+           python-flit-core python-pdm-backend
+           python-license-expression python-jsonschema-rs
+           python-spdx-tools git-minimal))
     (propagated-inputs
      (list python-hatchling-for-arelle python-installer-for-arelle
            python-packageurl python-packaging-for-arelle
            python-zipremove-for-arelle))
+    (arguments
+     (list
+      #:phases
+      #~(modify-phases %standard-phases
+          (add-after 'install 'prepare-test-interpreter
+            (lambda* (#:key inputs outputs #:allow-other-keys)
+              ;; Upstream tests locate the console script next to
+              ;; sys.executable.  The Guix Python is shared, so create a
+              ;; private interpreter pair for this test run.
+              (let ((test-bin (string-append (getcwd) "/test-python/bin")))
+                (mkdir-p test-bin)
+                (symlink (search-input-file inputs "bin/python")
+                         (string-append test-bin "/python"))
+                (symlink (string-append (assoc-ref outputs "out")
+                                        "/bin/python-sbom")
+                         (string-append test-bin "/python-sbom"))
+                (setenv "PATH"
+                        (string-append test-bin ":" (getenv "PATH"))))))
+          (replace 'check
+            (lambda* (#:key tests? #:allow-other-keys)
+              (when tests?
+                ;; SOURCE_DATE_EPOCH is set while the wheel is built.  Upstream
+                ;; tests that exercise backend-selected timestamps must observe
+                ;; their own clock or fixture defaults.
+                (unsetenv "SOURCE_DATE_EPOCH")
+                ;; The examples require a matrix of optional packaging tools.
+                ;; The unit suite below exercises every supported backend.
+                ;; setuptools-scm's installed entry point also reads the
+                ;; deliberately malformed fixture before python-sbom can.
+                (invoke "python" "-m" "pytest" "-vv"
+                        "--ignore=tests/examples"
+                        "--deselect=tests/test_setuptools.py::test_invalid_pyproject")))))))
     (home-page "https://github.com/tox-dev/python-sbom")
     (synopsis "Create software bills of materials for Python distributions")
     (description "Python-sbom builds and embeds CycloneDX software bills of
@@ -292,6 +479,7 @@ materials in Python wheels, including through a Hatch build hook.")
     (native-inputs
      (modify-inputs (package-native-inputs python-filelock-next)
        (replace "python-hatchling" python-hatchling-for-arelle)
+       (replace "python-pytest-mock" python-pytest-mock-for-arelle)
        (append python-hatch-fancy-pypi-readme-for-arelle
                python-sbom-for-arelle)))
     (license license:expat)

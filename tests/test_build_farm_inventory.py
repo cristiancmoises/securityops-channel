@@ -296,6 +296,21 @@ class InventoryTests(unittest.TestCase):
         self.assertIn(("zabbix-server", "7.4.16"), packages)
         self.assertIn(("zupt", "5.2.9"), packages)
 
+    def test_release_catalog_matches_live_channel_exports(self):
+        result = subprocess.run(
+            ["guix", "repl", "-q", "-L", ".", str(SCRIPT)],
+            cwd=ROOT,
+            capture_output=True,
+            text=True,
+            timeout=180,
+            check=False,
+        )
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertEqual(
+            result.stdout,
+            (ROOT / "etc/build-farm/channel-packages.tsv").read_text(encoding="utf-8"),
+        )
+
 
 if __name__ == "__main__":
     unittest.main()
