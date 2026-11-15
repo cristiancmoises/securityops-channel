@@ -21,7 +21,7 @@ grep -qF 'https://git.securityops.com.br/cristiancmoises/securityops-channel.git
 grep -qF '(branch branch)' "$spec"
 grep -qF '(build '\''(custom (securityops build-farm ci)))' "$spec"
 grep -qF '(define guix-baseline' "$spec"
-grep -qF '(inherit %default-guix-channel)' "$spec"
+grep -qF '(inherit guix)' "$spec"
 grep -qF '(commit "3f81f6643f69194f7b0c3243c214e3dbbdc3b805")' "$spec"
 grep -qF '(define securityops-nonguix' "$spec"
 grep -qF '(commit "c241d19ff840dc75556f722b231760d119b6adea")' "$spec"

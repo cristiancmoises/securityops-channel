@@ -68,7 +68,7 @@
 ;; finish; advance this commit only after reviewing the previous evaluation.
 (define guix-baseline
   (channel
-   (inherit %default-guix-channel)
+   (inherit guix)
    (commit "3f81f6643f69194f7b0c3243c214e3dbbdc3b805")))
 
 ;; Make the SecurityOps dependency an explicit Cuirass root as well.  The
