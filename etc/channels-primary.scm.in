@@ -69,7 +69,7 @@
   (commit "ce89b34cb0bcf6ed0b24566180dabc7855979659")
   (introduction
    (make-channel-introduction
-    "fb3223f3afdc14bab294c78d88e545eda2b146d9"
+    "1662809a25bf267088b0c066eed8992bd52da8d7"
     (openpgp-fingerprint
      "0CFA 43B9 AA96 42EA AF2B  E983 C4C6 61C9 ECFB 46E8"))))
 

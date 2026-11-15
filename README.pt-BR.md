@@ -58,7 +58,7 @@ O arquivo `.guix-channel` declara nonguix. Não é necessário um canal XLibre s
  (branch "main")
  (introduction
   (make-channel-introduction
-   "fb3223f3afdc14bab294c78d88e545eda2b146d9"
+   "1662809a25bf267088b0c066eed8992bd52da8d7"
    (openpgp-fingerprint
     "0CFA 43B9 AA96 42EA AF2B  E983 C4C6 61C9 ECFB 46E8"))))
 ```
@@ -328,7 +328,7 @@ Fish exige dependências Cargo correspondentes; Emacs exige patches compatíveis
 Pacotes binários e aplicativos com fontes incluídas precisam de atualização
 deliberada dos arquivos e hashes.
 
-A introdução fixa o commit `fb3223f3afdc14bab294c78d88e545eda2b146d9`
+A introdução fixa o commit `1662809a25bf267088b0c066eed8992bd52da8d7`
 e a chave `0CFA 43B9 AA96 42EA AF2B E983 C4C6 61C9 ECFB 46E8`.
 O Guix verifica as assinaturas ao atualizar o canal.
 
