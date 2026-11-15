@@ -91,6 +91,18 @@ class ReconcileTests(unittest.TestCase):
         self.assertFalse(report["ok"])
         self.assertIn("zupt.zupt@5.2.9", report["metadata_mismatch"])
 
+    def test_reused_build_from_another_jobset_is_accepted(self):
+        reused = {
+            **BUILDS,
+            11: {
+                **BUILDS[11],
+                "job": "age.x86_64-linux",
+                "jobset": "guix",
+                "nixname": "zupt-5.2.9",
+            },
+        }
+        self.assertTrue(self.compare(builds=reused)["ok"])
+
     def test_two_distinct_exports_of_same_package_name_are_both_required(self):
         inventory = (
             "games\tsteam\tsteam\t1.0.0.87\thttps://example.org\n"
