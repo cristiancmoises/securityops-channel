@@ -604,20 +604,24 @@ class HostTransport:
             raise RuntimeError("CT116 space metrics unavailable")
         check_capacity(lines[0], int(fields[2]), archive_bytes, int(fields[3]), entries)
 
-    def stream_archive(self, path, *, max_bytes=MAX_ARCHIVE_BYTES):
-        exact_output(path)
+    def stream_archive(self, paths, *, max_bytes=MAX_ARCHIVE_BYTES):
+        if not paths or len(paths) > MAX_CLOSURE_PATHS or len(paths) != len(set(paths)):
+            raise ValueError("invalid archive paths")
+        for path in paths:
+            exact_output(path)
         if type(max_bytes) is not int or max_bytes < 1 or max_bytes > MAX_ARCHIVE_BYTES:
             raise ValueError("invalid archive byte limit")
+        # Guix export-paths topologically sorts before filtering to PATHS,
+        # even without --recursive, and signs each exported path by default.
         export = self._pct(
             126,
             [
                 GUIX,
                 "archive",
                 "--export",
-                "--recursive",
                 "--max-jobs=0",
                 "--no-substitutes",
-                path,
+                *paths,
             ],
         )
         archive_import = self._pct(116, [GUIX, "archive", "--import"])
@@ -807,7 +811,8 @@ def publish_paths(paths, policy, transport, public_check, *, apply=False, limit=
             126, ["python3", "-c", RUN_PIN_SCRIPT, GUIX], input=_pin_source(path)
         )
         transport.stream_archive(
-            path, max_bytes=min(MAX_ARCHIVE_BYTES, int(size * 1.25 + 1024**3))
+            sorted(missing_public),
+            max_bytes=min(MAX_ARCHIVE_BYTES, int(size * 1.25 + 1024**3)),
         )
         if _missing(transport, 116, requisites):
             raise RuntimeError(f"archive import left missing CT116 requisites: {path}")

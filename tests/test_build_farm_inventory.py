@@ -253,9 +253,9 @@ class InventoryTests(unittest.TestCase):
         self.assertIn("(overload-threshold #f)", machine)
         self.assertIn("(parallel-builds 1)", machine)
 
-    def test_lxc_daemon_uses_the_allocated_builder_cores(self):
+    def test_lxc_daemon_limits_build_parallelism(self):
         daemon = (ROOT / "etc/build-farm/guix-daemon.conf").read_text()
-        self.assertIn("--max-jobs=1 --cores=6", daemon)
+        self.assertIn("--max-jobs=1 --cores=2", daemon)
         self.assertIn("MemoryHigh=11G", daemon)
         self.assertIn("MemoryMax=12G", daemon)
 

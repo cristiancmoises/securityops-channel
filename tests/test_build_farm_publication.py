@@ -195,8 +195,6 @@ class FakeTransport:
             return ("\n".join(self.requisites) + "\n").encode()
         if argv[1:3] == ["archive", "--missing"]:
             missing = self.missing_builder if ct == 126 else self.missing_public
-            if ct == 116 and self.imported:
-                missing = set()
             return ("\n".join(sorted(missing)) + ("\n" if missing else "")).encode()
         if argv[:3] == ["python3", "-c", publication.RUN_PIN_SCRIPT]:
             path = next(path for path in self.requisites if path.encode() in input)
@@ -213,14 +211,157 @@ class FakeTransport:
         if self.fail_disk:
             raise RuntimeError("disk guard stopped publication")
 
-    def stream_archive(self, path, *, max_bytes=None):
-        self.streamed.append(path)
+    def stream_archive(self, paths, *, max_bytes=None):
+        self.streamed.append(list(paths))
+        self.calls.append(("stream", list(paths), max_bytes))
         if self.fail_stream:
             raise RuntimeError("archive import failed")
+        self.missing_public.difference_update(paths)
         self.imported = True
 
 
 class PublicationExecutionTests(unittest.TestCase):
+    def test_partial_import_exports_only_missing_paths_but_checks_full_closure(self):
+        for missing in ((PACKAGE,), (OTHER,), (PACKAGE, OTHER), (PACKAGE, OTHER, HOME)):
+            with self.subTest(missing=missing):
+                transport = FakeTransport(
+                    requisites=(PACKAGE, OTHER, HOME), missing_public=missing
+                )
+                checked = []
+
+                def public_check(path, checked=checked, transport=transport):
+                    checked.append(path)
+                    return transport.imported
+
+                result = publication.publish_paths(
+                    [PACKAGE],
+                    reviewed(requisites=(PACKAGE, OTHER, HOME)),
+                    transport,
+                    public_check,
+                    apply=True,
+                )
+                self.assertEqual(result["public_routes_reachable"], [PACKAGE])
+                self.assertEqual(transport.streamed, [sorted(missing)])
+                self.assertEqual(checked, [PACKAGE, OTHER, HOME])
+                self.assertEqual(transport.pinned, {(126, PACKAGE), (116, PACKAGE)})
+                missing_checks = [
+                    (ct, data)
+                    for ct, argv, data in transport.calls
+                    if isinstance(ct, int) and argv[1:3] == ["archive", "--missing"]
+                ]
+                full_closure = (
+                    "\n".join(sorted((PACKAGE, OTHER, HOME))) + "\n"
+                ).encode()
+                self.assertEqual(
+                    missing_checks,
+                    [(126, full_closure), (116, full_closure), (116, full_closure)],
+                )
+                self.assertIn(("capacity", 27648, 3), transport.calls)
+                self.assertIn(("stream", sorted(missing), 1073745664), transport.calls)
+
+    def test_partial_import_still_requires_review_digest_of_full_closure(self):
+        transport = FakeTransport(requisites=(PACKAGE, OTHER))
+        result = publication.publish_paths(
+            [PACKAGE], reviewed(), transport, lambda path: True, apply=True
+        )
+        self.assertEqual(
+            result["held"], [{"path": PACKAGE, "reason": "closure_changed"}]
+        )
+        self.assertEqual(transport.streamed, [])
+        self.assertEqual(transport.pinned, set())
+
+    def test_partial_import_keeps_full_closure_size_and_entry_limits(self):
+        for guard, limit in (("MAX_ARCHIVE_BYTES", 1536), ("MAX_CLOSURE_ENTRIES", 1)):
+            with self.subTest(guard=guard), patch.object(publication, guard, limit):
+                transport = FakeTransport(requisites=(PACKAGE, OTHER))
+                result = publication.publish_paths(
+                    [PACKAGE],
+                    reviewed(requisites=(PACKAGE, OTHER)),
+                    transport,
+                    lambda path: True,
+                    apply=True,
+                )
+                self.assertEqual(
+                    result["held"], [{"path": PACKAGE, "reason": "oversized_closure"}]
+                )
+                self.assertEqual(transport.streamed, [])
+                self.assertEqual(transport.pinned, set())
+
+    def test_partial_import_still_requires_every_requisite_valid_on_builder(self):
+        transport = FakeTransport(requisites=(PACKAGE, OTHER), missing_builder=(OTHER,))
+        result = publication.publish_paths(
+            [PACKAGE],
+            reviewed(requisites=(PACKAGE, OTHER)),
+            transport,
+            lambda path: True,
+            apply=True,
+        )
+        self.assertEqual(
+            result["held"], [{"path": PACKAGE, "reason": "missing_on_builder"}]
+        )
+        self.assertEqual(transport.streamed, [])
+        self.assertEqual(transport.pinned, set())
+
+    def test_partial_import_rechecks_existing_requisite_validity_after_import(self):
+        transport = FakeTransport(requisites=(PACKAGE, OTHER))
+        original_run = transport.run
+
+        def missing_after_import(ct, argv, input=None):
+            output = original_run(ct, argv, input)
+            if (
+                ct == 116
+                and transport.imported
+                and argv[1:3] == ["archive", "--missing"]
+            ):
+                return (OTHER + "\n").encode()
+            return output
+
+        transport.run = missing_after_import
+        with self.assertRaisesRegex(RuntimeError, "missing CT116 requisites"):
+            publication.publish_paths(
+                [PACKAGE],
+                reviewed(requisites=(PACKAGE, OTHER)),
+                transport,
+                lambda path: True,
+                apply=True,
+            )
+        self.assertEqual(transport.pinned, {(126, PACKAGE)})
+
+    def test_partial_import_cannot_succeed_if_existing_requisite_is_not_public(self):
+        transport = FakeTransport(requisites=(PACKAGE, OTHER))
+        checked = []
+
+        def public_check(path):
+            checked.append(path)
+            return path == PACKAGE
+
+        with (
+            patch("time.monotonic", side_effect=[100, 3800]),
+            self.assertRaisesRegex(RuntimeError, "public narinfo"),
+        ):
+            publication.publish_paths(
+                [PACKAGE],
+                reviewed(requisites=(PACKAGE, OTHER)),
+                transport,
+                public_check,
+                apply=True,
+            )
+        self.assertEqual(checked, [PACKAGE, OTHER])
+
+    def test_missing_report_outside_closure_is_rejected_before_transfer(self):
+        for ct in (126, 116):
+            with self.subTest(ct=ct):
+                transport = FakeTransport(
+                    missing_builder=(OTHER,) if ct == 126 else (),
+                    missing_public=(OTHER,) if ct == 116 else (PACKAGE,),
+                )
+                with self.assertRaisesRegex(ValueError, "unrequested path"):
+                    publication.publish_paths(
+                        [PACKAGE], reviewed(), transport, lambda path: True, apply=True
+                    )
+                self.assertEqual(transport.streamed, [])
+                self.assertEqual(transport.pinned, set())
+
     def test_shared_reachable_requisites_are_checked_once_per_run(self):
         transport = FakeTransport(requisites=(PACKAGE, OTHER), missing_public=())
         policy = {
@@ -343,7 +484,7 @@ class PublicationExecutionTests(unittest.TestCase):
         )
         self.assertEqual(result["public_routes_reachable"], [PACKAGE])
         self.assertNotIn("published", result)
-        self.assertEqual(transport.streamed, [PACKAGE])
+        self.assertEqual(transport.streamed, [[PACKAGE]])
         self.assertEqual(transport.pinned, {(126, PACKAGE), (116, PACKAGE)})
 
     def test_import_waits_for_pending_narinfo_without_reimporting_or_repinning(self):
@@ -367,7 +508,7 @@ class PublicationExecutionTests(unittest.TestCase):
         self.assertEqual(result["public_routes_reachable"], [PACKAGE])
         self.assertEqual(checked, [PACKAGE, OTHER, OTHER, OTHER])
         self.assertEqual([call.args for call in sleep.call_args_list], [(10,), (10,)])
-        self.assertEqual(transport.streamed, [PACKAGE])
+        self.assertEqual(transport.streamed, [[PACKAGE]])
         pins = [
             call
             for call in transport.calls
@@ -398,7 +539,7 @@ class PublicationExecutionTests(unittest.TestCase):
             )
         self.assertEqual(checked, [PACKAGE, PACKAGE])
         self.assertEqual([call.args for call in sleep.call_args_list], [(10,)])
-        self.assertEqual(transport.streamed, [PACKAGE])
+        self.assertEqual(transport.streamed, [[PACKAGE]])
 
     def test_import_narinfo_wait_propagates_validation_and_transport_errors(self):
         for error in (ValueError("invalid narinfo"), URLError("connection failed")):
@@ -418,7 +559,7 @@ class PublicationExecutionTests(unittest.TestCase):
                     )
                 self.assertIs(raised.exception, error)
                 sleep.assert_not_called()
-                self.assertEqual(transport.streamed, [PACKAGE])
+                self.assertEqual(transport.streamed, [[PACKAGE]])
 
     def test_present_but_not_public_output_is_held_without_readiness_wait(self):
         transport = FakeTransport(missing_public=())
@@ -520,8 +661,10 @@ class PublicationExecutionTests(unittest.TestCase):
 
         no_token = FakeTransport(requisites=(DENIED,), missing_public=(DENIED,))
         result = publication.publish_paths(
-            [DENIED], policy_for("reviewed without owner authorization"),
-            no_token, lambda path: False
+            [DENIED],
+            policy_for("reviewed without owner authorization"),
+            no_token,
+            lambda path: False,
         )
         self.assertEqual(
             result["held"],
@@ -942,9 +1085,7 @@ class PublicationHostTests(unittest.TestCase):
                 "https://example.test", 404, "missing", Message(), None
             )
             self.assertFalse(publication.check_public_output(PACKAGE))
-            self.assertEqual(
-                [call.args for call in sleep.call_args_list], [(5,)] * 3
-            )
+            self.assertEqual([call.args for call in sleep.call_args_list], [(5,)] * 3)
             opener.error = HTTPError(
                 "https://example.test", 503, "error", Message(), None
             )
@@ -1064,10 +1205,9 @@ class PublicationHostTests(unittest.TestCase):
                 "#!/usr/bin/env python3\n"
                 "import pathlib, sys\n"
                 "ct, command = sys.argv[2], sys.argv[4:]\n"
-                "if ct == '126' and command[1:3] == ['archive', '--export'] "
-                "and '--max-jobs=0' in command and '--no-substitutes' in command:\n"
+                f"if ct == '126' and command == {[publication.GUIX, 'archive', '--export', '--max-jobs=0', '--no-substitutes', OTHER, PACKAGE]!r}:\n"
                 "    sys.stdout.buffer.write(bytes([0, 255, 10, 128]))\n"
-                "elif ct == '116' and command[1:3] == ['archive', '--import']:\n"
+                f"elif ct == '116' and command == {[publication.GUIX, 'archive', '--import']!r}:\n"
                 f"    pathlib.Path({str(destination)!r}).write_bytes(sys.stdin.buffer.read())\n"
                 "else:\n"
                 "    raise SystemExit(9)\n",
@@ -1075,8 +1215,44 @@ class PublicationHostTests(unittest.TestCase):
             )
             os.chmod(script, 0o700)
             transport = publication.HostTransport(pct=str(script))
-            transport.stream_archive(PACKAGE)
+            transport.stream_archive([OTHER, PACKAGE])
             self.assertEqual(destination.read_bytes(), bytes([0, 255, 10, 128]))
+
+    def test_archive_rejects_empty_duplicate_excessive_or_invalid_paths_before_spawn(
+        self,
+    ):
+        for paths in (
+            [],
+            [PACKAGE, PACKAGE],
+            [PACKAGE, "/tmp/bad"],
+            [PACKAGE + ".drv"],
+        ):
+            with (
+                self.subTest(paths=paths),
+                patch.object(publication.subprocess, "Popen") as spawn,
+            ):
+                with self.assertRaises(ValueError):
+                    publication.HostTransport().stream_archive(paths)
+                spawn.assert_not_called()
+        with (
+            patch.object(publication, "MAX_CLOSURE_PATHS", 1),
+            patch.object(publication.subprocess, "Popen") as spawn,
+        ):
+            with self.assertRaises(ValueError):
+                publication.HostTransport().stream_archive([PACKAGE, OTHER])
+            spawn.assert_not_called()
+
+    def test_archive_rejects_invalid_byte_limits_before_spawn(self):
+        for limit in (0, -1, True, 1.5, publication.MAX_ARCHIVE_BYTES + 1):
+            with (
+                self.subTest(limit=limit),
+                patch.object(publication.subprocess, "Popen") as spawn,
+            ):
+                with self.assertRaisesRegex(ValueError, "archive byte limit"):
+                    publication.HostTransport().stream_archive(
+                        [PACKAGE], max_bytes=limit
+                    )
+                spawn.assert_not_called()
 
     def test_binary_archive_stream_stops_at_preflight_byte_limit(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -1094,7 +1270,7 @@ class PublicationHostTests(unittest.TestCase):
             os.chmod(script, 0o700)
             with self.assertRaisesRegex(RuntimeError, "byte guard"):
                 publication.HostTransport(pct=str(script)).stream_archive(
-                    PACKAGE, max_bytes=100
+                    [PACKAGE], max_bytes=100
                 )
             self.assertFalse(destination.exists() and destination.stat().st_size > 100)
 
@@ -1112,7 +1288,24 @@ class PublicationHostTests(unittest.TestCase):
             )
             os.chmod(script, 0o700)
             with self.assertRaisesRegex(RuntimeError, "import=7"):
-                publication.HostTransport(pct=str(script)).stream_archive(PACKAGE)
+                publication.HostTransport(pct=str(script)).stream_archive([PACKAGE])
+
+    def test_failed_binary_export_is_reported_even_if_import_exits_successfully(self):
+        with tempfile.TemporaryDirectory() as directory:
+            script = Path(directory) / "pct"
+            script.write_text(
+                "#!/usr/bin/env python3\n"
+                "import sys\n"
+                "if sys.argv[2] == '126':\n"
+                "    sys.stdout.buffer.write(b'partial archive')\n"
+                "    raise SystemExit(6)\n"
+                "else:\n"
+                "    sys.stdin.buffer.read()\n",
+                encoding="utf-8",
+            )
+            os.chmod(script, 0o700)
+            with self.assertRaisesRegex(RuntimeError, "export=6, import=0"):
+                publication.HostTransport(pct=str(script)).stream_archive([PACKAGE])
 
     def test_early_importer_exit_reports_status_instead_of_broken_pipe(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -1128,7 +1321,7 @@ class PublicationHostTests(unittest.TestCase):
             )
             os.chmod(script, 0o700)
             with self.assertRaisesRegex(RuntimeError, "import=7"):
-                publication.HostTransport(pct=str(script)).stream_archive(PACKAGE)
+                publication.HostTransport(pct=str(script)).stream_archive([PACKAGE])
 
     def test_guix_root_script_runs_as_file_and_validates_path(self):
         script = publication._pin_source(PACKAGE)
