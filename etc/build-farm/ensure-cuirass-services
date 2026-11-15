@@ -1,0 +1,17 @@
+#!/bin/sh
+set -eu
+
+if [ -e /etc/cuirass/maintenance ]; then
+    exit 0
+fi
+
+# The host capacity guard disables registration while resources are scarce.
+# Recovery must respect that decision, or it repeatedly kills live builds.
+if systemctl is-enabled --quiet securityops-cuirass-register.service &&
+   ! systemctl is-active --quiet securityops-cuirass-register.service; then
+    systemctl start securityops-cuirass-register.service
+fi
+
+if ! systemctl is-active --quiet securityops-cuirass-web.service; then
+    systemctl start securityops-cuirass-web.service
+fi

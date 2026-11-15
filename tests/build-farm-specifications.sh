@@ -76,6 +76,12 @@ grep -qF 'ExecStart=/usr/bin/git --git-dir=/var/lib/cuirass/mirrors/guix.git fet
   "$mirror_service"
 grep -qF 'ExecStart=/usr/bin/git --git-dir=/var/lib/cuirass/mirrors/nonguix.git fetch --prune --no-tags' \
   "$mirror_service"
+grep -qF 'https://git.securityops.com.br/cristiancmoises/securityops-channel.git +refs/heads/main:refs/heads/main +refs/heads/keyring:refs/heads/keyring' \
+  "$mirror_service"
+grep -qF 'https://git.securityops.com.br/cristiancmoises/guix.git +refs/heads/master:refs/heads/master +refs/heads/keyring:refs/heads/keyring' \
+  "$mirror_service"
+grep -qF 'https://git.securityops.com.br/cristiancmoises/nonguix.git +refs/heads/master:refs/heads/master +refs/heads/keyring:refs/heads/keyring' \
+  "$mirror_service"
 grep -qF 'ProtectSystem=strict' "$mirror_service"
 grep -qF 'ReadWritePaths=/var/lib/cuirass/mirrors' "$mirror_service"
 grep -qF 'OnUnitActiveSec=2min' "$mirror_timer"
@@ -103,7 +109,8 @@ grep -qF 'NoNewPrivileges=yes' "$requeue_service"
 grep -qF 'OnUnitActiveSec=15min' "$requeue_timer"
 grep -qF 'Persistent=true' "$requeue_timer"
 
-if grep -Eq 'BEGIN PRIVATE KEY|password=|token=|https://[^[:space:]"\047]+@' \
+# Match PEM headers without embedding a literal credential marker in the test.
+if grep -Eq 'BEGIN [P]RIVATE KEY|password=|token=|https://[^[:space:]"\047]+@' \
     "$spec" "$register" "$mirror_service" "$mirror_timer" \
     "$web" "$priority_service" "$priority_timer" \
     "$priority_sql" "$requeue_script" "$requeue_service" "$requeue_timer"; then

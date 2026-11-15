@@ -34,9 +34,8 @@
     (package-version tor:tor))
   (test-equal "Tor Browser stable" "16.0.1"
     (package-version tor:torbrowser))
-  ;; Tor Browser's pinned source bundles ICU 78.3 in intl/icu/source.
-  ;; Verify the exact archive and digest rather than looking for a system
-  ;; input that make-torbrowser does not expose.
+  ;; Tor Browser's pinned source bundles ICU data, but Firefox's configure
+  ;; still requires a system ICU whose pkg-config metadata meets its minimum.
   (let ((source (package-source tor:torbrowser)))
     (test-equal "Tor Browser pins the source with bundled ICU 78.3"
       (string-append
@@ -46,8 +45,9 @@
     (test-equal "Tor Browser source digest pins bundled ICU 78.3"
       "1g1mdqk0nxl2v8pn014ym211fx0l43x4gwrs133aqn8wi5fn91dx"
       (bytevector->nix-base32-string (content-hash-value (origin-hash source))))
-    (test-assert "Tor Browser does not claim an unused system ICU input"
-      (not (lookup-package-input tor:torbrowser "icu4c"))))
+    (let ((icu (lookup-package-input tor:torbrowser "icu4c")))
+      (test-assert "Tor Browser satisfies the Firefox 153 ICU minimum"
+        (and icu (version>=? (package-version icu) "78.1")))))
   (test-equal "Tor Browser assets match" "16.0.1"
     (package-version tor:torbrowser-assets))
   (test-equal "yt-dlp stable" "2026.10.26"

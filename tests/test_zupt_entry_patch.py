@@ -8,7 +8,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 RECIPE = ROOT / "securityops/packages/zupt.scm"
 ARCHIVE = ROOT / "securityops/packages/sources/zupt-5.2.9.tar.gz"
-PATCH = ROOT / "securityops/packages/patches/zupt-password-prompt-test-race.patch"
+PATCH = ROOT / "securityops/packages/patches/zupt-password-entry-test-race.patch"
 
 
 class ZuptPromptPatchTests(unittest.TestCase):

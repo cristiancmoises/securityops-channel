@@ -25,6 +25,11 @@ if [ -e /etc/cuirass/maintenance ]; then
     exit 0
 fi
 
+if ! "$SYSTEMCTL" is-enabled --quiet "$REGISTER"; then
+    echo "registration disabled; respecting capacity or operator pause"
+    exit 0
+fi
+
 pending=$(query "SELECT count(*) FROM builds WHERE status = -2;")
 started=$(query "SELECT count(*) FROM builds WHERE status = -1;")
 

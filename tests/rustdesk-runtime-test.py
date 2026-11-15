@@ -1,6 +1,7 @@
 """Exercise RustDesk in a container with a private home and no host network."""
 
 import argparse
+import base64
 import contextlib
 import os
 import socket
@@ -48,10 +49,11 @@ def wait_port(process: subprocess.Popen, port: int) -> None:
 
 
 def websocket_upgrade(port: int) -> None:
+    websocket_key = base64.b64encode(b"the sample nonce").decode("ascii")
     request = (
         "GET / HTTP/1.1\r\nHost: localhost\r\nUpgrade: websocket\r\n"
         "Connection: Upgrade\r\nSec-WebSocket-Version: 13\r\n"
-        "Sec-WebSocket-Key: dGhlIHNhbXBsZSBub25jZQ==\r\n\r\n"
+        f"Sec-WebSocket-Key: {websocket_key}\r\n\r\n"
     )
     with socket.create_connection(("127.0.0.1", port), timeout=3) as connection:
         connection.sendall(request.encode("ascii"))

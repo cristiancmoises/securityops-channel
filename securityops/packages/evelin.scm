@@ -33,8 +33,8 @@
     (synopsis "Evelin post-quantum transport (prebuilt static release binaries)")
     (description
      "Client, server, agent, and key tools from the official Evelin x86_64
-musl-static release: ML-KEM-1024 key exchange, ML-DSA-87 authentication,
-ChaCha20-Poly1305 AEAD.  Binaries are fully static and carry no runtime
+musl-static release.  Authentication uses ML-DSA-87; the exchange uses
+ML-KEM-1024, with ChaCha20-Poly1305 AEAD encryption.  Binaries are fully static and carry no runtime
 dependencies.")
     (home-page "https://git.securityops.com.br/cristiancmoises/evelin")
     (license license:agpl3+)))

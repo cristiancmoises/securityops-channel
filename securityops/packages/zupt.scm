@@ -75,7 +75,7 @@
               ;; The upstream test sees the prompt before tcsetattr disables
               ;; echo; wait for the transition without skipping the assertion.
               (invoke "patch" "--batch" "-p1" "-i"
-                      #$(local-file "patches/zupt-password-prompt-test-race.patch"))))
+                      #$(local-file "patches/zupt-password-entry-test-race.patch"))))
           (delete 'configure))))        ; plain Makefile, no ./configure
     ;; `make check' (crypto vectors + security-regression scripts) runs in the
     ;; container; tests/test_gui_branding.sh's functional check shells out to

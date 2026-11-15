@@ -11,7 +11,7 @@ SCRIPT = ROOT / "etc/build-farm/requeue-stalled-builds"
 
 
 class RequeueStalledBuildsTest(unittest.TestCase):
-    def run_script(self, directory, *, psql_exit=0):
+    def run_script(self, directory, *, psql_exit=0, enabled=True):
         fake_runuser = directory / "runuser"
         fake_psql = directory / "psql"
         fake_systemctl = directory / "systemctl"
@@ -38,7 +38,9 @@ class RequeueStalledBuildsTest(unittest.TestCase):
             encoding="utf-8",
         )
         fake_systemctl.write_text(
-            f'#!/bin/sh\nprintf "%s\\n" "$*" > "{calls}"\n',
+            "#!/bin/sh\n"
+            'if [ "$1" = is-enabled ]; then exit "$ENABLED_EXIT"; fi\n'
+            f'printf "%s\\n" "$*" > "{calls}"\n',
             encoding="utf-8",
         )
         for command in (fake_runuser, fake_psql, fake_systemctl):
@@ -51,6 +53,7 @@ class RequeueStalledBuildsTest(unittest.TestCase):
             "SYSTEMCTL": str(fake_systemctl),
             "MARKER": str(marker),
             "FAKE_PSQL_EXIT": str(psql_exit),
+            "ENABLED_EXIT": "0" if enabled else "1",
         }
         result = subprocess.run(
             ["/bin/sh", str(SCRIPT)],
@@ -70,6 +73,15 @@ class RequeueStalledBuildsTest(unittest.TestCase):
                 calls.read_text(encoding="utf-8"),
                 "restart securityops-cuirass-register.service\n",
             )
+
+    def test_disabled_registration_stays_paused(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            result, calls = self.run_script(
+                Path(temporary), enabled=False, psql_exit=17
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertIn("registration disabled", result.stdout)
+            self.assertFalse(calls.exists())
 
     def test_database_error_is_not_mistaken_for_empty_queue(self):
         with tempfile.TemporaryDirectory() as temporary:
