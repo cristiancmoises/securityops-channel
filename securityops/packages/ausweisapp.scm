@@ -318,6 +318,9 @@
                     "#include <QCoreApplication>\n#include <QDateTime>"))))))))
     (inputs
       (modify-inputs (package-inputs upstream:ausweisapp)
+        ;; Compile against the same patched minor release as the Qt modules.
+        ;; The ungrafted farm derivation must also contain these corrections.
+        (replace "qtbase" qtbase-for-ausweisapp)
         (replace "openssl" (@@ (securityops packages tls-security) openssl-security))
         (replace "qtsvg" qtsvg-for-ausweisapp)
         (replace "qtdeclarative" qtdeclarative-for-ausweisapp)

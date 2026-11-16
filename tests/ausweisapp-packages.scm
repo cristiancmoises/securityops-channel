@@ -1,6 +1,7 @@
 ;;; SPDX-License-Identifier: GPL-3.0-or-later
 (define-module (tests ausweisapp-packages))
 (use-modules (guix packages) (guix base32) (guix gexp) (guix hash)
+             (guix store) (guix derivations)
              (guix build utils) (ice-9 textual-ports)
              (srfi srfi-1) (srfi srfi-64))
 
@@ -24,10 +25,14 @@
       (test-equal "supported OpenSSL runtime" "3.5.9"
         (package-version (lookup-package-input desktop "openssl")))
       (let* ((qt (lookup-package-input desktop "qtbase"))
-             (fixed (package-replacement qt))
+             (fixed qt)
+             (declared (@@ (securityops packages ausweisapp)
+                           qtbase-for-ausweisapp))
              (original (@ (gnu packages qt) qtbase)))
-        (test-assert "Qt has the native dual-stack broadcast replacement"
-          (package? fixed))
+        (test-equal "desktop links the patched Qt base without grafting"
+          "6.9.2" (package-version qt))
+        (test-assert "desktop does not depend on a Qt minor-version graft"
+          (not (package-replacement qt)))
         (when (package? fixed)
           (test-equal "backport retains the Qt source version" "6.9.2"
             (package-version fixed))
@@ -51,9 +56,19 @@
             (take (origin-patches (package-source original)) 6)
             (take (origin-patches (package-source fixed)) 6))
           (test-equal "native Qt flags and check policy are unchanged"
-            (package-arguments original) (package-arguments fixed))
+            (package-arguments original) (package-arguments declared))
           (test-equal "native Qt test inputs are unchanged"
-            (package-native-inputs original) (package-native-inputs fixed))))
+            (package-native-inputs original) (package-native-inputs declared))
+          ;; Input rewriting clones package records. Compare their actual
+          ;; native derivations instead of relying on record identity.
+          (with-store store
+            (set-build-options store #:max-build-jobs 0 #:offload? #f
+              #:use-substitutes? #f)
+            (test-equal "selected Qt base is the exact native patched derivation"
+              (derivation-file-name
+                (package-derivation store declared #:graft? #f))
+              (derivation-file-name
+                (package-derivation store qt #:graft? #f))))))
       (for-each
         (lambda (name)
           (test-equal (string-append name " uses the same Qt 6.9.2 base")
