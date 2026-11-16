@@ -50,6 +50,22 @@
         (and icu (version>=? (package-version icu) "78.1")))))
   (test-equal "Tor Browser assets match" "16.0.1"
     (package-version tor:torbrowser-assets))
+  (for-each
+   (lambda (entry)
+     (apply
+      (lambda* (#:key (tests? #t) (parallel-tests? #t) #:allow-other-keys)
+        (test-assert (string-append (car entry) " keeps its test suite enabled")
+          tests?)
+        (test-assert (string-append (car entry) " runs tests without the host load gate")
+          (not parallel-tests?)))
+      (package-arguments (cdr entry))))
+   (list
+    (cons "AusweisApp Qt SCXML"
+          (@@ (securityops packages ausweisapp) qtscxml-for-ausweisapp))
+    (cons "AusweisApp Qt Wayland"
+          (@@ (securityops packages ausweisapp) qtwayland-for-ausweisapp))
+    (cons "AusweisApp Qt WebSockets"
+          (@@ (securityops packages ausweisapp) qtwebsockets-for-ausweisapp))))
   (test-equal "yt-dlp stable" "2026.10.26"
     (package-version video:yt-dlp))
   (test-equal "OpenShot stable" "4.1.1"

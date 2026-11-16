@@ -203,6 +203,10 @@
   (package
     (inherit qtscxml)
     (version "6.9.2")
+    (arguments
+      (substitute-keyword-arguments (package-arguments qtscxml)
+        ;; Keep every test, but avoid CTest waiting on the shared host load.
+        ((#:parallel-tests? _ #t) #f)))
     (source
       (origin
         (inherit (package-source qtscxml))
@@ -218,6 +222,9 @@
   (package
     (inherit qtwayland)
     (version "6.9.2")
+    (arguments
+      (substitute-keyword-arguments (package-arguments qtwayland)
+        ((#:parallel-tests? _ #t) #f)))
     (source
       (origin
         (inherit (package-source qtwayland))
@@ -235,6 +242,9 @@
   (package
     (inherit qtwebsockets)
     (version "6.9.2")
+    (arguments
+      (substitute-keyword-arguments (package-arguments qtwebsockets)
+        ((#:parallel-tests? _ #t) #f)))
     (source
       (origin
         (inherit (package-source qtwebsockets))
