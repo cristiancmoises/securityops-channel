@@ -6,6 +6,7 @@ import contextlib
 import http.client
 import json
 import os
+import socket
 import subprocess
 import tempfile
 import time
@@ -183,7 +184,7 @@ def main():
     parser.add_argument("--qtdeclarative", type=Path, required=True)
     args = parser.parse_args()
     assert os.getuid() != 0
-    assert {item.name for item in Path("/sys/class/net").iterdir()} == {"lo"}
+    assert {name for _, name in socket.if_nameindex()} == {"lo"}
     assert not Path("/run/pcscd").exists()
     assert str(args.desktop.resolve()).startswith("/gnu/store/")
     binary = args.desktop / "bin/AusweisApp"
