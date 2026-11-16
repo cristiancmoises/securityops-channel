@@ -95,7 +95,7 @@ def sdk(process, state):
         http_response = connection.getresponse()
         assert http_response.status == 200
         information = json.loads(http_response.read())
-        assert information["Implementation-Version"] == "2.6.0"
+        assert information["Implementation-Version"] == "2.6.1"
     finally:
         connection.close()
     uri = f"ws://127.0.0.1:{port}/eID-Kernel"
@@ -141,7 +141,7 @@ def sdk(process, state):
             return response(expected)
 
         information = command("GET_INFO", "INFO")
-        assert information["VersionInfo"]["Implementation-Version"] == "2.6.0"
+        assert information["VersionInfo"]["Implementation-Version"] == "2.6.1"
         levels = command("GET_API_LEVEL", "API_LEVEL")
         assert levels["available"] == [1, 2, 3] and levels["current"] == 3
         invalid_level = command("SET_API_LEVEL", "API_LEVEL", level="invalid")
@@ -170,7 +170,7 @@ def sdk(process, state):
         assert "offset:" in response("INVALID")["error"]
         assert (
             command("GET_INFO", "INFO")["VersionInfo"]["Implementation-Version"]
-            == "2.6.0"
+            == "2.6.1"
         )
     print("PASS: HTTP status, SDK commands, invalid input and origin refusal")
 
