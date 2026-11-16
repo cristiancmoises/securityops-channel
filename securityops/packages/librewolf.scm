@@ -74,14 +74,12 @@
             (make-file-writable probe)
             ;; Retarget the copied absolute launcher and wrapper; the engine
             ;; remains backed by the matched native source-built closure.
+            ;; Keep its native NSS/NSPR resolution: AutoFirma's compatibility
+            ;; inputs may be older than the browser engine's required ABI.
             (delete-file (string-append #$output "/bin/librewolf"))
             (symlink browser (string-append #$output "/bin/librewolf"))
             (substitute* browser
-              ((#$%librewolf-source-build) #$output)
-              (("^export LD_LIBRARY_PATH=\"")
-               (string-append "export LD_LIBRARY_PATH=\""
-                              #$nss-rapid-3.129 "/lib/nss:"
-                              #$nspr-4.40 "/lib:")))
+              ((#$%librewolf-source-build) #$output))
             ;; The browser's combined probe dlopens these libraries.  Without
             ;; this wrapper the native Guix probe reports "libpci missing".
             (unless (file-exists? probe)
