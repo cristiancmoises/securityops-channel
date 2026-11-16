@@ -11,10 +11,12 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from concurrent.futures import ThreadPoolExecutor
 from contextlib import redirect_stdout
 from datetime import datetime, timezone
 from email.message import Message
 from pathlib import Path
+from threading import Condition, Event
 from unittest.mock import patch
 from urllib.error import HTTPError, URLError
 
@@ -221,6 +223,149 @@ class FakeTransport:
 
 
 class PublicationExecutionTests(unittest.TestCase):
+    def test_requisite_availability_checks_overlap_with_at_most_four_workers(self):
+        requisites = (
+            PACKAGE,
+            *(f"/gnu/store/{index:032d}-dependency" for index in range(8)),
+        )
+
+        def check_case(already_present):
+            transport = FakeTransport(
+                requisites=requisites,
+                missing_public=() if already_present else (PACKAGE,),
+            )
+            condition = Condition()
+            release = Event()
+            active = peak = 0
+            checked = []
+
+            def public_check(path):
+                nonlocal active, peak
+                with condition:
+                    active += 1
+                    peak = max(peak, active)
+                    checked.append(path)
+                    condition.notify_all()
+                try:
+                    if not release.wait(timeout=10):
+                        raise TimeoutError("test probes were not released")
+                    return True
+                finally:
+                    with condition:
+                        active -= 1
+                        condition.notify_all()
+
+            with ThreadPoolExecutor(max_workers=1) as executor:
+                future = executor.submit(
+                    publication.publish_paths,
+                    [PACKAGE],
+                    reviewed(requisites=requisites),
+                    transport,
+                    public_check,
+                    apply=True,
+                )
+                try:
+                    with condition:
+                        overlap = condition.wait_for(lambda: active >= 2, timeout=2)
+                        if overlap:
+                            condition.wait_for(lambda: active > 4, timeout=0.2)
+                finally:
+                    release.set()
+                result = future.result(timeout=5)
+            self.assertTrue(overlap, "availability checks ran serially")
+            self.assertGreaterEqual(peak, 2)
+            self.assertLessEqual(peak, 4)
+            self.assertCountEqual(checked, requisites)
+            result_key = (
+                "already_routes_reachable"
+                if already_present
+                else "public_routes_reachable"
+            )
+            self.assertEqual(result[result_key], [PACKAGE])
+
+        for already_present in (True, False):
+            with self.subTest(already_present=already_present):
+                check_case(already_present)
+
+    def test_unreachable_shared_requisite_is_rechecked_for_the_next_root(self):
+        transport = FakeTransport(requisites=(PACKAGE, OTHER), missing_public=())
+        policy = {
+            "approved": {
+                **reviewed(PACKAGE, requisites=(PACKAGE, OTHER))["approved"],
+                **reviewed(OTHER, requisites=(PACKAGE, OTHER))["approved"],
+            },
+            "denied": set(),
+        }
+        condition = Condition()
+        checked = []
+
+        def public_check(path):
+            with condition:
+                checked.append(path)
+                return path != OTHER or checked.count(OTHER) == 2
+
+        with patch("time.sleep") as sleep:
+            result = publication.publish_paths(
+                [PACKAGE, OTHER], policy, transport, public_check, apply=True, limit=2
+            )
+        self.assertEqual(
+            result["held"], [{"path": PACKAGE, "reason": "ct116_present_not_public"}]
+        )
+        self.assertEqual(result["already_routes_reachable"], [OTHER])
+        self.assertCountEqual(checked, [PACKAGE, OTHER, OTHER])
+        self.assertEqual(transport.pinned, {(126, OTHER), (116, OTHER)})
+        self.assertEqual(transport.streamed, [])
+        sleep.assert_not_called()
+
+    def test_availability_error_after_false_stops_before_the_next_root(self):
+        policy = {
+            "approved": {
+                **reviewed(PACKAGE, requisites=(PACKAGE, OTHER))["approved"],
+                **reviewed(OTHER, requisites=(PACKAGE, OTHER))["approved"],
+            },
+            "denied": set(),
+        }
+        for already_present in (True, False):
+            with self.subTest(already_present=already_present):
+                transport = FakeTransport(
+                    requisites=(PACKAGE, OTHER),
+                    missing_public=() if already_present else (PACKAGE,),
+                )
+                error = RuntimeError("availability probe failed")
+
+                def public_check(path, error=error):
+                    if path == OTHER:
+                        raise error
+                    return False
+
+                with (
+                    patch("time.sleep") as sleep,
+                    self.assertRaises(RuntimeError) as raised,
+                ):
+                    publication.publish_paths(
+                        [PACKAGE, OTHER],
+                        policy,
+                        transport,
+                        public_check,
+                        apply=True,
+                        limit=2,
+                    )
+                self.assertIs(raised.exception, error)
+                sleep.assert_not_called()
+                queried_roots = [
+                    argv[-1]
+                    for ct, argv, _ in transport.calls
+                    if ct == 126 and argv[1:3] == ["gc", "--requisites"]
+                ]
+                self.assertEqual(queried_roots, [PACKAGE])
+                self.assertEqual(
+                    transport.streamed, [] if already_present else [[PACKAGE]]
+                )
+                self.assertEqual(
+                    transport.pinned,
+                    set() if already_present else {(126, PACKAGE), (116, PACKAGE)},
+                )
+
     def test_partial_import_exports_only_missing_paths_but_checks_full_closure(self):
         for missing in ((PACKAGE,), (OTHER,), (PACKAGE, OTHER), (PACKAGE, OTHER, HOME)):
             with self.subTest(missing=missing):
@@ -242,7 +387,7 @@ class PublicationExecutionTests(unittest.TestCase):
                 )
                 self.assertEqual(result["public_routes_reachable"], [PACKAGE])
                 self.assertEqual(transport.streamed, [sorted(missing)])
-                self.assertEqual(checked, [PACKAGE, OTHER, HOME])
+                self.assertCountEqual(checked, [PACKAGE, OTHER, HOME])
                 self.assertEqual(transport.pinned, {(126, PACKAGE), (116, PACKAGE)})
                 missing_checks = [
                     (ct, data)
@@ -346,7 +491,7 @@ class PublicationExecutionTests(unittest.TestCase):
                 public_check,
                 apply=True,
             )
-        self.assertEqual(checked, [PACKAGE, OTHER])
+        self.assertCountEqual(checked, [PACKAGE, OTHER])
 
     def test_missing_report_outside_closure_is_rejected_before_transfer(self):
         for ct in (126, 116):
@@ -506,7 +651,7 @@ class PublicationExecutionTests(unittest.TestCase):
                 apply=True,
             )
         self.assertEqual(result["public_routes_reachable"], [PACKAGE])
-        self.assertEqual(checked, [PACKAGE, OTHER, OTHER, OTHER])
+        self.assertCountEqual(checked, [PACKAGE, OTHER, OTHER, OTHER])
         self.assertEqual([call.args for call in sleep.call_args_list], [(10,), (10,)])
         self.assertEqual(transport.streamed, [[PACKAGE]])
         pins = [

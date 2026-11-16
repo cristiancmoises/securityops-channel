@@ -23,6 +23,7 @@ import subprocess
 import sys
 import tempfile
 import time
+from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from urllib.error import HTTPError, URLError
@@ -712,13 +713,16 @@ def publish_paths(paths, policy, transport, public_check, *, apply=False, limit=
         raise ValueError("invalid per-run limit")
     public_reachable = set()
 
-    def check_reachable(path):
-        if path in public_reachable:
-            return True
-        if public_check(path):
-            public_reachable.add(path)
-            return True
-        return False
+    def unreachable(paths):
+        unchecked = [item for item in paths if item not in public_reachable]
+        if unchecked:
+            with ThreadPoolExecutor(max_workers=4) as executor:
+                for item, reachable in zip(
+                    unchecked, executor.map(public_check, unchecked)
+                ):
+                    if reachable:
+                        public_reachable.add(item)
+        return [item for item in paths if item not in public_reachable]
 
     result = {
         "planned": [],
@@ -784,7 +788,7 @@ def publish_paths(paths, policy, transport, public_check, *, apply=False, limit=
             continue
         missing_public = _missing(transport, 116, requisites)
         if not missing_public:
-            if not all(check_reachable(item) for item in requisites):
+            if unreachable(requisites):
                 result["held"].append(
                     {"path": path, "reason": "ct116_present_not_public"}
                 )
@@ -824,7 +828,7 @@ def publish_paths(paths, policy, transport, public_check, *, apply=False, limit=
         pending = list(requisites)
         deadline = time.monotonic() + PUBLIC_READINESS_SECONDS
         while pending:
-            pending = [item for item in pending if not check_reachable(item)]
+            pending = unreachable(pending)
             if not pending or time.monotonic() >= deadline:
                 break
             time.sleep(PUBLIC_READINESS_INTERVAL)
