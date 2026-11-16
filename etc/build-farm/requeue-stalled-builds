@@ -30,8 +30,17 @@ if ! "$SYSTEMCTL" is-enabled --quiet "$REGISTER"; then
     exit 0
 fi
 
-pending=$(query "SELECT count(*) FROM builds WHERE status = -2;")
-started=$(query "SELECT count(*) FROM builds WHERE status = -1;")
+current_builds="WITH RECURSIVE latest AS (
+    SELECT max(id) AS id FROM evaluations WHERE status = 0 GROUP BY specification
+), required(id) AS (
+    SELECT j.build FROM jobs j JOIN latest e ON j.evaluation = e.id
+    UNION
+    SELECT d.target FROM builddependencies d JOIN required r ON d.source = r.id
+)"
+pending=$(query "$current_builds SELECT count(*) FROM builds WHERE status = -2
+    AND id IN (SELECT id FROM required);")
+started=$(query "$current_builds SELECT count(*) FROM builds WHERE status = -1
+    AND id IN (SELECT id FROM required);")
 
 case "$pending" in ''|*[!0-9]*) echo "invalid pending count: $pending" >&2; exit 1;; esac
 case "$started" in ''|*[!0-9]*) echo "invalid started count: $started" >&2; exit 1;; esac
@@ -49,6 +58,19 @@ case "$last" in ''|*[!0-9]*) last=0;; esac
 
 if [ $((now - last)) -lt "$MIN_INTERVAL" ]; then
     echo "restart debounced (last at $last); skipping"
+    exit 0
+fi
+
+# External workers are absent from Cuirass' started count.  Restarting their
+# register dependency can terminate healthy work, including activating oneshots.
+if ! workers=$("$SYSTEMCTL" list-units --type=service --state=running,activating \
+    --no-legend --plain --no-pager \
+    'securityops-*-retry-*.service' 'securityops-*-source-*.service'); then
+    echo "cannot inspect external Guix build workers; deferring restart" >&2
+    exit 0
+fi
+if [ -n "$workers" ]; then
+    echo "external Guix build worker active; deferring restart"
     exit 0
 fi
 
