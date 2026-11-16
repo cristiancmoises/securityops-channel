@@ -5,6 +5,7 @@
   #:use-module ((gnu packages security-token) #:prefix upstream:)
   #:use-module ((gnu packages web) #:prefix upstream:)
   #:use-module (gnu packages qt)
+  #:use-module (gnu packages llvm)
   #:use-module (gnu packages xorg)
   #:use-module (gnu packages)
   #:use-module (guix download)
@@ -286,6 +287,11 @@
   (package
     (inherit qttools)
     (version "6.9.2")
+    (arguments
+      (substitute-keyword-arguments (package-arguments qttools)
+        ((#:configure-flags flags #~'())
+          #~(append #$flags
+              (list "-DFEATURE_clang=ON" "-DFEATURE_qdoc=ON")))))
     (source
       (origin
         (inherit (package-source qttools))
@@ -294,6 +300,8 @@
           (base32 "12d4czfwvh9rfjwnkpsiwzrpx4ga69c6vz85aabhpk3hx7lggdyq"))))
     (inputs
       (modify-inputs (package-inputs qttools)
+        ;; Qt 6.9.2's QDoc supports Clang 17.0 through 20.1.
+        (replace "clang" clang-20)
         (replace "qtbase" qtbase-for-ausweisapp)))
     (native-inputs
       (modify-inputs (package-native-inputs qttools)

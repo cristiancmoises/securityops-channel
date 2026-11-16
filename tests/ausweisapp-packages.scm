@@ -102,6 +102,11 @@
       (test-equal "Qt tools use the matching 6.9.2 source"
         "6.9.2"
         (package-version (lookup-package-native-input desktop "qttools")))
+      (test-equal "Qt documentation tools use a supported Clang release"
+        "20.1.8"
+        (package-version
+          (lookup-package-input
+            (lookup-package-native-input desktop "qttools") "clang")))
       (let* ((svg (lookup-package-input desktop "qtsvg"))
              (qml (lookup-package-input desktop "qtdeclarative")))
         (for-each
