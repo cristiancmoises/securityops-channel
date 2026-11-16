@@ -33,6 +33,12 @@ Esta tabela abrange todas as definições de pacote exportadas pelo canal. Os
 três drivers marcados `Outro alvo` são mantidos para ARM, i686 ou PowerPC; a
 build farm `x86_64-linux` avalia atualmente os outros 196 alvos.
 
+Os 196 exports suportados definem 213 saídas no store, incluindo `debug`, `doc`,
+`src` e `schema`. O publicador considera cada saída separadamente após um build
+bem-sucedido e a revisão exata de sua closure. O painel conta a saída principal
+de cada export; o Guix também pode solicitar as saídas adicionais ao cache de
+substitutos.
+
 <!-- package-catalog:start -->
 
 | Módulo | Export Guix | Pacote | Versão | Build farm |

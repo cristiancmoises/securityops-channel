@@ -1,5 +1,6 @@
 """Safety and behavior checks for the host-side public publication bridge."""
 
+import csv
 import hashlib
 import importlib.util
 import io
@@ -7,6 +8,7 @@ import json
 import os
 import shutil
 import socket
+import sqlite3
 import subprocess
 import sys
 import tempfile
@@ -80,6 +82,169 @@ class PublicationConfigurationTests(unittest.TestCase):
 
 
 class PublicationSelectionTests(unittest.TestCase):
+    def test_query_collects_both_outputs_from_the_latest_completed_evaluation(self):
+        database = sqlite3.connect(":memory:")
+        self.addCleanup(database.close)
+        database.executescript(
+            """
+            CREATE TABLE evaluations
+              (id INTEGER, timestamp INTEGER, specification TEXT, status INTEGER);
+            CREATE TABLE jobs
+              (evaluation INTEGER, system TEXT, name TEXT, status INTEGER, build INTEGER);
+            CREATE TABLE builds
+              (id INTEGER, nix_name TEXT, status INTEGER, starttime INTEGER,
+               stoptime INTEGER, derivation TEXT);
+            CREATE TABLE outputs (derivation TEXT, name TEXT, path TEXT);
+            INSERT INTO evaluations VALUES (41, 1792011500, 'securityops', 0),
+                                           (42, 1792011600, 'securityops', 0),
+                                           (43, 1792011700, 'securityops', 1),
+                                           (44, 1792011800, 'other-channel', 0);
+            INSERT INTO jobs VALUES (42, 'x86_64-linux', 'package.x86_64-linux', 0, 12),
+                                    (41, 'x86_64-linux', 'older.x86_64-linux', 0, 12),
+                                    (43, 'x86_64-linux', 'pending.x86_64-linux', 0, 12),
+                                    (44, 'x86_64-linux', 'unrelated.x86_64-linux', 0, 12),
+                                    (42, 'aarch64-linux', 'package.aarch64-linux', 0, 12);
+            INSERT INTO builds VALUES
+              (12, 'example-1.0', 0, 1792010000, 1792011000, 'example.drv');
+            """
+        )
+        database.executemany(
+            "INSERT INTO outputs VALUES ('example.drv', ?, ?)",
+            [("out", PACKAGE), ("debug", OTHER)],
+        )
+        value = io.StringIO()
+        csv.writer(value).writerows(database.execute(publication.SQL))
+
+        class SourceTransport:
+            def run(self, ct, argv, input=None):
+                if ct == 126 and "psql" in argv:
+                    return value.getvalue().encode()
+                raise AssertionError("channel publication must not read inventories")
+
+        selected, held, evaluation = publication.collect_targets(SourceTransport(), NOW)
+        self.assertEqual((selected, held, evaluation), ([PACKAGE, OTHER], [], 42))
+
+    def test_same_job_primary_and_secondary_outputs_are_both_selected(self):
+        snapshot = publication.parse_cuirass_csv(
+            csv_row("package.x86_64-linux", 0, 0, PACKAGE)
+            + csv_row("package.x86_64-linux", 0, 0, OTHER, output="debug")
+        )
+        self.assertEqual(
+            publication.select_targets(snapshot, []), ([PACKAGE, OTHER], [])
+        )
+
+    def test_accepts_bounded_output_names_used_by_guix(self):
+        for output in (
+            "out",
+            "debug",
+            "doc",
+            "docker",
+            "src",
+            "tests",
+            "ndiff",
+            "kitten",
+            "shell-integration",
+            "terminfo",
+            "schema",
+            "front-end",
+            "a" * 64,
+        ):
+            with self.subTest(output=output):
+                snapshot = publication.parse_cuirass_csv(
+                    csv_row("package.x86_64-linux", 0, 0, PACKAGE, output=output)
+                )
+                self.assertEqual(
+                    publication.select_targets(snapshot, []), ([PACKAGE], [])
+                )
+
+    def test_rejects_duplicate_output_names_even_with_different_paths(self):
+        with self.assertRaises(ValueError):
+            publication.parse_cuirass_csv(
+                csv_row("package.x86_64-linux", 0, 0, PACKAGE)
+                + csv_row("package.x86_64-linux", 0, 0, OTHER)
+            )
+
+    def test_rejects_conflicting_metadata_between_outputs_of_one_job(self):
+        first = csv_row("package.x86_64-linux", 0, 0, PACKAGE)
+        original = next(
+            csv.reader(
+                io.StringIO(
+                    csv_row("package.x86_64-linux", 0, 0, OTHER, output="debug")
+                )
+            )
+        )
+        for column, conflict in (
+            (3, "1"),
+            (4, "13"),
+            (5, "different-1.0"),
+            (6, "1"),
+            (7, "1792010001"),
+            (8, "1792011001"),
+        ):
+            with self.subTest(column=column):
+                row = original.copy()
+                row[column] = conflict
+                value = io.StringIO()
+                csv.writer(value).writerow(row)
+                with self.assertRaisesRegex(ValueError, "conflicting Cuirass job"):
+                    publication.parse_cuirass_csv(first + value.getvalue())
+
+    def test_rejects_malicious_or_unbounded_output_names(self):
+        for output in (
+            "",
+            ".",
+            "..",
+            "../debug",
+            "debug/name",
+            "debug\\name",
+            "debug:out",
+            " debug",
+            "debug ",
+            "debug\n",
+            "debug\r",
+            "debug\t",
+            "debug\0",
+            "debug\x1b",
+            "débug",
+            "a" * 65,
+        ):
+            with self.subTest(output=repr(output)):
+                row = next(
+                    csv.reader(
+                        io.StringIO(csv_row("package.x86_64-linux", 0, 0, PACKAGE))
+                    )
+                )
+                row[9] = output
+                value = io.StringIO()
+                csv.writer(value).writerow(row)
+                with self.assertRaises(ValueError):
+                    publication.parse_cuirass_csv(value.getvalue())
+
+    def test_missing_output_placeholder_cannot_coexist_with_named_outputs(self):
+        missing = csv_row("package.x86_64-linux", 0, 0, "", output="")
+        present = csv_row("package.x86_64-linux", 0, 0, PACKAGE)
+        for value in (missing + present, present + missing):
+            with self.subTest(value=value), self.assertRaises(ValueError):
+                publication.parse_cuirass_csv(value)
+
+    def test_failed_secondary_output_cannot_be_rescued_by_a_manifest(self):
+        snapshot = publication.parse_cuirass_csv(
+            csv_row("failed.x86_64-linux", 0, 1, PACKAGE)
+            + csv_row("failed.x86_64-linux", 0, 1, HOME, output="debug")
+        )
+        home = publication.validate_manifest(
+            json.dumps(manifest("home", [entry(HOME)])).encode(), "home", NOW
+        )
+        selected, held = publication.select_targets(snapshot, [home])
+        self.assertEqual(selected, [])
+        self.assertEqual(
+            held,
+            [
+                {"path": PACKAGE, "reason": "unsuccessful_job"},
+                {"path": HOME, "reason": "unsuccessful_job"},
+            ],
+        )
+
     def test_selects_successful_channel_and_package_manifest_entries_without_roots(
         self,
     ):
@@ -223,6 +388,41 @@ class FakeTransport:
 
 
 class PublicationExecutionTests(unittest.TestCase):
+    def test_secondary_output_needs_its_own_exact_review(self):
+        snapshot = publication.parse_cuirass_csv(
+            csv_row("package.x86_64-linux", 0, 0, PACKAGE)
+            + csv_row("package.x86_64-linux", 0, 0, OTHER, output="debug")
+        )
+        selected, _ = publication.select_targets(snapshot, [])
+        transport = FakeTransport(missing_public=())
+        result = publication.publish_paths(
+            selected, reviewed(), transport, lambda path: True, apply=True
+        )
+        self.assertEqual(result["already_routes_reachable"], [PACKAGE])
+        self.assertEqual(
+            result["held"], [{"path": OTHER, "reason": "unreviewed_redistribution"}]
+        )
+        self.assertEqual(transport.streamed, [])
+        self.assertEqual(transport.pinned, {(126, PACKAGE), (116, PACKAGE)})
+
+    def test_reviewed_secondary_output_publishes_once_then_is_already_public(self):
+        snapshot = publication.parse_cuirass_csv(
+            csv_row("package.x86_64-linux", 0, 0, OTHER, output="debug")
+        )
+        selected, _ = publication.select_targets(snapshot, [])
+        policy = reviewed(OTHER, requisites=(OTHER,))
+        transport = FakeTransport(requisites=(OTHER,), missing_public=(OTHER,))
+        first = publication.publish_paths(
+            selected, policy, transport, lambda path: transport.imported, apply=True
+        )
+        second = publication.publish_paths(
+            selected, policy, transport, lambda path: transport.imported, apply=True
+        )
+        self.assertEqual(first["public_routes_reachable"], [OTHER])
+        self.assertEqual(second["already_routes_reachable"], [OTHER])
+        self.assertEqual(transport.streamed, [[OTHER]])
+        self.assertEqual(transport.pinned, {(126, OTHER), (116, OTHER)})
+
     def test_requisite_availability_checks_overlap_with_at_most_four_workers(self):
         requisites = (
             PACKAGE,

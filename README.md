@@ -33,6 +33,12 @@ This table covers every exported package definition in the channel. The three
 drivers marked `Other target` are retained for ARM, i686 or PowerPC; the
 `x86_64-linux` build farm currently evaluates the other 196 targets.
 
+The 196 supported exports define 213 store outputs, including `debug`, `doc`,
+`src` and `schema`. The publisher considers each output separately after a
+successful build and an exact closure review. The dashboard counts the primary
+output of each export; Guix can also request the additional outputs from the
+substitute cache.
+
 <!-- package-catalog:start -->
 
 | Module | Guix export | Package | Version | Build farm |

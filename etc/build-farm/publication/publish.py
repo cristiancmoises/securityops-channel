@@ -39,6 +39,7 @@ catalog = importlib.util.module_from_spec(_catalog_spec)
 _catalog_spec.loader.exec_module(catalog)
 
 STORE_PATH = re.compile(r"^/gnu/store/[a-z0-9]{32}-[_A-Za-z0-9][_A-Za-z0-9+.?~-]*$")
+OUTPUT_NAME = re.compile(r"[A-Za-z0-9_][A-Za-z0-9_+-]{0,63}")
 REVIEW_TRIGGER = re.compile(
     r"(?:^|[-_.])(?:nvidia|cuda|linux-firmware|nonfree|unfree|proprietary|steam|google-chrome)(?:[-_.]|$)",
     re.IGNORECASE,
@@ -74,8 +75,8 @@ FROM (SELECT id, timestamp FROM evaluations
       ORDER BY id DESC LIMIT 1) AS e
 JOIN jobs j ON j.evaluation = e.id AND j.system = 'x86_64-linux'
 JOIN builds b ON b.id = j.build
-LEFT JOIN outputs o ON o.derivation = b.derivation AND o.name = 'out'
-ORDER BY j.name
+LEFT JOIN outputs o ON o.derivation = b.derivation
+ORDER BY j.name, o.name
 """
 READ_INVENTORY = """import os, stat, sys
 try:
@@ -134,6 +135,7 @@ def parse_cuirass_csv(value):
     """Read one completed SecurityOps evaluation returned by the fixed SQL query."""
     rows = []
     seen = set()
+    jobs = {}
     identity = None
     for row in csv.reader(io.StringIO(value)):
         if len(row) != 11:
@@ -151,11 +153,16 @@ def parse_cuirass_csv(value):
             output,
             path,
         ) = row
-        if not job or not name or not build_id or job in seen:
-            raise ValueError("incomplete or duplicate Cuirass job")
-        seen.add(job)
-        int(build_id)
-        int(started)
+        if not job or not name or not build_id or (job, output) in seen:
+            raise ValueError("incomplete or duplicate Cuirass job output")
+        job_status, build_id, build_status, started, stopped = map(
+            int, (job_status, build_id, build_status, started, stopped)
+        )
+        metadata = (job_status, build_id, name, build_status, started, stopped)
+        if job in jobs and (jobs[job] != metadata or not output or (job, "") in seen):
+            raise ValueError("conflicting Cuirass job metadata or missing output")
+        jobs[job] = metadata
+        seen.add((job, output))
         current = (int(evaluation), int(timestamp))
         if identity is None:
             identity = current
@@ -163,14 +170,14 @@ def parse_cuirass_csv(value):
             raise ValueError("mixed Cuirass evaluations")
         if path:
             exact_output(path)
-        if output not in ("", "out"):
+        if (output and not OUTPUT_NAME.fullmatch(output)) or (not output and path):
             raise ValueError("unexpected Cuirass output")
         rows.append(
             {
                 "job": job,
-                "job_status": int(job_status),
-                "build_status": int(build_status),
-                "stopped": int(stopped),
+                "job_status": job_status,
+                "build_status": build_status,
+                "stopped": stopped,
                 "path": path,
                 "output": output,
             }
@@ -207,7 +214,7 @@ def select_targets(snapshot, manifests):
             item["job_status"] != 0
             or item["build_status"] != 0
             or item["stopped"] <= 0
-            or item["output"] != "out"
+            or not OUTPUT_NAME.fullmatch(item["output"])
         ):
             held.append({"path": path, "reason": "unsuccessful_job"})
             failed.add(path)
