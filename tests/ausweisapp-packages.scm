@@ -26,6 +26,9 @@
         (package-version (lookup-package-input desktop "openssl")))
       (let* ((qt (lookup-package-input desktop "qtbase"))
              (fixed qt)
+             (build-qt
+               (apply (lambda* (#:key qtbase #:allow-other-keys) qtbase)
+                 (package-arguments desktop)))
              (declared (@@ (securityops packages ausweisapp)
                            qtbase-for-ausweisapp))
              (original (@ (gnu packages qt) qtbase)))
@@ -33,6 +36,8 @@
           "6.9.2" (package-version qt))
         (test-assert "desktop does not depend on a Qt minor-version graft"
           (not (package-replacement qt)))
+        (test-equal "Qt build tools use the matching patched minor version"
+          "6.9.2" (package-version build-qt))
         (when (package? fixed)
           (test-equal "backport retains the Qt source version" "6.9.2"
             (package-version fixed))
@@ -68,7 +73,12 @@
               (derivation-file-name
                 (package-derivation store declared #:graft? #f))
               (derivation-file-name
-                (package-derivation store qt #:graft? #f))))))
+                (package-derivation store qt #:graft? #f)))
+            (test-equal "Qt build tools derive to the same patched base"
+              (derivation-file-name
+                (package-derivation store declared #:graft? #f))
+              (derivation-file-name
+                (package-derivation store build-qt #:graft? #f))))))
       (for-each
         (lambda (name)
           (test-equal (string-append name " uses the same Qt 6.9.2 base")

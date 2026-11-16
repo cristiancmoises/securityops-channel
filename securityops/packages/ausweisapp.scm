@@ -326,6 +326,8 @@
           (base32 "1f1mnqkqwr7qiddyzzxgp2xqvapi5p5lc3kkjmy0iy9ind6ad8xc"))))
     (arguments
       (substitute-keyword-arguments (package-arguments upstream:ausweisapp)
+        ;; qt-build-system also injects its own native Qt base input.
+        ((#:qtbase _ qtbase) qtbase-for-ausweisapp)
         ((#:configure-flags flags #~'())
           #~(append #$flags
               ;; DVCS.cmake only sets ARTIFACT_VERSION when Git/Hg metadata
