@@ -5,6 +5,7 @@
   #:use-module ((gnu packages security-token) #:prefix upstream:)
   #:use-module ((gnu packages web) #:prefix upstream:)
   #:use-module (gnu packages qt)
+  #:use-module (gnu packages xorg)
   #:use-module (gnu packages)
   #:use-module (guix download)
   #:use-module (guix gexp)
@@ -224,7 +225,17 @@
     (version "6.9.2")
     (arguments
       (substitute-keyword-arguments (package-arguments qtwayland)
-        ((#:parallel-tests? _ #t) #f)))
+        ((#:parallel-tests? _ #t) #f)
+        ((#:phases phases)
+          #~(modify-phases #$phases
+              (add-before 'check 'provide-animated-cursor-theme
+                (lambda* (#:key inputs #:allow-other-keys)
+                  ;; animatedCursor requires multiple frames for WaitCursor.
+                  ;; The fallback theme has only a static watch cursor.
+                  (setenv "XCURSOR_PATH"
+                    (string-append (assoc-ref inputs "xcursor-themes")
+                      "/share/icons"))
+                  (setenv "XCURSOR_THEME" "redglass")))))))
     (source
       (origin
         (inherit (package-source qtwayland))
@@ -236,6 +247,7 @@
         (replace "qtbase" qtbase-for-ausweisapp)))
     (native-inputs
       (modify-inputs (package-native-inputs qtwayland)
+        (prepend xcursor-themes)
         (replace "qtdeclarative" qtdeclarative-for-ausweisapp)))))
 
 (define qtwebsockets-for-ausweisapp
@@ -250,7 +262,21 @@
         (inherit (package-source qtwebsockets))
         (uri "mirror://qt/qt/6.9/6.9.2/submodules/qtwebsockets-everywhere-src-6.9.2.tar.xz")
         (sha256
-          (base32 "1vh82w96436pqrp4daf324mqs2zjvn51z78b3ksc5mnqgrk3z0xy"))))
+          (base32 "1vh82w96436pqrp4daf324mqs2zjvn51z78b3ksc5mnqgrk3z0xy"))
+        (patches
+          (append (origin-patches (package-source qtwebsockets))
+            (list
+              ;; The follow-up preserves the internal destroyed connection.
+              (origin
+                (method url-fetch)
+                (uri "https://github.com/qt/qtwebsockets/commit/0c0f476150e501f311d054c67426b4d2304d2cbd.patch")
+                (sha256
+                  (base32 "0j7za5qilhvwmsnhchfbysk044844q7vpfgy4ji9iwj0amj40cqs")))
+              (origin
+                (method url-fetch)
+                (uri "https://github.com/qt/qtwebsockets/commit/1ff930de9573d90355a2097119fa6b24d41bbf5a.patch")
+                (sha256
+                  (base32 "0yp672yh7f985f7sv51lk3ir4g5g7mxbqzz0hldy00i2alcsl4x4"))))))))
     (inputs
       (modify-inputs (package-inputs qtwebsockets)
         (replace "qtbase" qtbase-for-ausweisapp)
