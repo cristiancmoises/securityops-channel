@@ -31,7 +31,7 @@ WordCraft. Their exact package versions appear in the catalog below.
 
 This table covers every exported package definition in the channel. The three
 drivers marked `Other target` are retained for ARM, i686 or PowerPC; the
-`x86_64-linux` build farm currently evaluates the other 196 targets.
+`x86_64-linux` build farm currently evaluates the other 198 targets.
 
 <!-- package-catalog:start -->
 
@@ -57,6 +57,7 @@ drivers marked `Other target` are retained for ARM, i686 or PowerPC; the
 | `containers` | `docker-latest` | `docker` | 29.9.3 | x86_64-linux |
 | `effectcraft` | `effectcraft` | `effectcraft` | 0.10.0 | x86_64-linux |
 | `belgian-eid` | `eid-mw` | `eid-mw` | 5.1.31 | x86_64-linux |
+| `matlivre` | `emacs-matlibre` | `emacs-matlibre` | 0.1.0 | x86_64-linux |
 | `emacs` | `emacs-pgtk` | `emacs-pgtk` | 31.1 | x86_64-linux |
 | `emacs` | `emacs` | `emacs` | 31.1 | x86_64-linux |
 | `brazil-tax` | `esocial-communication-schemas` | `esocial-communication-schemas` | 1.6 | x86_64-linux |
@@ -106,6 +107,7 @@ drivers marked `Other target` are retained for ARM, i686 or PowerPC; the
 | `river` | `mako-latest` | `mako` | 1.11.0 | x86_64-linux |
 | `maltego` | `maltego` | `maltego` | 4.14.0 | x86_64-linux |
 | `security` | `masscan` | `masscan` | 1.3.2 | x86_64-linux |
+| `matlivre` | `matlivre` | `matlivre` | 0.1.9 | x86_64-linux |
 | `applications` | `mirim` | `mirim` | 1.1.1 | x86_64-linux |
 | `applications` | `moneyprinterturbo` | `moneyprinterturbo` | 1.3.10 | x86_64-linux |
 | `video` | `mpv` | `mpv` | 0.42.0 | x86_64-linux |
@@ -389,6 +391,8 @@ cannot be promised an immediate update.
 | `zupt`, `zupt-gui` | `(securityops packages zupt)` |
 | `turborec`, `turborec-nvidia-new-feature` | `(securityops packages turborec)` |
 | `guixvis` | `(securityops packages guixvis)` |
+| `matlivre` | `(securityops packages matlivre)` |
+| `emacs-matlibre` | `(securityops packages matlivre)` |
 | `moneyprinterturbo` | `(securityops packages moneyprinterturbo)` |
 | `esquema` | `(securityops packages esquema)` |
 | `whatsappel` | `(securityops packages whatsappel)` |
