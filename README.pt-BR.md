@@ -31,7 +31,7 @@ WordCraft. As versões exatas aparecem no catálogo abaixo.
 
 Esta tabela abrange todas as definições de pacote exportadas pelo canal. Os
 três drivers marcados `Outro alvo` são mantidos para ARM, i686 ou PowerPC; a
-build farm `x86_64-linux` avalia atualmente os outros 196 alvos.
+build farm `x86_64-linux` avalia atualmente os outros 198 alvos.
 
 <!-- package-catalog:start -->
 
@@ -57,6 +57,7 @@ build farm `x86_64-linux` avalia atualmente os outros 196 alvos.
 | `containers` | `docker-latest` | `docker` | 29.9.3 | x86_64-linux |
 | `effectcraft` | `effectcraft` | `effectcraft` | 0.10.0 | x86_64-linux |
 | `belgian-eid` | `eid-mw` | `eid-mw` | 5.1.31 | x86_64-linux |
+| `matlivre` | `emacs-matlibre` | `emacs-matlibre` | 0.1.0 | x86_64-linux |
 | `emacs` | `emacs-pgtk` | `emacs-pgtk` | 31.1 | x86_64-linux |
 | `emacs` | `emacs` | `emacs` | 31.1 | x86_64-linux |
 | `brazil-tax` | `esocial-communication-schemas` | `esocial-communication-schemas` | 1.6 | x86_64-linux |
@@ -106,6 +107,7 @@ build farm `x86_64-linux` avalia atualmente os outros 196 alvos.
 | `river` | `mako-latest` | `mako` | 1.11.0 | x86_64-linux |
 | `maltego` | `maltego` | `maltego` | 4.14.0 | x86_64-linux |
 | `security` | `masscan` | `masscan` | 1.3.2 | x86_64-linux |
+| `matlivre` | `matlivre` | `matlivre` | 0.1.9 | x86_64-linux |
 | `applications` | `mirim` | `mirim` | 1.1.1 | x86_64-linux |
 | `applications` | `moneyprinterturbo` | `moneyprinterturbo` | 1.3.10 | x86_64-linux |
 | `video` | `mpv` | `mpv` | 0.42.0 | x86_64-linux |
@@ -382,6 +384,13 @@ o commit indexado e os módulos/arquivos dos pacotes no catálogo. Cada instânc
 tem seu próprio ciclo de atualização; [toys.whereis.social](https://toys.whereis.social)
 é um serviço externo e não há garantia de atualização imediata. Consulte o
 [inventário dos projetos](README.md#applications) para os módulos de cada pacote.
+
+MatLivre e sua integração com o Emacs usam o mesmo módulo:
+
+| Pacote Guix | Módulo da receita |
+|---|---|
+| `matlivre` | `(securityops packages matlivre)` |
+| `emacs-matlibre` | `(securityops packages matlivre)` |
 
 ### Zen Browser
 
