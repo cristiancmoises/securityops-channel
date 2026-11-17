@@ -565,3 +565,9 @@ da migração. Mantenha a verificação de assinaturas habilitada.
 
 Código do canal: GPL-3.0-or-later; consulte [LICENSE](LICENSE).
 Cada programa mantém sua própria licença. Veja [LICENSING.pt-BR.md](LICENSING.pt-BR.md).
+
+### MatLivre / MatLibre (Emacs)
+
+`matlivre` 0.1.9 e `emacs-matlibre` oferecem computação científica no
+aplicativo gráfico e no Emacs gráfico ou terminal. Consulte [instalação,
+comandos e requisitos da buildfarm](docs/matlivre.md).

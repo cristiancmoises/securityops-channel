@@ -1,0 +1,80 @@
+;;; matlivre-emacs.el --- Integration tests -*- lexical-binding: t; -*-
+(require 'ert)
+(require 'matlivre)
+(when (getenv "MATLIVRE_PROGRAM")
+  (setq matlivre-program (getenv "MATLIVRE_PROGRAM")))
+(ert-deftest matlivre-persistent-workspace ()
+  (unwind-protect
+      (progn
+        (matlivre-stop)
+        (should-not (alist-get 'isError (matlivre-call "run_code" '((code . "a=40;")))))
+        (should (string-match-p "42" (matlivre--text (matlivre-call "run_code" '((code . "a+2"))))))
+        (should (string-match-p "a" (matlivre--text (matlivre-call "get_workspace" nil)))))
+    (matlivre-stop)))
+(ert-deftest matlivre-errors-are-visible ()
+  (unwind-protect
+      (should (alist-get 'isError (matlivre-call "run_code" '((code . "missing_matlivre_variable")))))
+    (matlivre-stop)))
+(ert-deftest matlivre-figures-are-png ()
+  (unwind-protect
+      (let* ((reply (matlivre-call "run_code" '((code . "plot([1 2 3],[2 4 6])"))))
+             (parts (alist-get 'content reply))
+             (figure (seq-find (lambda (part) (equal (alist-get 'type part) "image")) parts)))
+        (should figure)
+        (should (equal (alist-get 'mimeType figure) "image/png"))
+        (should (string-prefix-p (unibyte-string 137 80 78 71) (base64-decode-string (alist-get 'data figure)))))
+    (matlivre-stop)))
+(ert-deftest matlivre-command-discovery ()
+  (dolist (command '(matlivre matlivre-run-buffer matlivre-run-region matlivre-workspace matlivre-tool matlivre-open-gui matlivre-stop))
+    (should (commandp command))))
+(ert-deftest matlivre-region-and-unsaved-buffer ()
+  (unwind-protect
+      (with-temp-buffer
+        (insert "b=6; b*7")
+        (save-current-buffer (matlivre-run-buffer))
+        (should (string-match-p "42" (with-current-buffer "*MatLivre*" (buffer-string))))
+        (erase-buffer)
+        (insert "b*8")
+        (matlivre-run-region (point-min) (point-max))
+        (should (string-match-p "48" (with-current-buffer "*MatLivre*" (buffer-string)))))
+    (matlivre-stop)))
+(ert-deftest matlivre-rejects-binary-mlx ()
+  (with-temp-buffer
+    (setq buffer-file-name "/tmp/untouched.mlx")
+    (should-error (matlivre-run-buffer) :type 'user-error)))
+(ert-deftest matlivre-discovers-headless-tools ()
+  (unwind-protect
+      (should (seq-find (lambda (tool) (equal (alist-get 'name tool) "run_code"))
+                        (alist-get 'tools (matlivre--request "tools/list" nil))))
+    (matlivre-stop)))
+(ert-deftest matlivre-renders-or-saves-figures ()
+  (unwind-protect
+      (progn
+        (matlivre--show (matlivre-call "run_code" '((code . "plot([1 2],[3 4])"))))
+        (with-current-buffer "*MatLivre*"
+          (if (and (display-images-p) (image-type-available-p 'png))
+              (should (get-text-property (1- (point-max)) 'display))
+            (should (button-at (- (point-max) 2))))))
+    (matlivre-stop)))
+(when (getenv "MATLIVRE_GUI_TESTS")
+  (ert-deftest matlivre-graphical-document-tools ()
+    (let ((file (make-temp-file "matlivre document " nil ".m" "x=42;\n"))
+          process)
+      (unwind-protect
+          (progn
+            (matlivre-stop)
+            (setq process (matlivre-open-gui file))
+            (let ((deadline (+ (float-time) 30)) tools)
+              (while (and (< (float-time) deadline) (process-live-p process)
+                          (not (seq-find (lambda (tool) (equal (alist-get 'name tool) "read_document")) tools)))
+                (accept-process-output process 0.5)
+                (matlivre-stop)
+                (setq tools (alist-get 'tools (matlivre--request "tools/list" nil))))
+              (should (process-live-p process))
+              (should (seq-find (lambda (tool) (equal (alist-get 'name tool) "read_document")) tools)))
+            (should (string-match-p "matlivre document"
+                                    (matlivre--text (matlivre-call "list_documents" nil))))
+            (should (string-match-p "x=42" (matlivre--text (matlivre-call "read_document" nil)))))
+        (matlivre-stop)
+        (when (and process (process-live-p process)) (delete-process process))
+        (delete-file file)))))

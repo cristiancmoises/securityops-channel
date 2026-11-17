@@ -587,3 +587,9 @@ guix git authenticate 1662809a25bf267088b0c066eed8992bd52da8d7 \
 
 Channel code is GPL-3.0-or-later; see [LICENSE](LICENSE).
 Packaged programs retain their own licenses. See [LICENSING.md](LICENSING.md).
+
+### MatLivre / MatLibre (Emacs)
+
+`matlivre` 0.1.9 and `emacs-matlibre` provide scientific computing in the
+desktop app and graphical/terminal Emacs. See [installation, Emacs commands
+and binary build-farm requirements](docs/matlivre.md).
