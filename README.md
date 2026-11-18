@@ -551,7 +551,11 @@ All repositories use the same channel introduction.
 | Canonical | [git.securityops.com.br](https://git.securityops.com.br/cristiancmoises/securityops-channel) |
 | Mirror | [git.securityops.co](https://git.securityops.co/cristiancmoises/securityops-channel) |
 | Mirror | [Codeberg](https://codeberg.org/berkeley/securityops-channel) |
-| Mirror | [GitHub](https://github.com/cristiancmoises/securityops-channel) |
+| Mirror (authenticated branch) | [GitHub](https://github.com/cristiancmoises/securityops-channel), `packages/matlivre-authenticated` |
+
+For Guix signature authentication on GitHub, configure branch
+`packages/matlivre-authenticated`; GitHub’s default `main` contains unsigned
+commits and does not authenticate under the introduction above.
 
 ## Build and check a local checkout
 
@@ -577,8 +581,9 @@ The public key is on the `keyring` branch; authorized signers are recorded in
 On 2026-10-23, internal documentation was removed from the repository history.
 The signing key is unchanged, but commit IDs and the introduction changed.
 Update existing channel declarations to the introduction above. Replace old
-`(commit "...")` pins with a revision from the new history, or remove the pin
-to follow `main`. Older profile
+`(commit "...")` pins with a revision from the new history, or remove the pin to
+follow the configured branch. On GitHub, use
+`packages/matlivre-authenticated`, not the default `main`. Older profile
 generations may reject the rewritten ancestry; validate the new channel in a
 fresh Guix profile before migrating. Keep signature verification enabled.
 

@@ -546,7 +546,11 @@ Todos utilizam a mesma introdução do canal.
 | Principal | [git.securityops.com.br](https://git.securityops.com.br/cristiancmoises/securityops-channel) |
 | Espelho | [git.securityops.co](https://git.securityops.co/cristiancmoises/securityops-channel) |
 | Espelho | [Codeberg](https://codeberg.org/berkeley/securityops-channel) |
-| Espelho | [GitHub](https://github.com/cristiancmoises/securityops-channel) |
+| Espelho (branch autenticada) | [GitHub](https://github.com/cristiancmoises/securityops-channel), `packages/matlivre-authenticated` |
+
+Para autenticação das assinaturas do Guix no GitHub, configure a branch
+`packages/matlivre-authenticated`; a `main` padrão do GitHub contém commits sem
+assinatura e não autentica pela introdução acima.
 
 ## Manutenção e autenticação
 
@@ -565,8 +569,9 @@ O Guix verifica as assinaturas ao atualizar o canal.
 Em 23/10/2026, documentos internos foram removidos do histórico. A chave de
 assinatura permanece a mesma, mas os commits e a introdução mudaram. Atualize
 as declarações existentes para a introdução acima. Troque os pins
-`(commit "...")` antigos por uma revisão do novo histórico, ou remova o pin
-para acompanhar `main`. Gerações antigas podem
+`(commit "...")` antigos por uma revisão do novo histórico, ou remova o pin para
+acompanhar a branch configurada. No GitHub, use
+`packages/matlivre-authenticated`, não a `main` padrão. Gerações antigas podem
 recusar a nova ancestralidade; valide o canal em um perfil Guix novo antes
 da migração. Mantenha a verificação de assinaturas habilitada.
 
