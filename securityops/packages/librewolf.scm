@@ -82,7 +82,7 @@
                (string-append "export LD_LIBRARY_PATH=\""
                               #$nss-rapid-3.129 "/lib/nss:"
                               #$nspr-4.40 "/lib:")))
-            ;; Firefox 157's combined probe dlopens these libraries.  Without
+            ;; The browser's combined probe dlopens these libraries.  Without
             ;; this wrapper the native Guix probe reports "libpci missing".
             (unless (file-exists? probe)
               (error "LibreWolf graphics probe is missing" probe))

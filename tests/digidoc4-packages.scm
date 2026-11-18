@@ -1,6 +1,9 @@
 ;;; SPDX-License-Identifier: GPL-3.0-or-later
 (define-module (tests digidoc4-packages))
-(use-modules (guix packages) (guix git-download) (srfi srfi-64))
+(use-modules (guix packages)
+             (guix git-download)
+             ((gnu packages nss) #:prefix nss:)
+             (srfi srfi-64))
 
 (define (run-tests)
   (test-begin "digidoc4-packages")
@@ -17,8 +20,9 @@
         "4.5.1" (package-version (lookup-package-input desktop "libdigidocpp")))
       (test-equal "desktop and signature library share the current XML ABI"
         "2.15.4" (package-version (lookup-package-input desktop "libxml2")))
-      (test-equal "current Mozilla certificate data"
-        "3.129" (package-version (lookup-package-input desktop "nss-certs")))
+      (test-equal "certificate data tracks the current rapid release"
+        (package-version nss:nss-rapid)
+        (package-version (lookup-package-input desktop "nss-certs")))
       (test-assert "package cannot graft an older desktop"
         (not (package-replacement desktop)))))
   (let ((runner (test-runner-current)))

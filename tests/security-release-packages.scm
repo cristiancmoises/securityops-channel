@@ -18,6 +18,15 @@
      (lookup-package-input
       (lookup-package-input a:ausweisapp "qtdeclarative")
       "qtlanguageserver")))
+  (for-each
+    (lambda (name)
+      (test-equal (string-append "AusweisApp " name " uses Qt 6.9.2")
+        "6.9.2"
+        (package-version (lookup-package-input a:ausweisapp name))))
+    '("qtscxml" "qtshadertools" "qtwayland" "qtwebsockets"))
+  (test-equal "AusweisApp Qt tools use 6.9.2"
+    "6.9.2"
+    (package-version (lookup-package-native-input a:ausweisapp "qttools")))
   (test-equal "Tor stable" "0.4.9.16" (package-version t:tor))
   (test-assert "no conflicting regular radare2 dependency"
     (let ((library (lookup-package-input s:radare2 "sdb")))

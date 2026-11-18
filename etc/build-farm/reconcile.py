@@ -75,8 +75,11 @@ def reconcile(inventory_text, jobs_json, builds, system):
         if (
             not isinstance(build, dict)
             or build.get("id") != job["build"]
-            or build.get("job") != job_name
             or build.get("system") != system
+            or (
+                build.get("job") != job_name
+                and build.get("jobset") in (None, "securityops")
+            )
         ):
             metadata_mismatch.append(identity)
         elif build.get("nixname") != f"{name}-{version}":

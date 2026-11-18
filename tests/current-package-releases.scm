@@ -2,6 +2,7 @@
 ;;; Run: guix repl -L . tests/current-package-releases.scm
 (define-module (tests current-package-releases))
 (use-modules (guix packages)
+             (guix base32)
              (guix utils)
              (srfi srfi-64)
              ((securityops packages audio) #:prefix audio:)
@@ -33,10 +34,20 @@
     (package-version tor:tor))
   (test-equal "Tor Browser stable" "16.0.1"
     (package-version tor:torbrowser))
-  (test-assert "Tor Browser satisfies the Firefox 153 ICU minimum"
-    (version>=? (package-version
-                 (lookup-package-input tor:torbrowser "icu4c"))
-                "78.1"))
+  ;; Tor Browser's pinned source bundles ICU 78.3 in intl/icu/source.
+  ;; Verify the exact archive and digest rather than looking for a system
+  ;; input that make-torbrowser does not expose.
+  (let ((source (package-source tor:torbrowser)))
+    (test-equal "Tor Browser pins the source with bundled ICU 78.3"
+      (string-append
+       "https://archive.torproject.org/tor-package-archive/torbrowser/"
+       "16.0.1/src-firefox-tor-browser-153.7.0esr-16.0-1-build2.tar.xz")
+      (origin-uri source))
+    (test-equal "Tor Browser source digest pins bundled ICU 78.3"
+      "1g1mdqk0nxl2v8pn014ym211fx0l43x4gwrs133aqn8wi5fn91dx"
+      (bytevector->nix-base32-string (content-hash-value (origin-hash source))))
+    (test-assert "Tor Browser does not claim an unused system ICU input"
+      (not (lookup-package-input tor:torbrowser "icu4c"))))
   (test-equal "Tor Browser assets match" "16.0.1"
     (package-version tor:torbrowser-assets))
   (test-equal "yt-dlp stable" "2026.10.26"
