@@ -586,7 +586,7 @@ class FarmSiteTests(unittest.TestCase):
             self.assertEqual(data["total"], 3)
             self.assertNotIn("root_drv", data)
             self.assertNotIn(
-                "/home/berkeley", (current / "explore/data.json").read_text()
+                str(Path.home()), (current / "explore/data.json").read_text()
             )
 
     def test_channel_active_shared_output_is_building_on_clean_home_page(self):

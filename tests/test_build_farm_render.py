@@ -86,7 +86,7 @@ class RenderTests(unittest.TestCase):
         self.assertIn("Home", english)
         self.assertIn('<span class="source-badge">System</span>', english)
         self.assertIn(shared, english)
-        self.assertNotIn("/home/berkeley", english)
+        self.assertNotIn(str(Path.home()), english)
         self.assertNotIn("<script", english.lower())
         self.assertIn("If this heartbeat is over 24 hours old", english)
         portuguese = render.render_source_pages(

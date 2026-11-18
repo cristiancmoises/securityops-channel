@@ -70,7 +70,9 @@
 (test-begin "einvoicing")
 (define runner (test-runner-current))
 (test-assert "builder cannot see the user home"
-  (not (file-exists? "/home/berkeley")))
+  (or (not (file-exists? "/home"))
+      (null? (scandir "/home" (lambda (entry)
+                                (not (member entry '("." ".."))))))))
 (test-assert "builder runs without root authority" (not (zero? (getuid))))
 (let* ((network (read-text "/proc/net/dev"))
        (interfaces (filter-map

@@ -80,7 +80,7 @@ class CatalogTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             catalog.parse_manifest(duplicate, NOW)
         invalid = manifest()
-        invalid["private_config"] = "/home/berkeley/.config/guix/home.scm"
+        invalid["private_config"] = "/home/example-user/.config/guix/home.scm"
         with self.assertRaises(ValueError):
             catalog.parse_manifest(payload(invalid), NOW)
         invalid = manifest("extras")
@@ -89,7 +89,7 @@ class CatalogTests(unittest.TestCase):
 
     def test_rejects_invalid_paths_entry_fields_and_partial_catalog(self):
         for bad_path in (
-            "/home/berkeley/example",
+            "/home/example-user/example",
             f"/gnu/store/{HASH_A}-../evil",
             f"/gnu/store/{HASH_A}-example/evil",
         ):
@@ -195,7 +195,7 @@ class CatalogTests(unittest.TestCase):
         }
         with self.assertRaises(ValueError):
             catalog.parse_activity(payload(activity), NOW)
-        activity["active_outputs"] = ["/home/berkeley/secret"]
+        activity["active_outputs"] = ["/home/example-user/secret"]
         with self.assertRaises(ValueError):
             catalog.parse_activity(payload(activity), NOW)
         activity["active_outputs"] = [{"path": PATH_A}]

@@ -14,7 +14,11 @@ fi
 
 base=/run/current-system/profile/etc/apparmor.d
 profile=$base/guix-daemon
-patch_file=/home/berkeley/guix-config/predator-helios-intel/apparmor/guix-daemon-offload.patch
+patch_file=${SECURITYOPS_OFFLOAD_PATCH:-/etc/guix/guix-daemon-offload.patch}
+if [ ! -r "$patch_file" ]; then
+  echo "Set SECURITYOPS_OFFLOAD_PATCH to the AppArmor patch or install it in /etc/guix." >&2
+  exit 1
+fi
 real_profile=$(readlink -f "$profile")
 stage=$(mktemp -d /var/tmp/guix-offload-apparmor.XXXXXXXX)
 cleanup() {
