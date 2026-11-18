@@ -3,20 +3,33 @@
 
 (define-module (securityops packages mirim)
   #:use-module (guix packages)
+  #:use-module (guix git-download)
   #:use-module (guix gexp)
   #:use-module (guix utils)
   #:use-module (guix build-system gnu)
+  #:use-module (gnu packages python)
   #:use-module (gnu packages rust)
+  #:use-module (securityops packages mirim-crates)
   #:use-module ((guix licenses) #:prefix license:))
 
-;;; mirim 1.1.1 CLI and signing tool, built from tagged sources with offline
-;;; Cargo dependencies.  Source: 5a8f90cc2d3b627c31777671815befc8c119631f.
-;;; Keep vendor files unchanged so Cargo can verify their original checksums.
+(define %mirim-cargo-vendor-helper
+  (local-file (canonicalize-path
+               (search-path %load-path
+                            "securityops/packages/aux-files/guixvis-vendor.py"))))
+
 (define-public mirim
   (package
     (name "mirim")
     (version "1.1.1")
-    (source (local-file "sources/mirim-1.1.1-source.tar.gz"))
+    (source
+     (origin
+       (method git-fetch)
+       (uri (git-reference
+             (url "https://codeberg.org/berkeley/mirim")
+             (commit "5a8f90cc2d3b627c31777671815befc8c119631f")))
+       (file-name (git-file-name name version))
+       (sha256
+        (base32 "0zs6701ji0fwd5bhmzrfswqyiwks4d2b68lrwb2m5jkpk50qw83x"))))
     (build-system gnu-build-system)
     (arguments
      (list
@@ -28,16 +41,32 @@
           (delete 'patch-generated-file-shebangs)
           (replace 'configure
             (lambda* (#:key inputs #:allow-other-keys)
-              (invoke "tar" "xf" (assoc-ref inputs "vendor"))
+              (apply invoke "python3"
+                     #$%mirim-cargo-vendor-helper
+                     (map cdr
+                          (filter (lambda (input)
+                                    (string-prefix? "crate-" (car input)))
+                                  inputs)))
+              (mkdir-p ".cargo")
+              (call-with-output-file ".cargo/config.toml"
+                (lambda (port)
+                  (display "[source.crates-io]
+replace-with = 'vendored-sources'
+[source.vendored-sources]
+directory = 'vendor'
+" port)))
               (setenv "CARGO_HOME" (string-append (getcwd) "/.cargo"))
+              (setenv "CARGO_BUILD_JOBS" (number->string (parallel-job-count)))
               (setenv "CC" #$(cc-for-target))))
           (replace 'build
             (lambda _
-              (invoke "cargo" "build" "--frozen" "--release" "--features" "sign")))
+              (invoke "cargo" "build" "--frozen" "--offline" "--release"
+                      "--features" "sign")))
           (replace 'check
             (lambda* (#:key tests? #:allow-other-keys)
               (when tests?
-                (invoke "cargo" "test" "--frozen" "--features" "sign"))))
+                (invoke "cargo" "test" "--frozen" "--offline"
+                        "--features" "sign"))))
           (replace 'install
             (lambda _
               (let ((bin (string-append #$output "/bin"))
@@ -51,9 +80,10 @@
                 (copy-recursively "docs" (string-append doc "/docs"))
                 (copy-recursively "samples" (string-append doc "/samples"))))))))
     (native-inputs
-     `(("rust" ,rust)
-       ("rust:cargo" ,rust "cargo")
-       ("vendor" ,(local-file "sources/mirim-1.1.1-vendor.tar.gz"))))
+     (append `(("rust" ,rust)
+               ("rust:cargo" ,rust "cargo")
+               ("python" ,python))
+             mirim-crates))
     (supported-systems '("x86_64-linux"))
     (home-page "https://mirim.securityops.co")
     (synopsis "Encrypted embedded SQL database with post-quantum exports")

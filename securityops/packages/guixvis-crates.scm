@@ -2,20 +2,8 @@
 ;;; Registry sources from GuixVis 0.10.0 Cargo.lock.
 
 (define-module (securityops packages guixvis-crates)
-  #:use-module (guix base16)
-  #:use-module ((guix build-system cargo) #:select (crate-uri))
-  #:use-module (guix download)
-  #:use-module (guix packages)
+  #:use-module (securityops packages cargo-crates)
   #:export (guixvis-crates))
-
-(define (crate name version checksum)
-  (let ((id (string-append name "-" version)))
-    (list (string-append "crate-" id)
-          (origin
-            (method url-fetch)
-            (uri (crate-uri name version))
-            (file-name (string-append id ".crate"))
-            (sha256 (base16-string->bytevector checksum))))))
 
 (define guixvis-crates
   (list
